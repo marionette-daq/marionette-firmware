@@ -1,0 +1,77 @@
+
+
+Wed 25 June 2014 10:19:45 (PDT)
+
+
+Create stupid DSL?
+	command:subcommand:...:...(value, value, value, value)
+	SPI:configure:CPOL(regval)
+	SPI:read(prefixval, prefixnumbytes, readnumbytes)
+
+TEST
+	Mode switch
+		testing/non-testing
+	Verbose
+
+ADMIN
+	Reset
+	Enable Watchdog
+	Read Serial Number
+	Status
+
+GPIO
+	Set Value
+		High
+	Clear
+		Low
+	Direction
+	EE
+		PU
+		PD
+		PUSHPULL
+		FLOAT
+
+	configure
+	echo config
+
+	List available for board
+		List already allocated
+
+
+SPI
+	read
+		N bytes
+			limit?
+	write
+		N bytes
+			limit?
+	configure
+	echo config
+
+I2C
+	read
+		N bytes
+			limit?
+	write
+		N bytes
+			limit?
+
+	configure
+	echo config
+
+ADC
+	read
+		voltage
+			range?
+
+	configure
+	echo config
+Need structure to maintain state of settings for query.
+	separate 'state' module with query
+		avoid global state
+
+
+
+
+
+
