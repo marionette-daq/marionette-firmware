@@ -9,7 +9,7 @@
 /* GIT_COMMIT_VERSION is inserted by the build system, generated in
  * common/marionette.mk
  */
-void version(struct VERSIONData * ver_data)
+void util_version(struct VERSIONData * ver_data)
 {
 #ifndef GIT_COMMIT_VERSION
 #define GIT_COMMIT_VERSION "Unknown"

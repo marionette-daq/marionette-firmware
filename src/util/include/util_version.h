@@ -11,7 +11,7 @@ typedef struct VERSIONData
 	char byte[MAX_VERSION_LENGTH];
 } VERSIONData;
 
-void version(struct VERSIONData * ver_data);
+void util_version(struct VERSIONData * ver_data);
 
 #endif
 
