@@ -15,6 +15,7 @@ Firmware for an interactive configurable DAQ board.
 
 # Interfaces
 
+* GPIO
 * I2C
 * SPI
 * ADC
