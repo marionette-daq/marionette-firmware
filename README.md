@@ -3,9 +3,11 @@ marionette
 
 **Configurable Data Acquisition Board Firmware**
 
-Processor: STM32F407
-OS: ChibiOS  https://github.com/ChibiOS/ChibiOS-RT
-Submodule: ChibiOS, branch 2.6.x
+* Processor: STM32F407
+
+* OS: ChibiOS  https://github.com/ChibiOS/ChibiOS-RT
+
+* Submodule: ChibiOS, branch 2.6.x
 
 # Description
 
