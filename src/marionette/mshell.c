@@ -33,7 +33,7 @@
 #include "util_version.h"
 #include "util_general.h"
 
-static      VERSIONData     firmware_version;
+static      VERSIONData     version_data;
 static      char            prompt[SHELL_MAX_PROMPT_LENGTH];
 
 /**
@@ -76,6 +76,18 @@ static void list_commands(BaseSequentialStream * chp, const ShellCommand * scp)
 	}
 }
 
+//static void cmd_version(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
+//{
+	//util_fwversion(&version_data);
+	//chprintf(chp, "Firmware Version:   %s\r\n", version_data.firmware);
+	////util_chipversion
+	//if(argc > 0)
+	//{
+		//usage(chp, "version");
+		//return;
+	//}
+		//chprintf(chp, "%s ", scp->sc_name);
+//}
 static void cmd_prompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
 {
 	if(argc > 0)
@@ -85,7 +97,6 @@ static void cmd_prompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSE
 	}
 	strncpy(prompt, "m > ", SHELL_MAX_PROMPT_LENGTH);
 }
-
 static void cmd_noprompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
 {
 	if(argc > 0)
@@ -102,14 +113,14 @@ static void cmd_info(BaseSequentialStream * chp, int argc, char * argv[])
 {
 	(void)argv;
 
-	util_version(&firmware_version);
+	util_fwversion(&version_data);
 
 	if (argc > 0)
 	{
 		usage(chp, "info");
 		return;
 	}
-	chprintf(chp, "Firmware Version:   %s\r\n", firmware_version.byte);
+	chprintf(chp, "Firmware Version:   %s\r\n", version_data.firmware);
 	chprintf(chp, "Kernel:       %s\r\n", CH_KERNEL_VERSION);
 #ifdef CH_COMPILER_NAME
 	chprintf(chp, "Compiler:     %s\r\n", CH_COMPILER_NAME);

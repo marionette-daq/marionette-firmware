@@ -105,9 +105,9 @@ static const ShellConfig shell_cfg1 =
 	commands
 };
 
-/*===========================================================================*/
-/* Accelerometer related.                                                    */
-/*===========================================================================*/
+/*
+ * Accelerometer related. 
+ */
 
 /*
  * PWM configuration structure.

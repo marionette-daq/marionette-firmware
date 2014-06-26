@@ -4,7 +4,7 @@ marionette
 
 # Description
 
-Firmware source for the marionette interactive data aquisistion board (DAQ). 
+Firmware source for the marionette interactive data acquisition board (DAQ). 
 
 
 # ChibiOS configuration
