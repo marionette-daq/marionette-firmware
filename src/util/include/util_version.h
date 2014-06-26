@@ -6,7 +6,11 @@
 
 #include <stdint.h>
 
-#define         MAX_FW_VERSION_LENGTH              50
+#define         MAX_FW_VERSION_LENGTH       50
+
+#define         STM32F4_UNIQUE_ID_LOW       ((uint32_t)0x1FFF7A10) 
+#define         STM32F4_UNIQUE_ID_CENTER    ((uint32_t)0x1FFF7A14) 
+#define         STM32F4_UNIQUE_ID_HIGH      ((uint32_t)0x1FFF7A18) 
 
 typedef struct HW_Version {
 	uint32_t id_high; 
