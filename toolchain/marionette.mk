@@ -14,7 +14,7 @@ else
 INDEX_DIRTY =
 endif
 
-VERSION_PREFIX =
+VERSION_PREFIX = git-
 
 MARIONETTE_VERSION = "\"$(VERSION_PREFIX)`git rev-parse --short HEAD`$(INDEX_DIRTY)\""
 
