@@ -24,7 +24,9 @@ void util_fwversion(struct VERSIONData * ver_data)
  */
 void util_hwversion(struct VERSIONData * ver_data)
 {
-		ver_data->hardware.id_low = 0x1fff7a10;
+		ver_data->hardware.id_low    = STM32F4_UNIQUE_ID_LOW;
+		ver_data->hardware.id_center = STM32F4_UNIQUE_ID_CENTER;
+		ver_data->hardware.id_high   = STM32F4_UNIQUE_ID_HIGH;
 
 }
 
