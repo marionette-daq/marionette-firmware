@@ -76,18 +76,19 @@ static void list_commands(BaseSequentialStream * chp, const ShellCommand * scp)
 	}
 }
 
-//static void cmd_version(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
-//{
-	//util_fwversion(&version_data);
-	//chprintf(chp, "Firmware Version:   %s\r\n", version_data.firmware);
-	////util_chipversion
-	//if(argc > 0)
-	//{
-		//usage(chp, "version");
-		//return;
-	//}
-		//chprintf(chp, "%s ", scp->sc_name);
-//}
+static void cmd_version(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
+{
+	util_fwversion(&version_data);
+	util_hwversion(&version_data);
+	chprintf(chp, "Firmware Version:   %s\r\n", version_data.firmware);
+	chprintf(chp, "Hardware Version:   %u-%u-%u\r\n", version_data.hardware.id_high, version_data.hardware.id_center, version_data.hardware.id_low);
+	if(argc > 0)
+	{
+		usage(chp, "version");
+		return;
+	}
+}
+
 static void cmd_prompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
 {
 	if(argc > 0)
@@ -165,6 +166,7 @@ static ShellCommand local_commands[] =
 	{"systime", cmd_systime},
 	{"prompt", cmd_prompt},
 	{"noprompt", cmd_noprompt},
+	{"version", cmd_version},
 	{NULL, NULL}
 };
 
