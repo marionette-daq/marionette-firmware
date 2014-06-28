@@ -98,8 +98,10 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/various/devices_lib/accel/lis302dl.c \
        $(CHIBIOS)/os/various/chprintf.c \
        $(MARIONETTE_UTIL)/util_version.c \
+       fetch.c \
        mshell.c \
-       usbcfg.c main.c
+       usbcfg.c \
+       main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.

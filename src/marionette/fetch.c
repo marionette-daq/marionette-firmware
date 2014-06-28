@@ -1,12 +1,17 @@
 /*! \file fetch.c
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+
+#include "fetch.h"
+
 
 /* A very simple command language to configure the marionette. */
 
-/* 
+/*
 
-  Commands are deliniated by ':' and '(' and ')' 
+  Commands are deliniated by ':' and '(' and ')'
   They are read from left to right.
 
   Let's just do lower case only for now.
@@ -32,5 +37,14 @@ adc:configure:....
 
 
 */
+HELP_command_dictionary     help_lookup = { .enabled = true, .max_data_bytes = 0, .helpstring = HELP_HELPSTRING};
+GPIO_command_dictionary     gpio_lookup = { .enabled = true, .max_data_bytes = 0, .helpstring = GPIO_HELPSTRING};
+
+
+// GPIO subcommand A
+
+
+// ADC subcommand A
+
 
 
