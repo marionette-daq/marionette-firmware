@@ -32,6 +32,7 @@
 #include "chprintf.h"
 #include "util_version.h"
 #include "util_general.h"
+#include "fetch.h"
 
 static      VERSIONData     version_data;
 static      char            prompt[SHELL_MAX_PROMPT_LENGTH];
@@ -252,6 +253,7 @@ static msg_t shell_thread(void * p)
 					list_commands(chp, scp);
 				}
 				chprintf(chp, "\r\n");
+				fetch_info(chp);
 			}
 			else if (cmdexec(local_commands, chp, cmd, n, args) &&
 			                ((scp == NULL) || cmdexec(scp, chp, cmd, n, args)))

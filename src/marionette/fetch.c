@@ -1,50 +1,71 @@
 /*! \file fetch.c
+ * Fetch: A very simple command language for the Marionette firmware.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "hal.h"
+#include "chprintf.h"
 #include "fetch.h"
 
+/************************************************************
+BNF Outline for the Fetch Language Grammar
 
-/* A very simple command language to configure the marionette. */
+(N,∑,P,S)
 
-/*
+N - Non-terminals: { <statement>, <command>, <data>, <byte>, <constant> }
+∑ - Terminals:     { <command>, <gpio_subcommandA>, <port_subcommand>, <pin_subcommand>, <subcommandD>, <digit>, <EOL>, <whitespace>}
+P - Production Rules:
 
-  Commands are deliniated by ':' and '(' and ')'
-  They are read from left to right.
+<statement>        ::= <command> <EOL>
+                     | <command> ":" <gpio_subcommandA> ":" <port_subcommand> ":" <pin_subcommand> <EOL>
+                     | <command> ":" <adc_subcommandA> ":" <subcommandB> ":" <subcommandC> ":" <subcommandD> <data> <EOL>  
+<command>          ::= "gpio"  | "adc"   | "spi"   | "adc" | "resetpins"
+<gpio_subcommandA> ::= "set"   | "clear" | "configure" 
+<port_subcommand>  ::= "porta" | "portb" | "portc" | "portd" | "porte" | "portf" | "portg" | "porth" | "porti" |
+<pin_subcommand>   ::= "pin0"  | "pin1"  | "pin2"  | "pin3"  | "pin4"  | "pin5"  | "pin6"  | "pin7"
+				     | "pin8"  | "pin9"  | "pin10" | "pin11" | "pin12" | "pin13" | "pin14" | "pin15" | TBD
+<subcommandD>      ::= TBD
+<data>             ::= "(" <byte> ")"
+<byte>             ::= <constant>
+                     | <constant> <whitespace> <byte>
+<constant>         ::= <digit><digit>
+<digit>            ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "a" | "b" | "c" | "d" | "e"
+<EOL>              ::= "\n"
+<whitespace>       ::= " " | "\t"
 
-  Let's just do lower case only for now.
+S - Start Symbol: { <statement> }
 
+Comments: 
+A: This grammar is used to implement an imperitive language
 
-command:subcommand1:subcommand2:subcommand3:...:subcommandn(data1 data2 data3 ... dataN)
+B: This is a "Right Regular Grammar" 
 
-examples :
-spi1:configure:cr1:(0x123456)
-spi1:configure:cpol:(0x3)
-spi1:send:(<numbytes> <prefixbyte> 0x3 0x8 0x)
-spi1:get:(<numbytes> <prefixbyte> 0x3 0x8 0x)
-spi1:exchange:(<numbytes-write> <numbytes-read> <prefixbyte> <write-bytes>)
+Example:
+	command:subcommand1:subcommand2:subcommand3:...:subcommandn(data1 data2 data3 ... dataN)\n
+	gpio:set:portd:pin7\n
 
-gpio:set:portd:pin7()
-gpio:clear:portd:pin7()
-gpio:configure:portd:pin7:input()
-gpio:configure:portd:pin7:pullup()
-gpio:configure:portd:pin7:floating()
+***************************************************/
 
+static HELP_command_dictionary     help_lookup = { .enabled = true, .max_data_bytes = 0, .helpstring = HELP_HELPSTRING};
+static GPIO_command_dictionary     gpio_lookup = { .enabled = true, .max_data_bytes = 0, .helpstring = GPIO_HELPSTRING};
 
-adc:configure:....
+// All elements of the Terminal set (∑) have definitions here.
+static const char * commands[]         = {"?", "help", "gpio", "adc", "spi", "i2c"};  
+static const char * gpio_subcommandA[] = {"set", "clear", "configure"};
+static const char * port_subcommand[]  = {"porta", "portb", "portc", "portd", "porte", "portf", "portg", "porth", "porti" };
+static const char * pin_subcommand[]   = {"pin0", "pin1", "pin2", "pin3", "pin4", "pin5", "pin6", "pin7", "pin8", "pin9", "pin10", "pin11", "pin12", "pin13", "pin14", "pin15" };
+static const char * subcommandD[]      = {};
+static const char * digit[]            = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e"};
+static const char * EOL[]              = {"\n"};
+static const char * whitespace[]       = {" ", "\t"};
 
-
-*/
-HELP_command_dictionary     help_lookup = { .enabled = true, .max_data_bytes = 0, .helpstring = HELP_HELPSTRING};
-GPIO_command_dictionary     gpio_lookup = { .enabled = true, .max_data_bytes = 0, .helpstring = GPIO_HELPSTRING};
-
-
-// GPIO subcommand A
-
-
-// ADC subcommand A
+/* Help command implementation for fetch language */
+void fetch_info(BaseSequentialStream * chp) {
+	chprintf(chp, "\r\nFetch Commands Help:\r\n");
+	chprintf(chp, "%s\r\n", gpio_lookup.helpstring);
+}
 
 
 
