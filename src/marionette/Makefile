@@ -98,6 +98,7 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/various/devices_lib/accel/lis302dl.c \
        $(CHIBIOS)/os/various/chprintf.c \
        $(MARIONETTE_UTIL)/util_version.c \
+       $(MARIONETTE_UTIL)/util_strings.c \
        fetch.c \
        mshell.c \
        usbcfg.c \

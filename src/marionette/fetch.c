@@ -7,6 +7,8 @@
 
 #include "hal.h"
 #include "chprintf.h"
+
+#include "util_strings.h"
 #include "fetch.h"
 
 /************************************************************
@@ -21,7 +23,7 @@ P - Production Rules:
 <statement>        ::= <command> <EOL>
                      | <command> ":" <gpio_subcommandA> ":" <port_subcommand> ":" <pin_subcommand> <EOL>
                      | <command> ":" <adc_subcommandA> ":" <subcommandB> ":" <subcommandC> ":" <subcommandD> <data> <EOL>  
-<command>          ::= "gpio"  | "adc"   | "spi"   | "adc" | "resetpins"
+<command>          ::= "?"     | "help"  | "gpio"  | "adc"   | "spi"   | "adc" | "resetpins"
 <gpio_subcommandA> ::= "set"   | "clear" | "configure" 
 <port_subcommand>  ::= "porta" | "portb" | "portc" | "portd" | "porte" | "portf" | "portg" | "porth" | "porti" |
 <pin_subcommand>   ::= "pin0"  | "pin1"  | "pin2"  | "pin3"  | "pin4"  | "pin5"  | "pin6"  | "pin7"
@@ -52,7 +54,7 @@ static HELP_command_dictionary     help_lookup = { .enabled = true, .max_data_by
 static GPIO_command_dictionary     gpio_lookup = { .enabled = true, .max_data_bytes = 0, .helpstring = GPIO_HELPSTRING};
 
 // All elements of the Terminal set (∑) have definitions here.
-static const char * commands[]         = {"?", "help", "gpio", "adc", "spi", "i2c"};  
+static const char * commands[]         = {"?", "help", "gpio", "adc", "spi", "i2c", "resetpins"};  
 static const char * gpio_subcommandA[] = {"set", "clear", "configure"};
 static const char * port_subcommand[]  = {"porta", "portb", "portc", "portd", "porte", "portf", "portg", "porth", "porti" };
 static const char * pin_subcommand[]   = {"pin0", "pin1", "pin2", "pin3", "pin4", "pin5", "pin6", "pin7", "pin8", "pin9", "pin10", "pin11", "pin12", "pin13", "pin14", "pin15" };
@@ -66,6 +68,28 @@ void fetch_info(BaseSequentialStream * chp) {
 	chprintf(chp, "\r\nFetch Commands Help:\r\n");
 	chprintf(chp, "%s\r\n", gpio_lookup.helpstring);
 }
+
+bool fetch_exec(BaseSequentialStream chp, char * inputline)
+{
+	char * lp, *cmd, *tokp;
+
+	//if(strchr(command_line, ':') == NULL) {
+	//lp           = _strtok(command_line, " \t", &tokp);
+	//cmd          = lp;
+	//strtok
+	//while ((lp = _strtok(NULL, " \t", &tokp)) != NULL)
+	//{
+
+
+
+
+	//}
+	return TRUE;
+}
+
+
+
+
 
 
 
