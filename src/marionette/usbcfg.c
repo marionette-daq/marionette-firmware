@@ -305,15 +305,19 @@ char to_hex_char(uint8_t v) {
 	if (v < 10) {
 		return ('0' + v);
 	} else {
-		return ('a' + (v - 10));
+		return ('A' + (v - 10));
 	}
 }
 
 /**
  *
  */
-void usb_serial_strings(const uint8_t src[12]) {
-	//FIXME 12 hard coded for the 96 bit number is not enforced or limited in the code loop below.
+void usb_set_serial_strings(const uint32_t high, const uint32_t mid, const uint32_t low) {
+	uint8_t src[sizeof(high) + sizeof(mid) + sizeof(low)];
+	memcpy(&src[0], &high, sizeof(high));
+	memcpy(&src[sizeof(high)], &mid, sizeof(mid));
+	memcpy(&src[sizeof(high) + sizeof(mid)], &low, sizeof(low));
+
 	uint32_t src_idx = 0;
 	uint32_t dest_idx = 2;
 	for (; dest_idx < sizeof(vcom_string3); dest_idx += 2) {

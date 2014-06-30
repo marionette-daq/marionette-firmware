@@ -22,6 +22,7 @@
 #include "shell.h"
 #include "lis302dl.h"
 
+#include "util_version.h"
 #include "usbcfg.h"
 
 /* Virtual serial port over USB.*/
@@ -252,6 +253,9 @@ int main(void)
 	/*
 	 * Initializes a serial-over-USB CDC driver.
 	 */
+	static VERSIONData version_data;
+	util_hwversion(&version_data);
+	usb_set_serial_strings(version_data.hardware.id_high, version_data.hardware.id_center, version_data.hardware.id_low);
 	sduObjectInit(&SDU1);
 	sduStart(&SDU1, &serusbcfg);
 	/*
