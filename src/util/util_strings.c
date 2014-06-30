@@ -24,6 +24,7 @@
 #include "ch.h"
 #include "hal.h"
 
+#include "chprintf.h"
 #include <string.h>
 #include "util_strings.h"
 
@@ -31,6 +32,7 @@
  */
 char * _strtok(char * str, const char * delim, char ** saveptr)
 {
+	
 	char * token;
 	if (str)
 	{

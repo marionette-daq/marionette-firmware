@@ -32,7 +32,7 @@ SerialUSBDriver SDU1;
 /* Command line related.                                                     */
 /*===========================================================================*/
 
-#define SHELL_WA_SIZE   THD_WA_SIZE(2048)
+#define SHELL_WA_SIZE   THD_WA_SIZE(4096)
 #define TEST_WA_SIZE    THD_WA_SIZE(256)
 
 static void cmd_mem(BaseSequentialStream * chp, int argc, char * argv[])

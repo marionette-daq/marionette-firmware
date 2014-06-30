@@ -99,6 +99,7 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/various/chprintf.c \
        $(MARIONETTE_UTIL)/util_version.c \
        $(MARIONETTE_UTIL)/util_strings.c \
+       $(MARIONETTE_UTIL)/util_messages.c \
        fetch.c \
        mshell.c \
        usbcfg.c \
@@ -216,7 +217,7 @@ DLIBS =
 # List all user C define here, like -D_DEBUG=1
 #UDEFS =
 UDEFS = -DGIT_COMMIT_VERSION=$(MARIONETTE_VERSION)
-
+UDEFS += -DDBG_MSG_ENABLE=1
 
 # Define ASM defines here
 UADEFS =

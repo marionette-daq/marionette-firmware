@@ -253,7 +253,7 @@ static msg_t shell_thread(void * p)
 		{
 			strncpy(command_line, &input_line[0], SHELL_MAX_LINE_LENGTH);
 			chprintf(chp, "%s\r\n", command_line);
-			fetch_exec(chp, command_line);
+			fetch_parse(chp, command_line);
 		}
 	}
 	shellExit(RDY_OK);
