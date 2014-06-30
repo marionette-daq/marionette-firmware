@@ -17,6 +17,7 @@
 #include "ch.h"
 #include "hal.h"
 
+#include <string.h>
 /*
  * Endpoints to be used for USBD1.
  */
