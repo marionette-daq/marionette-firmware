@@ -17,6 +17,7 @@
 #include "ch.h"
 #include "hal.h"
 
+#include <string.h>
 /*
  * Endpoints to be used for USBD1.
  */
@@ -33,8 +34,8 @@ static const uint8_t vcom_device_descriptor_data[18] = {
                          0x00,          /* bDeviceSubClass.                 */
                          0x00,          /* bDeviceProtocol.                 */
                          0x40,          /* bMaxPacketSize.                  */
-                         0x0483,        /* idVendor (ST).                   */
-                         0x5740,        /* idProduct.                       */
+                         0x224F,        /* idVendor (APDM).                   */
+                         0xFF00,        /* idProduct.                       */
                          0x0200,        /* bcdDevice.                       */
                          1,             /* iManufacturer.                   */
                          2,             /* iProduct.                        */
@@ -148,28 +149,25 @@ static const uint8_t vcom_string0[] = {
  * Vendor string.
  */
 static const uint8_t vcom_string1[] = {
-  USB_DESC_BYTE(38),                    /* bLength.                         */
+  USB_DESC_BYTE(10),                    /* bLength.                         */
   USB_DESC_BYTE(USB_DESCRIPTOR_STRING), /* bDescriptorType.                 */
-  'S', 0, 'T', 0, 'M', 0, 'i', 0, 'c', 0, 'r', 0, 'o', 0, 'e', 0,
-  'l', 0, 'e', 0, 'c', 0, 't', 0, 'r', 0, 'o', 0, 'n', 0, 'i', 0,
-  'c', 0, 's', 0
+  'A', 0, 'P', 0, 'D', 0, 'M', 0
 };
 
 /*
  * Device Description string.
  */
 static const uint8_t vcom_string2[] = {
-  USB_DESC_BYTE(56),                    /* bLength.                         */
+  USB_DESC_BYTE(22),                    /* bLength.                         */
   USB_DESC_BYTE(USB_DESCRIPTOR_STRING), /* bDescriptorType.                 */
-  'C', 0, 'h', 0, 'i', 0, 'b', 0, 'i', 0, 'O', 0, 'S', 0, '/', 0,
-  'R', 0, 'T', 0, ' ', 0, 'V', 0, 'i', 0, 'r', 0, 't', 0, 'u', 0,
-  'a', 0, 'l', 0, ' ', 0, 'C', 0, 'O', 0, 'M', 0, ' ', 0, 'P', 0,
-  'o', 0, 'r', 0, 't', 0
+  'M', 0, 'a', 0, 'r', 0, 'i', 0, 'o', 0, 'n', 0, 'e', 0, 't', 0,
+  't', 0, 'e', 0
 };
 
 /*
  * Serial Number string.
  */
+#if 0
 static const uint8_t vcom_string3[] = {
   USB_DESC_BYTE(8),                     /* bLength.                         */
   USB_DESC_BYTE(USB_DESCRIPTOR_STRING), /* bDescriptorType.                 */
@@ -177,6 +175,15 @@ static const uint8_t vcom_string3[] = {
   '0' + CH_KERNEL_MINOR, 0,
   '0' + CH_KERNEL_PATCH, 0
 };
+#else
+static uint8_t vcom_string3[] = {
+  USB_DESC_BYTE(50),                    /* bLength.                         */
+  USB_DESC_BYTE(USB_DESCRIPTOR_STRING), /* bDescriptorType.                 */
+  '0', 0, '0', 0, '0', 0, '0', 0, '0', 0, '0', 0, '0', 0, '0', 0,
+  '0', 0, '0', 0, '0', 0, '0', 0, '0', 0, '0', 0, '0', 0, '0', 0,
+  '0', 0, '0', 0, '0', 0, '0', 0, '0', 0, '0', 0, '0', 0, '0', 0,
+};
+#endif
 
 /*
  * Strings wrappers array.
@@ -291,6 +298,37 @@ static void usb_event(USBDriver *usbp, usbevent_t event) {
     return;
   }
   return;
+}
+
+char to_hex_char(uint8_t v) {
+	v = (v & 0x0F);
+
+	if (v < 10) {
+		return ('0' + v);
+	} else {
+		return ('A' + (v - 10));
+	}
+}
+
+/**
+ *
+ */
+void usb_set_serial_strings(const uint32_t high, const uint32_t mid, const uint32_t low) {
+	uint8_t src[sizeof(high) + sizeof(mid) + sizeof(low)];
+	memcpy(&src[0], &high, sizeof(high));
+	memcpy(&src[sizeof(high)], &mid, sizeof(mid));
+	memcpy(&src[sizeof(high) + sizeof(mid)], &low, sizeof(low));
+
+	uint32_t src_idx = 0;
+	uint32_t dest_idx = 2;
+	for (; dest_idx < sizeof(vcom_string3); dest_idx += 2) {
+		vcom_string3[dest_idx] = to_hex_char(src[src_idx]);
+		dest_idx += 2;
+		if( dest_idx < sizeof(vcom_string3) ) {
+			vcom_string3[dest_idx] = to_hex_char(src[src_idx] >> 4);
+		}
+		src_idx++;
+	}
 }
 
 /*

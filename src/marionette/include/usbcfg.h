@@ -20,6 +20,8 @@
 extern const USBConfig usbcfg;
 extern SerialUSBConfig serusbcfg;
 
+void usb_set_serial_strings(const uint32_t high, const uint32_t mid, const uint32_t low);
+
 #endif  /* _USBCFG_H_ */
 
 /** @} */
