@@ -6,6 +6,11 @@
 #define FETCH_H_
 
 // Defines
+#define 		FETCH_MAX_COMMANDS 						8
+#define 		FETCH_MAX_DATA_ITEMS					8
+#define 		FETCH_MAX_LINE_CHARS					256
+
+#define 		HELP_MAX_DATA_BYTES 					0
 #define 		HELP_MAX_DATA_BYTES 					0
 #define         HELP_HELPSTRING                         "\r\n"
 
@@ -33,5 +38,6 @@ typedef struct gpio_command_dictionary
 
 // Functions
 void fetch_info(BaseSequentialStream * chp) ;
+bool fetch_exec(BaseSequentialStream* chp, char * inputline);
 
 #endif

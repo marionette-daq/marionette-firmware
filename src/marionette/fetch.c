@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "hal.h"
 #include "chprintf.h"
@@ -69,23 +70,65 @@ void fetch_info(BaseSequentialStream * chp) {
 	chprintf(chp, "%s\r\n", gpio_lookup.helpstring);
 }
 
-bool fetch_exec(BaseSequentialStream chp, char * inputline)
+bool fetch_exec(BaseSequentialStream* chp, char * inputline)
 {
-	char * lp, *cmd, *tokp;
+	int n = 0;
+	char localinput[FETCH_MAX_LINE_CHARS];
+	char * lp, *tokp;
+	char * colonpart;
+	char * parenpart;
+	char * command;
+	char * subcommands[FETCH_MAX_COMMANDS + 1];
+	char * data[FETCH_MAX_DATA_ITEMS + 1];
 
-	//if(strchr(command_line, ':') == NULL) {
-	//lp           = _strtok(command_line, " \t", &tokp);
-	//cmd          = lp;
-	//strtok
-	//while ((lp = _strtok(NULL, " \t", &tokp)) != NULL)
-	//{
+	// don't mess up the string from outside the function
+	strncpy(localinput, inputline, FETCH_MAX_LINE_CHARS);
+
+	// break up into two strings the colons part and the parens part
+	colonpart = _strtok(localinput, "(", &tokp);
+	parenpart = _strtok(NULL, "(", &tokp);
+	
+
+	chprintf(chp, "colonpart: %s\r\nparenpart: %s\r\n", colonpart, parenpart);
 
 
+/*
+ *    lp           = _strtok(inputline, ":", &tokp);
+ *    command      = lp;
+ *    n            = 0;
+ *    // Get all the ":" separated tokens
+ *    while ((lp = _strtok(NULL, ":", &tokp)) != NULL)
+ *    {
+ *        // get all the tokens separated by ":"
+ *        if (n >= STATEMENT_MAX_COMMANDS)
+ *        {
+ *            chprintf(chp, "too many commands\r\n");
+ *            command = NULL;
+ *            break;
+ *        }
+ *        statement[n++] = lp;
+ *    }
+ *    statement[n] = NULL;
+ *
+ *    // Test tokenizing
+ *    chprintf(chp, "%s\t\r\n", command);
+ *    for(n = 0; n < STATEMENT_MAX_COMMANDS + 1; ++n)
+ *    {
+ *        if(statement[n] == NULL)
+ *        {
+ *            break;
+ *        }
+ *        chprintf(chp, "\t%s\t ", statement[n]);
+ *    }
+ */
 
-
-	//}
+	chprintf(chp, "\r\n");
+	// check if last token contains '('
+	// if "(" then parse last token as data...
 	return TRUE;
 }
+
+
 
 
 
