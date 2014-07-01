@@ -192,6 +192,9 @@ static msg_t shell_thread(void * p)
 	chRegSetThreadName("mshell");
 	chprintf(chp, "\r\nMarionette Shell\r\n");
 
+	// initialize parser.
+	fetch_init_cmd_fns(chp) ;
+
 	while (TRUE)
 	{
 		chprintf(chp, "%s", prompt);
@@ -241,7 +244,6 @@ static msg_t shell_thread(void * p)
 					{
 						list_commands(chp, scp);
 					}
-					fetch_info(chp);
 				}
 				else if (cmdexec(local_commands, chp, cmd, n, args) &&
 				                ((scp == NULL) || cmdexec(scp, chp, cmd, n, args)))
@@ -255,7 +257,7 @@ static msg_t shell_thread(void * p)
 		{
 			strncpy(command_line, &input_line[0], SHELL_MAX_LINE_LENGTH);
 			if(!fetch_parse(chp, command_line)) {
-					DBG_MSG(chp, "Parse fail\r\n");
+					DBG_MSG(chp, "Parse fail.");
 			};
 		}
 	}

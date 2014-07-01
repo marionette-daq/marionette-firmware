@@ -37,7 +37,7 @@ typedef struct gpio_command_dictionary
 
 
 // Functions
-void fetch_info(BaseSequentialStream * chp) ;
+void fetch_init_cmd_fns(BaseSequentialStream * chp) ;
 bool fetch_parse(BaseSequentialStream* chp, char * inputline);
 bool fetch_dispatch(BaseSequentialStream* chp, char * command_list[], char * data_list[]);
 

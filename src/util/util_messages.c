@@ -18,7 +18,7 @@ void util_debugmsg(BaseSequentialStream * chp,  char * file, int line, const cha
 	va_list argList;
 	va_start(argList, format);
 	chvprintf(chp, format, argList);
-	chprintf(chp, "At: %s:%d:%s()\r\n", file, line, func);
+	chprintf(chp, "\tAt: %s:%d:%s()\r\n", file, line, func);
 	va_end(argList);
 }
 
