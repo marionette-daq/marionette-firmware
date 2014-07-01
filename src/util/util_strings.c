@@ -27,6 +27,19 @@
 #include "chprintf.h"
 #include <string.h>
 #include "util_strings.h"
+#include "util_general.h"
+
+
+/*! \brief return length of longest string 
+  */
+size_t get_longest_str_length(const char * s1, const char * s2, int max_length)
+{
+	size_t lens1  = strnlen(s1, max_length);
+	size_t lens2  = strnlen(s2, max_length);
+
+	return (max(lens1, lens2));
+}
+
 
 /*! \brief a version of strtok_r but STATIC  memory
  */

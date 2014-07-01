@@ -22,7 +22,7 @@ BNF Outline for the Fetch Language Grammar
 (N,∑,P,S)
 
 N - Non-terminals: { <statement>, <command>, <datastr>, <byte>, <constant> }
-∑ - Terminals:     { <command>, <gpio_subcommandA>, <port_subcommand>, <pin_subcommand>, <subcommandD>, <digit>, <EOL>, <whitespace>}
+∑ - Terminals:     { <command>, <gpio_subcommandA>, <gpio_direction>, <gpio_sense>, <port_subcommand>, <pin_subcommand>, <subcommandD>, <digit>, <EOL>, <whitespace>}
 P - Production Rules:
 
 <statement>        ::= <command> <EOL>
@@ -39,7 +39,7 @@ P - Production Rules:
 <pin_subcommand>   ::= "pin0"   | "pin1"     | "pin2"  | "pin3"  | "pin4"  | "pin5"  | "pin6"  | "pin7"
                                      | "pin8"   | "pin9"     | "pin10" | "pin11" | "pin12" | "pin13" | "pin14" | "pin15"
 <subcommandD>      ::= TBD
-<datastr>             ::= "(" <byte> ")"
+<datastr>          ::= "(" <byte> ")"
 <byte>             ::= <constant>
                      | <constant> <whitespace> <byte>
 <constant>         ::= <digit><digit>
@@ -70,6 +70,10 @@ static const char * command[]          = {"?", "help", "gpio", "adc", "spi", "i2
 static bool (*cmd_fns[NELEMS(command)]) (BaseSequentialStream * chp, char * l1[], char * l2[]);
 
 static const char * gpio_subcommandA[] = {"set", "clear", "configure"};
+// todo check valid commands on these Tue 01 July 2014 12:56:39 (PDT)
+static const char * gpio_direction[]   = {"input",  "output"};
+static const char * gpio_sense[]       = {"pullup", "pulldown", "floating", "analog"};
+// ^^ todo
 static const char * port_subcommand[]  = {"porta", "portb", "portc", "portd", "porte", "portf", "portg", "porth", "porti" };
 static const char * pin_subcommand[]   = {"pin0", "pin1", "pin2", "pin3", "pin4", "pin5", "pin6", "pin7", "pin8", "pin9", "pin10", "pin11", "pin12", "pin13", "pin14", "pin15" };
 static const char * subcommandD[]      = {};
@@ -100,6 +104,10 @@ static int fetch_is_valid_command(BaseSequentialStream * chp, char * chkcommand)
 	return -1;
 }
 
+/* todo
+ *static int fetch_is_valid_gpio_direction(BaseSequentialStream * chp, ...
+ *static int fetch_is_valid_gpio_sense(BaseSequentialStream * chp, ...
+ */
 static int fetch_is_valid_gpio_subcommandA(BaseSequentialStream * chp,
                 char * chkgpio_subcommandA)
 {
@@ -126,20 +134,12 @@ static int fetch_is_valid_port_subcommand(BaseSequentialStream * chp,
 	return -1;
 }
 
-static size_t get_longest_str_length(const char * s1, const char * s2)
-{
-	size_t lens1  = strnlen(s1, FETCH_MAX_CMD_STRLEN );
-	size_t lens2  = strnlen(s2, FETCH_MAX_CMD_STRLEN );
-
-	return (max(lens1, lens2));
-}
-
 static int fetch_is_valid_pin_subcommand(BaseSequentialStream * chp, char * chkpin_subcommand)
 {
 	size_t maxlen = 1;
 	for(int i = 0; i < ((int) NELEMS(pin_subcommand)); ++i)
 	{
-		maxlen = get_longest_str_length(pin_subcommand[i], chkpin_subcommand);
+		maxlen = get_longest_str_length(pin_subcommand[i], chkpin_subcommand, FETCH_MAX_CMD_STRLEN);
 		if (strncasecmp(pin_subcommand[i], chkpin_subcommand, maxlen ) == 0)
 		{
 			return i;
@@ -195,7 +195,6 @@ static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl
 
 static bool fetch_gpio(BaseSequentialStream  * chp, char * commandl[], char * datal[])
 {
-	DBG_VMSG(chp, "GPIO ...%s...", commandl[1]);
 	if(fetch_is_valid_gpio_subcommandA(chp, commandl[1]) >= 0)
 	{
 		if(fetch_is_valid_port_subcommand(chp, commandl[2]) >= 0)
@@ -357,7 +356,6 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
         \warning data_list[0] may be null.
 
         \sa fetch_init_cmd_fns
-
  */
 bool fetch_dispatch(BaseSequentialStream * chp, char * command_list[], char * data_list[])
 {

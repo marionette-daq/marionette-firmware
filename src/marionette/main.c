@@ -21,6 +21,7 @@
 #include "chprintf.h"
 #include "shell.h"
 #include "lis302dl.h"
+#include "board.h"
 
 #include "fetch.h"
 #include "util_version.h"
