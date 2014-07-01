@@ -16,10 +16,10 @@
 #define         HELP_HELPSTRING                         "\r\n"
 
 #define 		GPIO_MAX_DATA_BYTES 					0
-#define 		GPIO_HELPSTRING   					    ((const char *) "\r\n\tGPIO:<set,clear,configure>:port:pin")
+#define 		GPIO_HELPSTRING   					    ((const char *) "\r\n\tGPIO:\tgpio:<set,clear,configure>:port:pin:<input,output>:<pullup,pulldown,floating,analog>")
 
-#define 		GPIO_MAX_DATA_BYTES 					0
-#define 		GPIO_HELPSTRING   					    ((const char *) "\r\n\tGPIO:<set,clear,configure>:port:pin")
+#define 		RESETPINS_MAX_DATA_BYTES 				0
+#define 		RESETPINS_HELPSTRING   					((const char *) "\r\n\tRESETPINS:\tresetpins")
 
 // Support dictionaries
 typedef struct help_command_dictionary
@@ -36,6 +36,12 @@ typedef struct gpio_command_dictionary
 	const char  *  helpstring;
 } GPIO_command_dictionary;
 
+typedef struct resetpins_command_dictionary
+{
+	bool     	   enabled;
+	uint16_t 	   max_data_bytes;
+	const char  *  helpstring;
+} RESETPINS_command_dictionary;
 
 // Functions
 void fetch_init(BaseSequentialStream *  chp) ;

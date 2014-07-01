@@ -13,6 +13,7 @@
 #include "util_strings.h"
 #include "util_messages.h"
 #include "gpio.h"
+
 #include "fetch.h"
 
 /************************************************************
@@ -60,8 +61,9 @@ Example:
 
 ***************************************************/
 
-static HELP_command_dictionary     help_lookup = { .enabled = true, .max_data_bytes = 0, .helpstring = HELP_HELPSTRING};
-static GPIO_command_dictionary     gpio_lookup = { .enabled = true, .max_data_bytes = 0, .helpstring = GPIO_HELPSTRING};
+static HELP_command_dictionary          help_lookup = { .enabled = true, .max_data_bytes = 0, .helpstring = HELP_HELPSTRING};
+static GPIO_command_dictionary          gpio_lookup = { .enabled = true, .max_data_bytes = 0, .helpstring = GPIO_HELPSTRING};
+static RESETPINS_command_dictionary     resetpins_lookup = { .enabled = true, .max_data_bytes = 0, .helpstring = RESETPINS_HELPSTRING};
 
 // All elements of the Terminal set (∑) have definitions here.
 static const char * command[]          = {"?", "help", "gpio", "adc", "spi", "i2c", "resetpins"};
@@ -187,6 +189,7 @@ static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl
 {
 	util_infomsg(chp, "Fetch commandstr Help");
 	chprintf(chp, "%s\r\n", gpio_lookup.helpstring);
+	chprintf(chp, "%s\r\n", resetpins_lookup.helpstring);
 	return true;
 }
 
@@ -222,6 +225,12 @@ static bool fetch_gpio(BaseSequentialStream  * chp, char * commandl[], char * da
 	return false;
 }
 
+static bool fetch_resetpins(BaseSequentialStream * chp, char * commandl[] UNUSED, char * datal[] UNUSED) {
+		DBG_MSG(chp, "Resetting pins");
+  		palInit(&pal_default_config);
+		return true;
+};
+
 /*! \brief register callbacks for command functions here
                 \sa fetch_init
 */
@@ -240,6 +249,10 @@ static void fetch_init_cmd_fns(BaseSequentialStream * chp)
 		else if (strncasecmp(command[i], "gpio", strlen(command[i]) ) == 0)
 		{
 			cmd_fns[i] = fetch_gpio;
+		}
+		else if (strncasecmp(command[i], "resetpins", strlen(command[i]) ) == 0)
+		{
+			cmd_fns[i] = fetch_resetpins;
 		}
 		else
 		{
