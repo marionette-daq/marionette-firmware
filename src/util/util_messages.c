@@ -17,15 +17,16 @@ void util_debugmsg(BaseSequentialStream * chp,  char * file, int line, const cha
 {
 	va_list argList;
 	va_start(argList, format);
+	chprintf(chp, "\tDEBUG:  %s:%d:%s()->", file, line, func);
 	chvprintf(chp, format, argList);
-	chprintf(chp, "\tAt: %s:%d:%s()\r\n", file, line, func);
+	chprintf(chp, "\r\n");
 	va_end(argList);
 }
 
 void util_errormsg(BaseSequentialStream * chp, char * format, ...)
 {
 	va_list argList;
-	chprintf(chp, "\r\n*** ERROR:\t");
+	chprintf(chp, "\r\n*** E:\t");
 	va_start(argList, format);
 	chvprintf(chp, format, argList);
 	chprintf(chp, "\r\n");
@@ -35,7 +36,7 @@ void util_errormsg(BaseSequentialStream * chp, char * format, ...)
 void util_infomsg(BaseSequentialStream * chp, char * format, ...)
 {
 	va_list argList;
-	chprintf(chp, "*** INFO:\t");
+	chprintf(chp, "*** I:\t");
 	va_start(argList, format);
 	chvprintf(chp, format, argList);
 	chprintf(chp, "\r\n");

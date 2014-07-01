@@ -100,6 +100,7 @@ CSRC = $(PORTSRC) \
        $(MARIONETTE_UTIL)/util_version.c \
        $(MARIONETTE_UTIL)/util_strings.c \
        $(MARIONETTE_UTIL)/util_messages.c \
+       gpio.c \
        fetch.c \
        mshell.c \
        usbcfg.c \

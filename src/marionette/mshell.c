@@ -52,7 +52,6 @@ static void usage(BaseSequentialStream * chp, char * p)
 
 static void list_commands(BaseSequentialStream * chp, const ShellCommand * scp)
 {
-	chprintf(chp, "\r\n");
 	while (scp->sc_name != NULL)
 	{
 		chprintf(chp, "%s ", scp->sc_name);
@@ -238,12 +237,13 @@ static msg_t shell_thread(void * p)
 						usage(chp, "help");
 						continue;
 					}
-					chprintf(chp, "Commands: help exit ");
+					chprintf(chp, "Marionette Shell Commands: help exit ");
 					list_commands(chp, local_commands);
 					if (scp != NULL)
 					{
 						list_commands(chp, scp);
 					}
+					chprintf(chp, "\r\n");
 				}
 				else if (cmdexec(local_commands, chp, cmd, n, args) &&
 				                ((scp == NULL) || cmdexec(scp, chp, cmd, n, args)))
@@ -258,6 +258,7 @@ static msg_t shell_thread(void * p)
 			strncpy(command_line, &input_line[0], SHELL_MAX_LINE_LENGTH);
 			if(!fetch_parse(chp, command_line)) {
 					DBG_MSG(chp, "Parse fail.");
+					util_errormsg(chp, "Unrecognized Fetch Command. Type \"?\" or \"help\".\r\n\tMarionette Shell Commands start with \"+\". Try +help");
 			};
 		}
 	}
