@@ -12,12 +12,13 @@
 
 #include "util_messages.h"
 
-void util_debugmsg(BaseSequentialStream * chp, char * format, ...)
+void util_debugmsg(BaseSequentialStream * chp,  char * file, int line, const char * func,
+                   char * format, ...)
 {
 	va_list argList;
 	va_start(argList, format);
 	chvprintf(chp, format, argList);
-	chprintf(chp, "\r\n");
+	chprintf(chp, "At: %s:%d:%s()\r\n", file, line, func);
 	va_end(argList);
 }
 

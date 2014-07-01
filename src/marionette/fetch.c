@@ -67,12 +67,16 @@ static const char * digit[]            = {"0", "1", "2", "3", "4", "5", "6", "7"
 static const char * EOL[]              = {"\n"};
 static const char * whitespace[]       = {" ", "\t"};
 
-static bool fetch_is_valid_command(BaseSequentialStream * chp, char * vcommand) {
-		for(uint8_t i = 0; i< NELEMS(command); ++i) {
+/*
+   return index to command match in array
+   return -1 on fail to match
+*/
+static int fetch_is_valid_command(BaseSequentialStream * chp, char * vcommand) {
+		for(int i = 0; i< ((int) NELEMS(command)); ++i) {
 			if (strncasecmp(command[i], vcommand, strlen(command[i]) ) == 0)
-				return true;
+				return i;
 		}
-		return false;
+		return -1;
 }
 
 /* Help command implementation for fetch language */
@@ -113,7 +117,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 		strncpy(commandstr, colonpart, strlen(colonpart));
 		commandstr[strlen(colonpart)] = '\0';
 		strncpy(datastr, parenpart, strlen(parenpart));
-		datastr[strlen(parenpart)]     = '\0';
+		datastr[strlen(parenpart)]    = '\0';
 		//DBG_VMSG(chp, "commandstr: %s\tdatastr: %s", commandstr, datastr);
 	}
 	else
@@ -179,17 +183,32 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 	return(fetch_dispatch(chp, command_toks, data_toks));
 }
 
-bool fetch_dispatch(BaseSequentialStream * chp, char * command_list[], char * data_list[]) {
+bool fetch_dispatch(BaseSequentialStream * chp, char * command_list[], char * data_list[])
+{
+	int cindex = fetch_is_valid_command(chp, command_list[0]);
 
-		if(fetch_is_valid_command(chp, command_list[0])) {
-
-			/* switch on command here */
-
-
-
-			return true;
-		};
-		util_errormsg(chp, "Not a valid command: %s", command_list[0]);
+	if(cindex < 0) {
+		util_errormsg(chp, "Unrecognized command.");
 		return false;
+	}
+	
+	// help
+	if( (strncasecmp(command[cindex], "?", strlen(command[cindex])) == 0)
+	                || (strncasecmp(command[cindex], "help", strlen(command[cindex]))) == 0 )
+	{
+		fetch_info(chp);
+		return true;
+	}
+
+	// gpio
+
+
+	return false;
 }
+
+
+
+
+
+
 

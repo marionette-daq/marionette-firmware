@@ -30,9 +30,11 @@
 #include "hal.h"
 #include "mshell.h"
 #include "chprintf.h"
+
 #include "util_version.h"
 #include "util_general.h"
 #include "util_strings.h"
+#include "util_messages.h"
 
 #include "fetch.h"
 
@@ -252,8 +254,9 @@ static msg_t shell_thread(void * p)
 		else
 		{
 			strncpy(command_line, &input_line[0], SHELL_MAX_LINE_LENGTH);
-			chprintf(chp, "%s\r\n", command_line);
-			fetch_parse(chp, command_line);
+			if(!fetch_parse(chp, command_line)) {
+					DBG_MSG(chp, "Parse fail\r\n");
+			};
 		}
 	}
 	shellExit(RDY_OK);
