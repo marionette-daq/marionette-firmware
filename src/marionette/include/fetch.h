@@ -9,6 +9,7 @@
 #define 		FETCH_MAX_COMMANDS 						8
 #define 		FETCH_MAX_DATA_ITEMS					8
 #define 		FETCH_MAX_LINE_CHARS					256
+#define 		FETCH_MAX_CMD_STRLEN					25
 
 #define 		HELP_MAX_DATA_BYTES 					0
 #define 		HELP_MAX_DATA_BYTES 					0
@@ -37,7 +38,7 @@ typedef struct gpio_command_dictionary
 
 
 // Functions
-void fetch_init_cmd_fns(BaseSequentialStream * chp) ;
+void fetch_init(BaseSequentialStream *  chp) ;
 bool fetch_parse(BaseSequentialStream* chp, char * inputline);
 bool fetch_dispatch(BaseSequentialStream* chp, char * command_list[], char * data_list[]);
 

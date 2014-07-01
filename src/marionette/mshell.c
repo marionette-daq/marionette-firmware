@@ -193,7 +193,7 @@ static msg_t shell_thread(void * p)
 	chprintf(chp, "\r\nMarionette Shell\r\n");
 
 	// initialize parser.
-	fetch_init_cmd_fns(chp) ;
+	fetch_init(chp) ;
 
 	while (TRUE)
 	{

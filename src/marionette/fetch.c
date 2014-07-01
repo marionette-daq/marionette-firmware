@@ -74,11 +74,10 @@ static const char * whitespace[]       = {" ", "\t"};
    return -1 on fail to match
 */
 
-static bool fetch_gpio(BaseSequentialStream *  chp, char * commandl[], char * datal[]) {
-		DBG_MSG(chp, "saw gpio");
-		return true;
+static bool fetch_not_yet(BaseSequentialStream *  chp, char * commandl[], char * datal[]) {
+		DBG_MSG(chp, "Not implemented");
+		return false;
 };
-
 static int fetch_is_valid_command(BaseSequentialStream * chp, char * chkcommand) {
 		for(int i = 0; i< ((int) NELEMS(command)); ++i) {
 			if (strncasecmp(command[i], chkcommand, strlen(command[i]) ) == 0)
@@ -103,6 +102,10 @@ static int fetch_is_valid_port_subcommand(BaseSequentialStream * chp, char * chk
 		return -1;
 }
 
+static size_t get_longest_length(char * s1, char * s2) {
+		size_t lens1  = strnlen(s1, FETCH_MAX_CMD_STRLEN );    // Mon 30 June 2014 21:15:36 (PDT)
+			chklen = strnlen(pin_subcommand[i]) > strnlen(chkpin_subcommand) ? (return strnlen(pin_subcommand[i])) : (returnstrnlen(pin_subcommand);
+}
 static int fetch_is_valid_pin_subcommand(BaseSequentialStream * chp, char * chkpin_subcommand) {
 		for(int i = 0; i< ((int) NELEMS(pin_subcommand)); ++i) {
 			if (strncasecmp(pin_subcommand[i], chkpin_subcommand, strlen(pin_subcommand[i]) ) == 0)
@@ -142,15 +145,41 @@ static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl
 	return true;
 }
 
-void fetch_init_cmd_fns(BaseSequentialStream * chp) {
+static bool fetch_gpio(BaseSequentialStream  * chp, char * commandl[], char * datal[])
+{
+	DBG_MSG(chp, "GPIO ...workin'on't...");
+	if(fetch_is_valid_gpio_subcommandA(chp, commandl[1])>=0)
+	{
+			    DBG_VMSG(chp, "GPIO ...%s", commandl[1]);
+		if(fetch_is_valid_port_subcommand(chp, commandl[2])>=0)
+		{
+			    DBG_VMSG(chp, "GPIO ...%s", commandl[2]);
+			if(fetch_is_valid_pin_subcommand(chp, commandl[3])>=0)
+			{
+			    DBG_VMSG(chp, "GPIO ...%s", commandl[3]);
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+
+static void fetch_init_cmd_fns(BaseSequentialStream * chp) {
 		for(int i = 0; i< ((int) NELEMS(command)); ++i) {
 			if (strncasecmp(command[i], "?", strlen(command[i]) ) == 0)
 					cmd_fns[i] = fetch_info;
 			else if (strncasecmp(command[i], "help", strlen(command[i]) ) == 0)
 					cmd_fns[i] = fetch_info;
+			else if (strncasecmp(command[i], "gpio", strlen(command[i]) ) == 0)
+					cmd_fns[i] = fetch_gpio;
 			else
-					cmd_fns[i] = fetch_info;
+					cmd_fns[i] = fetch_not_yet;
 		}
+}
+
+void fetch_init(BaseSequentialStream * chp) {
+	fetch_init_cmd_fns(chp) ;
 }
 
 bool fetch_parse(BaseSequentialStream * chp, char * inputline)
@@ -190,8 +219,8 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 	}
 	else
 	{
-		//util_errormsg(chp, "No command read.");
-		return false;
+		// empty line
+		return true;
 	}
 
 	/* break commandstr into array of strings */
@@ -260,21 +289,7 @@ bool fetch_dispatch(BaseSequentialStream * chp, char * command_list[], char * da
 		return false;
 	}
 	
-	chprintf(chp, "index; %i\r\n", cindex);
 	return ( (*cmd_fns[cindex]) (chp, command_list, data_list) );
-
-	// help
-	//if( (strncasecmp(command[cindex], "?", strlen(command[cindex])) == 0)
-					//|| (strncasecmp(command[cindex], "help", strlen(command[cindex]))) == 0 )
-	//{
-		//return fetch_info(chp, command_list, data_list);
-	//}
-
-	//// gpio
-	//if( (strncasecmp(command[cindex], "gpio", strlen(command[cindex])) == 0))
-	//{
-		//return fetch_gpio(chp, command_list, data_list);
-	//}
 
 }
 
