@@ -15,7 +15,6 @@
 
 #include "gpio.h"
 
-
 static enum GPIO_tokens
 {
 	CMD = 0,
@@ -24,7 +23,7 @@ static enum GPIO_tokens
 	PIN,
 	DIRECTION,
 	SENSE
-} cmd;
+} gpio_toks;
 
 static enum GPIO_pinnums
 {
@@ -44,7 +43,8 @@ static enum GPIO_pinnums
 	PIN13,
 	PIN14,
 	PIN15
-} pinums;
+} gpio_pinnums;
+
 
 static void gpio_get_port_pin(BaseSequentialStream * chp, char * commandl[],
                               GPIO_TypeDef ** port, int * pin)
@@ -174,7 +174,7 @@ void gpio_clear(BaseSequentialStream * chp, char * commandl[])
 
 void gpio_config(BaseSequentialStream * chp, char * commandl[])
 {
-	GPIO_TypeDef * port;
+	GPIO_TypeDef * port = NULL;
 	int pin       = 0;
 	int sense     = 0;
 	int direction = 0;

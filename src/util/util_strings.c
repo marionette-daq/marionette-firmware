@@ -26,9 +26,33 @@
 
 #include "chprintf.h"
 #include <string.h>
-#include "util_strings.h"
+#include <ctype.h>
 #include "util_general.h"
+#include "util_strings.h"
 
+char * fetch_remove_spaces(char * spstr)
+{
+	if(spstr == NULL)
+	{
+		return spstr;
+	}
+	char * newstr = spstr;
+	unsigned int i, j;
+
+	for (i = 0, j = 0; i < strlen(spstr); i++, j++)
+	{
+		if(!isspace((unsigned char)spstr[i]))
+		{
+			newstr[j] = spstr[i];
+		}
+		else
+		{
+			j--;  // unincrement j
+		}
+	}
+	newstr[j] = '\0';
+	return newstr;
+}
 
 /*! \brief return length of longest string 
   */
@@ -37,9 +61,10 @@ size_t get_longest_str_length(const char * s1, const char * s2, int max_length)
 	size_t lens1  = strnlen(s1, max_length);
 	size_t lens2  = strnlen(s2, max_length);
 
+	chDbgAssert(((s1 != NULL) && (s2 != NULL)), "get_longest_str_length() #1", "NULL pointer");
+
 	return (max(lens1, lens2));
 }
-
 
 /*! \brief a version of strtok_r but STATIC  memory
  */
