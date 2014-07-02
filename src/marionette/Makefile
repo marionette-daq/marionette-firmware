@@ -6,7 +6,8 @@
 # Compiler options here.
 ifeq ($(USE_OPT),)
   #USE_OPT = -Og -ggdb -fomit-frame-pointer -falign-functions=16 -Wno-main -std=gnu99
-  USE_OPT = -Og -ggdb -fomit-frame-pointer -falign-functions=16 -Wno-main -Wno-unused -std=gnu99
+  #USE_OPT = -O2 -ggdb -fomit-frame-pointer -falign-functions=16 -Wno-main -Wno-unused  -std=gnu99
+  USE_OPT = -Og -ggdb -fomit-frame-pointer -falign-functions=16 -Wno-main -Wno-unused  -std=gnu99
 endif
 
 # C specific options here (added to USE_OPT).
@@ -175,12 +176,17 @@ AOPT =
 TOPT = -mthumb -DTHUMB
 
 # Define C warning options here
+#CWARN = -Wall -Wextra -Wstrict-prototypes  -Wdisabled-optimization \
+	#-Wdouble-promotion -Wformat=2 -Wfloat-equal \
+	#-Waggressive-loop-optimizations -Wunsafe-loop-optimizations \
+	#-Waggregate-return -Wlogical-op -Wmissing-include-dirs \
+	#-Wpointer-arith -Wredundant-decls 
+
 CWARN = -Wall -Wextra -Wstrict-prototypes  -Wdisabled-optimization \
 	-Wdouble-promotion -Wformat=2 -Wfloat-equal \
-	-Waggressive-loop-optimizations -Wunsafe-loop-optimizations \
+	-Waggressive-loop-optimizations \
 	-Waggregate-return -Wlogical-op -Wmissing-include-dirs \
-	-Wpointer-arith -Wredundant-decls 
-
+	
 # Define C++ warning options here
 CPPWARN = -Wall -Wextra
 

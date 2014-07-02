@@ -120,6 +120,8 @@ static bool fetch_not_yet(BaseSequentialStream  * chp, char * cmd_list[] UNUSED,
 
 /*! \brief support validation functions
  *   \warning don't call string functions on NULL pointers
+ *  Return and index into the array on match
+ *  Return =1 on no match
  */
 static int fetch_token_match(BaseSequentialStream * chp, const char * tok_array[],
                              char * chk_tok,
@@ -140,101 +142,83 @@ static int fetch_token_match(BaseSequentialStream * chp, const char * tok_array[
 	return -1;
 }
 
-/*
+/*!
+ * *_is_valid_command...
  * return index to command match in array
  * return -1 on fail to match
-*/
-static int fetch_is_valid_command(BaseSequentialStream * chp, char * chkcommand)
+ */
+
+/*!
+ * Here is the theory on why using static inline here might be useful.
+ *
+ * https://gcc.gnu.org/onlinedocs/gcc/Inline.html
+ *
+ *          When a function is both inline and static, if all calls to the function are
+ *       integrated into the caller, and the function's address is never used, then the
+ *       function's own assembler code is never referenced. In this case, GCC does not
+ *       actually output assembler code for the function, unless you specify the option
+ *       -fkeep-inline-functions. Some calls cannot be integrated for various reasons
+ *       (in particular, calls that precede the function's definition cannot be
+ *       integrated, and neither can recursive calls within the definition). If there is
+ *       a nonintegrated call, then the function is compiled to assembler code as usual.
+ *       The function must also be compiled as usual if the program refers to its
+ *       address, because that can't be inlined.
+ */
+
+static inline int fetch_is_valid_command(BaseSequentialStream * chp, char * chkcommand)
 {
-	int index = fetch_token_match(chp, command, chkcommand, ((int) NELEMS(command)) );
-	if (index >= 0)
-	{
-		return index;
-	}
-	return -1;
+	return(fetch_token_match(chp, command, chkcommand, ((int) NELEMS(command)) ));
 }
 
-static int fetch_is_valid_gpio_direction(BaseSequentialStream * chp, char * chkgpio_direction)
+static inline int fetch_is_valid_gpio_direction(BaseSequentialStream * chp,
+                char * chkgpio_direction)
 {
-	int index = fetch_token_match(chp, gpio_direction, chkgpio_direction, ((int) NELEMS(gpio_direction)) );
-	if (index >= 0)
-	{
-		return index;
-	}
-	return -1;
+	return( fetch_token_match(chp, gpio_direction, chkgpio_direction,
+	                          ((int) NELEMS(gpio_direction))) );
 }
 
-static int fetch_is_valid_gpio_sense(BaseSequentialStream * chp, char * chkgpio_sense)
+static inline int fetch_is_valid_gpio_sense(BaseSequentialStream * chp, char * chkgpio_sense)
 {
-	int index = fetch_token_match(chp, gpio_sense, chkgpio_sense, ((int) NELEMS(gpio_sense)) );
-	if (index >= 0)
-	{
-		return index;
-	}
-	return -1;
+	return(fetch_token_match(chp, gpio_sense, chkgpio_sense, ((int) NELEMS(gpio_sense))) );
 }
 
-static int fetch_is_valid_gpio_subcommandA(BaseSequentialStream * chp,
+static inline int fetch_is_valid_gpio_subcommandA(BaseSequentialStream * chp,
                 char * chkgpio_subcommandA)
 {
-	int index = fetch_token_match(chp, gpio_subcommandA, chkgpio_subcommandA, ((int) NELEMS(gpio_subcommandA)) );
-	if (index >= 0)
-	{
-		return index;
-	}
-	return -1;
+	return(fetch_token_match(chp, gpio_subcommandA, chkgpio_subcommandA,
+	                         ((int) NELEMS(gpio_subcommandA)) ) );
 }
 
-static int fetch_is_valid_port_subcommand(BaseSequentialStream * chp,
+static inline int fetch_is_valid_port_subcommand(BaseSequentialStream * chp,
                 char * chkport_subcommand)
 {
-	int index = fetch_token_match(chp, port_subcommand, chkport_subcommand, ((int) NELEMS(port_subcommand)) );
-	if (index >= 0)
-	{
-		return index;
-	}
-	return -1;
+	return(fetch_token_match(chp, port_subcommand, chkport_subcommand,
+	                         ((int) NELEMS(port_subcommand))) );
 }
 
-static int fetch_is_valid_pin_subcommand(BaseSequentialStream * chp, char * chkpin_subcommand)
+static inline int fetch_is_valid_pin_subcommand(BaseSequentialStream * chp,
+                char * chkpin_subcommand)
 {
-	int index = fetch_token_match(chp, pin_subcommand, chkpin_subcommand, ((int) NELEMS(pin_subcommand)) );
-	if (index >= 0)
-	{
-		return index;
-	}
-	return -1;
+	return(fetch_token_match(chp, pin_subcommand, chkpin_subcommand,
+	                         ((int) NELEMS(pin_subcommand))) );
 }
 
-static int fetch_is_valid_digit(BaseSequentialStream * chp, char * chkdigit)
+static inline int fetch_is_valid_digit(BaseSequentialStream * chp, char * chkdigit)
 {
-	int index = fetch_token_match(chp, digit, chkdigit, ((int) NELEMS(digit)) );
-	if (index >= 0)
-	{
-		return index;
-	}
-	return -1;
+	return(fetch_token_match(chp, digit, chkdigit, ((int) NELEMS(digit))) );
 }
 
-static int fetch_is_valid_EOL(BaseSequentialStream * chp, char * chkEOL)
+static inline int fetch_is_valid_EOL(BaseSequentialStream * chp, char * chkEOL)
 {
-	int index = fetch_token_match(chp, EOL, chkEOL, ((int) NELEMS(EOL)) );
-	if (index >= 0)
-	{
-		return index;
-	}
-	return -1;
+	return(fetch_token_match(chp, EOL, chkEOL, ((int) NELEMS(EOL))) );
 }
 
-static int fetch_is_valid_whitespace(BaseSequentialStream * chp, char * chkwhitespace)
+static inline int fetch_is_valid_whitespace(BaseSequentialStream * chp, char * chkwhitespace)
 {
-	int index = fetch_token_match(chp, whitespace, chkwhitespace, ((int) NELEMS(whitespace)) );
-	if (index >= 0)
-	{
-		return index;
-	}
-	return -1;
+	return(fetch_token_match(chp, whitespace, chkwhitespace, ((int) NELEMS(whitespace))) );
 }
+
+/* --- */
 
 /* Help command implementation for fetch language */
 static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl[] UNUSED)
@@ -436,6 +420,5 @@ bool fetch_dispatch(BaseSequentialStream * chp, char * command_list[], char * da
 
 	return ( (*cmd_fns[cindex]) (chp, command_list, data_list) );
 }
-
 
 
