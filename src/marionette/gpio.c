@@ -163,13 +163,21 @@ static void gpio_get_port_pin(BaseSequentialStream * chp, char * commandl[],
 
 void gpio_set(BaseSequentialStream * chp, char * commandl[])
 {
-	util_infomsg(chp, "%s: Not yet\r\n", __func__);
-	//palSetPad(GPIOB, 12);
+	GPIO_TypeDef * port = NULL;
+	int pin       = 0;
+
+	gpio_get_port_pin(chp, commandl, &port, &pin);
+	palSetPad(port, pin);
 }
 
 void gpio_clear(BaseSequentialStream * chp, char * commandl[])
 {
-	util_infomsg(chp, "%s: Not yet\r\n", __func__);
+	GPIO_TypeDef * port = NULL;
+	int pin       = 0;
+
+	gpio_get_port_pin(chp, commandl, &port, &pin);
+	palClearPad(port, pin);
+	
 }
 
 void gpio_config(BaseSequentialStream * chp, char * commandl[])
@@ -215,16 +223,7 @@ void gpio_config(BaseSequentialStream * chp, char * commandl[])
 	DBG_VMSG(chp, "dir: %d", direction);
 	DBG_VMSG(chp, "sense: %d", sense);
 
-
-	//palSetPadMode(GPIOB, 12, PAL_MODE_OUTPUT_PUSHPULL |
-
-	//PAL_STM32_OSPEED_HIGHEST);           [> NSS.     <]
-	//palSetPadMode(GPIOB, 13, PAL_MODE_ALTERNATE(5) |
-	//PAL_STM32_OSPEED_HIGHEST);           [> SCK.     <]
-	//palSetPadMode(GPIOB, 14, PAL_MODE_ALTERNATE(5));              [> MISO.    <]
-	//palSetPadMode(GPIOB, 15, PAL_MODE_ALTERNATE(5) |
-	//PAL_STM32_OSPEED_HIGHEST);           [> MOSI.    <]
-	///
+	palSetPadMode(port, pin, direction | sense);
 }
 
 
