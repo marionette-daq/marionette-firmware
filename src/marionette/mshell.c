@@ -64,7 +64,8 @@ static void cmd_version(BaseSequentialStream * chp, int argc, char * argv[] UNUS
 	util_fwversion(&version_data);
 	util_hwversion(&version_data);
 	chprintf(chp, "Firmware Version:   %s\r\n", version_data.firmware);
-	chprintf(chp, "Hardware Version:   %u-%u-%u\r\n", version_data.hardware.id_high, version_data.hardware.id_center, version_data.hardware.id_low);
+	chprintf(chp, "Hardware Version:   %u-%u-%u\r\n", version_data.hardware.id_high,
+	         version_data.hardware.id_center, version_data.hardware.id_low);
 	if(argc > 0)
 	{
 		usage(chp, "version");
@@ -88,7 +89,7 @@ static void cmd_noprompt(BaseSequentialStream * chp, int argc, char * argv[] UNU
 		usage(chp, "noprompt");
 		return;
 	}
-	prompt[0]='\0';
+	prompt[0] = '\0';
 }
 
 
@@ -256,9 +257,11 @@ static msg_t shell_thread(void * p)
 		else
 		{
 			strncpy(command_line, &input_line[0], SHELL_MAX_LINE_LENGTH);
-			if(!fetch_parse(chp, command_line)) {
-					DBG_MSG(chp, "Parse fail.");
-					util_errormsg(chp, "Unrecognized Fetch Command. Type \"?\" or \"help\".\r\n\tMarionette Shell Commands start with \"+\". Try +help");
+			if(!fetch_parse(chp, command_line))
+			{
+				DBG_MSG(chp, "Parse fail.");
+				util_errormsg(chp,
+				              "Unrecognized Fetch Command. Type \"?\" or \"help\".\r\n\tMarionette Shell Commands start with \"+\". Try +help");
 			};
 		}
 	}
@@ -388,4 +391,5 @@ bool_t shellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
 }
 
 /** @} */
+
 

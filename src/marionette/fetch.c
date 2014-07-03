@@ -128,12 +128,14 @@ static int fetch_token_match(BaseSequentialStream * chp, const char * tok_array[
                              int num_elems)
 {
 	size_t maxlen = 1;
-	DBG_VMSG(chp, "tok: ->%s<-", chk_tok);
 	for(int i = 0; i < num_elems; ++i)
 	{
+
 		chDbgAssert(((tok_array[i] != NULL)
 		             && (chk_tok != NULL)), "fetch_token_match() #1", "NULL pointer");
+
 		maxlen = get_longest_str_length(tok_array[i], chk_tok, FETCH_MAX_CMD_STRLEN);
+
 		if (strncasecmp(tok_array[i], chk_tok, maxlen ) == 0)
 		{
 			return i;
@@ -342,6 +344,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 		util_errormsg(chp, "No command-(only data?)");
 		return false;
 	}
+
 	if(colonpart != NULL)
 	{
 		strncpy(commandstr, colonpart, strlen(colonpart));
@@ -373,7 +376,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 		}
 		command_toks[++n] = lp;
 	}
-	command_toks[++n] = NULL;
+	command_toks[++n] = "\0";
 
 	if(parenpart != NULL)
 	{
@@ -391,7 +394,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 			}
 			data_toks[++n] = lp;
 		}
-		data_toks[++n] = NULL;
+		data_toks[++n] = "\0";
 	}
 	else
 	{
@@ -420,5 +423,4 @@ bool fetch_dispatch(BaseSequentialStream * chp, char * command_list[], char * da
 
 	return ( (*cmd_fns[cindex]) (chp, command_list, data_list) );
 }
-
 
