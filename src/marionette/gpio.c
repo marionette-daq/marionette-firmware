@@ -3,8 +3,6 @@
  Marionette gpio routines
  */
 
-
-
 #include "ch.h"
 #include "hal.h"
 
@@ -15,39 +13,9 @@
 
 #include "gpio.h"
 
-static enum GPIO_tokens
-{
-	CMD = 0,
-	ACTION,
-	PORT,
-	PIN,
-	DIRECTION,
-	SENSE
-} gpio_toks;
-
-static enum GPIO_pinnums
-{
-	PIN0 = 0,
-	PIN1,
-	PIN2,
-	PIN3,
-	PIN4,
-	PIN5,
-	PIN6,
-	PIN7,
-	PIN8,
-	PIN9,
-	PIN10,
-	PIN11,
-	PIN12,
-	PIN13,
-	PIN14,
-	PIN15
-} gpio_pinnums;
-
 
 static void gpio_get_port_pin(BaseSequentialStream * chp, char * commandl[],
-                              GPIO_TypeDef ** port, int * pin)
+                              GPIO_TypeDef ** port, GPIO_pinnums * pin)
 {
 	size_t maxlen = 0;
 
@@ -163,8 +131,8 @@ static void gpio_get_port_pin(BaseSequentialStream * chp, char * commandl[],
 
 void gpio_set(BaseSequentialStream * chp, char * commandl[])
 {
-	GPIO_TypeDef * port = NULL;
-	int pin       = 0;
+	GPIO_TypeDef * port    = NULL;
+	GPIO_pinnums pin       = 0;
 
 	gpio_get_port_pin(chp, commandl, &port, &pin);
 	palSetPad(port, pin);
@@ -172,8 +140,8 @@ void gpio_set(BaseSequentialStream * chp, char * commandl[])
 
 void gpio_clear(BaseSequentialStream * chp, char * commandl[])
 {
-	GPIO_TypeDef * port = NULL;
-	int pin       = 0;
+	GPIO_TypeDef * port    = NULL;
+	GPIO_pinnums pin       = 0;
 
 	gpio_get_port_pin(chp, commandl, &port, &pin);
 	palClearPad(port, pin);
@@ -182,8 +150,8 @@ void gpio_clear(BaseSequentialStream * chp, char * commandl[])
 
 void gpio_config(BaseSequentialStream * chp, char * commandl[])
 {
-	GPIO_TypeDef * port = NULL;
-	int pin       = 0;
+	GPIO_TypeDef * port    = NULL;
+	GPIO_pinnums pin       = 0;
 	int sense     = 0;
 	int direction = 0;
 
@@ -225,7 +193,5 @@ void gpio_config(BaseSequentialStream * chp, char * commandl[])
 
 	palSetPadMode(port, pin, direction | sense);
 }
-
-
 
 

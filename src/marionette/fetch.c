@@ -67,36 +67,6 @@ static HELP_command_dictionary          help_lookup = { .enabled = true, .max_da
 static GPIO_command_dictionary          gpio_lookup = { .enabled = true, .max_data_bytes = 0, .helpstring = GPIO_HELPSTRING};
 static RESETPINS_command_dictionary     resetpins_lookup = { .enabled = true, .max_data_bytes = 0, .helpstring = RESETPINS_HELPSTRING};
 
-static enum GPIO_tokens
-{
-	CMD = 0,
-	ACTION,
-	PORT,
-	PIN,
-	DIRECTION,
-	SENSE
-} gpio_toks;
-
-static enum GPIO_pinnums
-{
-	PIN0 = 0,
-	PIN1,
-	PIN2,
-	PIN3,
-	PIN4,
-	PIN5,
-	PIN6,
-	PIN7,
-	PIN8,
-	PIN9,
-	PIN10,
-	PIN11,
-	PIN12,
-	PIN13,
-	PIN14,
-	PIN15
-} gpio_pinnums;
-
 // All elements of the Terminal set (∑) have definitions here.
 static const char * command[]          = {"?", "help", "gpio", "adc", "spi", "i2c", "resetpins"};
 static bool (*cmd_fns[NELEMS(command)]) (BaseSequentialStream * chp, char * l1[], char * l2[]);
