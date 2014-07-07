@@ -30,37 +30,18 @@
 #include "hal.h"
 #include "mshell.h"
 #include "chprintf.h"
+
 #include "util_version.h"
 #include "util_general.h"
+#include "util_strings.h"
+#include "util_messages.h"
 
-static      VERSIONData     version_data;
-static      char            prompt[SHELL_MAX_PROMPT_LENGTH];
+#include "fetch.h"
 
-/**
- * @brief   Shell termination event source.
- */
-EventSource shell_terminated;
+static      	VERSIONData     		version_data;
+static      	char            		prompt[SHELL_MAX_PROMPT_LENGTH];
 
-static char * _strtok(char * str, const char * delim, char ** saveptr)
-{
-	char * token;
-	if (str)
-	{
-		*saveptr = str;
-	}
-	token = *saveptr;
-	if (!token)
-	{
-		return NULL;
-	}
-	token += strspn(token, delim);
-	*saveptr = strpbrk(token, delim);
-	if (*saveptr)
-	{
-		*(*saveptr)++ = '\0';
-	}
-	return *token ? token : NULL;
-}
+EventSource 	shell_terminated;
 
 static void usage(BaseSequentialStream * chp, char * p)
 {
@@ -71,7 +52,7 @@ static void list_commands(BaseSequentialStream * chp, const ShellCommand * scp)
 {
 	while (scp->sc_name != NULL)
 	{
-		chprintf(chp, "%s ", scp->sc_name);
+		chprintf(chp, "+%s ", scp->sc_name);
 		scp++;
 	}
 }
@@ -81,7 +62,8 @@ static void cmd_version(BaseSequentialStream * chp, int argc, char * argv[] UNUS
 	util_fwversion(&version_data);
 	util_hwversion(&version_data);
 	chprintf(chp, "Firmware Version:   %s\r\n", version_data.firmware);
-	chprintf(chp, "Hardware Version:   %u-%u-%u\r\n", version_data.hardware.id_high, version_data.hardware.id_center, version_data.hardware.id_low);
+	chprintf(chp, "Hardware Version:   0x%x-0x%x-0x%x\r\n", version_data.hardware.id_high,
+	         version_data.hardware.id_center, version_data.hardware.id_low);
 	if(argc > 0)
 	{
 		usage(chp, "version");
@@ -105,10 +87,8 @@ static void cmd_noprompt(BaseSequentialStream * chp, int argc, char * argv[] UNU
 		usage(chp, "noprompt");
 		return;
 	}
-	prompt[0]='\0';
+	prompt[0] = '\0';
 }
-
-
 
 static void cmd_info(BaseSequentialStream * chp, int argc, char * argv[])
 {
@@ -198,67 +178,90 @@ static bool_t cmdexec(const ShellCommand * scp, BaseSequentialStream * chp,
 static msg_t shell_thread(void * p)
 {
 	int n;
-	BaseSequentialStream * chp = ((ShellConfig *)p)->sc_channel;
-	const ShellCommand * scp = ((ShellConfig *)p)->sc_commands;
-	char * lp, *cmd, *tokp, line[SHELL_MAX_LINE_LENGTH];
+	BaseSequentialStream * chp   = ((ShellConfig *)p)->sc_channel;
+	const ShellCommand * scp     = ((ShellConfig *)p)->sc_commands;
+	char * lp, *cmd, *tokp;
+	char input_line[SHELL_MAX_LINE_LENGTH];
+	char command_line[SHELL_MAX_LINE_LENGTH];
 	char * args[SHELL_MAX_ARGUMENTS + 1];
+
 	strncpy(prompt, "m > ", SHELL_MAX_PROMPT_LENGTH);
 	chRegSetThreadName("mshell");
-	chprintf(chp, "\r\nMarionette Shell\r\n");
+	chThdSleepMilliseconds(1000);
+	chprintf(chp, "\r\n\r\n");
+	chprintf(chp, "\r\nMarionette Shell (\"+help\" for shell commands)\r\n");
+
+	// initialize parser.
+	fetch_init(chp) ;
+
 	while (TRUE)
 	{
 		chprintf(chp, "%s", prompt);
-		if (shellGetLine(chp, line, sizeof(line)))
+		if (shellGetLine(chp, input_line, sizeof(input_line)))
 		{
 			chprintf(chp, "\r\nlogout");
 			break;
 		}
-		lp = _strtok(line, " \t", &tokp);
-		cmd = lp;
-		n = 0;
-		while ((lp = _strtok(NULL, " \t", &tokp)) != NULL)
+		if(input_line[0] == '+')    // use escape to process shell commands
 		{
-			if (n >= SHELL_MAX_ARGUMENTS)
+			strncpy(command_line, &input_line[1], SHELL_MAX_LINE_LENGTH);
+			lp = _strtok(command_line, " \t", &tokp);
+			cmd = lp;
+			n = 0;
+			while ((lp = _strtok(NULL, " \t", &tokp)) != NULL)
 			{
-				chprintf(chp, "too many arguments\r\n");
-				cmd = NULL;
-				break;
+				if (n >= SHELL_MAX_ARGUMENTS)
+				{
+					chprintf(chp, "too many arguments\r\n");
+					cmd = NULL;
+					break;
+				}
+				args[n++] = lp;
 			}
-			args[n++] = lp;
+			args[n] = NULL;
+			if (cmd != NULL)
+			{
+				if (strcasecmp(cmd, "exit") == 0)
+				{
+					if (n > 0)
+					{
+						usage(chp, "exit");
+						continue;
+					}
+					break;
+				}
+				else if (strcasecmp(cmd, "help") == 0)
+				{
+					if (n > 0)
+					{
+						usage(chp, "help");
+						continue;
+					}
+					chprintf(chp, "Marionette Shell Commands: +help +exit ");
+					list_commands(chp, local_commands);
+					if (scp != NULL)
+					{
+						list_commands(chp, scp);
+					}
+					chprintf(chp, "\r\n");
+				}
+				else if (cmdexec(local_commands, chp, cmd, n, args) &&
+				                ((scp == NULL) || cmdexec(scp, chp, cmd, n, args)))
+				{
+					chprintf(chp, "%s", cmd);
+					chprintf(chp, " ?\r\n");
+				}
+			}
 		}
-		args[n] = NULL;
-		if (cmd != NULL)
+		else
 		{
-			if (strcasecmp(cmd, "exit") == 0)
+			strncpy(command_line, &input_line[0], SHELL_MAX_LINE_LENGTH);
+			if(!fetch_parse(chp, command_line))
 			{
-				if (n > 0)
-				{
-					usage(chp, "exit");
-					continue;
-				}
-				break;
-			}
-			else if (strcasecmp(cmd, "help") == 0)
-			{
-				if (n > 0)
-				{
-					usage(chp, "help");
-					continue;
-				}
-				chprintf(chp, "Commands: help exit ");
-				list_commands(chp, local_commands);
-				if (scp != NULL)
-				{
-					list_commands(chp, scp);
-				}
-				chprintf(chp, "\r\n");
-			}
-			else if (cmdexec(local_commands, chp, cmd, n, args) &&
-			                ((scp == NULL) || cmdexec(scp, chp, cmd, n, args)))
-			{
-				chprintf(chp, "%s", cmd);
-				chprintf(chp, " ?\r\n");
-			}
+				DBG_MSG(chp, "Parse fail.");
+				util_errormsg(chp,
+				              "Unrecognized Fetch Command. Type \"?\" or \"help\".\r\n\tMarionette Shell Commands start with \"+\". Try +help");
+			};
 		}
 	}
 	shellExit(RDY_OK);
@@ -387,4 +390,5 @@ bool_t shellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
 }
 
 /** @} */
+
 

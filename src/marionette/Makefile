@@ -5,8 +5,9 @@
 
 # Compiler options here.
 ifeq ($(USE_OPT),)
-#  USE_OPT = -O2 -ggdb -fomit-frame-pointer -falign-functions=16
-  USE_OPT = -Og -ggdb -fomit-frame-pointer -falign-functions=16 -Wno-main -std=gnu99
+  #USE_OPT = -Og -ggdb -fomit-frame-pointer -falign-functions=16 -Wno-main -std=gnu99
+  #USE_OPT = -O2 -ggdb -fomit-frame-pointer -falign-functions=16 -Wno-main -Wno-unused  -std=gnu99
+  USE_OPT = -Og -ggdb -fomit-frame-pointer -falign-functions=16 -Wno-main -Wno-unused  -std=gnu99
 endif
 
 # C specific options here (added to USE_OPT).
@@ -98,8 +99,13 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/various/devices_lib/accel/lis302dl.c \
        $(CHIBIOS)/os/various/chprintf.c \
        $(MARIONETTE_UTIL)/util_version.c \
+       $(MARIONETTE_UTIL)/util_strings.c \
+       $(MARIONETTE_UTIL)/util_messages.c \
+       gpio.c \
+       fetch.c \
        mshell.c \
-       usbcfg.c main.c
+       usbcfg.c \
+       main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -170,12 +176,17 @@ AOPT =
 TOPT = -mthumb -DTHUMB
 
 # Define C warning options here
+#CWARN = -Wall -Wextra -Wstrict-prototypes  -Wdisabled-optimization \
+	#-Wdouble-promotion -Wformat=2 -Wfloat-equal \
+	#-Waggressive-loop-optimizations -Wunsafe-loop-optimizations \
+	#-Waggregate-return -Wlogical-op -Wmissing-include-dirs \
+	#-Wpointer-arith -Wredundant-decls 
+
 CWARN = -Wall -Wextra -Wstrict-prototypes  -Wdisabled-optimization \
 	-Wdouble-promotion -Wformat=2 -Wfloat-equal \
-	-Waggressive-loop-optimizations -Wunsafe-loop-optimizations \
+	-Waggressive-loop-optimizations \
 	-Waggregate-return -Wlogical-op -Wmissing-include-dirs \
-	-Wpointer-arith -Wredundant-decls 
-
+	
 # Define C++ warning options here
 CPPWARN = -Wall -Wextra
 
@@ -213,7 +224,7 @@ DLIBS =
 # List all user C define here, like -D_DEBUG=1
 #UDEFS =
 UDEFS = -DGIT_COMMIT_VERSION=$(MARIONETTE_VERSION)
-
+UDEFS += -DDBG_MSG_ENABLE=1
 
 # Define ASM defines here
 UADEFS =
