@@ -19,6 +19,12 @@ typedef enum GPIO_tokens
 	SENSE
 } GPIO_tokens;
 
+typedef enum GPIO_pinval {
+	LOW  =  0,
+	HIGH,
+	FAIL
+} GPIO_pinval;
+
 typedef enum GPIO_pinnums
 {
 	PIN0 = 0,
@@ -38,6 +44,8 @@ typedef enum GPIO_pinnums
 	PIN14,
 	PIN15
 } GPIO_pinnums;
+
+GPIO_pinval gpio_get(BaseSequentialStream * chp, char * commandl[]) ;
 
 void gpio_set(BaseSequentialStream * chp, char * commandl[]) ;
 void gpio_clear(BaseSequentialStream * chp, char * commandl[]) ;

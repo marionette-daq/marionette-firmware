@@ -167,14 +167,14 @@ static msg_t HBThread(void * arg)
 
 int main(void)
 {
-	Thread * shelltp = NULL;
+	Thread * 					shelltp = NULL;
+	static 		VERSIONData 	version_data;
 
 	halInit();
 	chSysInit();
 
 	shellInit();
 
-	static VERSIONData version_data;
 	util_hwversion(&version_data);
 	usb_set_serial_strings(version_data.hardware.id_high, version_data.hardware.id_center,
 	                       version_data.hardware.id_low);

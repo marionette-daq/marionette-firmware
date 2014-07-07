@@ -38,13 +38,11 @@
 
 #include "fetch.h"
 
-static      VERSIONData     version_data;
-static      char            prompt[SHELL_MAX_PROMPT_LENGTH];
+static      	VERSIONData     		version_data;
+static      	char            		prompt[SHELL_MAX_PROMPT_LENGTH];
 
-/**
- * @brief   Shell termination event source.
- */
-EventSource shell_terminated;
+EventSource 	shell_terminated;
+
 static void usage(BaseSequentialStream * chp, char * p)
 {
 	chprintf(chp, "Usage: %s\r\n", p);
@@ -91,8 +89,6 @@ static void cmd_noprompt(BaseSequentialStream * chp, int argc, char * argv[] UNU
 	}
 	prompt[0] = '\0';
 }
-
-
 
 static void cmd_info(BaseSequentialStream * chp, int argc, char * argv[])
 {
