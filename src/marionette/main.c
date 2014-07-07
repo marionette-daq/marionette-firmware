@@ -30,10 +30,6 @@
 /* Virtual serial port over USB.*/
 SerialUSBDriver SDU1;
 
-/*===========================================================================*/
-/* Command line related.                                                     */
-/*===========================================================================*/
-
 #define SHELL_WA_SIZE   THD_WA_SIZE(8192)
 #define TEST_WA_SIZE    THD_WA_SIZE(256)
 
