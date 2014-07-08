@@ -171,7 +171,7 @@ int main(void)
 	usbConnectBus(serusbcfg.usbp);
 
 	pwmStart(&PWMD4, &pwmcfg);
-	palSetPadMode(GPIOD, GPIOH_PIN2_LED1, PAL_STM32_MODE_OUTPUT| PAL_MODE_ALTERNATE(2));      /* Green.   */
+	palSetPadMode(GPIOD, GPIOH_PIN2, PAL_STM32_MODE_OUTPUT| PAL_MODE_ALTERNATE(2));      /* Green.   */
 
 	chThdCreateStatic(waHBThread, sizeof(waHBThread),
 	                  NORMALPRIO + 10, HBThread, NULL);
