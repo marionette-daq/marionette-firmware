@@ -18,6 +18,27 @@ static void gpio_get_port_pin(BaseSequentialStream * chp, char * commandl[],
 {
 	size_t maxlen = 0;
 
+	/*TODO I sometimes find it helpful to create a structure, with an array of elements, and iterate over. Something like this
+	 * typedef struct {
+	 *    char *port_string;
+	 *    GPIO_TypeDef *port;
+	 * } string_port_mapping_t;
+	 *
+	 * string_port_mapping_t    port_array[] = {
+	 * 	{"porta", GPIOA},
+	 * 	{"portb", GPIOB},
+	 * 	{"portc", GPIOC}
+	 * 	}
+	 */
+
+	/*FIXME I think validation is done in the fetch part of the code, however, that would imply an assumed consistency between the
+	 * other validation part of the code and this part of the code. I prefer to keep the definition of validity and the useful
+	 * operation being performed in one location, preferably identical code. One alternate approach may be to define this function
+	 * such that it can return an error, then do validation by running this function and checking for an error. I'm not sure if that
+	 * will work cleanly with the rest of the code base, but it's food for thought.
+	 */
+
+
 	if(strncasecmp(commandl[PORT], "porta", strlen("porta") ) == 0)
 	{
 		*port = GPIOA;
@@ -134,6 +155,7 @@ GPIO_pinval gpio_get(BaseSequentialStream * chp, char * commandl[])
 	GPIO_pinnums pin       = 0;
 
 	gpio_get_port_pin(chp, commandl, &port, &pin);
+	//FIXME if the port cannot be mapped, then *port is null, and this will seg-fault
 	return(palReadPad(port, pin));
 }
 
@@ -143,6 +165,7 @@ void gpio_set(BaseSequentialStream * chp, char * commandl[])
 	GPIO_pinnums pin       = 0;
 
 	gpio_get_port_pin(chp, commandl, &port, &pin);
+	//FIXME if the port cannot be mapped, then *port is null, and this will seg-fault
 	palSetPad(port, pin);
 }
 
@@ -152,6 +175,7 @@ void gpio_clear(BaseSequentialStream * chp, char * commandl[])
 	GPIO_pinnums pin       = 0;
 
 	gpio_get_port_pin(chp, commandl, &port, &pin);
+	//FIXME if the port cannot be mapped, then *port is null, and this will seg-fault
 	palClearPad(port, pin);
 
 }
@@ -160,8 +184,8 @@ void gpio_config(BaseSequentialStream * chp, char * commandl[])
 {
 	GPIO_TypeDef * port    = NULL;
 	GPIO_pinnums pin       = 0;
-	int sense     = 0;
-	int direction = 0;
+	int sense     = 0;//FIXME always set a reasonable default value, just in case the if-then-else blocks don't match anything, or return an error, which would proably be better
+	int direction = 0;//FIXME always set a reasonable default value, just in case the if-then-else blocks don't match anything, or return an error, which would proably be better
 
 	gpio_get_port_pin(chp, commandl, &port, &pin);
 

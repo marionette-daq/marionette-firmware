@@ -181,6 +181,7 @@ static msg_t shell_thread(void * p)
 	BaseSequentialStream * chp   = ((ShellConfig *)p)->sc_channel;
 	const ShellCommand * scp     = ((ShellConfig *)p)->sc_commands;
 	char * lp, *cmd, *tokp;
+	//FIXME SHELL_MAX_LINE_LENGTH is 64, proably too short???
 	char input_line[SHELL_MAX_LINE_LENGTH];
 	char command_line[SHELL_MAX_LINE_LENGTH];
 	char * args[SHELL_MAX_ARGUMENTS + 1];

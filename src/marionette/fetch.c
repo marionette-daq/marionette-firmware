@@ -296,6 +296,7 @@ void fetch_init(BaseSequentialStream * chp)
 */
 bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 {
+	//TODO these are large arrays on the stack, may cause problems with stack overflows depending on the stack size.  It's already at 1.25k bytes.
 	uint8_t n = 0;
 	char localinput[FETCH_MAX_LINE_CHARS];
 	char * lp, *tokp;
