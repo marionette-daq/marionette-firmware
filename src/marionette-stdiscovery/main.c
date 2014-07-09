@@ -16,9 +16,11 @@
 
 #include "ch.h"
 #include "hal.h"
+#include "test.h"
 
 #include "chprintf.h"
 #include "shell.h"
+#include "lis302dl.h"
 #include "board.h"
 
 #include "fetch.h"
@@ -73,12 +75,30 @@ void cmd_threads(BaseSequentialStream *chp, int argc, char *argv[]) {
     } while (tp != NULL);
 }
 
-
+static void cmd_test(BaseSequentialStream * chp, int argc, char * argv[])
+{
+	Thread * tp;
+	(void)argv;
+	if (argc > 0)
+	{
+		chprintf(chp, "Usage: test\r\n");
+		return;
+	}
+	tp = chThdCreateFromHeap(NULL, TEST_WA_SIZE, chThdGetPriority(),
+	                         TestThread, chp);
+	if (tp == NULL)
+	{
+		chprintf(chp, "out of memory\r\n");
+		return;
+	}
+	chThdWait(tp);
+}
 
 static const ShellCommand commands[] =
 {
 	{"mem", cmd_mem},
 	{"threads", cmd_threads},
+	{"test", cmd_test},
 	{NULL, NULL}
 };
 
@@ -171,7 +191,7 @@ int main(void)
 	usbConnectBus(serusbcfg.usbp);
 
 	pwmStart(&PWMD4, &pwmcfg);
-	palSetPadMode(GPIOD, GPIOH_PIN2, PAL_STM32_MODE_OUTPUT| PAL_MODE_ALTERNATE(2));      /* Green.   */
+	palSetPadMode(GPIOD, GPIOD_LED4, PAL_MODE_ALTERNATE(2));      /* Green.   */
 
 	chThdCreateStatic(waHBThread, sizeof(waHBThread),
 	                  NORMALPRIO + 10, HBThread, NULL);

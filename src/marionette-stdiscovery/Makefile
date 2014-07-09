@@ -74,13 +74,14 @@ CONF      = conf
 TOOLCHAIN = ../../toolchain
 include $(TOOLCHAIN)/marionette.mk
 CHIBIOS   = ../../ChibiOS-RT
-BOARD     = WAVESHARE_CORE407I
+BOARD     = ST_STM32F4_DISCOVERY
 BOARDDIR  = ../boards/$(BOARD)
 include $(BOARDDIR)/board.mk
 include $(CHIBIOS)/os/hal/platforms/STM32F4xx/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/ports/GCC/ARMCMx/STM32F4xx/port.mk
 include $(CHIBIOS)/os/kernel/kernel.mk
+include $(CHIBIOS)/test/test.mk
 
 # Define linker script file here
 LDSCRIPT= $(PORTLD)/STM32F407xG.ld
@@ -91,9 +92,11 @@ LDSCRIPT= $(PORTLD)/STM32F407xG.ld
 # setting.
 CSRC = $(PORTSRC) \
        $(KERNSRC) \
+       $(TESTSRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
+       $(CHIBIOS)/os/various/devices_lib/accel/lis302dl.c \
        $(CHIBIOS)/os/various/chprintf.c \
        $(MARIONETTE_UTIL)/util_version.c \
        $(MARIONETTE_UTIL)/util_strings.c \
@@ -131,8 +134,9 @@ TCPPSRC =
 # List ASM source files here
 ASMSRC = $(PORTASM)
 
-INCDIR = $(PORTINC) $(KERNINC) \
+INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) \
+         $(CHIBIOS)/os/various/devices_lib/accel \
          $(CHIBIOS)/os/various \
 	 $(MARIONETTE_DEVICES)/include $(MARIONETTE_UTIL)/include \
 	 ./include \
