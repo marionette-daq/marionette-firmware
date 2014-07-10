@@ -88,66 +88,6 @@ static const ShellConfig shell_cfg1 =
 	commands
 };
 
-/*
- * PWM configuration structure.
- * Cyclic callback enabled
- * the active state is a logic one.
- */
-static const PWMConfig pwmcfg =
-{
-	100000,                                   /* 100kHz PWM clock frequency.  */
-	128,                                      /* PWM period is 128 cycles.    */
-	NULL,
-	{
-		{PWM_OUTPUT_ACTIVE_HIGH, NULL},
-		{PWM_OUTPUT_ACTIVE_HIGH, NULL},
-		{PWM_OUTPUT_ACTIVE_HIGH, NULL},
-		{PWM_OUTPUT_ACTIVE_HIGH, NULL}
-	},
-	/* HW dependent part.*/
-	0,
-	0
-};
-
-/* heartbeat example thread */
-static WORKING_AREA(waHBThread, 128);
-static msg_t HBThread(void * arg)
-{
-	systime_t time;                   /* Next deadline.*/
-	(void)arg;
-	chRegSetThreadName("heartbeat");
-	bool up = true;
-
-	pwmcnt_t        pwm_cnt = 0;
-
-	time = chTimeNow();
-	while (TRUE)
-	{
-		uint16_t i;
-		const uint16_t highcount = 50;
-
-		if(up)
-		{
-			pwm_cnt = (pwm_cnt + 1);
-			if(pwm_cnt % highcount == 0)
-			{
-				up = !up;
-			}
-		}
-		else
-		{
-			pwm_cnt = (pwm_cnt - 1);
-			if(pwm_cnt % highcount == 0)
-			{
-				up = !up;
-			}
-		}
-		pwmEnableChannel(&PWMD4, 0, pwm_cnt);
-		/* Waiting until the next N milliseconds time interval.*/
-		chThdSleepUntil(time += MS2ST(40));
-	}
-	return 0;
-}
 
 int main(void)
 {
@@ -169,12 +109,6 @@ int main(void)
 	chThdSleepMilliseconds(1000);
 	usbStart(serusbcfg.usbp, &usbcfg);
 	usbConnectBus(serusbcfg.usbp);
-
-	pwmStart(&PWMD4, &pwmcfg);
-	palSetPadMode(GPIOD, GPIOH_PIN2, PAL_STM32_MODE_OUTPUT| PAL_MODE_ALTERNATE(2));      /* Green.   */
-
-	chThdCreateStatic(waHBThread, sizeof(waHBThread),
-	                  NORMALPRIO + 10, HBThread, NULL);
 
 	while (TRUE)
 	{
