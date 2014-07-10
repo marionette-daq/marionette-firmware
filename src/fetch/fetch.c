@@ -68,19 +68,36 @@ static Command_dictionary          gpio_lookup      = { .enabled = true, .max_da
 static Command_dictionary          version_lookup   = { .enabled = true, .max_data_bytes = 0, .helpstring = VERSION_HELPSTRING};
 static Command_dictionary          resetpins_lookup = { .enabled = true, .max_data_bytes = 0, .helpstring = RESETPINS_HELPSTRING};
 
-// All elements of the Terminal set (∑) have definitions here.
-static const char * command[]          = {"?", "help", "gpio", "adc", "spi", "i2c", "resetpins"};
-static bool (*cmd_fns[NELEMS(command)]) (BaseSequentialStream * chp, char * l1[], char * l2[]);
+/*!
+ * For parsing we need some large arrays to chop up strings
+ * Current solution is allocate these in the .data section
+ * not on the stack in \sa fetch_parse
+ */
+static char     localinput[FETCH_MAX_LINE_CHARS];
+static char     commandstr[FETCH_MAX_LINE_CHARS];
+static char     datastr[FETCH_MAX_LINE_CHARS];
+char      *     command_toks[FETCH_MAX_LINE_CHARS];
+char      *     data_toks[FETCH_MAX_LINE_CHARS];
 
-static const char * gpio_subcommandA[] = {"get", "set", "clear", "configure"};
-static const char * gpio_direction[]   = {"input", "output"};
-static const char * gpio_sense[]       = {"pullup", "pulldown", "floating", "analog"};
-static const char * port_subcommand[]  = {"porta", "portb", "portc", "portd", "porte", "portf", "portg", "porth", "porti" };
-static const char * pin_subcommand[]   = {"pin0", "pin1", "pin2", "pin3", "pin4", "pin5", "pin6", "pin7", "pin8", "pin9", "pin10", "pin11", "pin12", "pin13", "pin14", "pin15" };
-static const char * subcommandD[]      = {};
-static const char * digit[]            = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e"};
-static const char * EOL[]              = {"\n"};
-static const char * whitespace[]       = {" ", "\t"};
+
+static Command_terminals fetch_terminals =
+{
+	.command          = {"?", "help", "gpio", "adc", "spi", "i2c", "resetpins"},
+
+	.gpio_subcommandA = {"get", "set", "clear", "configure"},
+	.gpio_direction   = {"input", "output"},
+	.gpio_sense       = {"pullup", "pulldown", "floating", "analog"},
+	.port_subcommand  = {"porta", "portb", "portc", "portd", "porte", "portf", "portg", "porth", "porti" },
+	.pin_subcommand   = {"pin0", "pin1", "pin2", "pin3", "pin4", "pin5", "pin6", "pin7", "pin8", "pin9", "pin10", "pin11", "pin12", "pin13", "pin14", "pin15" },
+	.subcommandD      = {},
+	.digit            = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e"},
+	.EOL              = {"\n"},
+	.whitespace       = {" ", "\t"}
+};
+
+
+static bool (*cmd_fns[NELEMS(fetch_terminals.command)]) (BaseSequentialStream * chp,
+                char * l1[], char * l2[]);
 
 static bool fetch_not_yet(BaseSequentialStream  * chp, char * cmd_list[] UNUSED,
                           char * data_list[] UNUSED)
@@ -88,32 +105,6 @@ static bool fetch_not_yet(BaseSequentialStream  * chp, char * cmd_list[] UNUSED,
 	DBG_MSG(chp, "Not implemented");
 	return false;
 };
-
-/*! \brief support validation functions
- *   \warning don't call string functions on NULL pointers
- *  Return and index into the array on match
- *  Return =1 on no match
- */
-static int fetch_token_match(BaseSequentialStream * chp, const char * tok_array[],
-                             char * chk_tok,
-                             int num_elems)
-{
-	size_t maxlen = 1;
-	for(int i = 0; i < num_elems; ++i)
-	{
-
-		chDbgAssert(((tok_array[i] != NULL)
-		             && (chk_tok != NULL)), "fetch_token_match() #1", "NULL pointer");
-
-		maxlen = get_longest_str_length(tok_array[i], chk_tok, FETCH_MAX_CMD_STRLEN);
-
-		if (strncasecmp(tok_array[i], chk_tok, maxlen ) == 0)
-		{
-			return i;
-		}
-	}
-	return -1;
-}
 
 /*!
  * *_is_valid_command...
@@ -140,55 +131,60 @@ static int fetch_token_match(BaseSequentialStream * chp, const char * tok_array[
 
 static inline int fetch_is_valid_command(BaseSequentialStream * chp, char * chkcommand)
 {
-	return(fetch_token_match(chp, command, chkcommand, ((int) NELEMS(command)) ));
+	return(fetch_token_match(chp, fetch_terminals.command, chkcommand,
+	                         ((int) NELEMS(fetch_terminals.command)) ));
 }
 
 static inline int fetch_is_valid_gpio_direction(BaseSequentialStream * chp,
                 char * chkgpio_direction)
 {
-	return( fetch_token_match(chp, gpio_direction, chkgpio_direction,
-	                          ((int) NELEMS(gpio_direction))) );
+	return( fetch_token_match(chp, fetch_terminals.gpio_direction, chkgpio_direction,
+	                          ((int) NELEMS(fetch_terminals.gpio_direction))) );
 }
 
 static inline int fetch_is_valid_gpio_sense(BaseSequentialStream * chp, char * chkgpio_sense)
 {
-	return(fetch_token_match(chp, gpio_sense, chkgpio_sense, ((int) NELEMS(gpio_sense))) );
+	return(fetch_token_match(chp, fetch_terminals.gpio_sense, chkgpio_sense,
+	                         ((int) NELEMS(fetch_terminals.gpio_sense))) );
 }
 
 static inline int fetch_is_valid_gpio_subcommandA(BaseSequentialStream * chp,
                 char * chkgpio_subcommandA)
 {
-	return(fetch_token_match(chp, gpio_subcommandA, chkgpio_subcommandA,
-	                         ((int) NELEMS(gpio_subcommandA)) ) );
+	return(fetch_token_match(chp, fetch_terminals.gpio_subcommandA, chkgpio_subcommandA,
+	                         ((int) NELEMS(fetch_terminals.gpio_subcommandA)) ) );
 }
 
 static inline int fetch_is_valid_port_subcommand(BaseSequentialStream * chp,
                 char * chkport_subcommand)
 {
-	return(fetch_token_match(chp, port_subcommand, chkport_subcommand,
-	                         ((int) NELEMS(port_subcommand))) );
+	return(fetch_token_match(chp, fetch_terminals.port_subcommand, chkport_subcommand,
+	                         ((int) NELEMS(fetch_terminals.port_subcommand))) );
 }
 
 static inline int fetch_is_valid_pin_subcommand(BaseSequentialStream * chp,
                 char * chkpin_subcommand)
 {
-	return(fetch_token_match(chp, pin_subcommand, chkpin_subcommand,
-	                         ((int) NELEMS(pin_subcommand))) );
+	return(fetch_token_match(chp, fetch_terminals.pin_subcommand, chkpin_subcommand,
+	                         ((int) NELEMS(fetch_terminals.pin_subcommand))) );
 }
 
 static inline int fetch_is_valid_digit(BaseSequentialStream * chp, char * chkdigit)
 {
-	return(fetch_token_match(chp, digit, chkdigit, ((int) NELEMS(digit))) );
+	return(fetch_token_match(chp, fetch_terminals.digit, chkdigit,
+	                         ((int) NELEMS(fetch_terminals.digit))) );
 }
 
 static inline int fetch_is_valid_EOL(BaseSequentialStream * chp, char * chkEOL)
 {
-	return(fetch_token_match(chp, EOL, chkEOL, ((int) NELEMS(EOL))) );
+	return(fetch_token_match(chp, fetch_terminals.EOL, chkEOL,
+	                         ((int) NELEMS(fetch_terminals.EOL))) );
 }
 
 static inline int fetch_is_valid_whitespace(BaseSequentialStream * chp, char * chkwhitespace)
 {
-	return(fetch_token_match(chp, whitespace, chkwhitespace, ((int) NELEMS(whitespace))) );
+	return(fetch_token_match(chp, fetch_terminals.whitespace, chkwhitespace,
+	                         ((int) NELEMS(fetch_terminals.whitespace))) );
 }
 
 /* --- */
@@ -205,6 +201,7 @@ static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl
 
 static bool fetch_gpio(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[])
 {
+	//gpio_dispatch(chp, cmd_list, data_list, CMD_terminals * fetch_cmds);
 	if(fetch_is_valid_gpio_subcommandA(chp, cmd_list[ACTION]) >= 0)
 	{
 		if(fetch_is_valid_port_subcommand(chp, cmd_list[PORT]) >= 0)
@@ -258,21 +255,24 @@ static bool fetch_resetpins(BaseSequentialStream * chp, char * cmd_list[] UNUSED
 */
 static void fetch_init_cmd_fns(BaseSequentialStream * chp)
 {
-	for(int i = 0; i < ((int) NELEMS(command)); ++i)
+	for(int i = 0; i < ((int) NELEMS(fetch_terminals.command)); ++i)
 	{
-		if (strncasecmp(command[i], "?", strlen(command[i]) ) == 0)
+		if (strncasecmp(fetch_terminals.command[i], "?", strlen(fetch_terminals.command[i]) ) == 0)
 		{
 			cmd_fns[i] = fetch_info;
 		}
-		else if (strncasecmp(command[i], "help", strlen(command[i]) ) == 0)
+		else if (strncasecmp(fetch_terminals.command[i], "help",
+		                     strlen(fetch_terminals.command[i]) ) == 0)
 		{
 			cmd_fns[i] = fetch_info;
 		}
-		else if (strncasecmp(command[i], "gpio", strlen(command[i]) ) == 0)
+		else if (strncasecmp(fetch_terminals.command[i], "gpio",
+		                     strlen(fetch_terminals.command[i]) ) == 0)
 		{
 			cmd_fns[i] = fetch_gpio;
 		}
-		else if (strncasecmp(command[i], "resetpins", strlen(command[i]) ) == 0)
+		else if (strncasecmp(fetch_terminals.command[i], "resetpins",
+		                     strlen(fetch_terminals.command[i]) ) == 0)
 		{
 			cmd_fns[i] = fetch_resetpins;
 		}
@@ -281,6 +281,32 @@ static void fetch_init_cmd_fns(BaseSequentialStream * chp)
 			cmd_fns[i] = fetch_not_yet;
 		}
 	}
+}
+
+/*! \brief support validation functions
+ *   \warning don't call string functions on NULL pointers
+ *  Return and index into the array on match
+ *  Return =1 on no match
+ */
+int fetch_token_match(BaseSequentialStream * chp, const char * tok_array[],
+                      char * chk_tok,
+                      int num_elems)
+{
+	size_t maxlen = 1;
+	for(int i = 0; i < num_elems; ++i)
+	{
+
+		chDbgAssert(((tok_array[i] != NULL)
+		             && (chk_tok != NULL)), "fetch_token_match() #1", "NULL pointer");
+
+		maxlen = get_longest_str_length(tok_array[i], chk_tok, FETCH_MAX_CMD_STRLEN);
+
+		if (strncasecmp(tok_array[i], chk_tok, maxlen ) == 0)
+		{
+			return i;
+		}
+	}
+	return -1;
 }
 
 /*! \brief catch all function for initialization */
@@ -296,16 +322,11 @@ void fetch_init(BaseSequentialStream * chp)
 */
 bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 {
-	//TODO these are large arrays on the stack, may cause problems with stack overflows depending on the stack size.  It's already at 1.25k bytes.
 	uint8_t n = 0;
-	char localinput[FETCH_MAX_LINE_CHARS];
 	char * lp, *tokp;
+
 	char * colonpart;
-	char commandstr[FETCH_MAX_LINE_CHARS];
-	char * command_toks[FETCH_MAX_LINE_CHARS];
 	char * parenpart;
-	char datastr[FETCH_MAX_LINE_CHARS];
-	char * data_toks[FETCH_MAX_LINE_CHARS];
 
 	// don't mess up the string passed from outside this function
 	strncpy(localinput, inputline, FETCH_MAX_LINE_CHARS);
@@ -400,4 +421,5 @@ bool fetch_dispatch(BaseSequentialStream * chp, char * command_list[], char * da
 
 	return ( (*cmd_fns[cindex]) (chp, command_list, data_list) );
 }
+
 

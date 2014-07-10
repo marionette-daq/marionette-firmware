@@ -38,17 +38,17 @@
 
 #include "fetch.h"
 
-static      	VERSIONData     		version_data;
-static      	char            		prompt[SHELL_MAX_PROMPT_LENGTH];
+static          VERSIONData                     version_data;
+static          char                            prompt[MSHELL_MAX_PROMPT_LENGTH];
 
-EventSource 	shell_terminated;
+EventSource     mshell_terminated;
 
 static void usage(BaseSequentialStream * chp, char * p)
 {
 	chprintf(chp, "Usage: %s\r\n", p);
 }
 
-static void list_commands(BaseSequentialStream * chp, const ShellCommand * scp)
+static void list_commands(BaseSequentialStream * chp, const MShellCommand * scp)
 {
 	while (scp->sc_name != NULL)
 	{
@@ -78,7 +78,7 @@ static void cmd_prompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSE
 		usage(chp, "prompt");
 		return;
 	}
-	strncpy(prompt, "m > ", SHELL_MAX_PROMPT_LENGTH);
+	strncpy(prompt, "m > ", MSHELL_MAX_PROMPT_LENGTH);
 }
 static void cmd_noprompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
 {
@@ -140,7 +140,7 @@ static void cmd_systime(BaseSequentialStream * chp, int argc, char * argv[])
 /**
  * @brief   Array of the default commands.
  */
-static ShellCommand local_commands[] =
+static MShellCommand local_commands[] =
 {
 	{"info", cmd_info},
 	{"systime", cmd_systime},
@@ -150,7 +150,7 @@ static ShellCommand local_commands[] =
 	{NULL, NULL}
 };
 
-static bool_t cmdexec(const ShellCommand * scp, BaseSequentialStream * chp,
+static bool_t cmdexec(const MShellCommand * scp, BaseSequentialStream * chp,
                       char * name, int argc, char * argv[])
 {
 	while (scp->sc_name != NULL)
@@ -166,7 +166,7 @@ static bool_t cmdexec(const ShellCommand * scp, BaseSequentialStream * chp,
 }
 
 /**
- * @brief   Shell thread function.
+ * @brief   MShell thread function.
  *
  * @param[in] p         pointer to a @p BaseSequentialStream object
  * @return              Termination reason.
@@ -175,21 +175,20 @@ static bool_t cmdexec(const ShellCommand * scp, BaseSequentialStream * chp,
  *
  * @notapi
  */
-static msg_t shell_thread(void * p)
+static msg_t mshell_thread(void * p)
 {
 	int n;
-	BaseSequentialStream * chp   = ((ShellConfig *)p)->sc_channel;
-	const ShellCommand * scp     = ((ShellConfig *)p)->sc_commands;
+	BaseSequentialStream * chp   = ((MShellConfig *)p)->sc_channel;
+	const MShellCommand  * scp   = ((MShellConfig *)p)->sc_commands;
 	char * lp, *cmd, *tokp;
-	//FIXME SHELL_MAX_LINE_LENGTH is 64, proably too short???
-	char input_line[SHELL_MAX_LINE_LENGTH];
-	char command_line[SHELL_MAX_LINE_LENGTH];
-	char * args[SHELL_MAX_ARGUMENTS + 1];
 
-	strncpy(prompt, "m > ", SHELL_MAX_PROMPT_LENGTH);
+	char input_line[MSHELL_MAX_LINE_LENGTH];
+	char command_line[MSHELL_MAX_LINE_LENGTH];
+	char * args[MSHELL_MAX_ARGUMENTS + 1];
+
+	strncpy(prompt, "m > ", MSHELL_MAX_PROMPT_LENGTH);
 	chRegSetThreadName("mshell");
 	chThdSleepMilliseconds(1000);
-	chprintf(chp, "\r\n\r\n");
 	chprintf(chp, "\r\nMarionette Shell (\"+help\" for shell commands)\r\n");
 
 	// initialize parser.
@@ -198,20 +197,20 @@ static msg_t shell_thread(void * p)
 	while (TRUE)
 	{
 		chprintf(chp, "%s", prompt);
-		if (shellGetLine(chp, input_line, sizeof(input_line)))
+		if (mshellGetLine(chp, input_line, sizeof(input_line)))
 		{
 			chprintf(chp, "\r\nlogout");
 			break;
 		}
-		if(input_line[0] == '+')    // use escape to process shell commands
+		if(input_line[0] == '+')    // use escape to process mshell commands
 		{
-			strncpy(command_line, &input_line[1], SHELL_MAX_LINE_LENGTH);
+			strncpy(command_line, &input_line[1], MSHELL_MAX_LINE_LENGTH);
 			lp = _strtok(command_line, " \t", &tokp);
 			cmd = lp;
 			n = 0;
 			while ((lp = _strtok(NULL, " \t", &tokp)) != NULL)
 			{
-				if (n >= SHELL_MAX_ARGUMENTS)
+				if (n >= MSHELL_MAX_ARGUMENTS)
 				{
 					chprintf(chp, "too many arguments\r\n");
 					cmd = NULL;
@@ -256,7 +255,7 @@ static msg_t shell_thread(void * p)
 		}
 		else
 		{
-			strncpy(command_line, &input_line[0], SHELL_MAX_LINE_LENGTH);
+			strncpy(command_line, &input_line[0], MSHELL_MAX_LINE_LENGTH);
 			if(!fetch_parse(chp, command_line))
 			{
 				DBG_MSG(chp, "Parse fail.");
@@ -265,19 +264,19 @@ static msg_t shell_thread(void * p)
 			};
 		}
 	}
-	shellExit(RDY_OK);
+	mshellExit(RDY_OK);
 	/* Never executed, silencing a warning.*/
 	return 0;
 }
 
 /**
- * @brief   Shell manager initialization.
+ * @brief   MShell manager initialization.
  *
  * @api
  */
-void shellInit(void)
+void mshellInit(void)
 {
-	chEvtInit(&shell_terminated);
+	chEvtInit(&mshell_terminated);
 }
 
 /**
@@ -289,12 +288,12 @@ void shellInit(void)
  *
  * @api
  */
-void shellExit(msg_t msg)
+void mshellExit(msg_t msg)
 {
 	/* Atomically broadcasting the event source and terminating the thread,
 	   there is not a chSysUnlock() because the thread terminates upon return.*/
 	chSysLock();
-	chEvtBroadcastI(&shell_terminated);
+	chEvtBroadcastI(&mshell_terminated);
 	chThdExitS(msg);
 }
 
@@ -302,7 +301,7 @@ void shellExit(msg_t msg)
  * @brief   Spawns a new shell.
  * @pre     @p CH_USE_HEAP and @p CH_USE_DYNAMIC must be enabled.
  *
- * @param[in] scp       pointer to a @p ShellConfig object
+ * @param[in] scp       pointer to a @p MShellConfig object
  * @param[in] size      size of the shell working area to be allocated
  * @param[in] prio      priority level for the new shell
  * @return              A pointer to the shell thread.
@@ -311,16 +310,16 @@ void shellExit(msg_t msg)
  * @api
  */
 #if CH_USE_HEAP && CH_USE_DYNAMIC
-Thread * shellCreate(const ShellConfig * scp, size_t size, tprio_t prio)
+Thread * mshellCreate(const MShellConfig * scp, size_t size, tprio_t prio)
 {
-	return chThdCreateFromHeap(NULL, size, prio, shell_thread, (void *)scp);
+	return chThdCreateFromHeap(NULL, size, prio, mshell_thread, (void *)scp);
 }
 #endif
 
 /**
  * @brief   Create statically allocated shell thread.
  *
- * @param[in] scp       pointer to a @p ShellConfig object
+ * @param[in] scp       pointer to a @p MShellConfig object
  * @param[in] wsp       pointer to a working area dedicated to the shell thread stack
  * @param[in] size      size of the shell working area
  * @param[in] prio      priority level for the new shell
@@ -328,10 +327,10 @@ Thread * shellCreate(const ShellConfig * scp, size_t size, tprio_t prio)
  *
  * @api
  */
-Thread * shellCreateStatic(const ShellConfig * scp, void * wsp,
+Thread * shellCreateStatic(const MShellConfig * scp, void * wsp,
                            size_t size, tprio_t prio)
 {
-	return chThdCreateStatic(wsp, size, prio, shell_thread, (void *)scp);
+	return chThdCreateStatic(wsp, size, prio, mshell_thread, (void *)scp);
 }
 
 /**
@@ -346,7 +345,7 @@ Thread * shellCreateStatic(const ShellConfig * scp, void * wsp,
  *
  * @api
  */
-bool_t shellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
+bool_t mshellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
 {
 	char * p = line;
 	while (TRUE)
@@ -391,5 +390,4 @@ bool_t shellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
 }
 
 /** @} */
-
 
