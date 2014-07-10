@@ -134,54 +134,33 @@ static inline int fetch_is_valid_command(BaseSequentialStream * chp, char * chkc
 	return(fetch_token_match(chp, fetch_terminals.command, chkcommand,
 	                         ((int) NELEMS(fetch_terminals.command)) ));
 }
-
-static inline int fetch_is_valid_gpio_direction(BaseSequentialStream * chp,
-                char * chkgpio_direction)
-{
-	return( fetch_token_match(chp, fetch_terminals.gpio_direction, chkgpio_direction,
-	                          ((int) NELEMS(fetch_terminals.gpio_direction))) );
-}
-
-static inline int fetch_is_valid_gpio_sense(BaseSequentialStream * chp, char * chkgpio_sense)
-{
-	return(fetch_token_match(chp, fetch_terminals.gpio_sense, chkgpio_sense,
-	                         ((int) NELEMS(fetch_terminals.gpio_sense))) );
-}
-
-static inline int fetch_is_valid_gpio_subcommandA(BaseSequentialStream * chp,
-                char * chkgpio_subcommandA)
-{
-	return(fetch_token_match(chp, fetch_terminals.gpio_subcommandA, chkgpio_subcommandA,
-	                         ((int) NELEMS(fetch_terminals.gpio_subcommandA)) ) );
-}
-
-static inline int fetch_is_valid_port_subcommand(BaseSequentialStream * chp,
+inline int fetch_is_valid_port_subcommand(BaseSequentialStream * chp,
                 char * chkport_subcommand)
 {
 	return(fetch_token_match(chp, fetch_terminals.port_subcommand, chkport_subcommand,
 	                         ((int) NELEMS(fetch_terminals.port_subcommand))) );
 }
 
-static inline int fetch_is_valid_pin_subcommand(BaseSequentialStream * chp,
+inline int fetch_is_valid_pin_subcommand(BaseSequentialStream * chp,
                 char * chkpin_subcommand)
 {
 	return(fetch_token_match(chp, fetch_terminals.pin_subcommand, chkpin_subcommand,
 	                         ((int) NELEMS(fetch_terminals.pin_subcommand))) );
 }
 
-static inline int fetch_is_valid_digit(BaseSequentialStream * chp, char * chkdigit)
+inline int fetch_is_valid_digit(BaseSequentialStream * chp, char * chkdigit)
 {
 	return(fetch_token_match(chp, fetch_terminals.digit, chkdigit,
 	                         ((int) NELEMS(fetch_terminals.digit))) );
 }
 
-static inline int fetch_is_valid_EOL(BaseSequentialStream * chp, char * chkEOL)
+inline int fetch_is_valid_EOL(BaseSequentialStream * chp, char * chkEOL)
 {
 	return(fetch_token_match(chp, fetch_terminals.EOL, chkEOL,
 	                         ((int) NELEMS(fetch_terminals.EOL))) );
 }
 
-static inline int fetch_is_valid_whitespace(BaseSequentialStream * chp, char * chkwhitespace)
+inline int fetch_is_valid_whitespace(BaseSequentialStream * chp, char * chkwhitespace)
 {
 	return(fetch_token_match(chp, fetch_terminals.whitespace, chkwhitespace,
 	                         ((int) NELEMS(fetch_terminals.whitespace))) );
@@ -201,45 +180,7 @@ static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl
 
 static bool fetch_gpio(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[])
 {
-	//gpio_dispatch(chp, cmd_list, data_list, CMD_terminals * fetch_cmds);
-	if(fetch_is_valid_gpio_subcommandA(chp, cmd_list[ACTION]) >= 0)
-	{
-		if(fetch_is_valid_port_subcommand(chp, cmd_list[PORT]) >= 0)
-		{
-			if(fetch_is_valid_pin_subcommand(chp, cmd_list[PIN]) >= 0)
-			{
-				if (strncasecmp(cmd_list[1], "get", strlen("get") ) == 0)
-				{
-					chprintf(chp, "%d\r\n", gpio_get(chp, cmd_list));
-				}
-				else if (strncasecmp(cmd_list[1], "set", strlen("set") ) == 0)
-				{
-					gpio_set(chp, cmd_list);
-				}
-				else if (strncasecmp(cmd_list[1], "clear", strlen("clear") ) == 0)
-				{
-					gpio_clear(chp, cmd_list);
-				}
-				else if (strncasecmp(cmd_list[1], "config", strlen("config") ) == 0)
-				{
-					if( (cmd_list[DIRECTION] != NULL) && (cmd_list[SENSE] != NULL))
-					{
-						gpio_config(chp, cmd_list);
-					}
-					else
-					{
-						return false;
-					}
-				}
-				else
-				{
-					fetch_not_yet(chp, cmd_list, data_list) ;
-				}
-				return true;
-			}
-		}
-	}
-	return false;
+	return(gpio_dispatch(chp, cmd_list, data_list, CMD_terminals * fetch_cmds));
 }
 
 static bool fetch_resetpins(BaseSequentialStream * chp, char * cmd_list[] UNUSED,

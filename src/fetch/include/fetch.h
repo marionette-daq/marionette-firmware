@@ -56,6 +56,13 @@ typedef struct Command_dictionary
 // Functions
 int  fetch_token_match(BaseSequentialStream * chp, const char * tok_array[], char * chk_tok, int num_elems);
 
+int fetch_is_valid_port_subcommand(BaseSequentialStream * chp, char * chkport_subcommand);
+int fetch_is_valid_pin_subcommand(BaseSequentialStream * chp, char * chkpin_subcommand);
+
+int fetch_is_valid_digit(BaseSequentialStream * chp, char * chkdigit);
+int fetch_is_valid_EOL(BaseSequentialStream * chp, char * chkEOL);
+int fetch_is_valid_whitespace(BaseSequentialStream * chp, char * chkwhitespace);
+
 void fetch_init(BaseSequentialStream *  chp) ;
 
 bool fetch_parse(BaseSequentialStream* chp, char * inputline);

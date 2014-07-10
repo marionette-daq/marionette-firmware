@@ -13,7 +13,28 @@
 
 #include "gpio.h"
 
-static void gpio_get_port_pin(BaseSequentialStream * chp, char * commandl[],
+static inline int fetch_is_valid_gpio_direction(BaseSequentialStream * chp,
+                char * chkgpio_direction)
+{
+	return( fetch_token_match(chp, fetch_terminals.gpio_direction, chkgpio_direction,
+	                          ((int) NELEMS(fetch_terminals.gpio_direction))) );
+}
+
+static inline int fetch_is_valid_gpio_sense(BaseSequentialStream * chp, char * chkgpio_sense)
+{
+	return(fetch_token_match(chp, fetch_terminals.gpio_sense, chkgpio_sense,
+	                         ((int) NELEMS(fetch_terminals.gpio_sense))) );
+}
+
+static inline int fetch_is_valid_gpio_subcommandA(BaseSequentialStream * chp,
+                char * chkgpio_subcommandA)
+{
+	return(fetch_token_match(chp, fetch_terminals.gpio_subcommandA, chkgpio_subcommandA,
+	                         ((int) NELEMS(fetch_terminals.gpio_subcommandA)) ) );
+}
+
+
+static bool gpio_get_port_pin(BaseSequentialStream * chp, char * commandl[],
                               GPIO_TypeDef ** port, GPIO_pinnums * pin)
 {
 	size_t maxlen = 0;
@@ -25,10 +46,10 @@ static void gpio_get_port_pin(BaseSequentialStream * chp, char * commandl[],
 	 * } string_port_mapping_t;
 	 *
 	 * string_port_mapping_t    port_array[] = {
-	 * 	{"porta", GPIOA},
-	 * 	{"portb", GPIOB},
-	 * 	{"portc", GPIOC}
-	 * 	}
+	 *      {"porta", GPIOA},
+	 *      {"portb", GPIOB},
+	 *      {"portc", GPIOC}
+	 *      }
 	 */
 
 	/*FIXME I think validation is done in the fetch part of the code, however, that would imply an assumed consistency between the
@@ -38,126 +59,163 @@ static void gpio_get_port_pin(BaseSequentialStream * chp, char * commandl[],
 	 * will work cleanly with the rest of the code base, but it's food for thought.
 	 */
 
-
-	if(strncasecmp(commandl[PORT], "porta", strlen("porta") ) == 0)
+	if(fetch_is_valid_port_subcommand(chp, cmd_list[PORT]) >= 0)
 	{
-		*port = GPIOA;
-	}
-	else if(strncasecmp(commandl[PORT], "portb", strlen("porta") ) == 0)
-	{
-		*port = GPIOB;
-	}
-	else if(strncasecmp(commandl[PORT], "portc", strlen("porta") ) == 0)
-	{
-		*port = GPIOC;
-	}
-	else if(strncasecmp(commandl[PORT], "portd", strlen("porta") ) == 0)
-	{
-		*port = GPIOD;
-	}
-	else if(strncasecmp(commandl[PORT], "porte", strlen("porta") ) == 0)
-	{
-		*port = GPIOE;
-	}
-	else if(strncasecmp(commandl[PORT], "portf", strlen("porta") ) == 0)
-	{
-		*port = GPIOF;
-	}
-	else if(strncasecmp(commandl[PORT], "portg", strlen("porta") ) == 0)
-	{
-		*port = GPIOG;
-	}
-	else if(strncasecmp(commandl[PORT], "porth", strlen("porta") ) == 0)
-	{
-		*port = GPIOH;
-	}
-	else if(strncasecmp(commandl[PORT], "porti", strlen("porta") ) == 0)
-	{
-		*port = GPIOI;
-	}
-
-	maxlen = get_longest_str_length(commandl[PIN], "pinX", MAX_PIN_STR_LEN );
-	if(maxlen == 4 )
-	{
-		if(strncasecmp(commandl[PIN], "pin0", maxlen ) == 0)
+		if(strncasecmp(commandl[PORT], "porta", strlen("porta") ) == 0)
 		{
-			*pin = PIN0;
+			*port = GPIOA;
 		}
-		else if (strncasecmp(commandl[PIN], "pin1", maxlen ) == 0)
+		else if(strncasecmp(commandl[PORT], "portb", strlen("porta") ) == 0)
 		{
-			*pin = PIN1;
+			*port = GPIOB;
 		}
-		else if (strncasecmp(commandl[PIN], "pin2", maxlen ) == 0)
+		else if(strncasecmp(commandl[PORT], "portc", strlen("porta") ) == 0)
 		{
-			*pin = PIN2;
+			*port = GPIOC;
 		}
-		else if (strncasecmp(commandl[PIN], "pin3", maxlen ) == 0)
+		else if(strncasecmp(commandl[PORT], "portd", strlen("porta") ) == 0)
 		{
-			*pin = PIN3;
+			*port = GPIOD;
 		}
-		else if (strncasecmp(commandl[PIN], "pin4", maxlen ) == 0)
+		else if(strncasecmp(commandl[PORT], "porte", strlen("porta") ) == 0)
 		{
-			*pin = PIN4;
+			*port = GPIOE;
 		}
-		else if (strncasecmp(commandl[PIN], "pin5", maxlen ) == 0)
+		else if(strncasecmp(commandl[PORT], "portf", strlen("porta") ) == 0)
 		{
-			*pin = PIN5;
+			*port = GPIOF;
 		}
-		else if (strncasecmp(commandl[PIN], "pin6", maxlen ) == 0)
+		else if(strncasecmp(commandl[PORT], "portg", strlen("porta") ) == 0)
 		{
-			*pin = PIN6;
+			*port = GPIOG;
 		}
-		else if (strncasecmp(commandl[PIN], "pin7", maxlen ) == 0)
+		else if(strncasecmp(commandl[PORT], "porth", strlen("porta") ) == 0)
 		{
-			*pin = PIN7;
+			*port = GPIOH;
 		}
-		else if (strncasecmp(commandl[PIN], "pin8", maxlen + 5 ) == 0)
+		else if(strncasecmp(commandl[PORT], "porti", strlen("porta") ) == 0)
 		{
-			*pin = PIN8;
+			*port = GPIOI;
 		}
-		else if (strncasecmp(commandl[PIN], "pin9", maxlen ) == 0)
+		else
 		{
-			*pin = PIN9;
+			*port = NULL;
+			return false;
 		}
 	}
 	else
 	{
-		if (strncasecmp(commandl[PIN], "pin10", maxlen ) == 0)
+		return false;
+	}
+	if(fetch_is_valid_pin_subcommand(chp, cmd_list[PIN]) >= 0)
+	{
+
+		maxlen = get_longest_str_length(commandl[PIN], "pinX", MAX_PIN_STR_LEN );
+		if(maxlen == 4 )
 		{
-			*pin = PIN10;
+			if(strncasecmp(commandl[PIN], "pin0", maxlen ) == 0)
+			{
+				*pin = PIN0;
+			}
+			else if (strncasecmp(commandl[PIN], "pin1", maxlen ) == 0)
+			{
+				*pin = PIN1;
+			}
+			else if (strncasecmp(commandl[PIN], "pin2", maxlen ) == 0)
+			{
+				*pin = PIN2;
+			}
+			else if (strncasecmp(commandl[PIN], "pin3", maxlen ) == 0)
+			{
+				*pin = PIN3;
+			}
+			else if (strncasecmp(commandl[PIN], "pin4", maxlen ) == 0)
+			{
+				*pin = PIN4;
+			}
+			else if (strncasecmp(commandl[PIN], "pin5", maxlen ) == 0)
+			{
+				*pin = PIN5;
+			}
+			else if (strncasecmp(commandl[PIN], "pin6", maxlen ) == 0)
+			{
+				*pin = PIN6;
+			}
+			else if (strncasecmp(commandl[PIN], "pin7", maxlen ) == 0)
+			{
+				*pin = PIN7;
+			}
+			else if (strncasecmp(commandl[PIN], "pin8", maxlen + 5 ) == 0)
+			{
+				*pin = PIN8;
+			}
+			else if (strncasecmp(commandl[PIN], "pin9", maxlen ) == 0)
+			{
+				*pin = PIN9;
+			}
+			else
+			{
+				*pin = NULL;
+				return false;
+			}
 		}
-		else if (strncasecmp(commandl[PIN], "pin11", maxlen ) == 0)
+		else
 		{
-			*pin = PIN11;
+			if (strncasecmp(commandl[PIN], "pin10", maxlen ) == 0)
+			{
+				*pin = PIN10;
+			}
+			else if (strncasecmp(commandl[PIN], "pin11", maxlen ) == 0)
+			{
+				*pin = PIN11;
+			}
+			else if (strncasecmp(commandl[PIN], "pin12", maxlen ) == 0)
+			{
+				*pin = PIN12;
+			}
+			else if (strncasecmp(commandl[PIN], "pin13", maxlen ) == 0)
+			{
+				*pin = PIN13;
+			}
+			else if (strncasecmp(commandl[PIN], "pin14", maxlen ) == 0)
+			{
+				*pin = PIN14;
+			}
+			else if (strncasecmp(commandl[PIN], "pin15", maxlen ) == 0)
+			{
+				*pin = PIN15;
+			}
+			else
+			{
+				*pin = NULL;
+				return false;
+			}
 		}
-		else if (strncasecmp(commandl[PIN], "pin12", maxlen ) == 0)
-		{
-			*pin = PIN12;
-		}
-		else if (strncasecmp(commandl[PIN], "pin13", maxlen ) == 0)
-		{
-			*pin = PIN13;
-		}
-		else if (strncasecmp(commandl[PIN], "pin14", maxlen ) == 0)
-		{
-			*pin = PIN14;
-		}
-		else if (strncasecmp(commandl[PIN], "pin15", maxlen ) == 0)
-		{
-			*pin = PIN15;
-		}
+	}
+	else
+	{
+		return false;
 	}
 }
 
-GPIO_pinval gpio_get(BaseSequentialStream * chp, char * commandl[])
+
+
+bool gpio_get(BaseSequentialStream * chp, char * commandl[])
 {
 	GPIO_TypeDef * port    = NULL;
 	GPIO_pinnums pin       = 0;
 
-	gpio_get_port_pin(chp, commandl, &port, &pin);
-	//FIXME if the port cannot be mapped, then *port is null, and this will seg-fault
-	return(palReadPad(port, pin));
+	if(gpio_get_port_pin(chp, commandl, &port, &pin))
+	{
+		if(*port != NULL)
+		{
+			chprintf(chp, "%d\r\n", palReadPad(port, pin));
+			return true;
+		}
+		return false;
+	}
 }
+
 
 void gpio_set(BaseSequentialStream * chp, char * commandl[])
 {
@@ -221,5 +279,46 @@ void gpio_config(BaseSequentialStream * chp, char * commandl[])
 	DBG_VMSG(chp, "sense: %d", sense);
 
 	palSetPadMode(port, pin, direction | sense);
+}
+
+bool gpio_dispatch(chp, cmd_list, data_list, CMD_terminals * fetch_cmds) {
+	if(fetch_is_valid_gpio_subcommandA(chp, cmd_list[ACTION]) >= 0)
+	{
+		if(fetch_is_valid_port_subcommand(chp, cmd_list[PORT]) >= 0)
+		{
+			if(fetch_is_valid_pin_subcommand(chp, cmd_list[PIN]) >= 0)
+			{
+				if (strncasecmp(cmd_list[1], "get", strlen("get") ) == 0)
+				{
+					return(gpio_get(chp, cmd_list));
+				}
+				else if (strncasecmp(cmd_list[1], "set", strlen("set") ) == 0)
+				{
+					return(gpio_set(chp, cmd_list));
+				}
+				else if (strncasecmp(cmd_list[1], "clear", strlen("clear") ) == 0)
+				{
+					return(gpio_clear(chp, cmd_list));
+				}
+				else if (strncasecmp(cmd_list[1], "config", strlen("config") ) == 0)
+				{
+					if( (cmd_list[DIRECTION] != NULL) && (cmd_list[SENSE] != NULL))
+					{
+						return(gpio_config(chp, cmd_list));
+					}
+					else
+					{
+						return false;
+					}
+				}
+				else
+				{
+					return(fetch_not_yet(chp, cmd_list, data_list)) ;
+				}
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
