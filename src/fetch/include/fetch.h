@@ -25,39 +25,7 @@
 #define 		RESETPINS_MAX_DATA_BYTES 				0
 #define 		RESETPINS_HELPSTRING   					((const char *) "\r\n\tRESETPINS:\tresetpins")
 
-#define         FETCH_MAX_TERMINALS                     32
-
-typedef struct Command_terminals
-{
-	// All elements of the Terminal set (∑) have definitions here.
-	 const char * command[FETCH_MAX_TERMINALS]          ;
-
-	 const char * gpio_subcommandA[FETCH_MAX_TERMINALS] ;
-	 const char * gpio_direction[FETCH_MAX_TERMINALS]   ;
-	 const char * gpio_sense[FETCH_MAX_TERMINALS]       ;
-	 const char * port_subcommand[FETCH_MAX_TERMINALS]  ;
-	 const char * pin_subcommand[FETCH_MAX_TERMINALS]   ;
-	 const char * subcommandD[FETCH_MAX_TERMINALS]      ;
-	 const char * digit[FETCH_MAX_TERMINALS]            ;
-	 const char * EOL[FETCH_MAX_TERMINALS]              ;
-	 const char * whitespace[FETCH_MAX_TERMINALS]       ;
-
-} Command_terminals;
-
-
-// Support dictionaries
-typedef struct Command_dictionary
-{
-	bool     	   enabled;
-	uint16_t 	   max_data_bytes;
-	const char  *  helpstring;
-} Command_dictionary;
-
-// Functions
-int  fetch_token_match(BaseSequentialStream * chp, const char * tok_array[], char * chk_tok, int num_elems);
-
-int fetch_is_valid_port_subcommand(BaseSequentialStream * chp, char * chkport_subcommand);
-int fetch_is_valid_pin_subcommand(BaseSequentialStream * chp, char * chkpin_subcommand);
+#include "fetch_defs.h"
 
 int fetch_is_valid_digit(BaseSequentialStream * chp, char * chkdigit);
 int fetch_is_valid_EOL(BaseSequentialStream * chp, char * chkEOL);

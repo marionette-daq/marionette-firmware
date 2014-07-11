@@ -91,3 +91,30 @@ char * _strtok(char * str, const char * delim, char ** saveptr)
 }
 
 
+/*! \brief support validation functions
+ *   \warning don't call string functions on NULL pointers
+ *  Return and index into the array on match
+ *  Return =1 on no match
+ */
+int token_match(BaseSequentialStream * chp, const char * tok_array[],
+                      char * chk_tok,
+                      int num_elems)
+{
+	size_t maxlen = 1;
+	for(int i = 0; i < num_elems; ++i)
+	{
+
+		chDbgAssert(((tok_array[i] != NULL)
+		             && (chk_tok != NULL)), "token_match() #1", "NULL pointer");
+
+		maxlen = get_longest_str_length(tok_array[i], chk_tok, UTIL_STRINGS_MAX_SEARCH_CHARS);
+
+		if (strncasecmp(tok_array[i], chk_tok, maxlen ) == 0)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+
