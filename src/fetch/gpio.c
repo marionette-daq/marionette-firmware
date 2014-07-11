@@ -68,6 +68,7 @@ static inline int gpio_is_valid_gpio_subcommandA(BaseSequentialStream * chp,
 				Fetch_terminals * fetch_terms,
                 char * chkgpio_subcommandA)
 {
+		
 	return(token_match(chp, fetch_terms->gpio_subcommandA, chkgpio_subcommandA,
 	                         ((int) NELEMS(fetch_terms->gpio_subcommandA)) ) );
 }
@@ -306,43 +307,39 @@ bool gpio_config(BaseSequentialStream * chp, Fetch_terminals * fetch_terms, char
 
 bool gpio_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[], Fetch_terminals * fetch_terms)
 {
-    /*
-	 *if(gpio_is_valid_gpio_subcommandA(chp, fetch_terms, cmd_list[ACTION]) >= 0)
-	 *{
-	 *    if (strncasecmp(cmd_list[ACTION], "get", strlen("get") ) == 0)
-	 *    {
-	 *        return(gpio_get(chp, fetch_terms, cmd_list));
-	 *    }
-	 *    else if (strncasecmp(cmd_list[ACTION], "set", strlen("set") ) == 0)
-	 *    {
-	 *        return(gpio_set(chp, fetch_terms, cmd_list));
-	 *    }
-	 *    else if (strncasecmp(cmd_list[ACTION], "clear", strlen("clear") ) == 0)
-	 *    {
-	 *        return(gpio_clear(chp,fetch_terms, cmd_list));
-	 *    }
-	 *    else if (strncasecmp(cmd_list[ACTION], "config", strlen("config") ) == 0)
-	 *    {
-	 *        if( (cmd_list[DIRECTION] != NULL) && (cmd_list[SENSE] != NULL))
-	 *        {
-	 *            return(gpio_config(chp, fetch_terms, cmd_list));
-	 *        }
-	 *        else
-	 *        {
-	 *            return false;
-	 *        }
-	 *    }
-	 *    else
-	 *    {
-	 *        DBG_MSG(chp, "sub-command not ready yet...");
-	 *        return(false) ;
-	 *    }
-	 *    return true;
-	 *}
-	 *return false;
-     */
-		DBG_MSG(chp, "called");
-		return true;
 
+	if(gpio_is_valid_gpio_subcommandA(chp, fetch_terms, cmd_list[ACTION]) >= 0)
+	{
+		if (strncasecmp(cmd_list[ACTION], "get", strlen("get") ) == 0)
+		{
+			return(gpio_get(chp, fetch_terms, cmd_list));
+		}
+		else if (strncasecmp(cmd_list[ACTION], "set", strlen("set") ) == 0)
+		{
+			return(gpio_set(chp, fetch_terms, cmd_list));
+		}
+		else if (strncasecmp(cmd_list[ACTION], "clear", strlen("clear") ) == 0)
+		{
+			return(gpio_clear(chp,fetch_terms, cmd_list));
+		}
+		else if (strncasecmp(cmd_list[ACTION], "config", strlen("config") ) == 0)
+		{
+			if( (cmd_list[DIRECTION] != NULL) && (cmd_list[SENSE] != NULL))
+			{
+				return(gpio_config(chp, fetch_terms, cmd_list));
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			DBG_MSG(chp, "sub-command not ready yet...");
+			return(false) ;
+		}
+		return true;
+	}
+	return false;
 }
 

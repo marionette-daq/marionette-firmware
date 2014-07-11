@@ -135,7 +135,7 @@ static bool fetch_not_yet(BaseSequentialStream  * chp, char * cmd_list[] UNUSED,
 static inline int fetch_is_valid_command(BaseSequentialStream * chp, char * chkcommand)
 {
 	return(token_match(chp, fetch_terms.command, chkcommand,
-	                         ((int) NELEMS(fetch_terms.command)) ));
+							 ((int) NELEMS(fetch_terms.command)) ));
 }
 
 inline int fetch_is_valid_digit(BaseSequentialStream * chp, char * chkdigit)
@@ -255,7 +255,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 		if(parenpart != NULL)
 		{
 			strncpy(datastr, parenpart, strlen(parenpart));
-			datastr[strlen(parenpart)]    = '\0';
+			datastr[strlen(parenpart)] = '\0';
 		}
 	}
 	else

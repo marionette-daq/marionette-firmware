@@ -97,15 +97,23 @@ char * _strtok(char * str, const char * delim, char ** saveptr)
  *  Return =1 on no match
  */
 int token_match(BaseSequentialStream * chp, const char * tok_array[],
-                      char * chk_tok,
-                      int num_elems)
+                char * chk_tok,
+                int num_elems)
 {
-	size_t maxlen = 1;
+	chDbgAssert(((chk_tok != NULL) ), "token_match() #1", "NULL pointer");
+
 	for(int i = 0; i < num_elems; ++i)
 	{
+		size_t maxlen = 1;
+		if(tok_array[i] == NULL)
+		{
+			break;
+		}
 
-		chDbgAssert(((tok_array[i] != NULL)
-		             && (chk_tok != NULL)), "token_match() #1", "NULL pointer");
+		if (strncasecmp(tok_array[i], "\0", maxlen ) == 0)
+		{
+			break;
+		}
 
 		maxlen = get_longest_str_length(tok_array[i], chk_tok, UTIL_STRINGS_MAX_SEARCH_CHARS);
 
@@ -114,7 +122,10 @@ int token_match(BaseSequentialStream * chp, const char * tok_array[],
 			return i;
 		}
 	}
+	chprintf(chp, "\r\n");
 	return -1;
 }
+
+
 
 
