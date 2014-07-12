@@ -8,6 +8,8 @@
 #define 		FETCH_MAX_COMMANDS 						8
 #define 		FETCH_MAX_DATA_ITEMS					8
 #define 		FETCH_MAX_LINE_CHARS					256
+#define 		FETCH_MAX_CMD_TOKS					    32
+#define 		FETCH_MAX_DATA_TOKS					    256
 #define 		FETCH_MAX_CMD_STRLEN					25
 
 #define 		HELP_MAX_DATA_BYTES 					0
@@ -23,16 +25,14 @@
 #define 		RESETPINS_MAX_DATA_BYTES 				0
 #define 		RESETPINS_HELPSTRING   					((const char *) "\r\n\tRESETPINS:\tresetpins")
 
-// Support dictionaries
-typedef struct command_dictionary
-{
-	bool     	   enabled;
-	uint16_t 	   max_data_bytes;
-	const char  *  helpstring;
-} Command_dictionary;
+#include "fetch_defs.h"
 
-// Functions
+int fetch_is_valid_digit(BaseSequentialStream * chp, char * chkdigit);
+int fetch_is_valid_EOL(BaseSequentialStream * chp, char * chkEOL);
+int fetch_is_valid_whitespace(BaseSequentialStream * chp, char * chkwhitespace);
+
 void fetch_init(BaseSequentialStream *  chp) ;
+
 bool fetch_parse(BaseSequentialStream* chp, char * inputline);
 bool fetch_dispatch(BaseSequentialStream* chp, char * command_list[], char * data_list[]);
 

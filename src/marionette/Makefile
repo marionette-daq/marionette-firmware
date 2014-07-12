@@ -89,19 +89,17 @@ LDSCRIPT= $(PORTLD)/STM32F407xG.ld
 #       $(CHIBIOS)/os/various/shell.c \
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
+MSRC = $(wildcard $(MARIONETTE_UTIL)/*.c)
+MSRC += $(wildcard $(MARIONETTE_USB)/*.c)
+MSRC += $(wildcard $(MARIONETTE_FETCH)/*.c)
+MSRC += $(wildcard $(MARIONETTE_MSHELL)/*.c)
 CSRC = $(PORTSRC) \
        $(KERNSRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
        $(CHIBIOS)/os/various/chprintf.c \
-       $(MARIONETTE_UTIL)/util_version.c \
-       $(MARIONETTE_UTIL)/util_strings.c \
-       $(MARIONETTE_UTIL)/util_messages.c \
-       gpio.c \
-       fetch.c \
-       mshell.c \
-       usbcfg.c \
+       $(MSRC) \
        main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
@@ -135,6 +133,8 @@ INCDIR = $(PORTINC) $(KERNINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) \
          $(CHIBIOS)/os/various \
 	 $(MARIONETTE_DEVICES)/include $(MARIONETTE_UTIL)/include \
+	 $(MARIONETTE_USB)/include $(MARIONETTE_FETCH)/include \
+	 $(MARIONETTE_MSHELL)/include \
 	 ./include \
 	 $(CONF)
 
