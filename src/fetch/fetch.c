@@ -1,5 +1,5 @@
 /*! \file fetch.c
- * Fetch: A DSL for Marionette interaction.
+ *  Fetch: A DSL for Marionette interaction.
  */
 
 #include <stdint.h>
@@ -64,25 +64,11 @@ Example:
 
 ***************************************************/
 
-static Command_dictionary          help_lookup      = { .enabled = true, .max_data_bytes = 0, .helpstring = HELP_HELPSTRING};
-static Command_dictionary          gpio_lookup      = { .enabled = true, .max_data_bytes = 0, .helpstring = GPIO_HELPSTRING};
-static Command_dictionary          version_lookup   = { .enabled = true, .max_data_bytes = 0, .helpstring = VERSION_HELPSTRING};
-static Command_dictionary          resetpins_lookup = { .enabled = true, .max_data_bytes = 0, .helpstring = RESETPINS_HELPSTRING};
+static Command_dictionary          help_dict      = { .enabled = true, .max_data_bytes = 0, .helpstring = HELP_HELPSTRING};
+static Command_dictionary          gpio_dict      = { .enabled = true, .max_data_bytes = 0, .helpstring = GPIO_HELPSTRING};
+static Command_dictionary          version_dict   = { .enabled = true, .max_data_bytes = 0, .helpstring = VERSION_HELPSTRING};
+static Command_dictionary          resetpins_dict = { .enabled = true, .max_data_bytes = 0, .helpstring = RESETPINS_HELPSTRING};
 
-/*!
- * For parsing we need some large arrays to chop up strings
- * Current solution is allocate these in the .data section
- * not on the stack in \sa fetch_parse
- */
-static char     localinput[FETCH_MAX_LINE_CHARS];
-static char     commandstr[FETCH_MAX_LINE_CHARS];
-static char     datastr[FETCH_MAX_LINE_CHARS];
-char      *     command_toks[FETCH_MAX_LINE_CHARS];
-char      *     data_toks[FETCH_MAX_LINE_CHARS];
-
-
-// change to an ordinal data type.
-// finish gpio_dispatch
 static Fetch_terminals fetch_terms =
 {
 	.command          = {"?", "help", "gpio", "adc", "spi", "i2c", "resetpins"},
@@ -98,7 +84,6 @@ static Fetch_terminals fetch_terms =
 	.whitespace       = {" ", "\t"}
 };
 
-
 static bool (*cmd_fns[NELEMS(fetch_terms.command)]) (BaseSequentialStream * chp,
                 char * l1[], char * l2[]);
 
@@ -110,26 +95,16 @@ static bool fetch_not_yet(BaseSequentialStream  * chp, char * cmd_list[] UNUSED,
 };
 
 /*!
- * *_is_valid_command...
- * return index to command match in array
- * return -1 on fail to match
- */
-
-/*!
  * Here is the theory on why using static inline here might be useful.
  *
  * https://gcc.gnu.org/onlinedocs/gcc/Inline.html
  *
- *          When a function is both inline and static, if all calls to the function are
- *       integrated into the caller, and the function's address is never used, then the
- *       function's own assembler code is never referenced. In this case, GCC does not
- *       actually output assembler code for the function, unless you specify the option
- *       -fkeep-inline-functions. Some calls cannot be integrated for various reasons
- *       (in particular, calls that precede the function's definition cannot be
- *       integrated, and neither can recursive calls within the definition). If there is
- *       a nonintegrated call, then the function is compiled to assembler code as usual.
- *       The function must also be compiled as usual if the program refers to its
- *       address, because that can't be inlined.
+ */
+
+/*!
+ * *_is_valid_command...
+ * return index to command match in array
+ * return -1 on fail to match
  */
 
 static inline int fetch_is_valid_command(BaseSequentialStream * chp, char * chkcommand)
@@ -156,21 +131,22 @@ inline int fetch_is_valid_whitespace(BaseSequentialStream * chp, char * chkwhite
 	                         ((int) NELEMS(fetch_terms.whitespace))) );
 }
 
-/* --- */
-
 /* Help command implementation for fetch language */
 static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl[] UNUSED)
 {
-	util_infomsg(chp, "Fetch commandstr Help");
-	chprintf(chp, "%s\r\n", version_lookup.helpstring);
-	chprintf(chp, "%s\r\n", resetpins_lookup.helpstring);
-	chprintf(chp, "%s\r\n", gpio_lookup.helpstring);
+	util_infomsg(chp, "Help");
+	chprintf(chp, "%s\r\n", version_dict.helpstring);
+	chprintf(chp, "%s\r\n", resetpins_dict.helpstring);
+	chprintf(chp, "%s\r\n", gpio_dict.helpstring);
 	return true;
 }
 
 static bool fetch_gpio(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[])
 {
-	return(gpio_dispatch(chp, cmd_list, data_list, &fetch_terms));
+		if(gpio_dict.enabled) {
+			return(gpio_dispatch(chp, cmd_list, data_list, &fetch_terms));
+		}
+		return false;
 }
 
 static bool fetch_resetpins(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
@@ -213,6 +189,7 @@ static void fetch_init_cmd_fns(BaseSequentialStream * chp)
 		}
 	}
 }
+
 /*! \brief catch all function for initialization */
 void fetch_init(BaseSequentialStream * chp)
 {
@@ -226,11 +203,22 @@ void fetch_init(BaseSequentialStream * chp)
 */
 bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 {
-	uint8_t n = 0;
-	char * lp, *tokp;
+	static char     localinput[FETCH_MAX_LINE_CHARS];
+	static char     commandstr[FETCH_MAX_LINE_CHARS];
+	static char     datastr[FETCH_MAX_LINE_CHARS];
 
-	char * colonpart;
-	char * parenpart;
+	static char      *     command_toks[FETCH_MAX_LINE_CHARS];
+	static char      *     data_toks[FETCH_MAX_LINE_CHARS];
+
+	char      *      lp;
+	char      *      tokp;
+	char      *      colonpart;
+	char      *      parenpart;
+	
+	uint8_t          n = 0;
+
+	int              arrlen = NELEMS(command_toks);
+
 
 	// don't mess up the string passed from outside this function
 	strncpy(localinput, inputline, FETCH_MAX_LINE_CHARS);
@@ -276,9 +264,25 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 			command_toks[0] = NULL;
 			break;
 		}
-		command_toks[++n] = lp;
+		if(n < arrlen - 1)
+		{
+			command_toks[++n] = lp;
+		}
+		else
+		{
+			DBG_VMSG(chp, "Past array bounds: %d", arrlen);
+			return false;
+		}
 	}
-	command_toks[++n] = "\0";
+	if(n < arrlen - 1)
+	{
+		command_toks[++n] = "\0";
+	}
+	else
+	{
+		DBG_VMSG(chp, "Past array bounds: %d", arrlen);
+		return false;
+	}
 
 	if(parenpart != NULL)
 	{
@@ -286,6 +290,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 		n   = 0;
 		lp  = _strtok(datastr, " ", &tokp);
 		data_toks[n] = lp;
+		arrlen = NELEMS(data_toks);
 		while ((lp = _strtok(NULL, " ", &tokp)) != NULL)
 		{
 			if (n >= FETCH_MAX_COMMANDS)
@@ -294,9 +299,26 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 				data_toks[0] = NULL;
 				break;
 			}
-			data_toks[++n] = lp;
+			if(n < arrlen - 1)
+			{
+				data_toks[++n] = lp;
+			}
+			else
+			{
+				DBG_VMSG(chp, "Too many tokens. Limit: %d", arrlen);
+				return false;
+			}
 		}
-		data_toks[++n] = "\0";
+		if(n < arrlen - 1)
+		{
+
+			data_toks[++n] = "\0";
+		}
+		else
+		{
+			DBG_VMSG(chp, "Too many tokens. Limit: %d", arrlen);
+			return false;
+		}
 	}
 	else
 	{
