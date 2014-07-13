@@ -18,7 +18,7 @@ gpio:configure:porth:pin2:output:floating
 
         DEBUG:  ../../src/fetch/gpio.c:297:gpio_config()->pin: 2
 
-        DEBUG:  ../../src/fetch/gpio.c:298:gpio_config()->port: 0x40021C00		0x40020000
+        DEBUG:  ../../src/fetch/gpio.c:298:gpio_config()->port: 0x40021C00 0x40020000
 
         DEBUG:  ../../src/fetch/gpio.c:299:gpio_config()->dir: 1
 
@@ -28,7 +28,7 @@ gpio:configure:porth:pin2:output:floating
 
         DEBUG:  ../../src/fetch/gpio.c:297:gpio_config()->pin: 2
 
-        DEBUG:  ../../src/fetch/gpio.c:298:gpio_config()->port: 0x40021C00		0x40020000
+        DEBUG:  ../../src/fetch/gpio.c:298:gpio_config()->port: 0x40021C00 0x40020000
 
         DEBUG:  ../../src/fetch/gpio.c:299:gpio_config()->dir: 1
 
@@ -69,8 +69,7 @@ import serial
 from time import sleep
 import utils as u
 
-#Exit_Character = serial.to_bytes([0x1d])   # CTRL+]
-
+DUT_WAITTIME     = 0.200
 Default_Baudrate = 115200
 Default_Timeout  = 2
 Default_Port     = "/dev/ttyACM0"
@@ -104,7 +103,6 @@ class DUTSerial():
                 u.info(s)
                 self.isOpen       = True
                 self.alive        = True
-                self.alive = True
                 self._start_reader()
                 self.tx_thread = threading.Thread(target=self.writer)
                 self.tx_thread.setDaemon(True)
@@ -132,14 +130,11 @@ class DUTSerial():
     def reader(self):
         try:
             while self.alive and self._reader_alive:
-                line = self.ser.readline(150)    # don't forget timeout setting
+                line = self.ser.readline()    # don't forget timeout setting
                 if len(line) > 0:
-                    #            sys.stdout.write(str(line))
                     print(line.decode('ascii'))
                 else:
                     pass
-                # print('*')
-                sys.stdout.flush()
         except serial.SerialException  as e:
             self.alive = False
             raise
@@ -147,31 +142,45 @@ class DUTSerial():
     def writer(self):
         try:
             if self.alive:
+                self.write("")
+                sleep(DUT_WAITTIME)
                 self.write("\r\n")
-                sleep(0.500)
+                sleep(DUT_WAITTIME)
+                self.write('\x04')   # ctrl-d in ascii will cause logout event, and marionette terminal will restart
+                sleep(DUT_WAITTIME)
                 self.write("+noprompt\r\n")
-                sleep(0.500)
+                sleep(DUT_WAITTIME)
                 self.write("gpio:configure:porth:pin2:output:floating\r\n")
-                sleep(0.500)
+                sleep(DUT_WAITTIME)
+                self.write(" gpio : \tconfigure :p   orth:p\tin2:output:floa\t  \tt\t i n    g\r\n")
+                sleep(DUT_WAITTIME)
+                self.write(" gpio \r\n")
+                sleep(DUT_WAITTIME)
+                self.write("gpio:configure\r\n")
+                sleep(DUT_WAITTIME)
+                self.write("gpio:configure:porti:pin10:output:floating\r\n")
+                sleep(DUT_WAITTIME)
                 self.write("gpio:configure:porth:pin2:output:floating\r\n")
-                sleep(0.500)
+                sleep(DUT_WAITTIME)
                 self.write("gpio:set:porth:pin2\r\n")
-                sleep(0.500)
+                sleep(DUT_WAITTIME)
+                self.write("gpio:set:porti:pin10\r\n")
+                sleep(DUT_WAITTIME)
                 self.write("gpio:get:porth:pin2\r\n")
-                sleep(0.500)
+                sleep(DUT_WAITTIME)
                 self.write("gpio:clear:porth:pin2\r\n")
-                sleep(0.500)
+                sleep(DUT_WAITTIME)
                 self.write("gpio:get:porth:pin2\r\n")
-                sleep(0.500)
+                sleep(DUT_WAITTIME)
+                self.write("gpio:get:porti:pin10\r\n")
+                sleep(DUT_WAITTIME)
                 self.write("gpio:set:porth:pin2\r\n")
-                sleep(0.500)
+                sleep(DUT_WAITTIME)
                 self.write("resetpins\r\n")
-                sleep(0.500)
+                sleep(DUT_WAITTIME)
                 self.write("gpio:get:porth:pin2\r\n")
-                sleep(0.500)
+                sleep(DUT_WAITTIME)
                 self.write("+prompt\r\n")
-                sleep(0.500)
-
         except:
             self.alive = False
             raise
@@ -179,11 +188,6 @@ class DUTSerial():
     def write(self, s):
         bytes = str.encode(s)    # Because python and strings
         numbytes = self.ser.write(bytes) 
-        # console
-        #sys.stdout.write('--- sent->\t ')
-        #sys.stdout.write(s)
-        #sys.stdout.write('\n')
-        #sys.stdout.flush()
         return numbytes
 
     def close(self):
@@ -199,12 +203,11 @@ class DUTSerial():
 
 if __name__ == "__main__":
     try:
-        # optparse here  baud port filename quiet
+        # optparse here eventually... baud port filename quiet
         serial_port    = Default_Port
         baud           = Default_Baudrate
         timeout        = Default_Timeout
 
-        #ser = DUTSerial(baud=baud, timeout=timeout)   # example of default args to init
         DUT       = DUTSerial(serial_port, baud, timeout)
         DUT.start()
 
@@ -212,15 +215,16 @@ if __name__ == "__main__":
         print("Bye.")
 
     except serial.SerialException:
-        DUT.close()
+        DUT.join()
         print ('SerialException occurred')
 
     except KeyboardInterrupt:
-        DUT.close()
+        DUT.join()
         print ("\nQuitting")
 
 # Attic
 
+#    ser = DUTSerial(baud=baud, timeout=timeout)   # example of default args to init
 #      from time import sleep
 #                self.ser.setDTR(True)
 #                self.ser.setRTS(True)
