@@ -13,6 +13,7 @@
 #include "util_general.h"
 #include "util_strings.h"
 #include "util_messages.h"
+#include "util_version.h"
 #include "fetch_gpio.h"
 
 #include "fetch_defs.h"
@@ -64,14 +65,15 @@ Example:
 
 ***************************************************/
 
-static Command_dictionary          help_dict      = { .enabled = true, .max_data_bytes = 0, .helpstring = HELP_HELPSTRING};
-static Command_dictionary          gpio_dict      = { .enabled = true, .max_data_bytes = 0, .helpstring = GPIO_HELPSTRING};
-static Command_dictionary          version_dict   = { .enabled = true, .max_data_bytes = 0, .helpstring = VERSION_HELPSTRING};
-static Command_dictionary          resetpins_dict = { .enabled = true, .max_data_bytes = 0, .helpstring = RESETPINS_HELPSTRING};
+static Command_dictionary          help_dict      = { .enabled = true, .max_data_bytes = HELP_MAX_DATA_BYTES,      .helpstring = HELP_HELPSTRING};
+static Command_dictionary          gpio_dict      = { .enabled = true, .max_data_bytes = GPIO_MAX_DATA_BYTES,      .helpstring = GPIO_HELPSTRING};
+static Command_dictionary          adc_dict       = { .enabled = true, .max_data_bytes = ADC_MAX_DATA_BYTES,       .helpstring = ADC_HELPSTRING};
+static Command_dictionary          version_dict   = { .enabled = true, .max_data_bytes = VERSION_MAX_DATA_BYTES,   .helpstring = VERSION_HELPSTRING};
+static Command_dictionary          resetpins_dict = { .enabled = true, .max_data_bytes = RESETPINS_MAX_DATA_BYTES, .helpstring = RESETPINS_HELPSTRING};
 
 static Fetch_terminals fetch_terms =
 {
-	.command          = {"?", "help", "gpio", "adc", "spi", "i2c", "resetpins"},
+	.command          = {"?", "help", "version", "gpio", "adc", "spi", "i2c", "resetpins"},
 
 	.gpio_subcommandA = {"get", "set", "clear", "configure"},
 	.gpio_direction   = {"input", "output"},
@@ -131,15 +133,29 @@ inline int fetch_is_valid_whitespace(BaseSequentialStream * chp, char * chkwhite
 	                         ((int) NELEMS(fetch_terms.whitespace))) );
 }
 
-/* Help command implementation for fetch language */
+/* Help command implementation for fetch language 
+ * TODO: This could be turned into an iterator over all the dicts 
+ */
 static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl[] UNUSED)
 {
 	util_infomsg(chp, "Help");
 	chprintf(chp, "%s\r\n", version_dict.helpstring);
 	chprintf(chp, "%s\r\n", resetpins_dict.helpstring);
 	chprintf(chp, "%s\r\n", gpio_dict.helpstring);
+	chprintf(chp, "%s\r\n", adc_dict.helpstring);
 	return true;
 }
+
+static bool fetch_adc(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[])
+{
+		//if(adc_dict.enabled) {
+			//return(fetch_adc_dispatch(chp, cmd_list, data_list, &fetch_terms));
+		//}
+		
+		DBG_MSG(chp, "Not yet implemented");
+		return true;
+}
+
 
 static bool fetch_gpio(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[])
 {
@@ -148,6 +164,16 @@ static bool fetch_gpio(BaseSequentialStream  * chp, char * cmd_list[], char * da
 		}
 		return false;
 }
+
+static bool fetch_version(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
+                            char * data_list[] UNUSED)
+{
+	static          VERSIONData                     version_data;
+
+	util_fwversion(&version_data);
+	chprintf(chp, "Fetch Firmware Version:   %s\r\n", version_data.firmware);
+	return true;
+};
 
 static bool fetch_resetpins(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
                             char * data_list[] UNUSED)
@@ -173,15 +199,25 @@ static void fetch_init_cmd_fns(BaseSequentialStream * chp)
 		{
 			cmd_fns[i] = fetch_info;
 		}
+		else if (strncasecmp(fetch_terms.command[i], "resetpins",
+		                     strlen(fetch_terms.command[i]) ) == 0)
+		{
+			cmd_fns[i] = fetch_resetpins;
+		}
+		else if (strncasecmp(fetch_terms.command[i], "version",
+		                     strlen(fetch_terms.command[i]) ) == 0)
+		{
+			cmd_fns[i] = fetch_version;
+		}
 		else if (strncasecmp(fetch_terms.command[i], "gpio",
 		                     strlen(fetch_terms.command[i]) ) == 0)
 		{
 			cmd_fns[i] = fetch_gpio;
 		}
-		else if (strncasecmp(fetch_terms.command[i], "resetpins",
+		else if (strncasecmp(fetch_terms.command[i], "adc",
 		                     strlen(fetch_terms.command[i]) ) == 0)
 		{
-			cmd_fns[i] = fetch_resetpins;
+			cmd_fns[i] = fetch_adc;
 		}
 		else
 		{

@@ -115,6 +115,10 @@ class DUTSerial():
                 sleep(DUT_WAITTIME)
                 self.write('\x04')   # ctrl-d in ascii will cause logout event, and marionette terminal will restart
                 sleep(DUT_WAITTIME)
+                self.write("version\r\n")
+                sleep(DUT_WAITTIME)
+                self.write("adc\r\n")
+                sleep(DUT_WAITTIME)
                 self.write("+noprompt\r\n")
                 sleep(DUT_WAITTIME)
                 self.write("gpio:configure:porth:pin2:output:floating\r\n")

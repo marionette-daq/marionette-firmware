@@ -19,6 +19,9 @@
 #define 		GPIO_MAX_DATA_BYTES 					0
 #define 		GPIO_HELPSTRING   					    ((const char *) "\r\n\tGPIO:\tgpio:<get,set,clear,configure>:port:pin:<input,output>:<pullup,pulldown,floating,analog>")
 
+#define 		ADC_MAX_DATA_BYTES 					    0
+#define 		ADC_HELPSTRING   					    ((const char *) "\r\n\tADC:\tadc:<configure,start,stop>:<oneshot,run>")
+
 #define 		VERSION_MAX_DATA_BYTES 					0
 #define 		VERSION_HELPSTRING   					((const char *) "\r\n\tVERSION:\tversion")
 
