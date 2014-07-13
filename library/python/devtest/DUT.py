@@ -1,65 +1,25 @@
 #!/usr/bin/env python
 # file: DUT.py
 
+
+"""
+Sun 13 July 2014 11:55:14 (PDT)
+TODO: Python exception handling with the serial port is not great.
+    - minicom might be open and accessing the port at the same time but exceptions aren't
+        consistently raised in serial.read/serial.readline
+
+NOTE: ctrl-c quitting-may take more than one ctrl-c for program to exit
+"""
+
+
 """ 
 This tool is used to manipulate a D_evice U_nder T_est
 
 Example: 
 
-~/.../library/python/devtest (python*) > ./DUT.py 
+Connect a device to the Default_Port.
 
-*** INFO:  opened port /dev/ttyACM0
-
-
-
-m > +noprompt
-
-gpio:configure:porth:pin2:output:floating
-
-        DEBUG:  ../../src/fetch/gpio.c:297:gpio_config()->pin: 2
-
-        DEBUG:  ../../src/fetch/gpio.c:298:gpio_config()->port: 0x40021C00 0x40020000
-
-        DEBUG:  ../../src/fetch/gpio.c:299:gpio_config()->dir: 1
-
-        DEBUG:  ../../src/fetch/gpio.c:300:gpio_config()->sense: 0
-
-gpio:configure:porth:pin2:output:floating
-
-        DEBUG:  ../../src/fetch/gpio.c:297:gpio_config()->pin: 2
-
-        DEBUG:  ../../src/fetch/gpio.c:298:gpio_config()->port: 0x40021C00 0x40020000
-
-        DEBUG:  ../../src/fetch/gpio.c:299:gpio_config()->dir: 1
-
-        DEBUG:  ../../src/fetch/gpio.c:300:gpio_config()->sense: 0
-
-gpio:set:porth:pin2
-
-gpio:get:porth:pin2
-
-1
-
-gpio:clear:porth:pin2
-
-gpio:get:porth:pin2
-
-0
-
-gpio:set:porth:pin2
-
-resetpins
-
-        DEBUG:  ../../src/fetch/fetch.c:155:fetch_resetpins()->Resetting pins
-
-gpio:get:porth:pin2
-
-0
-
-+prompt
-
-m > 
-Bye.
+~/.../library/python/devtest (adc*) > ./DUT.py 
 
 """
 
@@ -94,7 +54,11 @@ class DUTSerial():
              Then it works. 
             """
             self.ser.parity   = serial.PARITY_ODD
-            self.ser.open()
+            try:
+                self.ser.open()
+            except serial.SerialException  as e:
+                u.error("Error opening serial port: " + str(e))
+                sys.exit()
             self.ser.close()
             self.ser.parity   = serial.PARITY_NONE
             self.ser.open()
@@ -138,9 +102,9 @@ class DUTSerial():
             print("")
             sys.stdout.flush()
         except serial.SerialException  as e:
-            sys.stdout.flush()
             self.alive = False
-            raise
+            u.error("Error reading serial port: " + str(e))
+            sys.exit()
 
     def writer(self):
         try:
@@ -195,14 +159,14 @@ class DUTSerial():
         return numbytes
 
     def close(self):
-        if self.ser.isOpen() == True:
-            self.ser.close()
-            s="closed port: {}\n".format(self.serial_port)
-            u.info(s)
-        self.isOpen = False
-        self.alive  = False
         self.join(True)
         self.join()
+        self.alive  = False
+        if self.ser.isOpen() == True:
+            self.ser.close()
+            self.isOpen = False
+            s="closed port: {}\n".format(self.serial_port)
+            u.info(s)
         return
 
 if __name__ == "__main__":
@@ -215,16 +179,15 @@ if __name__ == "__main__":
         DUT       = DUTSerial(serial_port, baud, timeout)
         DUT.start()
 
-        DUT.join()
+        DUT.close()
         print("Bye.")
 
     except serial.SerialException:
-        DUT.join()
-        print ('SerialException occurred')
-
+        DUT.close()
+        u.error("Serial Exception: " + str(e))
     except KeyboardInterrupt:
-        DUT.join()
-        print ("\nQuitting")
+        DUT.close()
+        u.info("\nQuitting")
 
 # Attic
 
