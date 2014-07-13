@@ -29,7 +29,7 @@ import serial
 from time import sleep
 import utils as u
 
-DUT_WAITTIME     = 0.200
+DUT_WAITTIME     = 0.100
 Default_Baudrate = 115200
 Default_Timeout  = 2
 Default_Port     = "/dev/ttyACM0"
@@ -116,6 +116,8 @@ class DUTSerial():
                 self.write('\x04')   # ctrl-d in ascii will cause logout event, and marionette terminal will restart
                 sleep(DUT_WAITTIME)
                 self.write("version\r\n")
+                sleep(DUT_WAITTIME)
+                self.write("help\r\n")
                 sleep(DUT_WAITTIME)
                 self.write("adc\r\n")
                 sleep(DUT_WAITTIME)
