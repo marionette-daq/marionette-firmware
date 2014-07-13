@@ -132,10 +132,13 @@ class DUTSerial():
             while self.alive and self._reader_alive:
                 line = self.ser.readline()    # don't forget timeout setting
                 if len(line) > 0:
-                    print(line.decode('ascii'))
+                    print(line.decode('ascii'), end="", flush=True)
                 else:
                     pass
+            print("")
+            sys.stdout.flush()
         except serial.SerialException  as e:
+            sys.stdout.flush()
             self.alive = False
             raise
 
@@ -181,6 +184,7 @@ class DUTSerial():
                 self.write("gpio:get:porth:pin2\r\n")
                 sleep(DUT_WAITTIME)
                 self.write("+prompt\r\n")
+                sleep(DUT_WAITTIME)
         except:
             self.alive = False
             raise
