@@ -13,7 +13,7 @@
 #include "util_general.h"
 #include "util_strings.h"
 #include "util_messages.h"
-#include "gpio.h"
+#include "fetch_gpio.h"
 
 #include "fetch_defs.h"
 #include "fetch.h"
@@ -144,7 +144,7 @@ static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl
 static bool fetch_gpio(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[])
 {
 		if(gpio_dict.enabled) {
-			return(gpio_dispatch(chp, cmd_list, data_list, &fetch_terms));
+			return(fetch_gpio_dispatch(chp, cmd_list, data_list, &fetch_terms));
 		}
 		return false;
 }
