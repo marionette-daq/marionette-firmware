@@ -3,7 +3,7 @@
  *
  * mshell is the marionette shell. It is adapted from the example ChibiOS shell.
  *
- * @addtogroup SHELL
+ * @addtogroup MSHELL
  * @{
  */
 

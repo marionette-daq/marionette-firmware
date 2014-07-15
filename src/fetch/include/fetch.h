@@ -1,6 +1,9 @@
 /*! \file fetch.h
-  * Support implementation of Fetch Language
-  */
+ * Support implementation of Fetch Language
+ * @addtogroup fetch_dsl
+ * @{
+ */
+
 
 #ifndef FETCH_H_
 #define FETCH_H_
@@ -40,3 +43,5 @@ bool fetch_parse(BaseSequentialStream* chp, char * inputline);
 bool fetch_dispatch(BaseSequentialStream* chp, char * command_list[], char * data_list[]);
 
 #endif
+
+/*! @} */

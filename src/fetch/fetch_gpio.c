@@ -1,6 +1,7 @@
 /*! \file fetch_gpio.c
-
- Marionette fetch_gpio routines
+ * Marionette fetch_gpio routines
+ * @addtogroup fetch_gpio
+ * @{
  */
 
 #include "ch.h"
@@ -354,3 +355,4 @@ bool fetch_gpio_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * d
 }
 
 
+/*! @} */

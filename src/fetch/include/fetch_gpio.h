@@ -1,5 +1,7 @@
 /*! \file fetch_gpio.h
-
+ * @addtogroup fetch_gpio
+ * @{
+ 
   */
 
 #ifndef FETCH_FETCH_GPIO_H_
@@ -66,3 +68,4 @@ int fetch_gpio_is_valid_pin_subcommand(BaseSequentialStream * chp, Fetch_termina
 bool fetch_gpio_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[], Fetch_terminals * fetch_terms);
 
 #endif
+/*! @} */
