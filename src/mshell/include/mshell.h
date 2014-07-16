@@ -25,6 +25,16 @@
 #ifndef _MSHELL_H_
 #define _MSHELL_H_
 
+#include <stdbool.h>
+
+/**
+ * @brief   Shell echo chars enable.
+ */
+#if !defined(MSHELL_MAX_LINE_LENGTH) || defined(__DOXYGEN__)
+#define MSHELL_ECHO_INPUT_CHARS       ((bool) false)
+#endif
+
+
 /**
  * @brief   Shell maximum input line length.
  */
@@ -44,7 +54,7 @@
  * @brief   Shell maximum arguments per command.
  */
 #if !defined(SHELL_MAX_ARGUMENTS) || defined(__DOXYGEN__)
-#define MSHELL_MAX_ARGUMENTS         4
+#define MSHELL_MAX_ARGUMENTS         10
 #endif
 
 /**

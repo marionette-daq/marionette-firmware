@@ -69,7 +69,7 @@ import serial
 from time import sleep
 import utils as u
 
-DUT_WAITTIME     = 0.200
+DUT_WAITTIME     = 0.100
 Default_Baudrate = 115200
 Default_Timeout  = 2
 Default_Port     = "/dev/ttyACM0"
@@ -94,7 +94,11 @@ class DUTSerial():
              Then it works. 
             """
             self.ser.parity   = serial.PARITY_ODD
-            self.ser.open()
+            try:
+                self.ser.open()
+            except serial.SerialException  as e:
+                u.error("Error opening serial port: " + str(e))
+                sys.exit()
             self.ser.close()
             self.ser.parity   = serial.PARITY_NONE
             self.ser.open()
@@ -132,55 +136,44 @@ class DUTSerial():
             while self.alive and self._reader_alive:
                 line = self.ser.readline()    # don't forget timeout setting
                 if len(line) > 0:
-                    print(line.decode('ascii'))
+                    print(line.decode('ascii'), end="", flush=True)
                 else:
                     pass
+            print("")
+            sys.stdout.flush()
         except serial.SerialException  as e:
             self.alive = False
-            raise
+            u.error("Error reading serial port: " + str(e))
+            sys.exit()
+
+    def teststr(self, string):
+        u.info("sending\t->"+string)
+        self.write(string)
+        sleep(DUT_WAITTIME)
 
     def writer(self):
         try:
             if self.alive:
-                self.write("")
-                sleep(DUT_WAITTIME)
-                self.write("\r\n")
-                sleep(DUT_WAITTIME)
-                self.write('\x04')   # ctrl-d in ascii will cause logout event, and marionette terminal will restart
-                sleep(DUT_WAITTIME)
-                self.write("+noprompt\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:configure:porth:pin2:output:floating\r\n")
-                sleep(DUT_WAITTIME)
-                self.write(" gpio : \tconfigure :p   orth:p\tin2:output:floa\t  \tt\t i n    g\r\n")
-                sleep(DUT_WAITTIME)
-                self.write(" gpio \r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:configure\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:configure:porti:pin10:output:floating\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:configure:porth:pin2:output:floating\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:set:porth:pin2\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:set:porti:pin10\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:get:porth:pin2\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:clear:porth:pin2\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:get:porth:pin2\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:get:porti:pin10\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:set:porth:pin2\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("resetpins\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:get:porth:pin2\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("+prompt\r\n")
+                self.teststr("")
+                self.teststr("\r\n")
+                self.teststr('\x04')   # ctrl-d in ascii will cause logout event, and marionette terminal will restart
+                self.teststr("+noprompt\r\n")
+                self.teststr("gpio:configure:porth:pin2:output:floating\r\n")
+                self.teststr(" gpio : \tconfigure :p   orth:p\tin2:output:floa\t  \tt\t i n    g\r\n")
+                self.teststr(" gpio \r\n")
+                self.teststr("gpio:configure\r\n")
+                self.teststr("gpio:configure:porti:pin10:output:floating\r\n")
+                self.teststr("gpio:configure:porth:pin2:output:floating\r\n")
+                self.teststr("gpio:set:porth:pin2\r\n")
+                self.teststr("gpio:set:porti:pin10\r\n")
+                self.teststr("gpio:get:porth:pin2\r\n")
+                self.teststr("gpio:clear:porth:pin2\r\n")
+                self.teststr("gpio:get:porth:pin2\r\n")
+                self.teststr("gpio:get:porti:pin10\r\n")
+                self.teststr("gpio:set:porth:pin2\r\n")
+                self.teststr("resetpins\r\n")
+                self.teststr("gpio:get:porth:pin2\r\n")
+                self.teststr("+prompt\r\n")
         except:
             self.alive = False
             raise
@@ -191,14 +184,14 @@ class DUTSerial():
         return numbytes
 
     def close(self):
-        if self.ser.isOpen() == True:
-            self.ser.close()
-            s="closed port: {}\n".format(self.serial_port)
-            u.info(s)
-        self.isOpen = False
-        self.alive  = False
         self.join(True)
         self.join()
+        self.alive  = False
+        if self.ser.isOpen() == True:
+            self.ser.close()
+            self.isOpen = False
+            s="closed port: {}\n".format(self.serial_port)
+            u.info(s)
         return
 
 if __name__ == "__main__":
@@ -211,16 +204,15 @@ if __name__ == "__main__":
         DUT       = DUTSerial(serial_port, baud, timeout)
         DUT.start()
 
-        DUT.join()
+        DUT.close()
         print("Bye.")
 
     except serial.SerialException:
-        DUT.join()
-        print ('SerialException occurred')
-
+        DUT.close()
+        u.error("Serial Exception: " + str(e))
     except KeyboardInterrupt:
-        DUT.join()
-        print ("\nQuitting")
+        DUT.close()
+        u.info("\nQuitting")
 
 # Attic
 
