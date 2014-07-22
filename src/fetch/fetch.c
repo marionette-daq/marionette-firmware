@@ -17,6 +17,7 @@
 #include "util_messages.h"
 #include "util_version.h"
 #include "fetch_gpio.h"
+#include "fetch_adc.h"
 
 #include "fetch_defs.h"
 #include "fetch.h"
@@ -160,9 +161,10 @@ static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl
 
 static bool fetch_adc(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[])
 {
-		//if(adc_dict.enabled) {
-			//return(fetch_adc_dispatch(chp, cmd_list, data_list, &fetch_terms));
-		//}
+		if(adc_dict.enabled) {
+				DBG_MSG(chp, "adc call");
+			return(fetch_adc_dispatch(chp, cmd_list, data_list, &fetch_terms));
+		}
 		
 		DBG_MSG(chp, "Not yet implemented");
 		return true;

@@ -40,7 +40,7 @@ bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 {
 
 	if(fetch_adc_is_valid_adc_subcommandA(chp, fetch_terms, cmd_list[ACTION]) >= 0) {
-			DBG_MSG(chp, "Not yet");
+			DBG_MSG(chp, "...Not yet");
 			return true;
 	}
 	return false;	
