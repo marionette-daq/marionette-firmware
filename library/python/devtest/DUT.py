@@ -18,7 +18,6 @@ This tool is used to manipulate a D_evice U_nder T_est
 Example: 
 
 Connect a device to the Default_Port.
-
 ~/.../library/python/devtest (adc*) > ./DUT.py 
 
 """
@@ -29,7 +28,7 @@ import serial
 from time import sleep
 import utils as u
 
-DUT_WAITTIME     = 0.100
+DUT_WAITTIME     = 0.500
 Default_Baudrate = 115200
 Default_Timeout  = 2
 Default_Port     = "/dev/ttyACM0"
@@ -106,55 +105,36 @@ class DUTSerial():
             u.error("Error reading serial port: " + str(e))
             sys.exit()
 
+    def teststr(self, string):
+        u.info("sending\t->"+string)
+        self.write(string)
+        sleep(DUT_WAITTIME)
+
     def writer(self):
         try:
             if self.alive:
-                self.write("")
-                sleep(DUT_WAITTIME)
-                self.write("\r\n")
-                sleep(DUT_WAITTIME)
-                self.write('\x04')   # ctrl-d in ascii will cause logout event, and marionette terminal will restart
-                sleep(DUT_WAITTIME)
-                self.write("version\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("help\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("adc\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("+noprompt\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:configure:porth:pin2:output:floating\r\n")
-                sleep(DUT_WAITTIME)
-                self.write(" gpio : \tconfigure :p   orth:p\tin2:output:floa\t  \tt\t i n    g\r\n")
-                sleep(DUT_WAITTIME)
-                self.write(" gpio \r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:configure\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:configure:porti:pin10:output:floating\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:configure:porth:pin2:output:floating\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:set:porth:pin2\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:set:porti:pin10\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:get:porth:pin2\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:clear:porth:pin2\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:get:porth:pin2\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:get:porti:pin10\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:set:porth:pin2\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("resetpins\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("gpio:get:porth:pin2\r\n")
-                sleep(DUT_WAITTIME)
-                self.write("+prompt\r\n")
-                sleep(DUT_WAITTIME)
+                self.teststr("")
+                self.teststr("\r\n")
+                self.teststr('\x04')   # ctrl-d in ascii will cause logout event, and marionette terminal will restart
+                sleep(3.5)
+                self.teststr("help\r\n")
+                self.teststr("+noprompt\r\n")
+                self.teststr("gpio:configure:porth:pin2:output:floating\r\n")
+                self.teststr(" gpio : \tconfigure :p   orth:p\tin2:output:floa\t  \tt\t i n    g\r\n")
+                self.teststr(" gpio \r\n")
+                self.teststr("gpio:configure\r\n")
+                self.teststr("gpio:configure:porti:pin10:output:floating\r\n")
+                self.teststr("gpio:configure:porth:pin2:output:floating\r\n")
+                self.teststr("gpio:set:porth:pin2\r\n")
+                self.teststr("gpio:set:porti:pin10\r\n")
+                self.teststr("gpio:get:porth:pin2\r\n")
+                self.teststr("gpio:clear:porth:pin2\r\n")
+                self.teststr("gpio:get:porth:pin2\r\n")
+                self.teststr("gpio:get:porti:pin10\r\n")
+                self.teststr("gpio:set:porth:pin2\r\n")
+                self.teststr("resetpins\r\n")
+                self.teststr("gpio:get:porth:pin2\r\n")
+                self.teststr("+prompt\r\n")
         except:
             self.alive = False
             raise

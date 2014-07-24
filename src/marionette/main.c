@@ -91,16 +91,13 @@ static const MShellConfig shell_cfg1 =
 	commands
 };
 
-
-int main(void)
-{
+static void main_app(void) {
 	Thread             *            mshelltp = NULL;
 	static          VERSIONData     version_data;
 
-	halInit();
-	chSysInit();
-
 	mshellInit();
+
+
 
 	util_hwversion(&version_data);
 	usb_set_serial_strings(version_data.hardware.id_high, version_data.hardware.id_center,
@@ -132,6 +129,16 @@ int main(void)
 		}
 		chThdSleepMilliseconds(500);
 	}
+
+}
+
+int main(void)
+{
+	halInit();
+	chSysInit();
+
+	main_app();
+
 	return(0);
 }
 

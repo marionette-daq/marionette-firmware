@@ -28,7 +28,6 @@
 
 #include "ch.h"
 #include "hal.h"
-#include "mshell.h"
 #include "chprintf.h"
 
 #include "util_version.h"
@@ -37,9 +36,11 @@
 #include "util_messages.h"
 
 #include "fetch.h"
+#include "mshell.h"
 
 static          VERSIONData                     version_data;
 static          char                            prompt[MSHELL_MAX_PROMPT_LENGTH];
+static          bool                            mshell_echo_chars = MSHELL_ECHO_INPUT_CHARS;
 
 EventSource     mshell_terminated;
 
@@ -80,6 +81,7 @@ static void cmd_prompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSE
 	}
 	strncpy(prompt, "m > ", MSHELL_MAX_PROMPT_LENGTH);
 }
+
 static void cmd_noprompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
 {
 	if(argc > 0)
@@ -88,6 +90,16 @@ static void cmd_noprompt(BaseSequentialStream * chp, int argc, char * argv[] UNU
 		return;
 	}
 	prompt[0] = '\0';
+}
+
+static void cmd_toggle_echo(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
+{
+	if(argc > 0)
+	{
+		usage(chp, "toggle_echo");
+		return;
+	}
+	mshell_echo_chars = !mshell_echo_chars;
 }
 
 static void cmd_info(BaseSequentialStream * chp, int argc, char * argv[])
@@ -146,6 +158,7 @@ static MShellCommand local_commands[] =
 	{"systime", cmd_systime},
 	{"prompt", cmd_prompt},
 	{"noprompt", cmd_noprompt},
+	{"toggle_echo", cmd_toggle_echo},
 	{"version", cmd_version},
 	{NULL, NULL}
 };
@@ -345,7 +358,11 @@ Thread * shellCreateStatic(const MShellConfig * scp, void * wsp,
  *
  * @api
  */
+#define        ASCII_EOT                        ((char) 0x4)
+#define        ASCII_BACKSPACE                  ((char) 0x8)
+#define        ASCII_SPACE                      ((char) 0x20)
 bool_t mshellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
+
 {
 	char * p = line;
 	while (TRUE)
@@ -355,39 +372,52 @@ bool_t mshellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
 		{
 			return TRUE;
 		}
-		if (c == 4)
+		if (c == ASCII_EOT)
 		{
-			chprintf(chp, "^D");
+			if(mshell_echo_chars)
+			{
+				chprintf(chp, "^D");
+			}
 			return TRUE;
 		}
-		if (c == 8)
+		if (c == ASCII_BACKSPACE)
 		{
 			if (p != line)
 			{
-				chSequentialStreamPut(chp, c);
-				chSequentialStreamPut(chp, 0x20);
-				chSequentialStreamPut(chp, c);
+				if(mshell_echo_chars)
+				{
+					chSequentialStreamPut(chp, c);
+					chSequentialStreamPut(chp, ASCII_SPACE);
+					chSequentialStreamPut(chp, c);
+				}
 				p--;
 			}
 			continue;
 		}
 		if (c == '\r')
 		{
-			chprintf(chp, "\r\n");
+			if(mshell_echo_chars)
+			{
+				chprintf(chp, "\r\n");
+			}
 			*p = 0;
 			return FALSE;
 		}
-		if (c < 0x20)
+		if (c < ASCII_SPACE)   // ignore all other special chars.....
 		{
 			continue;
 		}
 		if (p < line + size - 1)
 		{
-			chSequentialStreamPut(chp, c);
+			if(mshell_echo_chars)
+			{
+				chSequentialStreamPut(chp, c);
+			}
 			*p++ = (char)c;
 		}
 	}
 }
+
 
 /** @} */
 

@@ -50,13 +50,13 @@ typedef enum FETCH_GPIO_pinnum
 	NO_FETCH_GPIO_PIN=99
 } FETCH_GPIO_pinnum;
 
-typedef struct StrToPinnum_Map
+typedef struct strtopinnum_map
 {
 	char    *    pinstring;
 	FETCH_GPIO_pinval  pinnum;
 } StrToPinnum_Map;
 
-typedef struct StrToGPIOPort_Map
+typedef struct strtogpioport_map
 {
 	char      *     portstring;
 	GPIO_TypeDef  * portptr;
