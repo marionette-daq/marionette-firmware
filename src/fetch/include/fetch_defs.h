@@ -20,7 +20,7 @@ typedef struct fetch_terminals
 	 const char * gpio_sense[FETCH_MAX_TERMINALS]       ;
 	 const char * adc_subcommandA[FETCH_MAX_TERMINALS]  ;
 	 const char * adc_configure[FETCH_MAX_TERMINALS]    ;
-	 const char * adc_sampletype[FETCH_MAX_TERMINALS]   ;
+	 const char * adc_profile[FETCH_MAX_TERMINALS]   ;
 	 const char * port_subcommand[FETCH_MAX_TERMINALS]  ;
 	 const char * pin_subcommand[FETCH_MAX_TERMINALS]   ;
 	 const char * subcommandD[FETCH_MAX_TERMINALS]      ;

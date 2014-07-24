@@ -147,9 +147,9 @@ static bool fetch_gpio_get_port_pin(BaseSequentialStream * chp, char * cmd_list[
 	GPIO_TypeDef *       fetch_gpio_port;
 	FETCH_GPIO_pinnum    fetch_gpio_pinnum;
 
-	if(fetch_gpio_is_valid_port_subcommand(chp, fetch_terms, cmd_list[PORT]) >= 0)
+	if(fetch_gpio_is_valid_port_subcommand(chp, fetch_terms, cmd_list[FETCH_PORT]) >= 0)
 	{
-		fetch_gpio_port = string_to_gpioport(chp, cmd_list[PORT]);
+		fetch_gpio_port = string_to_gpioport(chp, cmd_list[FETCH_PORT]);
 		if(fetch_gpio_port != NULL )
 		{
 			*port = fetch_gpio_port;
@@ -165,10 +165,10 @@ static bool fetch_gpio_get_port_pin(BaseSequentialStream * chp, char * cmd_list[
 		return false;
 	}
 
-	if(fetch_gpio_is_valid_pin_subcommand(chp, fetch_terms, cmd_list[PIN]) >= 0)
+	if(fetch_gpio_is_valid_pin_subcommand(chp, fetch_terms, cmd_list[FETCH_PIN]) >= 0)
 	{
 
-		fetch_gpio_pinnum = string_to_pinnum(chp, cmd_list[PIN]);
+		fetch_gpio_pinnum = string_to_pinnum(chp, cmd_list[FETCH_PIN]);
 		if(fetch_gpio_pinnum != NO_FETCH_GPIO_PIN)
 		{
 			*pin = fetch_gpio_pinnum;
@@ -249,13 +249,13 @@ bool fetch_gpio_config(BaseSequentialStream * chp, Fetch_terminals * fetch_terms
 	int            sense      = PAL_STM32_PUDR_FLOATING;
 	int            direction  = PAL_STM32_MODE_INPUT;
 
-	if(fetch_gpio_is_valid_gpio_direction(chp, fetch_terms, cmd_list[DIRECTION]) >= 0)
+	if(fetch_gpio_is_valid_gpio_direction(chp, fetch_terms, cmd_list[FETCH_DIRECTION]) >= 0)
 	{
-		if( (strncasecmp(cmd_list[DIRECTION], "input", strlen("input") ) == 0) )
+		if( (strncasecmp(cmd_list[FETCH_DIRECTION], "input", strlen("input") ) == 0) )
 		{
 			direction = PAL_STM32_MODE_INPUT;
 		}
-		else if ((strncasecmp(cmd_list[DIRECTION], "output", strlen("output") ) == 0) )
+		else if ((strncasecmp(cmd_list[FETCH_DIRECTION], "output", strlen("output") ) == 0) )
 		{
 			direction = PAL_STM32_MODE_OUTPUT;
 		}
@@ -270,22 +270,22 @@ bool fetch_gpio_config(BaseSequentialStream * chp, Fetch_terminals * fetch_terms
 		return false;
 	}
 
-	if(fetch_gpio_is_valid_gpio_sense(chp, fetch_terms, cmd_list[SENSE]) >= 0)
+	if(fetch_gpio_is_valid_gpio_sense(chp, fetch_terms, cmd_list[FETCH_SENSE]) >= 0)
 	{
 
-		if( (strncasecmp(cmd_list[SENSE], "pullup", strlen("pullup") ) == 0) )
+		if( (strncasecmp(cmd_list[FETCH_SENSE], "pullup", strlen("pullup") ) == 0) )
 		{
 			sense = PAL_STM32_PUDR_PULLUP;
 		}
-		else if ( (strncasecmp(cmd_list[SENSE], "pulldown", strlen("pulldown") ) == 0) )
+		else if ( (strncasecmp(cmd_list[FETCH_SENSE], "pulldown", strlen("pulldown") ) == 0) )
 		{
 			sense = PAL_STM32_PUDR_PULLDOWN;
 		}
-		else if ( (strncasecmp(cmd_list[SENSE], "floating", strlen("floating") ) == 0) )
+		else if ( (strncasecmp(cmd_list[FETCH_SENSE], "floating", strlen("floating") ) == 0) )
 		{
 			sense = PAL_STM32_PUDR_FLOATING;
 		}
-		else if ( (strncasecmp(cmd_list[SENSE], "analog", strlen("analog") ) == 0) )
+		else if ( (strncasecmp(cmd_list[FETCH_SENSE], "analog", strlen("analog") ) == 0) )
 		{
 			sense = PAL_STM32_MODE_ANALOG;
 		}
@@ -319,23 +319,23 @@ bool fetch_gpio_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * d
                          Fetch_terminals * fetch_terms)
 {
 
-	if(fetch_gpio_is_valid_gpio_subcommandA(chp, fetch_terms, cmd_list[ACTION]) >= 0)
+	if(fetch_gpio_is_valid_gpio_subcommandA(chp, fetch_terms, cmd_list[FETCH_ACTION]) >= 0)
 	{
-		if (strncasecmp(cmd_list[ACTION], "get", strlen("get") ) == 0)
+		if (strncasecmp(cmd_list[FETCH_ACTION], "get", strlen("get") ) == 0)
 		{
 			return(fetch_gpio_get(chp, fetch_terms, cmd_list));
 		}
-		else if (strncasecmp(cmd_list[ACTION], "set", strlen("set") ) == 0)
+		else if (strncasecmp(cmd_list[FETCH_ACTION], "set", strlen("set") ) == 0)
 		{
 			return(fetch_gpio_set(chp, fetch_terms, cmd_list));
 		}
-		else if (strncasecmp(cmd_list[ACTION], "clear", strlen("clear") ) == 0)
+		else if (strncasecmp(cmd_list[FETCH_ACTION], "clear", strlen("clear") ) == 0)
 		{
 			return(fetch_gpio_clear(chp, fetch_terms, cmd_list));
 		}
-		else if (strncasecmp(cmd_list[ACTION], "config", strlen("config") ) == 0)
+		else if (strncasecmp(cmd_list[FETCH_ACTION], "config", strlen("config") ) == 0)
 		{
-			if( (cmd_list[DIRECTION] != NULL) && (cmd_list[SENSE] != NULL))
+			if( (cmd_list[FETCH_DIRECTION] != NULL) && (cmd_list[FETCH_SENSE] != NULL))
 			{
 				return(fetch_gpio_config(chp, fetch_terms, cmd_list));
 			}

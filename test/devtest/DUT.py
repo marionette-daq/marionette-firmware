@@ -110,30 +110,51 @@ class DUTSerial():
         self.write(string)
         sleep(DUT_WAITTIME)
 
+    def testctl(self):
+        self.teststr("")
+        self.teststr("\r\n")
+        self.teststr('\x04')   # ctrl-d in ascii will cause logout event, and marionette terminal will restart
+        sleep(3.5)
+
+    def test_adc(self):
+        self.teststr("adc:conf_adc1:oneshot\r\n")
+        self.teststr("adc:start\r\n")
+        self.teststr("adc:start\r\n")
+        self.teststr("adc:start\r\n")
+        self.teststr("adc:start\r\n")
+        self.teststr("adc:conf_adc1:continuous\r\n")
+        self.teststr("adc:start\r\n")
+        sleep(0.5)
+        self.teststr("adc:stop\r\n")
+
+    def test_gpio(self):
+        self.teststr("help\r\n")
+        self.teststr("adc:start\r\n")
+        self.teststr("adc:start\r\n")
+        self.teststr("adc:start\r\n")
+        self.teststr("gpio:configure:porth:pin2:output:floating\r\n")
+        self.teststr(" gpio : \tconfigure :p   orth:p\tin2:output:floa\t  \tt\t i n    g\r\n")
+        self.teststr(" gpio \r\n")
+        self.teststr("gpio:configure\r\n")
+        self.teststr("gpio:configure:porti:pin10:output:floating\r\n")
+        self.teststr("gpio:configure:porth:pin2:output:floating\r\n")
+        self.teststr("gpio:set:porth:pin2\r\n")
+        self.teststr("gpio:set:porti:pin10\r\n")
+        self.teststr("gpio:get:porth:pin2\r\n")
+        self.teststr("gpio:clear:porth:pin2\r\n")
+        self.teststr("gpio:get:porth:pin2\r\n")
+        self.teststr("gpio:get:porti:pin10\r\n")
+        self.teststr("gpio:set:porth:pin2\r\n")
+        self.teststr("resetpins\r\n")
+        self.teststr("gpio:get:porth:pin2\r\n")
+ 
     def writer(self):
         try:
             if self.alive:
-                self.teststr("")
-                self.teststr("\r\n")
-                self.teststr('\x04')   # ctrl-d in ascii will cause logout event, and marionette terminal will restart
-                sleep(3.5)
-                self.teststr("help\r\n")
+                self.testctl()
                 self.teststr("+noprompt\r\n")
-                self.teststr("gpio:configure:porth:pin2:output:floating\r\n")
-                self.teststr(" gpio : \tconfigure :p   orth:p\tin2:output:floa\t  \tt\t i n    g\r\n")
-                self.teststr(" gpio \r\n")
-                self.teststr("gpio:configure\r\n")
-                self.teststr("gpio:configure:porti:pin10:output:floating\r\n")
-                self.teststr("gpio:configure:porth:pin2:output:floating\r\n")
-                self.teststr("gpio:set:porth:pin2\r\n")
-                self.teststr("gpio:set:porti:pin10\r\n")
-                self.teststr("gpio:get:porth:pin2\r\n")
-                self.teststr("gpio:clear:porth:pin2\r\n")
-                self.teststr("gpio:get:porth:pin2\r\n")
-                self.teststr("gpio:get:porti:pin10\r\n")
-                self.teststr("gpio:set:porth:pin2\r\n")
-                self.teststr("resetpins\r\n")
-                self.teststr("gpio:get:porth:pin2\r\n")
+#                self.test_gpio()
+                self.test_adc()
                 self.teststr("+prompt\r\n")
         except:
             self.alive = False

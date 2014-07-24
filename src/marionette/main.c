@@ -23,6 +23,7 @@
 #include "board.h"
 
 #include "fetch.h"
+#include "fetch_adc.h"
 #include "util_version.h"
 #include "usbcfg.h"
 
@@ -97,7 +98,7 @@ static void main_app(void) {
 
 	mshellInit();
 
-
+    fetch_adc_init();	
 
 	util_hwversion(&version_data);
 	usb_set_serial_strings(version_data.hardware.id_high, version_data.hardware.id_center,

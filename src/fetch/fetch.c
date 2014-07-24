@@ -22,8 +22,7 @@
 #include "fetch_defs.h"
 #include "fetch.h"
 
-/* \todo Mon 14 July 2014 11:17:26 (PDT)  Investigate BISON/YACC if this gets too hoary. 
- * \warning BISON/YACC may need dynamic memory management?
+/* \todo Mon 14 July 2014 11:17:26 (PDT)  Investigate FLEZ/BISON/YACC etc. when definition settles
  */
 
 /************************************************************
@@ -38,12 +37,12 @@ P - Production Rules:
 <statement>        ::= <command> <EOL>
                      | <command> ":" <gpio_subcommandA> ":" <port_subcommand> ":" <pin_subcommand> <EOL>
                      | <command> ":" <gpio_subcommandA> ":" <port_subcommand> ":" <pin_subcommand> ":" <gpio_direction> ":" <gpio_sense> <EOL>
-                     | <command> ":" <adc_subcommandA>  ":" <adc_sampletype>  ":" <EOL>
+                     | <command> ":" <adc_subcommandA> <EOL>
                      | <command> ":" <adc_subcommandA>  ":" <adc_configure>   ":" <EOL>
 <command>          ::= "?"      | "help"     | "gpio"  | "adc"   | "spi"   | "adc" | "resetpins"
-<adc_subcommandA>  ::= "configure" | "start" | "stop"
-<adc_configure>    ::= TBD
-<adc_sampletype>   ::= "oneshot"   | "continuous" 
+<adc_subcommandA>  ::= "conf_adc1" | "start" | "stop"
+<adc_configure>    ::= "profile" | "oneshot" | "continuous"
+<adc_profile>      ::= "default" | "PA"   | "PB"
 <spi_subcommandA>  ::= TBD
 <i2c_subcommandA>  ::= TBD
 <gpio_subcommandA> ::= "get"    | "set"      | "clear"    | "configure"
@@ -88,9 +87,9 @@ static Fetch_terminals fetch_terms =
 	.gpio_subcommandA = {"get", "set", "clear", "configure"},
 	.gpio_direction   = {"input", "output"},
 	.gpio_sense       = {"pullup", "pulldown", "floating", "analog"},
-	.adc_subcommandA  = {"configure", "start", "stop"},
-	.adc_configure    = {},
-	.adc_sampletype   = {"oneshot", "continuous"},
+	.adc_subcommandA  = {"conf_adc1", "start", "stop"},
+	.adc_configure    = {"profile", "oneshot", "continuous"},
+    .adc_profile      = {"default" , "PA"   , "PB"},
 	.port_subcommand  = {"porta", "portb", "portc", "portd", "porte", "portf", "portg", "porth", "porti" },
 	.pin_subcommand   = {"pin0", "pin1", "pin2", "pin3", "pin4", "pin5", "pin6", "pin7", "pin8", "pin9", "pin10", "pin11", "pin12", "pin13", "pin14", "pin15" },
 	.subcommandD      = {},
@@ -162,7 +161,6 @@ static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl
 static bool fetch_adc(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[])
 {
 		if(adc_dict.enabled) {
-				DBG_MSG(chp, "adc call");
 			return(fetch_adc_dispatch(chp, cmd_list, data_list, &fetch_terms));
 		}
 		
