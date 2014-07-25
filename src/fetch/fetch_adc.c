@@ -7,6 +7,14 @@
   * @{
   */
 
+//Wed 23 July 2014 18:22:27 (PDT)
+// define adc state structure.
+// test current configuration
+// define profile
+// continuous/oneshot
+// conversiongrp
+
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
@@ -26,6 +34,9 @@
 #include "fetch.h"
 
 #include "fetch_adc.h"
+
+
+#define FETCH_ADC_DATA_STACKSIZE      512
 
 /* Total number of channels to be sampled by a single ADC operation.*/
 #define FETCH_ADC1_GRP_NUM_CHANNELS   2
@@ -58,6 +69,8 @@ static const ADC_input ADC1_IN15  = { GPIOC, GPIOC_PIN5 } ;
 static adcsample_t adc1_sample_buf[FETCH_ADC1_GRP_NUM_CHANNELS * FETCH_ADC1_GRP_BUF_DEPTH];
 void fetch_adc1_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n);
 
+static EventSource fetch_adc1_data_ready;
+
 /*! \brief track the state of the conversion
  *
  * Idea is that starting from a default profile, user may change
@@ -67,6 +80,7 @@ void fetch_adc1_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n);
  */
 static FETCH_adc_state fetch_adc1_state =
 {
+	.init    = false,
 	.oneshot = true,
 	.chp     = NULL
 };
@@ -108,8 +122,6 @@ static  FETCH_adc_profile adc1_default_profile =
 	.adc_sample_buf       = adc1_sample_buf    // should this be &adc1_sample buf?
 };
 
-void fetch_adc1_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n) ;
-
 /*! \brief ADC conversion group.
  * Mode:        Linear buffer, 4 adc1_sample_buf of 2 channels, SW triggered.
  * Channels:    IN11   (48 cycles sample time)
@@ -131,12 +143,49 @@ static const ADCConversionGroup adcgrpcfg =
 	.sqr3            = ADC_SQR3_SQ2_N(ADC_CHANNEL_IN11) | ADC_SQR3_SQ1_N(ADC_CHANNEL_SENSOR)
 };
 
-//Wed 23 July 2014 18:22:27 (PDT)
-// define adc state structure.
-// test current configuration
-// define profile
-// continuous/oneshot
-// conversiongrp
+
+static void adc1_new_data(eventid_t id UNUSED)
+{
+	BaseSequentialStream * chp   = fetch_adc1_state.chp;
+	adcsample_t avg_ch1, avg_ch2;
+	if(FETCH_ADC1_GRP_BUF_DEPTH > 0)
+	{
+		avg_ch1  = adc1_sample_buf[0] / FETCH_ADC1_GRP_BUF_DEPTH;
+		avg_ch2  = adc1_sample_buf[1] / FETCH_ADC1_GRP_BUF_DEPTH;
+	}
+	else
+	{
+		avg_ch1 = 0;
+		avg_ch2 = 0;
+	}
+
+	// read 64 bit timer
+	if(fetch_adc1_state.chp != NULL)
+	{
+			chprintf(fetch_adc1_state.chp, "%d,%d\r\n\r\n", avg_ch1, avg_ch2);
+	}
+	// converted value
+}
+
+static WORKING_AREA(wa_fetch_adc_data, FETCH_ADC_DATA_STACKSIZE);
+static msg_t fetch_adc_data(void * p UNUSED){
+	struct       EventListener el0;
+    static const evhandler_t evhndl[] = {
+        adc1_new_data
+    };
+
+	chRegSetThreadName("fetch_adc_data");
+    chEvtRegister(&fetch_adc1_data_ready, &el0, 0);
+
+	// start 64 bit timer
+	while (TRUE)
+	{
+       chEvtDispatch(evhndl, chEvtWaitAny(ALL_EVENTS));
+	}
+
+	/* Never executed, silencing a warning.*/
+	return 0;
+}
 
 /*
  * ADC end conversion callback.
@@ -150,7 +199,6 @@ void fetch_adc1_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n)
 	   intermediate callback when the buffer is half full.*/
 	if (adcp->state == ADC_COMPLETE)
 	{
-		adcsample_t avg_ch1, avg_ch2;
 
 		// change this to reflect numadc1_sample_buf?  and depth of adc1_sample_buf...
 
@@ -158,35 +206,24 @@ void fetch_adc1_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n)
 
 		/* Calculates the average values from the ADC adc1_sample_buf.*/
 		//avg_ch1 = (adc1_sample_buf[0] + adc1_sample_buf[2] + adc1_sample_buf[4] + adc1_sample_buf[6]) /
-				  //4;
+		//4;
 		//avg_ch2 = (adc1_sample_buf[1] + adc1_sample_buf[3] + adc1_sample_buf[5] + adc1_sample_buf[7]) /
-				  //4;
-
-		if(FETCH_ADC1_GRP_BUF_DEPTH > 0) {
-			avg_ch1  = adc1_sample_buf[0]/FETCH_ADC1_GRP_BUF_DEPTH;
-			avg_ch2  = adc1_sample_buf[1]/FETCH_ADC1_GRP_BUF_DEPTH;
-		} else {
-			avg_ch1 = 0;
-			avg_ch2 = 0;
-		}
+		//4;
+		chSysLockFromIsr();
+		chEvtBroadcastI(&fetch_adc1_data_ready);
+		chSysUnlockFromIsr();
 
 		chSysLockFromIsr();
-
-		// read 64 bit timer
-		//  print result (timestamp ch1 ch2) here...
-		if(fetch_adc1_state.chp != NULL) {
-			chprintf(fetch_adc1_state.chp, "%d,%d\r\n\r\n", avg_ch1, avg_ch2); 
-		}
-		// converted value
-
 		if(!fetch_adc1_state.oneshot)
 		{
-			adcStartConversionI(&ADCD1, adc1_default_profile.adcgrpcfg, adc1_default_profile.adc_sample_buf, adc1_default_profile.adc_grp_buf_depth);
+			adcStartConversionI(&ADCD1, adc1_default_profile.adcgrpcfg,
+			                    adc1_default_profile.adc_sample_buf, adc1_default_profile.adc_grp_buf_depth);
 		}
 
 		chSysUnlockFromIsr();
 	}
 }
+
 
 /*
  *have different adc profiles defined
@@ -196,23 +233,30 @@ void fetch_adc1_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n)
  *
  */
 
-//void fetch_adc_init(struct * adc_profile....)
-void fetch_adc_init(void)
+void fetch_adc_init(BaseSequentialStream * chp)
 {
 	/*
 	 * Initializes the ADC driver 1 and enable the thermal sensor.
 	 * The pin PC1 on the port GPIOC is programmed as analog input.
 	 */
+	chEvtInit(&fetch_adc1_data_ready);
+
 	adcStart(&ADCD1, NULL);
 	//adcConfigWatchdog()...
 	adcSTM32EnableTSVREFE();
 	palSetPadMode(ADC1_IN13.port, ADC1_IN13.pin, PAL_MODE_INPUT_ANALOG);
+	fetch_adc1_state.chp = chp;
+
+	// start a thread waiting for data event.....
+	chThdCreateStatic(wa_fetch_adc_data, sizeof(wa_fetch_adc_data), NORMALPRIO, fetch_adc_data, NULL);
+
+	fetch_adc1_state.init = true;
 }
 
 static bool fetch_adc1_start(void)
 {
 	adcStartConversion(&ADCD1, adc1_default_profile.adcgrpcfg, adc1_default_profile.adc_sample_buf,
-	                   adc1_default_profile.adc_grp_buf_depth);
+					   adc1_default_profile.adc_grp_buf_depth);
 	return true;
 }
 

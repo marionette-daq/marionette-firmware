@@ -28,7 +28,7 @@ import serial
 from time import sleep
 import utils as u
 
-DUT_WAITTIME     = 0.500
+DUT_WAITTIME     = 0.200
 Default_Baudrate = 115200
 Default_Timeout  = 2
 Default_Port     = "/dev/ttyACM0"
@@ -125,13 +125,10 @@ class DUTSerial():
         self.teststr("adc:conf_adc1:continuous\r\n")
         self.teststr("adc:start\r\n")
         sleep(0.5)
-        self.teststr("adc:stop\r\n")
+        self.write("adc:stop\r\n")
 
     def test_gpio(self):
         self.teststr("help\r\n")
-        self.teststr("adc:start\r\n")
-        self.teststr("adc:start\r\n")
-        self.teststr("adc:start\r\n")
         self.teststr("gpio:configure:porth:pin2:output:floating\r\n")
         self.teststr(" gpio : \tconfigure :p   orth:p\tin2:output:floa\t  \tt\t i n    g\r\n")
         self.teststr(" gpio \r\n")
@@ -153,7 +150,7 @@ class DUTSerial():
             if self.alive:
                 self.testctl()
                 self.teststr("+noprompt\r\n")
-#                self.test_gpio()
+                self.test_gpio()
                 self.test_adc()
                 self.teststr("+prompt\r\n")
         except:
@@ -180,7 +177,8 @@ if __name__ == "__main__":
     try:
         # optparse here eventually... baud port filename quiet
         serial_port    = Default_Port
-        baud           = Default_Baudrate
+        baud           = 460800
+#        baud           = 115200
         timeout        = Default_Timeout
 
         DUT       = DUTSerial(serial_port, baud, timeout)

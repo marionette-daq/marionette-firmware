@@ -34,12 +34,13 @@ typedef struct fetch_adc_profile
 
 
 typedef struct fetch_adc_state {
+	bool                   init;
 	BaseSequentialStream * chp;
 	bool                   oneshot;
 } FETCH_adc_state;
 
 
-void fetch_adc_init(void);
+void fetch_adc_init(BaseSequentialStream* chp);
 bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[],
                          Fetch_terminals * fetch_terms);
 
