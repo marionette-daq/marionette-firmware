@@ -14,6 +14,7 @@ typedef enum FETCH_ADC_token
 	ADC_CMD = 0,
 	ADC_ACTION,
 	ADC_CONFIGURE,
+	ADC_PROFILE,
 	NO_ADC_GPIO_TOKEN=FETCH_MAX_TERMINALS-1
 } FETCH_ADC_token;
 
@@ -33,11 +34,18 @@ typedef struct fetch_adc_profile
 } FETCH_adc_profile;
 
 
-typedef struct fetch_adc_state {
-	bool                   init;
-	BaseSequentialStream * chp;
-	bool                   oneshot;
+typedef struct fetch_adc_state
+{
+	int32_t                     vref_mv;	
+	bool                        init;
+	bool                        oneshot;
+	uint8_t                     adc_grp_num_channels;
+	uint8_t                     adc_grp_buf_depth;
+	FETCH_adc_profile  const     *   profile;
+	BaseSequentialStream    *   chp;
 } FETCH_adc_state;
+
+
 
 
 void fetch_adc_init(BaseSequentialStream* chp);

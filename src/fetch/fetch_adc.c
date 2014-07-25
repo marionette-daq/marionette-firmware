@@ -16,6 +16,7 @@
 
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
@@ -35,7 +36,7 @@
 
 #include "fetch_adc.h"
 
-
+#define FETCH_DEFAULT_VREF_MV         3300
 #define FETCH_ADC_DATA_STACKSIZE      512
 
 /* Total number of channels to be sampled by a single ADC operation.*/
@@ -71,21 +72,6 @@ void fetch_adc1_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n);
 
 static EventSource fetch_adc1_data_ready;
 
-/*! \brief track the state of the conversion
- *
- * Idea is that starting from a default profile, user may change
- * configuration of conversion.
- * Example instead of oneshot user may select continuous conversion
- * There may be more....
- */
-static FETCH_adc_state fetch_adc1_state =
-{
-	.init    = false,
-	.oneshot = true,
-	.chp     = NULL
-};
-
-
 /*! \brief ADC default conversion group.
  * Mode:        Linear buffer, 1 adc1_sample_buf of 2 channels, SW triggered.
  * Channels:    IN13   (56 cycles sample time)
@@ -113,7 +99,7 @@ static ADCConversionGroup adc1_default_cfg =
  * adc1_default_cfg
  * adc1_sample_buf
  */
-static  FETCH_adc_profile adc1_default_profile =
+static const  FETCH_adc_profile adc1_default_profile =
 {
 	.oneshot              = true,
 	.adcgrpcfg            = &adc1_default_cfg,
@@ -121,6 +107,26 @@ static  FETCH_adc_profile adc1_default_profile =
 	.adc_grp_buf_depth    = FETCH_ADC1_GRP_BUF_DEPTH,
 	.adc_sample_buf       = adc1_sample_buf    // should this be &adc1_sample buf?
 };
+
+/*! \brief track the state of the conversion
+ *
+ * Idea is that starting from a default profile, user may change
+ * configuration of conversion.
+ * Example instead of oneshot user may select continuous conversion
+ * There may be more....
+ * Keeping the profiles const allows reset
+ */
+static FETCH_adc_state fetch_adc1_state =
+{
+	.vref_mv              = 3300,
+	.init                 = false,
+	.oneshot              = true,
+	.adc_grp_num_channels = FETCH_ADC1_GRP_NUM_CHANNELS,
+	.adc_grp_buf_depth    = FETCH_ADC1_GRP_BUF_DEPTH,
+	.profile              = &adc1_default_profile,
+	.chp                  = NULL 
+};
+
 
 /*! \brief ADC conversion group.
  * Mode:        Linear buffer, 4 adc1_sample_buf of 2 channels, SW triggered.
@@ -162,25 +168,28 @@ static void adc1_new_data(eventid_t id UNUSED)
 	// read 64 bit timer
 	if(fetch_adc1_state.chp != NULL)
 	{
-			chprintf(fetch_adc1_state.chp, "%d,%d\r\n\r\n", avg_ch1, avg_ch2);
+		chprintf(fetch_adc1_state.chp, "%d,%d\r\n\r\n", avg_ch1, avg_ch2);
 	}
 	// converted value
 }
 
 static WORKING_AREA(wa_fetch_adc_data, FETCH_ADC_DATA_STACKSIZE);
-static msg_t fetch_adc_data(void * p UNUSED){
+static msg_t fetch_adc_data(void * p UNUSED)
+{
 	struct       EventListener el0;
-    static const evhandler_t evhndl[] = {
-        adc1_new_data
-    };
+
+	static const evhandler_t   evhndl[] =
+	{
+		adc1_new_data
+	};
 
 	chRegSetThreadName("fetch_adc_data");
-    chEvtRegister(&fetch_adc1_data_ready, &el0, 0);
+	chEvtRegister(&fetch_adc1_data_ready, &el0, 0);
 
 	// start 64 bit timer
 	while (TRUE)
 	{
-       chEvtDispatch(evhndl, chEvtWaitAny(ALL_EVENTS));
+		chEvtDispatch(evhndl, chEvtWaitAny(ALL_EVENTS));
 	}
 
 	/* Never executed, silencing a warning.*/
@@ -224,6 +233,34 @@ void fetch_adc1_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n)
 	}
 }
 
+static void fetch_adc1_reset(void) {
+	fetch_adc1_state.vref_mv                = FETCH_DEFAULT_VREF_MV;
+	fetch_adc1_state.init                   = false;
+	fetch_adc1_state.oneshot                = true;
+	fetch_adc1_state.adc_grp_num_channels   = FETCH_ADC1_GRP_NUM_CHANNELS;
+	fetch_adc1_state.adc_grp_buf_depth      = FETCH_ADC1_GRP_BUF_DEPTH;
+	fetch_adc1_state.profile                = &adc1_default_profile;
+	adcStop(&ADCD1);
+	fetch_adc_init(fetch_adc1_state.chp);
+	DBG_VMSG(fetch_adc1_state.chp, "vref_mv: %d\r\n", fetch_adc1_state.vref_mv);
+}
+
+bool fetch_adc1_profile(BaseSequentialStream * chp, Fetch_terminals * fetch_terms,
+                        char * cmd_list[])
+{
+	if (strncasecmp(cmd_list[ADC_PROFILE], "default", strlen("default") ) == 0)
+	{
+		fetch_adc1_state.profile = &adc1_default_profile;
+		fetch_adc1_reset();
+		return true;
+	}
+	else
+	{
+		DBG_VMSG(chp, "Profile %s not available.", cmd_list[ADC_PROFILE]);
+		return false;
+	}
+	return false;
+}
 
 /*
  *have different adc profiles defined
@@ -232,7 +269,6 @@ void fetch_adc1_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n)
  *Then configure
  *
  */
-
 void fetch_adc_init(BaseSequentialStream * chp)
 {
 	/*
@@ -248,7 +284,8 @@ void fetch_adc_init(BaseSequentialStream * chp)
 	fetch_adc1_state.chp = chp;
 
 	// start a thread waiting for data event.....
-	chThdCreateStatic(wa_fetch_adc_data, sizeof(wa_fetch_adc_data), NORMALPRIO, fetch_adc_data, NULL);
+	chThdCreateStatic(wa_fetch_adc_data, sizeof(wa_fetch_adc_data), NORMALPRIO, fetch_adc_data,
+	                  NULL);
 
 	fetch_adc1_state.init = true;
 }
@@ -256,7 +293,7 @@ void fetch_adc_init(BaseSequentialStream * chp)
 static bool fetch_adc1_start(void)
 {
 	adcStartConversion(&ADCD1, adc1_default_profile.adcgrpcfg, adc1_default_profile.adc_sample_buf,
-					   adc1_default_profile.adc_grp_buf_depth);
+	                   adc1_default_profile.adc_grp_buf_depth);
 	return true;
 }
 
@@ -278,7 +315,7 @@ static inline int fetch_adc_is_valid_adc_configure(BaseSequentialStream * chp,
 
 
 static bool fetch_adc1_configure(BaseSequentialStream * chp ,
-                                Fetch_terminals * fetch_terms, char * cmd_list[])
+                                 Fetch_terminals * fetch_terms, char * cmd_list[], char * data_list[])
 {
 	if(fetch_adc_is_valid_adc_configure(chp, fetch_terms, cmd_list[ADC_CONFIGURE]) >= 0)
 	{
@@ -290,6 +327,21 @@ static bool fetch_adc1_configure(BaseSequentialStream * chp ,
 		else if (strncasecmp(cmd_list[ADC_CONFIGURE], "continuous", strlen("continuous") ) == 0)
 		{
 			fetch_adc1_state.oneshot = false;
+			return true;
+		}
+		else if (strncasecmp(cmd_list[ADC_CONFIGURE], "profile", strlen("profile") ) == 0)
+		{
+			return(fetch_adc1_profile(chp, fetch_terms, cmd_list));
+		}
+		else if (strncasecmp(cmd_list[ADC_CONFIGURE], "reset", strlen("reset") ) == 0)
+		{
+			fetch_adc1_reset();
+			return true;
+		}
+		else if (strncasecmp(cmd_list[ADC_CONFIGURE], "vref_mv", strlen("vref_mv") ) == 0)
+		{
+			fetch_adc1_state.vref_mv = atoi(data_list[0]);
+			DBG_VMSG(chp, "vref_mv: %d\tdata_list[0]: %s\r\n", fetch_adc1_state.vref_mv, data_list[0]);
 			return true;
 		}
 		else
@@ -319,13 +371,16 @@ bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 	if(fetch_adc_is_valid_adc_subcommandA(chp, fetch_terms, cmd_list[ADC_ACTION]) >= 0)
 	{
 
-		if (strncasecmp(cmd_list[ADC_ACTION], "conf_adc1", strlen("conf_adc1") ) == 0) {
-			return(fetch_adc1_configure(chp, fetch_terms, cmd_list));
+		if (strncasecmp(cmd_list[ADC_ACTION], "conf_adc1", strlen("conf_adc1") ) == 0)
+		{
+			return(fetch_adc1_configure(chp, fetch_terms, cmd_list, data_list));
 		}
-		else if (strncasecmp(cmd_list[ADC_ACTION], "start", strlen("start") ) == 0) {
+		else if (strncasecmp(cmd_list[ADC_ACTION], "start", strlen("start") ) == 0)
+		{
 			return(fetch_adc1_start());
 		}
-		else if (strncasecmp(cmd_list[ADC_ACTION], "stop", strlen("stop") ) == 0) {
+		else if (strncasecmp(cmd_list[ADC_ACTION], "stop", strlen("stop") ) == 0)
+		{
 			return(fetch_adc1_stop());
 		}
 		else
@@ -338,4 +393,3 @@ bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 }
 
 /*! @} */
-

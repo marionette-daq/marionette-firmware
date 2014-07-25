@@ -41,7 +41,7 @@ P - Production Rules:
                      | <command> ":" <adc_subcommandA>  ":" <adc_configure>   ":" <EOL>
 <command>          ::= "?"      | "help"     | "gpio"  | "adc"   | "spi"   | "adc" | "resetpins"
 <adc_subcommandA>  ::= "conf_adc1" | "start" | "stop"
-<adc_configure>    ::= "profile" | "oneshot" | "continuous"
+<adc_configure>    ::= "profile" | "oneshot" | "continuous" | "reset" | "vref_mv"
 <adc_profile>      ::= "default" | "PA"   | "PB"
 <spi_subcommandA>  ::= TBD
 <i2c_subcommandA>  ::= TBD
@@ -88,7 +88,7 @@ static Fetch_terminals fetch_terms =
 	.gpio_direction   = {"input", "output"},
 	.gpio_sense       = {"pullup", "pulldown", "floating", "analog"},
 	.adc_subcommandA  = {"conf_adc1", "start", "stop"},
-	.adc_configure    = {"profile", "oneshot", "continuous"},
+	.adc_configure    = {"profile", "oneshot", "continuous", "reset", "vref_mv"},
     .adc_profile      = {"default" , "PA"   , "PB"},
 	.port_subcommand  = {"porta", "portb", "portc", "portd", "porte", "portf", "portg", "porth", "porti" },
 	.pin_subcommand   = {"pin0", "pin1", "pin2", "pin3", "pin4", "pin5", "pin6", "pin7", "pin8", "pin9", "pin10", "pin11", "pin12", "pin13", "pin14", "pin15" },
@@ -291,7 +291,8 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 		if(parenpart != NULL)
 		{
 			strncpy(datastr, parenpart, strlen(parenpart));
-			datastr[strlen(parenpart)] = '\0';
+			datastr[strlen(parenpart)-1] = '\0';
+			chprintf(chp, "datastr : %s\r\n", datastr);
 		}
 	}
 	else

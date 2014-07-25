@@ -54,6 +54,8 @@ char * fetch_remove_spaces(char * spstr)
 	return newstr;
 }
 
+
+
 /*! \brief return length of longest string 
   */
 size_t get_longest_str_length(const char * s1, const char * s2, int max_length)
