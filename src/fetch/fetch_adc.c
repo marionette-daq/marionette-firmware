@@ -29,7 +29,7 @@
 #include "fetch_adc.h"
 
 #define FETCH_DEFAULT_VREF_MV         3300
-#define FETCH_ADC_DATA_STACKSIZE      512
+#define FETCH_ADC_DATA_STACKSIZE      2048
 
 /* Total number of channels to be sampled by a single ADC operation.*/
 #define FETCH_ADC1_DEMO_GRP_NUM_CHANNELS      2
@@ -104,7 +104,7 @@ static ADCConversionGroup adc1_default_cfg =
 	/* HW dependent part.*/
 	.cr1             = 0,
 	.cr2             = ADC_CR2_SWSTART,
-	.smpr1           = ADC_SMPR1_SMP_AN13(ADC_SAMPLE_3),
+	.smpr1           = ADC_SMPR1_SMP_AN13(ADC_SAMPLE_56),
 	.smpr2           = 0,
 	.sqr1            = ADC_SQR1_NUM_CH(FETCH_ADC1_DEFAULT_GRP_NUM_CHANNELS),
 	.sqr2            = 0,
@@ -174,6 +174,7 @@ static void adc1_new_data(eventid_t id UNUSED)
 	//DBG_VMSG(fetch_adc1_state.chp, "uv per bit: %u\r\n", uv_per_bit);
 	if((fetch_adc1_state.profile->adc_grp_buf_depth > 0) && (fetch_adc1_state.chp != NULL))
 	{
+		systime_t   timenow = 0 ;    
 		adcsample_t avg_ch1 = 0 ;
 		adcsample_t avg_ch2 = 0 ;
 		switch(fetch_adc1_state.profile->name)
@@ -181,7 +182,10 @@ static void adc1_new_data(eventid_t id UNUSED)
 			case FETCH_ADC_DEFAULT:
 				avg_ch1  = fetch_adc1_state.profile->adc_sample_buf[0] / fetch_adc1_state.profile->adc_grp_buf_depth;
 	// read 64 bit timer
-				chprintf(fetch_adc1_state.chp, "raw: %u\tuV: %u\r\n", avg_ch1, avg_ch1 * uv_per_bit);
+				//chprintf(fetch_adc1_state.chp, "raw: %u\tuV: %u\r\n", avg_ch1, avg_ch1 * uv_per_bit);
+				//chprintf(fetch_adc1_state.chp, "%u\r\n", avg_ch1 * uv_per_bit);
+				timenow = chTimeNow();
+				chprintf(fetch_adc1_state.chp, "%u:%u\r\n", timenow, avg_ch1);
 	// converted value
 				break;
 			case FETCH_ADC_DEMO:
@@ -214,7 +218,6 @@ static msg_t fetch_adc_data(void * p UNUSED)
 	chRegSetThreadName("fetch_adc_data");
 	chEvtRegister(&fetch_adc1_data_ready, &el0, 0);
 
-	// start 64 bit timer
 	while (TRUE)
 	{
 		chEvtDispatch(evhndl, chEvtWaitAny(ALL_EVENTS));
