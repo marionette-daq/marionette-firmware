@@ -130,7 +130,6 @@ static void main_app(void) {
 		}
 		chThdSleepMilliseconds(500);
 	}
-
 }
 
 int main(void)

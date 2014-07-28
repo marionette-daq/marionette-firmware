@@ -1,4 +1,35 @@
 
+Fri 25 July 2014 20:23:02 (PDT)
+adc prescaler in mcuconf.h
+#define STM32_ADC_ADCPRE                    ADC_CCR_ADCPRE_DIV2
+	This is too fast for current PLL settings
+		max 36000000 ADC clock
+
+Also set sample time
+
+Empirically check sample rate
+	how many samples over 10 seconds.
+
+
+Proposal for test with signal generator
+	max frequency 
+		curve fit toolbox matlab
+		curve fit python numpy, R, ...?
+			fit sin(wt+phi) data
+			assume phi = 0
+			fit sin(wt)
+				t in data.
+
+Refactor adc callbacks after discussion
+
+/*
+ * ADC driver system settings.
+ */
+#define STM32_ADC_ADCPRE                    ADC_CCR_ADCPRE_DIV4
+#define STM32_ADC_USE_ADC1                  TRUE
+
+
+
 Mon 14 July 2014 14:23:13 (PDT)
  
 Callbacks every time half the circular buffer is filled?
