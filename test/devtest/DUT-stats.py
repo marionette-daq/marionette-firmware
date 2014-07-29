@@ -27,6 +27,7 @@ import threading
 import serial
 from time import sleep
 import utils as u
+import numpy as np
 
 DUT_WAITTIME     = 0.200
 Default_Baudrate = 115200
@@ -39,7 +40,8 @@ class DUTSerial():
         self.baud           = baud
         self.timeout        = timeout
         self.isOpen         = False
-        self.Totallines     = 0
+        self.gotime         = 8
+        self.vlist          = []
         return
 
     def start(self):
@@ -96,8 +98,12 @@ class DUTSerial():
             while self.alive and self._reader_alive:
                 line = self.ser.readline()    # don't forget timeout setting
                 if len(line) > 0:
+                    currline = line.decode('ascii')
+                    newv = currline.split(',')
+                    if(len(newv) == 2):
+                        #print(newv[1])
+                        self.vlist.append(int(newv[1]))
                     print(line.decode('ascii'), end="", flush=True)
-                    self.Totallines += 1
                 else:
                     pass
             print("")
@@ -134,9 +140,8 @@ class DUTSerial():
         self.teststr("adc:start\r\n")
         self.teststr("adc:conf_adc1:continuous\r\n")
         self.teststr("adc:start\r\n")
-        sleep(2.0)
+        sleep(self.gotime)
         self.teststr("adc:stop\r\n")
-        sleep(1.0)
  
     def writer(self):
         try:
@@ -162,7 +167,8 @@ class DUTSerial():
             self.isOpen = False
             s="closed port: {}\n".format(self.serial_port)
             u.info(s)
-            print("samples per second approx: ", self.Totallines/2)
+            print("Samples/sec:\t", len(self.vlist)/self.gotime)
+            print("Total samples:\t", len(self.vlist), "\naverage:\t", np.average(self.vlist), "\nmean:\t", np.mean(self.vlist), "\nstd:\t", np.std(self.vlist))
         return
 
 if __name__ == "__main__":

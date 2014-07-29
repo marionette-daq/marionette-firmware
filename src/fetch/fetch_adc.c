@@ -183,9 +183,9 @@ static void adc1_new_data(eventid_t id UNUSED)
 				avg_ch1  = fetch_adc1_state.profile->adc_sample_buf[0] / fetch_adc1_state.profile->adc_grp_buf_depth;
 	// read 64 bit timer
 				//chprintf(fetch_adc1_state.chp, "raw: %u\tuV: %u\r\n", avg_ch1, avg_ch1 * uv_per_bit);
-				//chprintf(fetch_adc1_state.chp, "%u\r\n", avg_ch1 * uv_per_bit);
 				timenow = chTimeNow();
-				chprintf(fetch_adc1_state.chp, "%u:%u\r\n", timenow, avg_ch1);
+				chprintf(fetch_adc1_state.chp, "%u,%u\r\n", timenow, avg_ch1 * uv_per_bit);
+				//chprintf(fetch_adc1_state.chp, "%u:%u\r\n", timenow, avg_ch1);
 	// converted value
 				break;
 			case FETCH_ADC_DEMO:
