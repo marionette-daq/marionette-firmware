@@ -27,7 +27,6 @@ import threading
 import serial
 from time import sleep
 import utils as u
-import numpy as np
 
 DUT_WAITTIME     = 0.200
 Default_Baudrate = 115200
@@ -40,8 +39,6 @@ class DUTSerial():
         self.baud           = baud
         self.timeout        = timeout
         self.isOpen         = False
-        self.gotime         = 30
-        self.vlist          = []
         return
 
     def start(self):
@@ -98,11 +95,6 @@ class DUTSerial():
             while self.alive and self._reader_alive:
                 line = self.ser.readline()    # don't forget timeout setting
                 if len(line) > 0:
-                    currline = line.decode('ascii')
-                    newv = currline.split(',')
-                    if(len(newv) == 2):
-                        #print(newv[1])
-                        self.vlist.append(int(newv[1]))
                     print(line.decode('ascii'), end="", flush=True)
                 else:
                     pass
@@ -114,44 +106,122 @@ class DUTSerial():
             sys.exit()
 
     def teststr(self, string):
-#        u.info("sending\t->"+string)
+        u.info("sending\t->"+string)
         self.write(string)
         sleep(DUT_WAITTIME)
 
     def testctl(self):
+        u.info("Testing help command")
+        self.teststr("help\r\n")
+        u.info("Testing the empty string.")
         self.teststr("")
+        u.info("Testing cr lf.")
         self.teststr("\r\n")
+        u.info("Testing ctl-d (will restart shell)")
         self.teststr('\x04')   # ctrl-d in ascii will cause logout event, and marionette terminal will restart
-        sleep(3.5)
+        sleep(4.5)
+        self.write("\n\r")
 
+    def test_gpio(self):
+        u.info("Set an output to floating.")
+        self.teststr("gpio:configure:porth:pin2:output:floating\r\n")
+        u.info("Test extra spaces in command.")
+        self.teststr(" gpio : \tconfigure :p   orth:p\tin2:output:floa\t  \tt\t i n    g\r\n")
+        u.info("Test bad command (should produce error)")
+        self.teststr(" gpio \r\n")
+        u.info("Test incomplete command (should produce error)")
+        self.teststr("gpio:configure\r\n")
+        u.info("Test configure command")
+        self.teststr("gpio:configure:porti:pin10:output:floating\r\n")
+        self.teststr("gpio:configure:porth:pin2:output:floating\r\n")
+        response = input("Pause. Press <enter>")
+        u.info("Test set command")
+        self.teststr("gpio:set:porth:pin2\r\n")
+        self.teststr("gpio:set:porti:pin10\r\n")
+        u.info("Test get command")
+        self.teststr("gpio:get:porth:pin2\r\n")
+        u.info("Test clear command")
+        self.teststr("gpio:clear:porth:pin2\r\n")
+        u.info("Test get command")
+        self.teststr("gpio:get:porth:pin2\r\n")
+        self.teststr("gpio:get:porti:pin10\r\n")
+        response = input("Pause. Press <enter>")
+        u.info("Test set command")
+        self.teststr("gpio:set:porth:pin2\r\n")
+        u.info("Test resetpins command")
+        self.teststr("resetpins\r\n")
+        u.info("Test get command")
+        self.teststr("gpio:get:porth:pin2\r\n")
+ 
     def test_adc(self):
-#        self.teststr("adc:conf_adc1:profile:demo\r\n")
-#        self.teststr("adc:conf_adc1:oneshot\r\n")
-#        self.teststr("adc:start\r\n")
-#        self.teststr("adc:start\r\n")
-#        self.teststr("adc:start\r\n")
-#        self.teststr("adc:start\r\n")
-#        self.teststr("adc:conf_adc1:continuous\r\n")
-#        self.teststr("adc:start\r\n")
-#        sleep(1.0)
-#        self.write("adc:stop\r\n")
-#        sleep(1.0)
+        u.info("Test one shot with default profile.")
         self.teststr("adc:conf_adc1:profile:default\r\n")
+        self.teststr("adc:conf_adc1:oneshot\r\n")
         self.teststr("adc:start\r\n")
+        self.teststr("adc:start\r\n")
+        response = input("Test continuous with default profile for 1.5 seconds. Press <enter>")
+        self.teststr("adc:conf_adc1:profile:default\r\n")
         self.teststr("adc:conf_adc1:continuous\r\n")
         self.teststr("adc:start\r\n")
-        sleep(self.gotime)
+        sleep(1.5)
         self.teststr("adc:stop\r\n")
+        sleep(1.0)
+        response = input("Test one shot with demo profile. Press <enter>")
+        self.teststr("adc:conf_adc1:profile:demo\r\n")
+        self.teststr("adc:conf_adc1:oneshot\r\n")
+        self.teststr("adc:start\r\n")
+        self.teststr("adc:start\r\n")
+        response = input("Test continuous with demo profile for 1 second. Press <enter>")
+        self.teststr("adc:conf_adc1:continuous\r\n")
+        self.teststr("adc:start\r\n")
+        sleep(1.0)
+        self.teststr("adc:stop\r\n")
+        sleep(1.0)
+        response = input("Set the reference voltage to 2.5 volts. Press <enter>")
+        self.teststr("adc:conf_adc1:vref_mv(2500)\r\n")
+        response = input("Test one shot with demo profile. Press <enter>")
+        self.teststr("adc:conf_adc1:oneshot\r\n")
+        response = input("Pause. Press <enter>")
+        self.teststr("adc:start\r\n")
+        sleep(0.5)
+        response = input("Reset the adc. Press <enter>")
+        self.teststr("adc:conf_adc1:reset\r\n")
+        u.info("Confirm reset to default profile and one shot.")
+        self.teststr("adc:start\r\n")
  
     def writer(self):
         try:
             if self.alive:
+                reponse = input("\r\nStart the Demo. Please press <enter>")
+                reponse = input("\r\nReady to test control. Please press <enter>")
+                self.testctl()
+                self.write("\r\n")
+                sleep(2.5)
+                reponse = input("\r\nTurn off the prompt. Please press <enter>")
                 self.teststr("+noprompt\r\n")
+                sleep(0.5)
+                self.write("resetpins\r\n")
+                sleep(0.5)
+                reponse = input("\r\nReady to test gpio. Please press <enter>")
+                self.test_gpio()
+                self.write("resetpins\r\n")
+                self.teststr("+noprompt\r\n")
+                reponse = input("\r\nReady to test the adc. Please press <enter>")
                 self.test_adc()
+                reponse = input("\r\nReturn the prompt. Please press <enter>")
                 self.teststr("+prompt\r\n")
+
+        except KeyboardInterrupt:
+            self.alive = False
+            DUT.close()
+            u.info("\r\nQuitting-keyboard interrupt.")
+
         except:
             self.alive = False
+            DUT.close()
             raise
+
+
 
     def write(self, s):
         bytes = str.encode(s)    # Because python and strings
@@ -167,8 +237,6 @@ class DUTSerial():
             self.isOpen = False
             s="closed port: {}\n".format(self.serial_port)
             u.info(s)
-            print("Samples/sec:\t", len(self.vlist)/self.gotime)
-            print("Total samples:\t", len(self.vlist), "\naverage:\t", np.average(self.vlist), "\nmean:\t", np.mean(self.vlist), "\nstd:\t", np.std(self.vlist))
         return
 
 if __name__ == "__main__":
@@ -190,7 +258,7 @@ if __name__ == "__main__":
         u.error("Serial Exception: " + str(e))
     except KeyboardInterrupt:
         DUT.close()
-        u.info("\nQuitting")
+        u.info("\r\nQuitting-keyboard interrupt.")
 
 # Attic
 

@@ -171,7 +171,6 @@ static void adc1_new_data(eventid_t id UNUSED)
 	BaseSequentialStream * chp        = fetch_adc1_state.chp;
 	uint32_t               uv_per_bit = ((fetch_adc1_state.vref_mv*1000) / 4096); 
 
-	//DBG_VMSG(fetch_adc1_state.chp, "uv per bit: %u\r\n", uv_per_bit);
 	if((fetch_adc1_state.profile->adc_grp_buf_depth > 0) && (fetch_adc1_state.chp != NULL))
 	{
 		systime_t   timenow = 0 ;    
@@ -181,19 +180,14 @@ static void adc1_new_data(eventid_t id UNUSED)
 		{
 			case FETCH_ADC_DEFAULT:
 				avg_ch1  = fetch_adc1_state.profile->adc_sample_buf[0] / fetch_adc1_state.profile->adc_grp_buf_depth;
-	// read 64 bit timer
-				//chprintf(fetch_adc1_state.chp, "raw: %u\tuV: %u\r\n", avg_ch1, avg_ch1 * uv_per_bit);
 				timenow = chTimeNow();
 				chprintf(fetch_adc1_state.chp, "%u,%u\r\n", timenow, avg_ch1 * uv_per_bit);
-				//chprintf(fetch_adc1_state.chp, "%u:%u\r\n", timenow, avg_ch1);
-	// converted value
 				break;
 			case FETCH_ADC_DEMO:
 				avg_ch1  = fetch_adc1_state.profile->adc_sample_buf[0] / fetch_adc1_state.profile->adc_grp_buf_depth;
 				avg_ch2  = fetch_adc1_state.profile->adc_sample_buf[1] / fetch_adc1_state.profile->adc_grp_buf_depth;
-	// read 64 bit timer
-				chprintf(fetch_adc1_state.chp, "T(raw): %u\tT(C): %u\tIN13(raw): %u\tIN13(uV):%u\r\n", avg_ch1, fetch_adc_calc_temp(avg_ch1, uv_per_bit), avg_ch2, avg_ch2 * uv_per_bit);
-	// converted value
+				timenow = chTimeNow();
+				chprintf(fetch_adc1_state.chp, "%u,T(raw): %u\tT(C): %u\tIN13(raw): %u\tIN13(uV):%u\r\n",timenow, avg_ch1, fetch_adc_calc_temp(avg_ch1, uv_per_bit), avg_ch2, avg_ch2 * uv_per_bit);
 				break;
 			case FETCH_ADC_PA:
 				break;
@@ -367,7 +361,7 @@ static bool fetch_adc1_configure(BaseSequentialStream * chp ,
 		else if (strncasecmp(cmd_list[ADC_CONFIGURE], "vref_mv", strlen("vref_mv") ) == 0)
 		{
 			fetch_adc1_state.vref_mv = atoi(data_list[0]);
-			DBG_VMSG(chp, "vref_mv: %d\tdata_list[0]: %s\r\n", fetch_adc1_state.vref_mv, data_list[0]);
+			//DBG_VMSG(chp, "vref_mv: %d\tdata_list[0]: %s\r\n", fetch_adc1_state.vref_mv, data_list[0]);
 			return true;
 		}
 		else

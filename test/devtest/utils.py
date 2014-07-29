@@ -40,11 +40,11 @@ def key_description(character):
 #  s = "opened port {}\n".format(self.serial_port,)
 #  u.info(s)
 def info(s):
-    print("\n*** INFO: ",s)
+    print("\n*p* INFO: ",s)
 
 def warning(s):
-    print("\n*** WARNING: ",s)
+    print("\n*p* WARNING: ",s)
 
 def error(s):
-    print("\n*** ERROR: ",s)
+    print("\n*p* ERROR: ",s)
 
