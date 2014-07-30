@@ -89,7 +89,7 @@ static Fetch_terminals fetch_terms =
 	.gpio_sense       = {"pullup", "pulldown", "floating", "analog"},
 	.adc_subcommandA  = {"conf_adc1", "start", "stop"},
 	.adc_configure    = {"profile", "oneshot", "continuous", "reset", "vref_mv"},
-    .adc_profile      = {"default" , "PA"   , "PB"},
+	.adc_profile      = {"default" , "PA"   , "PB"},
 	.port_subcommand  = {"porta", "portb", "portc", "portd", "porte", "portf", "portg", "porth", "porti" },
 	.pin_subcommand   = {"pin0", "pin1", "pin2", "pin3", "pin4", "pin5", "pin6", "pin7", "pin8", "pin9", "pin10", "pin11", "pin12", "pin13", "pin14", "pin15" },
 	.subcommandD      = {},
@@ -124,29 +124,29 @@ static bool fetch_not_yet(BaseSequentialStream  * chp, char * cmd_list[] UNUSED,
 static inline int fetch_is_valid_command(BaseSequentialStream * chp, char * chkcommand)
 {
 	return(token_match(chp, fetch_terms.command, chkcommand,
-							 ((int) NELEMS(fetch_terms.command)) ));
+	                   ((int) NELEMS(fetch_terms.command)) ));
 }
 
 inline int fetch_is_valid_digit(BaseSequentialStream * chp, char * chkdigit)
 {
 	return(token_match(chp, fetch_terms.digit, chkdigit,
-	                         ((int) NELEMS(fetch_terms.digit))) );
+	                   ((int) NELEMS(fetch_terms.digit))) );
 }
 
 inline int fetch_is_valid_EOL(BaseSequentialStream * chp, char * chkEOL)
 {
 	return(token_match(chp, fetch_terms.EOL, chkEOL,
-	                         ((int) NELEMS(fetch_terms.EOL))) );
+	                   ((int) NELEMS(fetch_terms.EOL))) );
 }
 
 inline int fetch_is_valid_whitespace(BaseSequentialStream * chp, char * chkwhitespace)
 {
 	return(token_match(chp, fetch_terms.whitespace, chkwhitespace,
-	                         ((int) NELEMS(fetch_terms.whitespace))) );
+	                   ((int) NELEMS(fetch_terms.whitespace))) );
 }
 
-/* Help command implementation for fetch language 
- * TODO: This could be turned into an iterator over all the dicts 
+/* Help command implementation for fetch language
+ * TODO: This could be turned into an iterator over all the dicts
  */
 static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl[] UNUSED)
 {
@@ -160,40 +160,40 @@ static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl
 
 static bool fetch_adc(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[])
 {
-		if(adc_dict.enabled) {
-			return(fetch_adc_dispatch(chp, cmd_list, data_list, &fetch_terms));
-		}
-		
-		DBG_MSG(chp, "Not yet implemented");
-		return true;
-}
+	if(adc_dict.enabled)
+	{
+		return(fetch_adc_dispatch(chp, cmd_list, data_list, &fetch_terms));
+	}
 
+	DBG_MSG(chp, "Not yet implemented");
+	return true;
+}
 
 static bool fetch_gpio(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[])
 {
-		if(gpio_dict.enabled) {
-			return(fetch_gpio_dispatch(chp, cmd_list, data_list, &fetch_terms));
-		}
-		return false;
+	if(gpio_dict.enabled)
+	{
+		return(fetch_gpio_dispatch(chp, cmd_list, data_list, &fetch_terms));
+	}
+	return false;
 }
 
 static bool fetch_version(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
-                            char * data_list[] UNUSED)
+                          char * data_list[] UNUSED)
 {
 	static          VERSIONData                     version_data;
 
 	util_fwversion(&version_data);
 	chprintf(chp, "Fetch Firmware Version:   %s\r\n", version_data.firmware);
 	return true;
-};
+}
 
 static bool fetch_resetpins(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
                             char * data_list[] UNUSED)
 {
-	DBG_MSG(chp, "Resetting pins");
 	palInit(&pal_default_config);
 	return true;
-};
+}
 
 /*! \brief register callbacks for command functions here
                 \sa fetch_init
@@ -262,7 +262,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 	char      *      tokp;
 	char      *      colonpart;
 	char      *      parenpart;
-	
+
 	uint8_t          n = 0;
 
 	int              arrlen = NELEMS(command_toks);
@@ -291,7 +291,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 		if(parenpart != NULL)
 		{
 			strncpy(datastr, parenpart, strlen(parenpart));
-			datastr[strlen(parenpart)-1] = '\0';
+			datastr[strlen(parenpart) - 1] = '\0';
 			//chprintf(chp, "datastr : %s\r\n", datastr);
 		}
 	}
@@ -309,7 +309,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 	{
 		if (n >= FETCH_MAX_COMMANDS)
 		{
-			util_errormsg(chp, "Too many commands.");
+			util_errormsg(chp, "Too many data. Limit: %u", FETCH_MAX_COMMANDS);
 			command_toks[0] = NULL;
 			break;
 		}
@@ -319,7 +319,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 		}
 		else
 		{
-			DBG_VMSG(chp, "Past array bounds: %d", arrlen);
+			//DBG_VMSG(chp, "Past array bounds: %d", arrlen);
 			return false;
 		}
 	}
@@ -329,7 +329,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 	}
 	else
 	{
-		DBG_VMSG(chp, "Past array bounds: %d", arrlen);
+		//DBG_VMSG(chp, "Past array bounds: %d", arrlen);
 		return false;
 	}
 
@@ -342,9 +342,9 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 		arrlen = NELEMS(data_toks);
 		while ((lp = _strtok(NULL, " ", &tokp)) != NULL)
 		{
-			if (n >= FETCH_MAX_COMMANDS)
+			if (n >= FETCH_MAX_DATA_ITEMS)
 			{
-				util_errormsg(chp, "Too many commands.");
+				util_errormsg(chp, "Too many data. Limit: %u", FETCH_MAX_DATA_ITEMS);
 				data_toks[0] = NULL;
 				break;
 			}
@@ -354,7 +354,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 			}
 			else
 			{
-				DBG_VMSG(chp, "Too many tokens. Limit: %d", arrlen);
+				//DBG_VMSG(chp, "Too many tokens. Limit: %d", arrlen);
 				return false;
 			}
 		}
@@ -365,7 +365,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 		}
 		else
 		{
-			DBG_VMSG(chp, "Too many tokens. Limit: %d", arrlen);
+			//DBG_VMSG(chp, "Too many tokens. Limit: %d", arrlen);
 			return false;
 		}
 	}
@@ -390,12 +390,10 @@ bool fetch_dispatch(BaseSequentialStream * chp, char * command_list[], char * da
 
 	if(cindex < 0)
 	{
-		DBG_MSG(chp, "Unrecognized command.");
+		util_errormsg(chp, "Unrecognized command.");
 		return false;
 	}
 
 	return ( (*cmd_fns[cindex]) (chp, command_list, data_list) );
 }
-
-
 /*! @} */

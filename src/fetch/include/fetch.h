@@ -9,7 +9,7 @@
 #define FETCH_H_
 
 #define 		FETCH_MAX_COMMANDS 						8
-#define 		FETCH_MAX_DATA_ITEMS					8
+#define 		FETCH_MAX_DATA_ITEMS					50
 #define 		FETCH_MAX_LINE_CHARS					256
 #define 		FETCH_MAX_CMD_TOKS					    32
 #define 		FETCH_MAX_DATA_TOKS					    256
