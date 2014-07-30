@@ -1,0 +1,22 @@
+digraph Fetch {
+  graph [fontname="lucidasans-bold-14"];
+  node [fontname="lucidasans-bold-14"];
+  "->" -> resetpins;
+  "->" -> show;
+  "->" -> gpio;
+  "->" -> adc;
+  "->" -> dac;
+  "->" -> spi;
+  "->" -> i2c;
+  "->" [color=forestgreen, peripheries=3, style=filled];
+  resetpins [color=plum3, peripheries=2, style=filled];
+  show [color=deepskyblue, peripheries=2, style=filled];
+  gpio [color=lightblue, peripheries=2, style=filled];
+  adc [color=lightgrey, peripheries=2, style=filled];
+  dac [color=turquoise, peripheries=2, style=filled];
+  spi [color=cyan3, peripheries=2, style=filled];
+  i2c [color=violet, peripheries=2, style=filled];
+  label="Command";
+  labelloc=top;
+  labeljust=left;
+}
