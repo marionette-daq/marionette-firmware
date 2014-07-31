@@ -1,0 +1,24 @@
+digraph Fetch {
+        graph [fontname="lucidasans-bold-14"];
+        node [fontname="lucidasans-bold-14"];
+	adc   -> conf_adc1;
+	adc   -> start;
+	adc   -> stop;
+	conf_adc1   -> profile;
+	conf_adc1   -> oneshot;
+	conf_adc1   -> continuous;
+	conf_adc1   -> reset;
+	conf_adc1   -> vref_mv;
+	profile     -> default;
+	profile     -> demo;
+	profile     -> PA;
+	profile     -> PB;
+	vref_mv     -> "(mV)"
+  	adc [color=lightgrey, peripheries=2, style=filled];
+  	conf_adc1 [color=lightgrey, peripheries=2, style=filled];
+  	profile [color=lightgrey, peripheries=2, style=filled];
+  	PA [color=lightgrey, peripheries=2, style=filled];
+	label="gpio:conf_adc1:profile:PA"
+  	labelloc=top;
+  	labeljust=right;
+}
