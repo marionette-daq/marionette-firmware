@@ -38,8 +38,10 @@ P - Production Rules:
                      | <command> ":" <gpio_subcommandA> ":" <port_subcommand> ":" <pin_subcommand> <EOL>
                      | <command> ":" <gpio_subcommandA> ":" <port_subcommand> ":" <pin_subcommand> ":" <gpio_direction> ":" <gpio_sense> <EOL>
                      | <command> ":" <adc_subcommandA> <EOL>
-                     | <command> ":" <adc_subcommandA>  ":" <adc_configure>   ":" <EOL>
-<command>          ::= "?"      | "help"     | "gpio"  | "adc"   | "spi"   | "adc" | "resetpins"
+                     | <command> ":" <adc_subcommandA>  ":" <adc_configure> <EOL>
+                     | <command> ":" <adc_subcommandA>  ":" <adc_configure>   ":" <adc_profile> <EOL>
+                     | <command> ":" <adc_subcommandA>  ":" <adc_configure>(<dec>) <EOL>
+<command>          ::= "?"      | "help"     | "gpio"  | "adc"   | "dac"   | "spi" | "i2c" | "resetpins"
 <adc_subcommandA>  ::= "conf_adc1" | "start" | "stop"
 <adc_configure>    ::= "profile" | "oneshot" | "continuous" | "reset" | "vref_mv"
 <adc_profile>      ::= "default" | "PA"   | "PB"
@@ -53,10 +55,11 @@ P - Production Rules:
                    | "pin8"   | "pin9"     | "pin10" | "pin11" | "pin12" | "pin13" | "pin14" | "pin15"
 <subcommandD>      ::= TBD
 <datastr>          ::= "(" <byte> ")"
-<byte>             ::= <constant>
-                     | <constant> <whitespace> <byte>
-<constant>         ::= <digit><digit>
-<digit>            ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "a" | "b" | "c" | "d" | "e"
+<byte>             ::= <hdigit><hdigit> <whitespace>
+<dec>              ::= <ddigit>
+					| <ddigit> <dec> 
+<hdigit>            ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "a" | "b" | "c" | "d" | "e"
+<ddigit>            ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" 
 <EOL>              ::= "\r\n" | "\n"
 <whitespace_char>  ::= " " | "\t"
 <whitespace>       ::= <whitespace_char> | <whitespace> <whitespace_char>
