@@ -1,7 +1,9 @@
 /*! \file util_messages.c
- *
- *  Standard message interface
+ * 
+ * @defgroup util_messages Message Utilities 
+ * @{
  */
+
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -43,3 +45,4 @@ void util_infomsg(BaseSequentialStream * chp, char * format, ...)
 	va_end(argList);
 }
 
+//! @}

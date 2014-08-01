@@ -1,3 +1,8 @@
+/*! \file usbcfg.c
+ * \defgroup usb_descriptor  USB Descriptor
+ * @{
+ */
+
 /*
     ChibiOS/RT - Copyright (C) 2006-2013 Giovanni Di Sirio
 
@@ -25,7 +30,7 @@
 #define USBD1_DATA_AVAILABLE_EP         1
 #define USBD1_INTERRUPT_REQUEST_EP      2
 
-/*
+/*!
  * USB Device Descriptor.
  */
 static const uint8_t vcom_device_descriptor_data[18] = {
@@ -43,7 +48,7 @@ static const uint8_t vcom_device_descriptor_data[18] = {
                          1)             /* bNumConfigurations.              */
 };
 
-/*
+/*!
  * Device Descriptor wrapper.
  */
 static const USBDescriptor vcom_device_descriptor = {
@@ -51,7 +56,7 @@ static const USBDescriptor vcom_device_descriptor = {
   vcom_device_descriptor_data
 };
 
-/* Configuration Descriptor tree for a CDC.*/
+/*! Configuration Descriptor tree for a CDC.*/
 static const uint8_t vcom_configuration_descriptor_data[67] = {
   /* Configuration Descriptor.*/
   USB_DESC_CONFIGURATION(67,            /* wTotalLength.                    */
@@ -310,9 +315,6 @@ char to_hex_char(uint8_t v) {
 	}
 }
 
-/**
- *
- */
 void usb_set_serial_strings(const uint32_t high, const uint32_t mid, const uint32_t low) {
 	uint8_t src[sizeof(high) + sizeof(mid) + sizeof(low)];
 	memcpy(&src[0], &high, sizeof(high));
@@ -341,7 +343,7 @@ const USBConfig usbcfg = {
   NULL
 };
 
-/*
+/*!
  * Serial over USB driver configuration.
  */
 const SerialUSBConfig serusbcfg = {
@@ -350,3 +352,5 @@ const SerialUSBConfig serusbcfg = {
   USBD1_DATA_AVAILABLE_EP,
   USBD1_INTERRUPT_REQUEST_EP
 };
+
+//! @}
