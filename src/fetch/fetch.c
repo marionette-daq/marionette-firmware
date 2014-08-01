@@ -1,6 +1,7 @@
 /*! \file fetch.c
+ *  \subpage BNF 
  *  Fetch: A DSL for Marionette interaction.
- * @addtogroup fetch_dsl
+ * @defgroup fetch Fetch DSL
  * @{
  */
 
@@ -22,11 +23,12 @@
 #include "fetch_defs.h"
 #include "fetch.h"
 
-/* \todo Mon 14 July 2014 11:17:26 (PDT)  Investigate FLEZ/BISON/YACC etc. when definition settles
+/*! \todo Mon 14 July 2014 11:17:26 (PDT)  Investigate FLEZ/BISON/YACC etc. when definition settles
  */
 
-/************************************************************
-BNF Outline for the Fetch Language Grammar
+/*! \page BNF Fetch Language Grammar (BNF)
+
+\verbatim
 
 (N,∑,P,S)
 
@@ -76,7 +78,8 @@ Example:
         gpio:set:portd:pin7\n
         gpio:configure:portd:pin7:input:floating\n
 
-***************************************************/
+\endverbatim
+*/
 
 static Command_dictionary          help_dict      = { .enabled = true, .max_data_bytes = HELP_MAX_DATA_BYTES,      .helpstring = HELP_HELPSTRING};
 static Command_dictionary          gpio_dict      = { .enabled = true, .max_data_bytes = GPIO_MAX_DATA_BYTES,      .helpstring = GPIO_HELPSTRING};
@@ -84,6 +87,8 @@ static Command_dictionary          adc_dict       = { .enabled = true, .max_data
 static Command_dictionary          version_dict   = { .enabled = true, .max_data_bytes = VERSION_MAX_DATA_BYTES,   .helpstring = VERSION_HELPSTRING};
 static Command_dictionary          resetpins_dict = { .enabled = true, .max_data_bytes = RESETPINS_MAX_DATA_BYTES, .helpstring = RESETPINS_HELPSTRING};
 
+/*! \brief Terminals for the Fetch grammar
+ */
 static Fetch_terminals fetch_terms =
 {
 	.command          = {"?", "help", "version", "gpio", "adc", "spi", "i2c", "resetpins"},
@@ -101,9 +106,13 @@ static Fetch_terminals fetch_terms =
 	.whitespace       = {" ", "\t"}
 };
 
+/*! \brief Function pointer array for \sa fetch_dispatch() callbacks
+ */
 static bool (*cmd_fns[NELEMS(fetch_terms.command)]) (BaseSequentialStream * chp,
                 char * l1[], char * l2[]);
 
+/*! \brief Placeholder function for TBD callbacks
+ */
 static bool fetch_not_yet(BaseSequentialStream  * chp, char * cmd_list[] UNUSED,
                           char * data_list[] UNUSED)
 {
@@ -119,11 +128,14 @@ static bool fetch_not_yet(BaseSequentialStream  * chp, char * cmd_list[] UNUSED,
  */
 
 /*!
- * *_is_valid_command...
- * return index to command match in array
- * return -1 on fail to match
- */
+ * fetch_is_valid_* functions
+ * \param[in] chkcommand      Input String to match
 
+ * \return index to command match in array
+ * \return -1 on fail to match
+ *
+ * \sa token_match()
+ */
 static inline int fetch_is_valid_command(BaseSequentialStream * chp, char * chkcommand)
 {
 	return(token_match(chp, fetch_terms.command, chkcommand,
@@ -148,8 +160,8 @@ inline int fetch_is_valid_whitespace(BaseSequentialStream * chp, char * chkwhite
 	                   ((int) NELEMS(fetch_terms.whitespace))) );
 }
 
-/* Help command implementation for fetch language
- * TODO: This could be turned into an iterator over all the dicts
+/*! Help command callback for fetch language
+ * \todo: This could be turned into an iterator over all the dicts
  */
 static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl[] UNUSED)
 {
@@ -160,7 +172,8 @@ static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl
 	chprintf(chp, "%s\r\n", adc_dict.helpstring);
 	return true;
 }
-
+/*! \brief ADC command callback for fetch language
+ */
 static bool fetch_adc(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[])
 {
 	if(adc_dict.enabled)
@@ -172,6 +185,8 @@ static bool fetch_adc(BaseSequentialStream  * chp, char * cmd_list[], char * dat
 	return true;
 }
 
+/*! \brief GPIO command callback for fetch language
+ */
 static bool fetch_gpio(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[])
 {
 	if(gpio_dict.enabled)
@@ -181,6 +196,8 @@ static bool fetch_gpio(BaseSequentialStream  * chp, char * cmd_list[], char * da
 	return false;
 }
 
+/*! \brief VERSION command callback for fetch language
+ */
 static bool fetch_version(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
                           char * data_list[] UNUSED)
 {
@@ -191,6 +208,8 @@ static bool fetch_version(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
 	return true;
 }
 
+/*! \brief RESETPINS command callback for fetch language
+ */
 static bool fetch_resetpins(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
                             char * data_list[] UNUSED)
 {
@@ -199,8 +218,8 @@ static bool fetch_resetpins(BaseSequentialStream * chp, char * cmd_list[] UNUSED
 }
 
 /*! \brief register callbacks for command functions here
-                \sa fetch_init
-*/
+ *               \sa fetch_init()
+ */
 static void fetch_init_cmd_fns(BaseSequentialStream * chp)
 {
 	for(int i = 0; i < ((int) NELEMS(fetch_terms.command)); ++i)
@@ -241,17 +260,33 @@ static void fetch_init_cmd_fns(BaseSequentialStream * chp)
 	}
 }
 
-/*! \brief catch all function for initialization */
+/*! \brief Fetch initialization 
+ * 
+ * This needs to be called before parsing fetch commands
+ */
 void fetch_init(BaseSequentialStream * chp)
 {
 	fetch_init_cmd_fns(chp) ;
 }
 
 /*! \brief parse the Fetch Statement
-
-        Create a commands list a data list
-        Dispatch the commands \sa fetch_dispatch
-*/
+ * 
+ * \param[in] inputline string input 
+ *
+ * General idea:
+ *
+ * Break the input line into two parts:
+ *
+ * Everything to the left of a '(' is an instruction
+ * Everything to the right of a '(' is data for that instruction
+ * 
+ * Two lists of string tokens are created
+ * 		a command token array
+ * 		a data token array
+ * 		These are passed to the dispatch function
+ *
+ *  Dispatch the commands in \sa fetch_dispatch()
+ */
 bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 {
 	static char     localinput[FETCH_MAX_LINE_CHARS];
@@ -380,12 +415,12 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 }
 
 /*! \brief dispatch the commands from here
-        a list of colon separated command strings is in the command_list
-        a list of space separated data is in data_list
-
-        \warning data_list[0] may be null.
-
-        \sa fetch_init_cmd_fns
+ * \param[in] command_list A list of colon separated command strings is in the command_list
+ * \param[in] data_list    A list of space separated data is in data_list
+ *
+ * \warning data_list[0] may be null. Not all commands accept data.
+ *
+ * \sa fetch_init_cmd_fns()
  */
 bool fetch_dispatch(BaseSequentialStream * chp, char * command_list[], char * data_list[])
 {

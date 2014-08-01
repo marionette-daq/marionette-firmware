@@ -1,9 +1,13 @@
 /*! \file util_general.h
+  * \defgroup util_general General Utility Functions
+  * @{
   */
-
-
 #ifndef UTIL_GENERAL_H_
 #define UTIL_GENERAL_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define                 UNUSED          __attribute__((unused))
 #define                 NORETURN        __attribute__((noreturn))
@@ -15,8 +19,13 @@
         _a > _b ? _a : _b; })
 
 
-
+#ifdef __cplusplus
+}
 #endif
 
 
 
+#endif
+
+
+//! @}

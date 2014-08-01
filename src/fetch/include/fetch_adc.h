@@ -9,9 +9,12 @@
 
 #include <stdbool.h>
 
-// From stm32f4 datasheet Voltage at 25C
-#define 		ADC_V_25 			0.76
-#define 		ADC_VSLOPE 			(2.5)  // mv/C
+#define 		ADC_V_25 			(0.76)   //!< From stm32f4 datasheet. Voltage at 25C
+#define 		ADC_VSLOPE 			(2.5)    //!< units: mv/C
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef enum fetch_adc_profile_name
 {
@@ -57,6 +60,10 @@ typedef struct fetch_adc_state
 void fetch_adc_init(BaseSequentialStream* chp);
 bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[],
                          Fetch_terminals * fetch_terms);
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif
 

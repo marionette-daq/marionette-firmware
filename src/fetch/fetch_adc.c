@@ -3,7 +3,7 @@
   * Supporting Fetch DSL
   *
   * \sa fetch.c
-  * @addtogroup fetch_adc
+  * @defgroup fetch_adc Fetch ADC
   * @{
   */
 
@@ -31,19 +31,18 @@
 #define FETCH_DEFAULT_VREF_MV         3300
 #define FETCH_ADC_DATA_STACKSIZE      2048
 
-/* Total number of channels to be sampled by a single ADC operation.*/
+/*! Total number of channels to be sampled by a single ADC operation.*/
 #define FETCH_ADC1_DEMO_GRP_NUM_CHANNELS      2
 #define FETCH_ADC1_DEFAULT_GRP_NUM_CHANNELS   1
 
-/* Depth of the conversion buffer, channels are sampled four times each.*/
+/*! Depth of the conversion buffer, channels are sampled four times each.*/
 #define FETCH_ADC1_DEMO_GRP_BUF_DEPTH         1
 #define FETCH_ADC1_DEFAULT_GRP_BUF_DEPTH      1
 
-
 //#ifdef BOARD_ST_STM32F4_DISCOVERY
-//#ifdef BOARD_WAVESHARE_CORE407I
-// #endif
 
+/*! \brief pin and port definitions */
+#if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
 static const ADC_input ADC1_IN0   = { GPIOA, GPIOA_PIN0 } ;
 static const ADC_input ADC1_IN1   = { GPIOA, GPIOA_PIN1 } ;
 static const ADC_input ADC1_IN2   = { GPIOA, GPIOA_PIN2 } ;
@@ -60,6 +59,11 @@ static const ADC_input ADC1_IN10  = { GPIOC, GPIOC_PIN0 } ;
 static const ADC_input ADC1_IN13  = { GPIOC, GPIOC_PIN3 } ;
 static const ADC_input ADC1_IN14  = { GPIOC, GPIOC_PIN4 } ;
 static const ADC_input ADC1_IN15  = { GPIOC, GPIOC_PIN5 } ;
+#elif defined (BOARD_ST_STM32F4_DISCOVERY)
+#error "ST Discovery Board not defined for ADC"
+#else
+#error "Board not defined for ADC"
+#endif
 
 static void   fetch_adc1_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n);
 
@@ -166,6 +170,8 @@ static uint16_t fetch_adc_calc_temp(uint16_t t_raw, uint32_t uv_per_bit ) {
 		return((uint16_t )(((t_voltage-ADC_V_25)/ADC_VSLOPE) +25));
 }
 
+/*! \brief Process new data based on current profile
+ */
 static void adc1_new_data(eventid_t id UNUSED) 
 {
 	BaseSequentialStream * chp        = fetch_adc1_state.chp;
@@ -199,6 +205,12 @@ static void adc1_new_data(eventid_t id UNUSED)
 	}
 }
 
+/*! \brief Thread for new data event
+  *
+  * chprintf can not be called from within an interrupt ('I')
+  *   context in ChibiOS. The interrupt callback generates an
+  *   event which this thread receives.
+  */
 static WORKING_AREA(wa_fetch_adc_data, FETCH_ADC_DATA_STACKSIZE);
 static msg_t fetch_adc_data(void * p UNUSED)
 {
@@ -247,12 +259,16 @@ static void fetch_adc1_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n)
 	}
 }
 
+/*! \brief Reset adc1
+ */
 static void fetch_adc1_reset(void)
 {
 	adcStop(&ADCD1);
 	fetch_adc_init(fetch_adc1_state.chp);
 }
 
+/*! \brief change the profile for adc1
+ */
 bool fetch_adc1_profile(BaseSequentialStream * chp, Fetch_terminals * fetch_terms,
                         char * cmd_list[])
 {
@@ -276,11 +292,10 @@ bool fetch_adc1_profile(BaseSequentialStream * chp, Fetch_terminals * fetch_term
 	return false;
 }
 
-/*
- *have different adc profiles defined
- *default - int ref
- *default - ext ref
- *Then configure
+/*! \brief Initialize the ADC 
+ *
+ * Use default profile
+ * Use oneshot by default
  *
  */
 void fetch_adc_init(BaseSequentialStream * chp)
@@ -310,6 +325,8 @@ void fetch_adc_init(BaseSequentialStream * chp)
 	fetch_adc1_state.init = true;
 }
 
+/*! \brief Start a conversion
+ */
 static bool fetch_adc1_start(void)
 {
 	adcStartConversion(&ADCD1, fetch_adc1_state.profile->adcgrpcfg,
@@ -318,6 +335,8 @@ static bool fetch_adc1_start(void)
 }
 
 
+/*! \brief Stop the current conversion
+ */
 static bool fetch_adc1_stop(void)
 {
 	adcStopConversion(&ADCD1) ;
@@ -333,7 +352,8 @@ static inline int fetch_adc_is_valid_adc_configure(BaseSequentialStream * chp,
 	                   ((int) NELEMS(fetch_terms->adc_configure)) ) );
 }
 
-
+/*! \brief Process an ADC configure command
+ */
 static bool fetch_adc1_configure(BaseSequentialStream * chp ,
                                  Fetch_terminals * fetch_terms, char * cmd_list[], char * data_list[])
 {
@@ -383,7 +403,8 @@ static inline int fetch_adc_is_valid_adc_subcommandA(BaseSequentialStream * chp,
 	                   ((int) NELEMS(fetch_terms->adc_subcommandA)) ) );
 }
 
-
+/*! \brief dispatch an ADC command
+ */
 bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[],
                         Fetch_terminals * fetch_terms)
 {

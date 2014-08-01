@@ -1,3 +1,16 @@
+
+/*!
+ * \file    conf/mcuconf.h
+ * \brief   HAL configuration header.
+ * \details HAL configuration file, this file allows to enable or disable the
+ *          various device drivers from your application. You may also use
+ *          this file in order to override the device drivers default settings.
+ *
+ * \addtogroup MCU_CONF
+ * @{
+ */
+
+
 /*
     ChibiOS/RT - Copyright (C) 2006-2013 Giovanni Di Sirio
 
@@ -286,3 +299,4 @@
 #define STM32_USB_OTG_THREAD_PRIO           LOWPRIO
 #define STM32_USB_OTG_THREAD_STACK_SIZE     128
 #define STM32_USB_OTGFIFO_FILL_BASEPRI      0
+/** @} */

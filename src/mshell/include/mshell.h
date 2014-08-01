@@ -14,14 +14,13 @@
     limitations under the License.
 */
 
-/**
- * @file    mshell.h
- * @brief   Simple CLI shell header.
+/*!
+ * \file    mshell.h
+ * \brief   Simple CLI shell header.
  *
- * @addtogroup MSHELL
+ * \addtogroup mshell
  * @{
  */
-
 #ifndef _MSHELL_H_
 #define _MSHELL_H_
 
@@ -97,6 +96,6 @@ extern "C" {
 }
 #endif
 
-#endif /* _SHELL_H_ */
+#endif
 
 /** @} */

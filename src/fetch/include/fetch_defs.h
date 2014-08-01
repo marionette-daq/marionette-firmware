@@ -1,6 +1,6 @@
 /*! \file fetch_defs.h
  * Definitions for fetch grammar
- * @addtogroup fetch_dsl
+ * @addtogroup fetch
  * @{
  */
 

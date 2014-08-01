@@ -1,8 +1,7 @@
 /*! \file fetch_gpio.h
  * @addtogroup fetch_gpio
  * @{
- 
-  */
+ */
 
 #ifndef FETCH_FETCH_GPIO_H_
 #define FETCH_FETCH_GPIO_H_
@@ -13,20 +12,26 @@
 #define          MAX_PIN_STR_LEN       8
 #define          MAX_PORT_STR_LEN      8
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/*! \brief semantics to position of token in command string
+ */
 typedef enum FETCH_GPIO_token
 {
-	FETCH_CMD = 0,
-	FETCH_ACTION,
-	FETCH_PORT,
-	FETCH_PIN,
-	FETCH_DIRECTION,
-	FETCH_SENSE,
+	FETCH_GPIO_CMD = 0,
+	FETCH_GPIO_ACTION,
+	FETCH_GPIO_PORT,
+	FETCH_GPIO_PIN,
+	FETCH_GPIO_DIRECTION,
+	FETCH_GPIO_SENSE,
 	NO_FETCH_GPIO_TOKEN=FETCH_MAX_TERMINALS-1
 } FETCH_GPIO_token;
 
 typedef enum FETCH_GPIO_pinval {
-	LOW  =  0,
-	HIGH
+	GPIO_LOW  =  0,
+	GPIO_HIGH
 } FETCH_GPIO_pinval;
 
 typedef enum FETCH_GPIO_pinnum
@@ -66,6 +71,11 @@ int fetch_gpio_is_valid_port_subcommand(BaseSequentialStream * chp, Fetch_termin
 int fetch_gpio_is_valid_pin_subcommand(BaseSequentialStream * chp, Fetch_terminals * fetch_terms, char * chkpin_subcommand);
 
 bool fetch_gpio_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[], Fetch_terminals * fetch_terms);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif
 /*! @} */
