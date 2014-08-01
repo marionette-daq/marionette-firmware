@@ -1,6 +1,7 @@
 digraph Fetch {
   graph [fontname="lucidasans-bold-14"];
   node [fontname="lucidasans-bold-14"];
+  "->" -> version;
   "->" -> help;
   "->" -> gpio;
   "->" -> adc;
@@ -8,9 +9,10 @@ digraph Fetch {
   "->" -> spi;
   "->" -> i2c;
   "->" -> resetpins;
-  "->" [color=forestgreen, peripheries=3, style=filled];
-  resetpins [color=plum3, peripheries=2, style=filled];
+  "->" [color=forestgreen, fontcolor=white, peripheries=3, style=filled];
+  version [color=midnightblue, fontcolor=white, peripheries=2, style=filled];
   help [color=deepskyblue, peripheries=2, style=filled];
+  resetpins [color=plum3, peripheries=2, style=filled];
   gpio [color=lightblue, peripheries=2, style=filled];
   adc [color=lightgrey, peripheries=2, style=filled];
   dac [color=turquoise, peripheries=2, style=filled];
