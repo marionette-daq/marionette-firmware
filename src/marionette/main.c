@@ -38,11 +38,13 @@
 
 #include "main.h"
 
-/* Virtual serial port over USB.*/
+/*! Virtual serial port over USB.*/
 SerialUSBDriver SDU1;
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(8192)
 
+/*! \brief Show memory usage
+ */
 static void cmd_mem(BaseSequentialStream * chp, int argc, char * argv[])
 {
 	size_t n, size;
@@ -59,12 +61,8 @@ static void cmd_mem(BaseSequentialStream * chp, int argc, char * argv[])
 }
 
 /*! \brief Show running threads
- *
- * @param chp
- * @param argc
- * @param argv
  */
-void cmd_threads(BaseSequentialStream * chp, int argc, char * argv[])
+static void cmd_threads(BaseSequentialStream * chp, int argc, char * argv[])
 {
 	(void)chp;
 	static const char * states[] = {THD_STATE_NAMES};
@@ -89,6 +87,9 @@ void cmd_threads(BaseSequentialStream * chp, int argc, char * argv[])
 	while (tp != NULL);
 }
 
+/*! \brief MShell commands described in main
+ * \sa MSHELL
+ */
 static const MShellCommand commands[] =
 {
 	{"mem", cmd_mem},
@@ -96,12 +97,17 @@ static const MShellCommand commands[] =
 	{NULL, NULL}
 };
 
+/*! \brief MShell configuration
+ * \sa MSHELL
+ */
 static const MShellConfig shell_cfg1 =
 {
 	(BaseSequentialStream *) & SDU1,
 	commands
 };
 
+/*! \brief main application loop
+ */
 static void main_app(void)
 {
 	Thread             *            mshelltp = NULL;

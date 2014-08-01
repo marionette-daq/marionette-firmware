@@ -6,7 +6,7 @@
 #ifndef _MAIN_H
 #define _MAIN_H
 /*!
- * \defgroup main Marionette main
+ * \addtogroup main Marionette main
  *
  * @{
  */
