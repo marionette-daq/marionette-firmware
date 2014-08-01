@@ -1,4 +1,5 @@
 /*! \file fetch.c
+ *  \subpage BNF 
  *  Fetch: A DSL for Marionette interaction.
  * @defgroup fetch Fetch DSL
  * @{
@@ -25,7 +26,9 @@
 /*! \todo Mon 14 July 2014 11:17:26 (PDT)  Investigate FLEZ/BISON/YACC etc. when definition settles
  */
 
-/*! \brief BNF Outline for the Fetch Language Grammar
+/*! \page BNF Fetch Language Grammar (BNF)
+
+\verbatim
 
 (N,∑,P,S)
 
@@ -75,6 +78,7 @@ Example:
         gpio:set:portd:pin7\n
         gpio:configure:portd:pin7:input:floating\n
 
+\endverbatim
 */
 
 static Command_dictionary          help_dict      = { .enabled = true, .max_data_bytes = HELP_MAX_DATA_BYTES,      .helpstring = HELP_HELPSTRING};
