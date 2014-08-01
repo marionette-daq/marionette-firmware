@@ -1,9 +1,9 @@
 /*!
  * \file    mshell.c
  *
- * mshell is the marionette shell. It is adapted from the example ChibiOS shell.
+ * mshell is the Marionette shell. It is adapted from the example ChibiOS shell.
  *
- * @addtogroup MSHELL
+ * @defgroup mshell Marionette Shell 
  * @{
  */
 
@@ -72,6 +72,8 @@ static void cmd_version(BaseSequentialStream * chp, int argc, char * argv[] UNUS
 	}
 }
 
+/*! \brief turn on the prompt
+ */
 static void cmd_prompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
 {
 	if(argc > 0)
@@ -82,6 +84,8 @@ static void cmd_prompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSE
 	strncpy(prompt, "m > ", MSHELL_MAX_PROMPT_LENGTH);
 }
 
+/*! \brief turn off the prompt
+ */
 static void cmd_noprompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
 {
 	if(argc > 0)
@@ -92,6 +96,8 @@ static void cmd_noprompt(BaseSequentialStream * chp, int argc, char * argv[] UNU
 	prompt[0] = '\0';
 }
 
+/*! \brief toggle the echo of characters to the serial port
+ */
 static void cmd_toggle_echo(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
 {
 	if(argc > 0)
@@ -102,6 +108,8 @@ static void cmd_toggle_echo(BaseSequentialStream * chp, int argc, char * argv[] 
 	mshell_echo_chars = !mshell_echo_chars;
 }
 
+/*! \brief information about firmware and hardware
+ */
 static void cmd_info(BaseSequentialStream * chp, int argc, char * argv[])
 {
 	(void)argv;
@@ -138,6 +146,8 @@ static void cmd_info(BaseSequentialStream * chp, int argc, char * argv[])
 #endif
 }
 
+/*! \brief systicks (1mS default) since reboot
+ */
 static void cmd_systime(BaseSequentialStream * chp, int argc, char * argv[])
 {
 	(void)argv;
@@ -163,6 +173,9 @@ static MShellCommand local_commands[] =
 	{NULL, NULL}
 };
 
+
+/*! \brief execute a given command in the shell
+ */
 static bool_t cmdexec(const MShellCommand * scp, BaseSequentialStream * chp,
                       char * name, int argc, char * argv[])
 {
@@ -178,15 +191,19 @@ static bool_t cmdexec(const MShellCommand * scp, BaseSequentialStream * chp,
 	return TRUE;
 }
 
-/**
- * @brief   MShell thread function.
+/*!
+ * \brief   MShell thread function.
+ *
+ * Marionette shell commands are escaped with a '+'
+ * 
+ * Fetch commands are parsed here through the call to fetch_parse()
+ * \sa fetch.c
  *
  * @param[in] p         pointer to a @p BaseSequentialStream object
  * @return              Termination reason.
  * @retval RDY_OK       terminated by command.
  * @retval RDY_RESET    terminated by reset condition on the I/O channel.
  *
- * @notapi
  */
 static msg_t mshell_thread(void * p)
 {
@@ -329,16 +346,15 @@ Thread * mshellCreate(const MShellConfig * scp, size_t size, tprio_t prio)
 }
 #endif
 
-/**
- * @brief   Create statically allocated shell thread.
+/*!
+ * \brief   Create statically allocated shell thread.
  *
- * @param[in] scp       pointer to a @p MShellConfig object
- * @param[in] wsp       pointer to a working area dedicated to the shell thread stack
- * @param[in] size      size of the shell working area
- * @param[in] prio      priority level for the new shell
- * @return              A pointer to the shell thread.
+ * \param[in] scp       pointer to a \p MShellConfig object
+ * \param[in] wsp       pointer to a working area dedicated to the shell thread stack
+ * \param[in] size      size of the shell working area
+ * \param[in] prio      priority level for the new shell
+ * \return              A pointer to the shell thread.
  *
- * @api
  */
 Thread * shellCreateStatic(const MShellConfig * scp, void * wsp,
                            size_t size, tprio_t prio)
@@ -346,17 +362,16 @@ Thread * shellCreateStatic(const MShellConfig * scp, void * wsp,
 	return chThdCreateStatic(wsp, size, prio, mshell_thread, (void *)scp);
 }
 
-/**
- * @brief   Reads a whole line from the input channel.
+/*!
+ * \brief   Reads a whole line from the input channel.
  *
- * @param[in] chp       pointer to a @p BaseSequentialStream object
- * @param[in] line      pointer to the line buffer
- * @param[in] size      buffer maximum length
- * @return              The operation status.
- * @retval TRUE         the channel was reset or CTRL-D pressed.
- * @retval FALSE        operation successful.
+ * \param[in] chp       pointer to a \p BaseSequentialStream object
+ * \param[in] line      pointer to the line buffer
+ * \param[in] size      buffer maximum length
+ * \return              The operation status.
+ * \retval TRUE         the channel was reset or CTRL-D pressed.
+ * \retval FALSE        operation successful.
  *
- * @api
  */
 #define        ASCII_EOT                        ((char) 0x4)
 #define        ASCII_BACKSPACE                  ((char) 0x8)
