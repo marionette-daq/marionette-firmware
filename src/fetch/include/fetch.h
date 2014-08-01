@@ -1,6 +1,6 @@
 /*! \file fetch.h
  * Support implementation of Fetch Language
- * @addtogroup fetch_dsl
+ * @addtogroup fetch
  * @{
  */
 
