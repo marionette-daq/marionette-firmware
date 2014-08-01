@@ -1,3 +1,6 @@
+/*! \file main.c
+ */
+
 /*
     ChibiOS/RT - Copyright (C) 2006-2013 Giovanni Di Sirio
 
@@ -14,6 +17,12 @@
     limitations under the License.
 */
 
+/*!
+ * \defgroup main Marionette main
+ *
+ * @{
+ */
+
 #include "ch.h"
 #include "hal.h"
 
@@ -27,11 +36,12 @@
 #include "util_version.h"
 #include "usbcfg.h"
 
+#include "main.h"
+
 /* Virtual serial port over USB.*/
 SerialUSBDriver SDU1;
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(8192)
-#define TEST_WA_SIZE    THD_WA_SIZE(256)
 
 static void cmd_mem(BaseSequentialStream * chp, int argc, char * argv[])
 {
@@ -92,7 +102,8 @@ static const MShellConfig shell_cfg1 =
 	commands
 };
 
-static void main_app(void) {
+static void main_app(void)
+{
 	Thread             *            mshelltp = NULL;
 	static          VERSIONData     version_data;
 
@@ -109,7 +120,7 @@ static void main_app(void) {
 	usbStart(serusbcfg.usbp, &usbcfg);
 	usbConnectBus(serusbcfg.usbp);
 
-	fetch_adc_init((BaseSequentialStream*) &SDU1);
+	fetch_adc_init((BaseSequentialStream *) &SDU1);
 
 	while (TRUE)
 	{
@@ -142,4 +153,5 @@ int main(void)
 	return(0);
 }
 
+//! @}
 
