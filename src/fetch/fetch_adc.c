@@ -34,10 +34,12 @@
 /*! Total number of channels to be sampled by a single ADC operation.*/
 #define FETCH_ADC1_DEMO_GRP_NUM_CHANNELS      2
 #define FETCH_ADC1_DEFAULT_GRP_NUM_CHANNELS   1
+#define FETCH_ADC1_PA_GRP_NUM_CHANNELS      1
 
 /*! Depth of the conversion buffer, channels are sampled four times each.*/
 #define FETCH_ADC1_DEMO_GRP_BUF_DEPTH         1
 #define FETCH_ADC1_DEFAULT_GRP_BUF_DEPTH      1
+#define FETCH_ADC1_PA_GRP_BUF_DEPTH         1
 
 //#ifdef BOARD_ST_STM32F4_DISCOVERY
 
@@ -46,7 +48,7 @@
 static const ADC_input ADC1_IN0   = { GPIOA, GPIOA_PIN0 } ;
 static const ADC_input ADC1_IN1   = { GPIOA, GPIOA_PIN1 } ;
 static const ADC_input ADC1_IN2   = { GPIOA, GPIOA_PIN2 } ;
-static const ADC_input ADC1_IN3   = { GPIOA, GPIOA_PIN3 } ;
+//static const ADC_input ADC1_IN3   = { GPIOA, GPIOA_PIN3 } ;  // used for VBUS
 static const ADC_input ADC1_IN4   = { GPIOA, GPIOA_PIN4 } ;
 static const ADC_input ADC1_IN5   = { GPIOA, GPIOA_PIN5 } ;
 static const ADC_input ADC1_IN6   = { GPIOA, GPIOA_PIN6 } ;
@@ -69,6 +71,7 @@ static void   fetch_adc1_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n);
 
 static adcsample_t adc1_demo_sample_buf[FETCH_ADC1_DEMO_GRP_NUM_CHANNELS * FETCH_ADC1_DEMO_GRP_BUF_DEPTH];
 static adcsample_t adc1_default_sample_buf[FETCH_ADC1_DEFAULT_GRP_NUM_CHANNELS * FETCH_ADC1_DEFAULT_GRP_BUF_DEPTH];
+static adcsample_t adc1_pa_sample_buf[FETCH_ADC1_PA_GRP_NUM_CHANNELS * FETCH_ADC1_PA_GRP_BUF_DEPTH];
 
 static EventSource fetch_adc1_data_ready;
 
@@ -115,6 +118,29 @@ static ADCConversionGroup adc1_default_cfg =
 	.sqr3            = ADC_SQR3_SQ1_N(ADC_CHANNEL_IN13)
 };
 
+/*! \brief ADC default conversion group.
+ * Mode:        Linear buffer, 1 adc1_sample_buf of 1 channels, SW triggered.
+ * Channels:    IN13   (3 cycles sample time)
+ * Analog Watchdog: TBD  (need to set adc_ltr and adc_htr which are not part of ADCConversionGroup)
+ */
+static ADCConversionGroup adc1_pa_cfg =
+{
+	.circular        = FALSE,
+	.num_channels    = FETCH_ADC1_PA_GRP_NUM_CHANNELS,
+	.end_cb          = fetch_adc1_cb,
+	.error_cb        = NULL,
+	/* HW dependent part.*/
+	.cr1             = 0,
+	.cr2             = ADC_CR2_SWSTART,
+	//.smpr1           = ADC_SMPR1_SMP_AN13(ADC_SAMPLE_56),
+	.smpr1           = 0,
+	.smpr2           = ADC_SMPR2_SMP_AN0(ADC_SAMPLE_56),
+	.sqr1            = ADC_SQR1_NUM_CH(FETCH_ADC1_DEFAULT_GRP_NUM_CHANNELS),
+	.sqr2            = 0,
+	.sqr3            = ADC_SQR3_SQ1_N(ADC_CHANNEL_IN0)
+};
+
+
 /*! \brief ADC1 Demo profile
  * oneshot
  * adc1_default_cfg
@@ -145,6 +171,17 @@ static const  FETCH_adc_profile adc1_default_profile =
 	.adc_grp_buf_depth    = FETCH_ADC1_DEFAULT_GRP_BUF_DEPTH,
 	.adc_sample_buf       = adc1_default_sample_buf
 };
+
+static const  FETCH_adc_profile adc1_pa_profile =
+{
+	.name                 = FETCH_ADC_PA,
+	.oneshot              = true,
+	.adcgrpcfg            = &adc1_pa_cfg,
+	.adc_grp_num_channels = FETCH_ADC1_PA_GRP_NUM_CHANNELS,
+	.adc_grp_buf_depth    = FETCH_ADC1_PA_GRP_BUF_DEPTH,
+	.adc_sample_buf       = adc1_pa_sample_buf
+};
+
 
 /*! \brief track the state of the conversion
  *
@@ -187,15 +224,18 @@ static void adc1_new_data(eventid_t id UNUSED)
 			case FETCH_ADC_DEFAULT:
 				avg_ch1  = fetch_adc1_state.profile->adc_sample_buf[0] / fetch_adc1_state.profile->adc_grp_buf_depth;
 				timenow = chTimeNow();
-				chprintf(fetch_adc1_state.chp, "%u,%u\r\n", timenow, avg_ch1 * uv_per_bit);
+				chprintf(fetch_adc1_state.chp, "DEF:\t%u,%u\r\n", timenow, avg_ch1 * uv_per_bit);
 				break;
 			case FETCH_ADC_DEMO:
 				avg_ch1  = fetch_adc1_state.profile->adc_sample_buf[0] / fetch_adc1_state.profile->adc_grp_buf_depth;
 				avg_ch2  = fetch_adc1_state.profile->adc_sample_buf[1] / fetch_adc1_state.profile->adc_grp_buf_depth;
 				timenow = chTimeNow();
-				chprintf(fetch_adc1_state.chp, "%u,T(raw): %u\tT(C): %u\tIN13(raw): %u\tIN13(uV):%u\r\n",timenow, avg_ch1, fetch_adc_calc_temp(avg_ch1, uv_per_bit), avg_ch2, avg_ch2 * uv_per_bit);
+				chprintf(fetch_adc1_state.chp, "DEMO:\t%u,T(raw): %u\tT(C): %u\tIN13(raw): %u\tIN13(uV):%u\r\n",timenow, avg_ch1, fetch_adc_calc_temp(avg_ch1, uv_per_bit), avg_ch2, avg_ch2 * uv_per_bit);
 				break;
 			case FETCH_ADC_PA:
+				avg_ch1  = fetch_adc1_state.profile->adc_sample_buf[0] / fetch_adc1_state.profile->adc_grp_buf_depth;
+				timenow = chTimeNow();
+				chprintf(fetch_adc1_state.chp, "PA:\t%u,%u\r\n", timenow, avg_ch1 * uv_per_bit);
 				break;
 			case FETCH_ADC_PB:
 				break;
@@ -284,6 +324,12 @@ bool fetch_adc1_profile(BaseSequentialStream * chp, Fetch_terminals * fetch_term
 		fetch_adc1_state.profile = &adc1_demo_profile;
 		return true;
 	}
+	else if (strncasecmp(cmd_list[ADC_PROFILE], "pa", strlen("pa") ) == 0)
+	{
+		fetch_adc1_reset();
+		fetch_adc1_state.profile = &adc1_pa_profile;
+		return true;
+	}
 	else
 	{
 		DBG_VMSG(chp, "Profile %s not available.", cmd_list[ADC_PROFILE]);
@@ -316,6 +362,7 @@ void fetch_adc_init(BaseSequentialStream * chp)
 	//adcConfigWatchdog()...
 	adcSTM32EnableTSVREFE();
 	palSetPadMode(ADC1_IN13.port, ADC1_IN13.pin, PAL_MODE_INPUT_ANALOG);
+	palSetPadMode(ADC1_IN0.port, ADC1_IN0.pin, PAL_MODE_INPUT_ANALOG);
 	fetch_adc1_state.chp = chp;
 
 	// start a thread waiting for data event.....

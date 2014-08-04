@@ -108,7 +108,7 @@ class DUTSerial():
             sys.exit()
 
     def teststr(self, string):
-#        u.info("sending\t->"+string)
+        #u.info("sending\t->"+string)
         self.write(string)
         sleep(DUT_WAITTIME)
 
@@ -119,25 +119,53 @@ class DUTSerial():
         sleep(3.5)
 
     def test_adc(self):
-#        self.teststr("adc:conf_adc1:profile:demo\r\n")
-#        self.teststr("adc:conf_adc1:oneshot\r\n")
-#        self.teststr("adc:start\r\n")
-#        self.teststr("adc:start\r\n")
-#        self.teststr("adc:start\r\n")
-#        self.teststr("adc:start\r\n")
-#        self.teststr("adc:conf_adc1:continuous\r\n")
-#        self.teststr("adc:start\r\n")
-#        sleep(1.0)
-#        self.write("adc:stop\r\n")
-#        sleep(1.0)
-        self.teststr("adc:conf_adc1:profile:default\r\n")
-        self.teststr("adc:start\r\n")
-        self.teststr("adc:conf_adc1:continuous\r\n")
-        self.teststr("adc:start\r\n")
-        sleep(2.0)
-        self.teststr("adc:stop\r\n")
-        sleep(1.0)
- 
+        try:
+#            response = input("test one shot with default profile(Y/n) ")
+#            if response!='y':
+               self.teststr("adc:conf_adc1:profile:default\r\n")
+               self.teststr("adc:start\r\n")
+#            response = input("Test continuous with default profile(y/N) ")
+#            if response=='y':
+#                self.teststr("adc:conf_adc1:continuous\r\n")
+#                self.teststr("adc:start\r\n")
+#                sleep(2.0)
+#                self.teststr("adc:stop\r\n")
+#                sleep(1.0)
+# 
+#            response = input("Test one shot with demo profile(y/N) ")
+#            if response=='y':
+               self.teststr("adc:conf_adc1:profile:demo\r\n")
+               self.teststr("adc:conf_adc1:oneshot\r\n")
+               self.teststr("adc:start\r\n")
+#           response = input("test continuous with demo profile(y/N) ")
+#            if response=='y':
+#                self.teststr("adc:conf_adc1:continuous\r\n")
+#                self.teststr("adc:start\r\n")
+#                sleep(1.0)
+#                self.write("adc:stop\r\n")
+#                sleep(1.0)
+
+#            response = input("test one shot with PA profile(y/N) ")
+#            if response=='y':
+               self.teststr("adc:conf_adc1:profile:pa\r\n")
+               self.teststr("adc:start\r\n")
+#                self.teststr("adc:conf_adc1:profile:default\r\n")
+#                self.teststr("adc:start\r\n")
+
+#            response = input("Test continuous with pa profile(y/N) ")
+#            if response=='y':
+#                self.teststr("adc:conf_adc1:continuous\r\n")
+#                self.teststr("adc:start\r\n")
+#                sleep(2.0)
+#                self.teststr("adc:stop\r\n")
+#                sleep(1.0)
+     
+        except KeyboardInterrupt:
+            DUT.close()
+            u.info("\nQuitting")
+
+
+
     def writer(self):
         try:
             if self.alive:
