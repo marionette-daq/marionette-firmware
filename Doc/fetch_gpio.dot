@@ -1,0 +1,30 @@
+digraph Fetch {
+        graph [fontname="lucidasans-bold-14"];
+        node [fontname="lucidasans-bold-14"];
+	gpio   -> get;
+	gpio   -> set;
+	gpio   -> clear;
+	gpio   -> configure;
+	clear -> clear_port;
+	clear_port -> clear_pin;
+	get -> get_port;
+	get_port -> get_pin;
+	set -> set_port;
+	set_port -> set_pin;
+	configure -> port;
+	port -> pin;
+	pin -> output;	
+	pin -> input;	
+	output -> pullup;
+	output -> pulldown;
+	output -> floating;
+	output -> analog;
+	input -> pullup;
+	input -> pulldown;
+	input -> floating;
+	input -> analog;
+	gpio [color=lightblue, peripheries=2, style=filled];
+	label="GPIO"
+  	labelloc=top;
+  	labeljust=left;
+}

@@ -1,4 +1,6 @@
 /*! \file util_version.h
+ * \addtogroup util_version
+ * @{ 
  */
 
 #ifndef UTIL_VERSION_H_
@@ -11,6 +13,10 @@
 #define         STM32F4_UNIQUE_ID_LOW       ((uint32_t)0x1FFF7A10) 
 #define         STM32F4_UNIQUE_ID_CENTER    ((uint32_t)0x1FFF7A14) 
 #define         STM32F4_UNIQUE_ID_HIGH      ((uint32_t)0x1FFF7A18) 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct HW_Version {
 	uint32_t id_high; 
@@ -26,5 +32,10 @@ typedef struct VERSIONData {
 void util_fwversion(struct VERSIONData * ver_data);
 void util_hwversion(struct VERSIONData * ver_data);
 
+#ifdef __cplusplus
+}
 #endif
 
+#endif
+
+//! @}

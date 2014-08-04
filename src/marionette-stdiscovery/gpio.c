@@ -3,8 +3,6 @@
  Marionette gpio routines
  */
 
-
-
 #include "ch.h"
 #include "hal.h"
 
@@ -15,39 +13,8 @@
 
 #include "gpio.h"
 
-static enum GPIO_tokens
-{
-	CMD = 0,
-	ACTION,
-	PORT,
-	PIN,
-	DIRECTION,
-	SENSE
-} gpio_toks;
-
-static enum GPIO_pinnums
-{
-	PIN0 = 0,
-	PIN1,
-	PIN2,
-	PIN3,
-	PIN4,
-	PIN5,
-	PIN6,
-	PIN7,
-	PIN8,
-	PIN9,
-	PIN10,
-	PIN11,
-	PIN12,
-	PIN13,
-	PIN14,
-	PIN15
-} gpio_pinnums;
-
-
 static void gpio_get_port_pin(BaseSequentialStream * chp, char * commandl[],
-                              GPIO_TypeDef ** port, int * pin)
+                              GPIO_TypeDef ** port, GPIO_pinnums * pin)
 {
 	size_t maxlen = 0;
 
@@ -161,28 +128,43 @@ static void gpio_get_port_pin(BaseSequentialStream * chp, char * commandl[],
 	}
 }
 
+GPIO_pinval gpio_get(BaseSequentialStream * chp, char * commandl[])
+{
+	GPIO_TypeDef * port    = NULL;
+	GPIO_pinnums pin       = 0;
+
+	gpio_get_port_pin(chp, commandl, &port, &pin);
+	return(palReadPad(port, pin));
+}
+
 void gpio_set(BaseSequentialStream * chp, char * commandl[])
 {
-	util_infomsg(chp, "%s: Not yet\r\n", __func__);
-	//palSetPad(GPIOB, 12);
+	GPIO_TypeDef * port    = NULL;
+	GPIO_pinnums pin       = 0;
+
+	gpio_get_port_pin(chp, commandl, &port, &pin);
+	palSetPad(port, pin);
 }
 
 void gpio_clear(BaseSequentialStream * chp, char * commandl[])
 {
-	util_infomsg(chp, "%s: Not yet\r\n", __func__);
+	GPIO_TypeDef * port    = NULL;
+	GPIO_pinnums pin       = 0;
+
+	gpio_get_port_pin(chp, commandl, &port, &pin);
+	palClearPad(port, pin);
+
 }
 
 void gpio_config(BaseSequentialStream * chp, char * commandl[])
 {
-	GPIO_TypeDef * port = NULL;
-	int pin       = 0;
+	GPIO_TypeDef * port    = NULL;
+	GPIO_pinnums pin       = 0;
 	int sense     = 0;
 	int direction = 0;
 
 	gpio_get_port_pin(chp, commandl, &port, &pin);
 
-	DBG_VMSG(chp, "dir: %s", commandl[DIRECTION]);
-	DBG_VMSG(chp, "sense: %s", commandl[SENSE]);
 	if( (strncasecmp(commandl[DIRECTION], "input", strlen("input") ) == 0) )
 	{
 		direction = PAL_STM32_MODE_INPUT;
@@ -202,7 +184,6 @@ void gpio_config(BaseSequentialStream * chp, char * commandl[])
 	}
 	else if ( (strncasecmp(commandl[SENSE], "floating", strlen("floating") ) == 0) )
 	{
-		DBG_MSG(chp, "sense float");
 		sense = PAL_STM32_PUDR_FLOATING;
 	}
 	else if ( (strncasecmp(commandl[SENSE], "analog", strlen("analog") ) == 0) )
@@ -215,18 +196,6 @@ void gpio_config(BaseSequentialStream * chp, char * commandl[])
 	DBG_VMSG(chp, "dir: %d", direction);
 	DBG_VMSG(chp, "sense: %d", sense);
 
-
-	//palSetPadMode(GPIOB, 12, PAL_MODE_OUTPUT_PUSHPULL |
-
-	//PAL_STM32_OSPEED_HIGHEST);           [> NSS.     <]
-	//palSetPadMode(GPIOB, 13, PAL_MODE_ALTERNATE(5) |
-	//PAL_STM32_OSPEED_HIGHEST);           [> SCK.     <]
-	//palSetPadMode(GPIOB, 14, PAL_MODE_ALTERNATE(5));              [> MISO.    <]
-	//palSetPadMode(GPIOB, 15, PAL_MODE_ALTERNATE(5) |
-	//PAL_STM32_OSPEED_HIGHEST);           [> MOSI.    <]
-	///
+	palSetPadMode(port, pin, direction | sense);
 }
-
-
-
 

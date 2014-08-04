@@ -15,12 +15,12 @@
 */
 
 /**
- * @file    templates/chconf.h
+ * @file    conf/chconf.h
  * @brief   Configuration file template.
  * @details A copy of this file must be placed in each project directory, it
  *          contains the application specific kernel settings.
  *
- * @addtogroup config
+ * @addtogroup CH_CONFIG
  * @details Kernel related settings and hooks.
  * @{
  */
@@ -357,7 +357,7 @@
  * @note    The default is @p FALSE.
  */
 #if !defined(CH_DBG_SYSTEM_STATE_CHECK) || defined(__DOXYGEN__)
-#define CH_DBG_SYSTEM_STATE_CHECK       FALSE
+#define CH_DBG_SYSTEM_STATE_CHECK       TRUE
 #endif
 
 /**

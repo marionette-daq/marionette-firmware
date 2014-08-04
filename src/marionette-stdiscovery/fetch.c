@@ -34,12 +34,12 @@ P - Production Rules:
 <adc_subcommandA>  ::= TBD
 <spi_subcommandA>  ::= TBD
 <i2c_subcommandA>  ::= TBD
-<gpio_subcommandA> ::= "set"    | "clear"    | "configure"
+<gpio_subcommandA> ::= "get"    | "set"      | "clear"    | "configure"
 <gpio_direction>   ::= "input"  | "output"
 <gpio_sense>       ::= "pullup" | "pulldown" | "floating" | "analog"
 <port_subcommand>  ::= "porta"  | "portb"    | "portc" | "portd" | "porte" | "portf" | "portg" | "porth" | "porti"
 <pin_subcommand>   ::= "pin0"   | "pin1"     | "pin2"  | "pin3"  | "pin4"  | "pin5"  | "pin6"  | "pin7"
-                                     | "pin8"   | "pin9"     | "pin10" | "pin11" | "pin12" | "pin13" | "pin14" | "pin15"
+                   | "pin8"   | "pin9"     | "pin10" | "pin11" | "pin12" | "pin13" | "pin14" | "pin15"
 <subcommandD>      ::= TBD
 <datastr>          ::= "(" <byte> ")"
 <byte>             ::= <constant>
@@ -63,46 +63,17 @@ Example:
 
 ***************************************************/
 
-static HELP_command_dictionary          help_lookup = { .enabled = true, .max_data_bytes = 0, .helpstring = HELP_HELPSTRING};
-static GPIO_command_dictionary          gpio_lookup = { .enabled = true, .max_data_bytes = 0, .helpstring = GPIO_HELPSTRING};
-static RESETPINS_command_dictionary     resetpins_lookup = { .enabled = true, .max_data_bytes = 0, .helpstring = RESETPINS_HELPSTRING};
-
-static enum GPIO_tokens
-{
-	CMD = 0,
-	ACTION,
-	PORT,
-	PIN,
-	DIRECTION,
-	SENSE
-} gpio_toks;
-
-static enum GPIO_pinnums
-{
-	PIN0 = 0,
-	PIN1,
-	PIN2,
-	PIN3,
-	PIN4,
-	PIN5,
-	PIN6,
-	PIN7,
-	PIN8,
-	PIN9,
-	PIN10,
-	PIN11,
-	PIN12,
-	PIN13,
-	PIN14,
-	PIN15
-} gpio_pinnums;
+static Command_dictionary          help_lookup      = { .enabled = true, .max_data_bytes = 0, .helpstring = HELP_HELPSTRING};
+static Command_dictionary          gpio_lookup      = { .enabled = true, .max_data_bytes = 0, .helpstring = GPIO_HELPSTRING};
+static Command_dictionary          version_lookup   = { .enabled = true, .max_data_bytes = 0, .helpstring = VERSION_HELPSTRING};
+static Command_dictionary          resetpins_lookup = { .enabled = true, .max_data_bytes = 0, .helpstring = RESETPINS_HELPSTRING};
 
 // All elements of the Terminal set (∑) have definitions here.
 static const char * command[]          = {"?", "help", "gpio", "adc", "spi", "i2c", "resetpins"};
 static bool (*cmd_fns[NELEMS(command)]) (BaseSequentialStream * chp, char * l1[], char * l2[]);
 
-static const char * gpio_subcommandA[] = {"set", "clear", "configure"};
-static const char * gpio_direction[]   = {"input",  "output"};
+static const char * gpio_subcommandA[] = {"get", "set", "clear", "configure"};
+static const char * gpio_direction[]   = {"input", "output"};
 static const char * gpio_sense[]       = {"pullup", "pulldown", "floating", "analog"};
 static const char * port_subcommand[]  = {"porta", "portb", "portc", "portd", "porte", "portf", "portg", "porth", "porti" };
 static const char * pin_subcommand[]   = {"pin0", "pin1", "pin2", "pin3", "pin4", "pin5", "pin6", "pin7", "pin8", "pin9", "pin10", "pin11", "pin12", "pin13", "pin14", "pin15" };
@@ -226,8 +197,9 @@ static inline int fetch_is_valid_whitespace(BaseSequentialStream * chp, char * c
 static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl[] UNUSED)
 {
 	util_infomsg(chp, "Fetch commandstr Help");
-	chprintf(chp, "%s\r\n", gpio_lookup.helpstring);
+	chprintf(chp, "%s\r\n", version_lookup.helpstring);
 	chprintf(chp, "%s\r\n", resetpins_lookup.helpstring);
+	chprintf(chp, "%s\r\n", gpio_lookup.helpstring);
 	return true;
 }
 
@@ -239,7 +211,11 @@ static bool fetch_gpio(BaseSequentialStream  * chp, char * cmd_list[], char * da
 		{
 			if(fetch_is_valid_pin_subcommand(chp, cmd_list[PIN]) >= 0)
 			{
-				if (strncasecmp(cmd_list[1], "set", strlen("set") ) == 0)
+				if (strncasecmp(cmd_list[1], "get", strlen("get") ) == 0)
+				{
+					chprintf(chp, "%d\r\n", gpio_get(chp, cmd_list));
+				}
+				else if (strncasecmp(cmd_list[1], "set", strlen("set") ) == 0)
 				{
 					gpio_set(chp, cmd_list);
 				}

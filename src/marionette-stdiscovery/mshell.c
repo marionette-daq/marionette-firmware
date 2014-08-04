@@ -38,13 +38,11 @@
 
 #include "fetch.h"
 
-static      VERSIONData     version_data;
-static      char            prompt[SHELL_MAX_PROMPT_LENGTH];
+static      	VERSIONData     		version_data;
+static      	char            		prompt[SHELL_MAX_PROMPT_LENGTH];
 
-/**
- * @brief   Shell termination event source.
- */
-EventSource shell_terminated;
+EventSource 	shell_terminated;
+
 static void usage(BaseSequentialStream * chp, char * p)
 {
 	chprintf(chp, "Usage: %s\r\n", p);
@@ -54,7 +52,7 @@ static void list_commands(BaseSequentialStream * chp, const ShellCommand * scp)
 {
 	while (scp->sc_name != NULL)
 	{
-		chprintf(chp, "%s ", scp->sc_name);
+		chprintf(chp, "+%s ", scp->sc_name);
 		scp++;
 	}
 }
@@ -64,7 +62,7 @@ static void cmd_version(BaseSequentialStream * chp, int argc, char * argv[] UNUS
 	util_fwversion(&version_data);
 	util_hwversion(&version_data);
 	chprintf(chp, "Firmware Version:   %s\r\n", version_data.firmware);
-	chprintf(chp, "Hardware Version:   %u-%u-%u\r\n", version_data.hardware.id_high,
+	chprintf(chp, "Hardware Version:   0x%x-0x%x-0x%x\r\n", version_data.hardware.id_high,
 	         version_data.hardware.id_center, version_data.hardware.id_low);
 	if(argc > 0)
 	{
@@ -91,8 +89,6 @@ static void cmd_noprompt(BaseSequentialStream * chp, int argc, char * argv[] UNU
 	}
 	prompt[0] = '\0';
 }
-
-
 
 static void cmd_info(BaseSequentialStream * chp, int argc, char * argv[])
 {
@@ -182,15 +178,18 @@ static bool_t cmdexec(const ShellCommand * scp, BaseSequentialStream * chp,
 static msg_t shell_thread(void * p)
 {
 	int n;
-	BaseSequentialStream * chp = ((ShellConfig *)p)->sc_channel;
-	const ShellCommand * scp = ((ShellConfig *)p)->sc_commands;
+	BaseSequentialStream * chp   = ((ShellConfig *)p)->sc_channel;
+	const ShellCommand * scp     = ((ShellConfig *)p)->sc_commands;
 	char * lp, *cmd, *tokp;
 	char input_line[SHELL_MAX_LINE_LENGTH];
 	char command_line[SHELL_MAX_LINE_LENGTH];
 	char * args[SHELL_MAX_ARGUMENTS + 1];
+
 	strncpy(prompt, "m > ", SHELL_MAX_PROMPT_LENGTH);
 	chRegSetThreadName("mshell");
-	chprintf(chp, "\r\nMarionette Shell\r\n");
+	chThdSleepMilliseconds(1000);
+	chprintf(chp, "\r\n\r\n");
+	chprintf(chp, "\r\nMarionette Shell (\"+help\" for shell commands)\r\n");
 
 	// initialize parser.
 	fetch_init(chp) ;
@@ -238,7 +237,7 @@ static msg_t shell_thread(void * p)
 						usage(chp, "help");
 						continue;
 					}
-					chprintf(chp, "Marionette Shell Commands: help exit ");
+					chprintf(chp, "Marionette Shell Commands: +help +exit ");
 					list_commands(chp, local_commands);
 					if (scp != NULL)
 					{
