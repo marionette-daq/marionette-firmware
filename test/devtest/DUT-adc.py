@@ -156,8 +156,8 @@ class DUTSerial():
 #            if response=='y':
                self.teststr("adc:conf_adc1:profile:pa\r\n", True)
                self.teststr("adc:start\r\n")
-               self.teststr("adc:conf_adc1:profile:default\r\n", True)
-               self.teststr("adc:start\r\n")
+               #self.teststr("adc:conf_adc1:profile:default\r\n", True)
+               #self.teststr("adc:start\r\n")
 #
 #                self.teststr("adc:conf_adc1:profile:default\r\n")
 #                self.teststr("adc:start\r\n")
