@@ -160,7 +160,7 @@ static ADCConversionGroup adc1_pa_cfg =
 	.cr2             = ADC_CR2_SWSTART,
 	//.smpr1           = ADC_SMPR1_SMP_AN13(ADC_SAMPLE_56),
 	.smpr1           = ADC_SMPR1_SMP_AN10(ADC_SAMPLE_56) \
-	| ADC_SMPR1_SMP_AN11(ADC_SAMPLE_56) \
+	| ADC_SMPR1_SMP_AN13(ADC_SAMPLE_56) \
 	| ADC_SMPR1_SMP_AN14(ADC_SAMPLE_56) \
 	| ADC_SMPR1_SMP_AN15(ADC_SAMPLE_56) \
 	| ADC_SMPR1_SMP_SENSOR(ADC_SAMPLE_56) \
@@ -168,6 +168,7 @@ static ADCConversionGroup adc1_pa_cfg =
 	| ADC_SMPR1_SMP_VBAT(ADC_SAMPLE_56)
 	,
 	.smpr2           = ADC_SMPR2_SMP_AN0(ADC_SAMPLE_56) \
+	| ADC_SMPR2_SMP_AN1(ADC_SAMPLE_56) \
 	| ADC_SMPR2_SMP_AN2(ADC_SAMPLE_56) \
 	| ADC_SMPR2_SMP_AN4(ADC_SAMPLE_56) \
 	| ADC_SMPR2_SMP_AN5(ADC_SAMPLE_56) \
@@ -177,17 +178,17 @@ static ADCConversionGroup adc1_pa_cfg =
 	| ADC_SMPR2_SMP_AN9(ADC_SAMPLE_56) \
 	,
 	.sqr1            = ADC_SQR1_NUM_CH(FETCH_ADC1_PA_GRP_NUM_CHANNELS) \
-	| ADC_SQR1_SQ13_N(ADC_CHANNEL_SENSOR)   \
-	| ADC_SQR1_SQ14_N(ADC_CHANNEL_VREFINT)   \
-	| ADC_SQR1_SQ15_N(ADC_CHANNEL_VBAT)   \
+	| ADC_SQR1_SQ13_N(ADC_CHANNEL_IN15)   \
+	| ADC_SQR1_SQ14_N(ADC_CHANNEL_SENSOR)   \
+	| ADC_SQR1_SQ15_N(ADC_CHANNEL_VREFINT)   \
+	| ADC_SQR1_SQ16_N(ADC_CHANNEL_VBAT)   \
 	,
 	.sqr2            = ADC_SQR2_SQ7_N(ADC_CHANNEL_IN7)   \
 	| ADC_SQR2_SQ8_N(ADC_CHANNEL_IN8)   \
-	| ADC_SQR2_SQ8_N(ADC_CHANNEL_IN9)   \
-	| ADC_SQR2_SQ9_N(ADC_CHANNEL_IN10)   \
-	| ADC_SQR2_SQ10_N(ADC_CHANNEL_IN13)   \
-	| ADC_SQR2_SQ11_N(ADC_CHANNEL_IN14)   \
-	| ADC_SQR2_SQ12_N(ADC_CHANNEL_IN15)   \
+	| ADC_SQR2_SQ9_N(ADC_CHANNEL_IN9)   \
+	| ADC_SQR2_SQ10_N(ADC_CHANNEL_IN10)   \
+	| ADC_SQR2_SQ11_N(ADC_CHANNEL_IN13)   \
+	| ADC_SQR2_SQ12_N(ADC_CHANNEL_IN14)   \
 	,
 	.sqr3            = ADC_SQR3_SQ1_N(ADC_CHANNEL_IN0)   \
 	| ADC_SQR3_SQ2_N(ADC_CHANNEL_IN1)   \
@@ -329,24 +330,24 @@ static void adc1_new_data(eventid_t id UNUSED)
 					fetch_adc1_state.printheader = false;
 				}
 				sum_reduce_samples(avg_vals);
-				chprintf(fetch_adc1_state.chp, "%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\r\n", \
-				         timenow, \
-				         avg_vals[0] * uv_per_bit, \
-				         avg_vals[1] * uv_per_bit, \
-				         avg_vals[2] * uv_per_bit, \
-				         avg_vals[3] * uv_per_bit, \
-				         avg_vals[4] * uv_per_bit, \
-				         avg_vals[5] * uv_per_bit, \
-				         avg_vals[6] * uv_per_bit, \
-				         avg_vals[7] * uv_per_bit, \
-				         avg_vals[8] * uv_per_bit, \
-				         avg_vals[9] * uv_per_bit, \
-				         avg_vals[10] * uv_per_bit, \
-				         avg_vals[11] * uv_per_bit, \
-				         avg_vals[12] * uv_per_bit, \
-				         fetch_adc_calc_temp(avg_vals[13], uv_per_bit), \
-				         avg_vals[14] * uv_per_bit, \
-				         avg_vals[15] * uv_per_bit);
+				chprintf(fetch_adc1_state.chp, "%u: %u,%u,%u,%u, %u,%u,%u,%u, %u,%u,%u,%u, %u,T:%u,%u,z%u\r\n",
+				         timenow,
+				         avg_vals[0] * uv_per_bit,  // in0
+				         avg_vals[1] * uv_per_bit,  // in1
+				         avg_vals[2] * uv_per_bit,  // in2
+				         avg_vals[3] * uv_per_bit,  // in4
+				         avg_vals[4] * uv_per_bit,  // in5
+				         avg_vals[5] * uv_per_bit,  // in6
+				         avg_vals[6] * uv_per_bit,  // in7
+				         avg_vals[7] * uv_per_bit,  // in8
+				         avg_vals[8] * uv_per_bit,  // in9
+				         avg_vals[9] * uv_per_bit,  // in10
+				         avg_vals[10] * uv_per_bit, // in 13
+				         avg_vals[11] * uv_per_bit,  // in 14
+				         avg_vals[12] * uv_per_bit,  // in 15
+				         fetch_adc_calc_temp(avg_vals[13], uv_per_bit),  // T (C)
+				         avg_vals[14] * uv_per_bit,  // VREFINT
+				         avg_vals[15] * uv_per_bit);  // VBAT
 				break;
 			case FETCH_ADC1_PB:
 				break;
