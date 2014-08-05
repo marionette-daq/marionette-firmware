@@ -255,6 +255,7 @@ static FETCH_adc_state fetch_adc1_state =
 	.vref_mv              = 3300,
 	.init                 = false,
 	.oneshot              = true,
+	.printheader          = false,
 	.profile              = &adc1_default_profile,
 	.chp                  = NULL
 };
@@ -279,7 +280,6 @@ static void sum_reduce_samples(uint32_t * results)
 		i += fetch_adc1_state.profile->adc_grp_num_channels )
 		{
 			results[j] += fetch_adc1_state.profile->adc_sample_buf[i] ;
-			DBG_VMSG(fetch_adc1_state.chp, "%u,%u\t%u", j, results[j], fetch_adc1_state.profile->adc_sample_buf[i]  ) ;
 		}
 	}
 
@@ -301,14 +301,20 @@ static void adc1_new_data(eventid_t id UNUSED)
 	if((fetch_adc1_state.profile->adc_grp_buf_depth > 0) && (fetch_adc1_state.chp != NULL))
 	{
 		systime_t          timenow = chTimeNow() ;
-	    uint32_t    uv_per_bit = ((fetch_adc1_state.vref_mv * 1000) / 4096);   //>! \todo maybe not all conversions are 12 bit..?;
+		uint32_t    uv_per_bit = ((fetch_adc1_state.vref_mv * 1000) /
+		                          4096);   //>! \todo maybe not all conversions are 12 bit..?;
 		uint32_t    avg_vals[FETCH_ADC1_MAX_CHANNELS] = {0};
 
 		switch(fetch_adc1_state.profile->name)
 		{
 			case FETCH_ADC1_DEFAULT: // 1 channel in this profile
+				if(fetch_adc1_state.printheader)
+				{
+					chprintf(fetch_adc1_state.chp, "t(ms),ch0-mv\r\n");
+					fetch_adc1_state.printheader = false;
+				}
 				sum_reduce_samples(avg_vals);
-				chprintf(fetch_adc1_state.chp, "DEF:\t%u,(%u,%u)\r\n", timenow, avg_vals[0], avg_vals[0] * uv_per_bit);
+				chprintf(fetch_adc1_state.chp, "%u,%u\r\n", timenow, avg_vals[0] * uv_per_bit);
 				break;
 			case FETCH_ADC1_DEMO:  // 2 channels in this profile
 				sum_reduce_samples(avg_vals);
@@ -316,9 +322,31 @@ static void adc1_new_data(eventid_t id UNUSED)
 				         fetch_adc_calc_temp(avg_vals[0], uv_per_bit), avg_vals[1], avg_vals[1] * uv_per_bit);
 				break;
 			case FETCH_ADC1_PA:  // 16 channels in this profile
+				if(fetch_adc1_state.printheader)
+				{
+					chprintf(fetch_adc1_state.chp,
+					         "#t(ms),ch0-mV,ch1-mV,ch2-mV,ch4-mV,ch5-mV,ch6-mV,ch7-mV,ch8-mV,ch9-mV,ch10-mV,ch13-mV,ch14-mV,ch15-mV,T(C),VREFINT,VBAT\r\n");
+					fetch_adc1_state.printheader = false;
+				}
 				sum_reduce_samples(avg_vals);
-				chprintf(fetch_adc1_state.chp, "PA:\tt:%u,1:%u,2:%u,3:%u\r\n", timenow, avg_vals[0] * uv_per_bit,
-				         avg_vals[9] * uv_per_bit, avg_vals[10] * uv_per_bit);
+				chprintf(fetch_adc1_state.chp, "%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\r\n", \
+				         timenow, \
+				         avg_vals[0] * uv_per_bit, \
+				         avg_vals[1] * uv_per_bit, \
+				         avg_vals[2] * uv_per_bit, \
+				         avg_vals[3] * uv_per_bit, \
+				         avg_vals[4] * uv_per_bit, \
+				         avg_vals[5] * uv_per_bit, \
+				         avg_vals[6] * uv_per_bit, \
+				         avg_vals[7] * uv_per_bit, \
+				         avg_vals[8] * uv_per_bit, \
+				         avg_vals[9] * uv_per_bit, \
+				         avg_vals[10] * uv_per_bit, \
+				         avg_vals[11] * uv_per_bit, \
+				         avg_vals[12] * uv_per_bit, \
+				         fetch_adc_calc_temp(avg_vals[13], uv_per_bit), \
+				         avg_vals[14] * uv_per_bit, \
+				         avg_vals[15] * uv_per_bit);
 				break;
 			case FETCH_ADC1_PB:
 				break;
@@ -327,6 +355,7 @@ static void adc1_new_data(eventid_t id UNUSED)
 		}
 	}
 }
+
 
 
 /*! \brief Thread for new data event
@@ -472,7 +501,7 @@ bool fetch_adc1_profile(BaseSequentialStream * chp, Fetch_terminals * fetch_term
 	}
 	else
 	{
-		DBG_VMSG(chp, "Profile %s not available.", cmd_list[ADC_PROFILE]);
+		util_errormsg(chp, "Profile %s not available.", cmd_list[ADC_PROFILE]);
 		return false;
 	}
 	return false;
@@ -517,6 +546,7 @@ static bool fetch_adc1_start(void)
 {
 	adcStartConversion(&ADCD1, fetch_adc1_state.profile->adcgrpcfg,
 	                   fetch_adc1_state.profile->adc_sample_buf, fetch_adc1_state.profile->adc_grp_buf_depth);
+	fetch_adc1_state.printheader = true;
 	return true;
 }
 
@@ -567,7 +597,6 @@ static bool fetch_adc1_configure(BaseSequentialStream * chp ,
 		else if (strncasecmp(cmd_list[ADC_CONFIGURE], "vref_mv", strlen("vref_mv") ) == 0)
 		{
 			fetch_adc1_state.vref_mv = atoi(data_list[0]);
-			//DBG_VMSG(chp, "vref_mv: %d\tdata_list[0]: %s\r\n", fetch_adc1_state.vref_mv, data_list[0]);
 			return true;
 		}
 		else

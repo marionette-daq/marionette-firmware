@@ -55,6 +55,7 @@ typedef struct fetch_adc_state
 	int32_t                     vref_mv;	
 	bool                        init;
 	bool                        oneshot;
+	bool                        printheader;
 	FETCH_adc_profile  const     *   profile;
 	BaseSequentialStream    *   chp;
 } FETCH_adc_state;

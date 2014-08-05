@@ -162,13 +162,13 @@ class DUTSerial():
 #                self.teststr("adc:conf_adc1:profile:default\r\n")
 #                self.teststr("adc:start\r\n")
 
-#            response = input("Test continuous with pa profile(y/N) ")
-#            if response=='y':
-#                self.teststr("adc:conf_adc1:continuous\r\n")
-#                self.teststr("adc:start\r\n")
-#                sleep(2.0)
-#                self.teststr("adc:stop\r\n")
-#                sleep(1.0)
+               response = input("Test continuous with pa profile(y/N) ")
+               if response=='y':
+                  self.teststr("adc:conf_adc1:continuous\r\n")
+                  self.teststr("adc:start\r\n")
+                  sleep(2.0)
+                  self.teststr("adc:stop\r\n")
+                  sleep(1.0)
      
         except KeyboardInterrupt:
             DUT.close()
