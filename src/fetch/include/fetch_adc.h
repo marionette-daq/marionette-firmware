@@ -18,10 +18,10 @@ extern "C" {
 
 typedef enum fetch_adc_profile_name
 {
-	FETCH_ADC_DEFAULT = 0,
-	FETCH_ADC_DEMO,
-	FETCH_ADC_PA, 
-	FETCH_ADC_PB  
+	FETCH_ADC1_DEFAULT = 0,
+	FETCH_ADC1_DEMO,
+	FETCH_ADC1_PA, 
+	FETCH_ADC1_PB  
 } FETCH_ADC_profile_name;
 
 typedef struct fetch_adc_profile
@@ -44,8 +44,10 @@ typedef enum FETCH_ADC_token
 } FETCH_ADC_token;
 
 typedef struct adc_input {
-    ioportid_t port;
-    uint16_t   pin;
+    const ioportid_t port;
+    const uint32_t   pin;
+	const iomode_t   default_mode;
+	iomode_t   current_mode;
 } ADC_input;
 
 typedef struct fetch_adc_state

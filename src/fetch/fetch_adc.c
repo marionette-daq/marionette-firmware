@@ -34,7 +34,7 @@
 /*! Total number of channels to be sampled by a single ADC operation.*/
 #define FETCH_ADC1_DEMO_GRP_NUM_CHANNELS      2
 #define FETCH_ADC1_DEFAULT_GRP_NUM_CHANNELS   1
-#define FETCH_ADC1_PA_GRP_NUM_CHANNELS      1
+#define FETCH_ADC1_PA_GRP_NUM_CHANNELS      2
 
 /*! Depth of the conversion buffer, channels are sampled four times each.*/
 #define FETCH_ADC1_DEMO_GRP_BUF_DEPTH         1
@@ -43,24 +43,49 @@
 
 //#ifdef BOARD_ST_STM32F4_DISCOVERY
 
+typedef enum channel_io
+{
+	ADC_CH0 = 0,
+	ADC_CH1,
+	ADC_CH2,
+	ADC_CH3,
+	ADC_CH4,
+	ADC_CH5,
+	ADC_CH6,
+	ADC_CH7,
+	ADC_CH8,
+	ADC_CH9,
+	ADC_CH10,
+	ADC_CH11,
+	ADC_CH12,
+	ADC_CH13,
+	ADC_CH14,
+	ADC_CH15,
+	ADC_CH16,   // ADC1 only
+	ADC_CH17,   // ADC1 only
+	ADC_CH18    // ADC1 only
+} ADCChannel;
+
 /*! \brief pin and port definitions */
 #if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
-static const ADC_input ADC1_IN0   = { GPIOA, GPIOA_PIN0 } ;
-static const ADC_input ADC1_IN1   = { GPIOA, GPIOA_PIN1 } ;
-static const ADC_input ADC1_IN2   = { GPIOA, GPIOA_PIN2 } ;
-//static const ADC_input ADC1_IN3   = { GPIOA, GPIOA_PIN3 } ;  // used for VBUS
-static const ADC_input ADC1_IN4   = { GPIOA, GPIOA_PIN4 } ;
-static const ADC_input ADC1_IN5   = { GPIOA, GPIOA_PIN5 } ;
-static const ADC_input ADC1_IN6   = { GPIOA, GPIOA_PIN6 } ;
-static const ADC_input ADC1_IN7   = { GPIOA, GPIOA_PIN7 } ;
-static const ADC_input ADC1_IN8   = { GPIOB, GPIOB_PIN0 } ;
-static const ADC_input ADC1_IN9   = { GPIOB, GPIOB_PIN9 } ;
-static const ADC_input ADC1_IN10  = { GPIOC, GPIOC_PIN0 } ;
-//static const ADC_input ADC1_IN11  = { GPIOC, GPIOC_PIN1 } ;  // used for OTG
-//static const ADC_input ADC1_IN12  = { GPIOC, GPIOC_PIN2 } ;  // used for OTG
-static const ADC_input ADC1_IN13  = { GPIOC, GPIOC_PIN3 } ;
-static const ADC_input ADC1_IN14  = { GPIOC, GPIOC_PIN4 } ;
-static const ADC_input ADC1_IN15  = { GPIOC, GPIOC_PIN5 } ;
+static ADC_input ADC1_IN0   = { GPIOA, GPIOA_PIN0, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
+static ADC_input ADC1_IN1   = { GPIOA, GPIOA_PIN1, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
+static ADC_input ADC1_IN2   = { GPIOA, GPIOA_PIN2, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
+//static ADC_input ADC1_IN3   = { GPIOA, GPIOA_PIN3,  PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT |PAL_STM32_PUDR_FLOATING }  // used for VBUS
+static ADC_input ADC1_IN4   = { GPIOA, GPIOA_PIN4, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
+static ADC_input ADC1_IN5   = { GPIOA, GPIOA_PIN5, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
+static ADC_input ADC1_IN6   = { GPIOA, GPIOA_PIN6, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
+static ADC_input ADC1_IN7   = { GPIOA, GPIOA_PIN7, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
+static ADC_input ADC1_IN8   = { GPIOB, GPIOB_PIN0, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
+static ADC_input ADC1_IN9   = { GPIOB, GPIOB_PIN9, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
+static ADC_input ADC1_IN10  = { GPIOC, GPIOC_PIN0, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
+//static ADC_input ADC1_IN11  = { GPIOC, GPIOC_PIN1,  PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT |PAL_STM32_PUDR_FLOATING } ;  // used for OTG
+//static ADC_input ADC1_IN12  = { GPIOC, GPIOC_PIN2,  PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT |PAL_STM32_PUDR_FLOATING } ;  // used for OTG
+static ADC_input ADC1_IN13  = { GPIOC, GPIOC_PIN3, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
+static ADC_input ADC1_IN14  = { GPIOC, GPIOC_PIN4, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
+static ADC_input ADC1_IN15  = { GPIOC, GPIOC_PIN5, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
+
+static ADC_input * ADC1_inputs[] = {&ADC1_IN0, &ADC1_IN1, &ADC1_IN2, NULL, &ADC1_IN4, &ADC1_IN5, &ADC1_IN6, &ADC1_IN7, &ADC1_IN8, &ADC1_IN9, &ADC1_IN10, NULL, NULL, &ADC1_IN13, &ADC1_IN14, &ADC1_IN15} ;
 #elif defined (BOARD_ST_STM32F4_DISCOVERY)
 #error "ST Discovery Board not defined for ADC"
 #else
@@ -133,11 +158,11 @@ static ADCConversionGroup adc1_pa_cfg =
 	.cr1             = 0,
 	.cr2             = ADC_CR2_SWSTART,
 	//.smpr1           = ADC_SMPR1_SMP_AN13(ADC_SAMPLE_56),
-	.smpr1           = 0,
-	.smpr2           = ADC_SMPR2_SMP_AN0(ADC_SAMPLE_56),
-	.sqr1            = ADC_SQR1_NUM_CH(FETCH_ADC1_DEFAULT_GRP_NUM_CHANNELS),
+	.smpr1           = ADC_SMPR1_SMP_AN13(ADC_SAMPLE_56),
+	.smpr2           = ADC_SMPR2_SMP_AN0(ADC_SAMPLE_28),
+	.sqr1            = ADC_SQR1_NUM_CH(FETCH_ADC1_PA_GRP_NUM_CHANNELS),
 	.sqr2            = 0,
-	.sqr3            = ADC_SQR3_SQ1_N(ADC_CHANNEL_IN0)
+	.sqr3            =  ADC_SQR3_SQ2_N(ADC_CHANNEL_IN13) | ADC_SQR3_SQ1_N(ADC_CHANNEL_IN0)
 };
 
 
@@ -148,7 +173,7 @@ static ADCConversionGroup adc1_pa_cfg =
  */
 static const  FETCH_adc_profile adc1_demo_profile =
 {
-	.name                 = FETCH_ADC_DEMO,
+	.name                 = FETCH_ADC1_DEMO,
 	.oneshot              = true,
 	.adcgrpcfg            = &adc1_demo_cfg,
 	.adc_grp_num_channels = FETCH_ADC1_DEMO_GRP_NUM_CHANNELS,
@@ -164,7 +189,7 @@ static const  FETCH_adc_profile adc1_demo_profile =
  */
 static const  FETCH_adc_profile adc1_default_profile =
 {
-	.name                 = FETCH_ADC_DEFAULT,
+	.name                 = FETCH_ADC1_DEFAULT,
 	.oneshot              = true,
 	.adcgrpcfg            = &adc1_default_cfg,
 	.adc_grp_num_channels = FETCH_ADC1_DEFAULT_GRP_NUM_CHANNELS,
@@ -174,7 +199,7 @@ static const  FETCH_adc_profile adc1_default_profile =
 
 static const  FETCH_adc_profile adc1_pa_profile =
 {
-	.name                 = FETCH_ADC_PA,
+	.name                 = FETCH_ADC1_PA,
 	.oneshot              = true,
 	.adcgrpcfg            = &adc1_pa_cfg,
 	.adc_grp_num_channels = FETCH_ADC1_PA_GRP_NUM_CHANNELS,
@@ -200,44 +225,47 @@ static FETCH_adc_state fetch_adc1_state =
 	.chp                  = NULL
 };
 
-static uint16_t fetch_adc_calc_temp(uint16_t t_raw, uint32_t uv_per_bit ) {
+static uint16_t fetch_adc_calc_temp(uint16_t t_raw, uint32_t uv_per_bit )
+{
 
-		uint32_t t_voltage = (t_raw * uv_per_bit)/1000000;  // \todo units are confusing in data sheet....review?
+	uint32_t t_voltage = (t_raw * uv_per_bit) / 1000000; // \todo units are confusing in data sheet....review?
 
-		return((uint16_t )(((t_voltage-ADC_V_25)/ADC_VSLOPE) +25));
+	return((uint16_t )(((t_voltage - ADC_V_25) / ADC_VSLOPE) + 25));
 }
 
 /*! \brief Process new data based on current profile
  */
-static void adc1_new_data(eventid_t id UNUSED) 
+static void adc1_new_data(eventid_t id UNUSED)
 {
 	BaseSequentialStream * chp        = fetch_adc1_state.chp;
-	uint32_t               uv_per_bit = ((fetch_adc1_state.vref_mv*1000) / 4096); 
+	uint32_t               uv_per_bit = ((fetch_adc1_state.vref_mv * 1000) / 4096);
 
 	if((fetch_adc1_state.profile->adc_grp_buf_depth > 0) && (fetch_adc1_state.chp != NULL))
 	{
-		systime_t   timenow = 0 ;    
+		systime_t   timenow = 0 ;
 		adcsample_t avg_ch1 = 0 ;
 		adcsample_t avg_ch2 = 0 ;
 		switch(fetch_adc1_state.profile->name)
 		{
-			case FETCH_ADC_DEFAULT:
+			case FETCH_ADC1_DEFAULT:
 				avg_ch1  = fetch_adc1_state.profile->adc_sample_buf[0] / fetch_adc1_state.profile->adc_grp_buf_depth;
 				timenow = chTimeNow();
 				chprintf(fetch_adc1_state.chp, "DEF:\t%u,%u\r\n", timenow, avg_ch1 * uv_per_bit);
 				break;
-			case FETCH_ADC_DEMO:
+			case FETCH_ADC1_DEMO:
 				avg_ch1  = fetch_adc1_state.profile->adc_sample_buf[0] / fetch_adc1_state.profile->adc_grp_buf_depth;
 				avg_ch2  = fetch_adc1_state.profile->adc_sample_buf[1] / fetch_adc1_state.profile->adc_grp_buf_depth;
 				timenow = chTimeNow();
-				chprintf(fetch_adc1_state.chp, "DEMO:\t%u,T(raw): %u\tT(C): %u\tIN13(raw): %u\tIN13(uV):%u\r\n",timenow, avg_ch1, fetch_adc_calc_temp(avg_ch1, uv_per_bit), avg_ch2, avg_ch2 * uv_per_bit);
+				chprintf(fetch_adc1_state.chp, "DEMO:\t%u,T(raw): %u\tT(C): %u\tIN13(raw): %u\tIN13(uV):%u\r\n", timenow, avg_ch1,
+				         fetch_adc_calc_temp(avg_ch1, uv_per_bit), avg_ch2, avg_ch2 * uv_per_bit);
 				break;
-			case FETCH_ADC_PA:
+			case FETCH_ADC1_PA:
 				avg_ch1  = fetch_adc1_state.profile->adc_sample_buf[0] / fetch_adc1_state.profile->adc_grp_buf_depth;
+				avg_ch2  = fetch_adc1_state.profile->adc_sample_buf[1] / fetch_adc1_state.profile->adc_grp_buf_depth;
 				timenow = chTimeNow();
-				chprintf(fetch_adc1_state.chp, "PA:\t%u,%u\r\n", timenow, avg_ch1 * uv_per_bit);
+				chprintf(fetch_adc1_state.chp, "PA:\t%u,%u,%u\r\n", timenow, avg_ch1 * uv_per_bit, avg_ch2 * uv_per_bit);
 				break;
-			case FETCH_ADC_PB:
+			case FETCH_ADC1_PB:
 				break;
 			default:
 				break;
@@ -293,7 +321,8 @@ static void fetch_adc1_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n)
 		chSysLockFromIsr();
 		if(!fetch_adc1_state.oneshot)
 		{
-			adcStartConversionI(&ADCD1, fetch_adc1_state.profile->adcgrpcfg, fetch_adc1_state.profile->adc_sample_buf, fetch_adc1_state.profile->adc_grp_buf_depth);
+			adcStartConversionI(&ADCD1, fetch_adc1_state.profile->adcgrpcfg, fetch_adc1_state.profile->adc_sample_buf,
+			                    fetch_adc1_state.profile->adc_grp_buf_depth);
 		}
 		chSysUnlockFromIsr();
 	}
@@ -307,6 +336,53 @@ static void fetch_adc1_reset(void)
 	fetch_adc_init(fetch_adc1_state.chp);
 }
 
+static void fetch_adc_io_set_defaults(void)
+{
+	for(uint8_t i = 0; i < NELEMS(ADC1_inputs); ++i)
+	{
+		if(ADC1_inputs[i] != NULL)
+		{
+			palSetPadMode(ADC1_inputs[i]->port, ADC1_inputs[i]->pin, ADC1_inputs[i]->default_mode);
+			ADC1_inputs[i]->current_mode = ADC1_inputs[i]->default_mode;
+		}
+	}
+}
+
+static void fetch_adc1_io_to_analog(ADCChannel channel)
+{
+	if(ADC1_inputs[channel] != NULL)
+	{
+		palSetPadMode(ADC1_inputs[channel]->port, ADC1_inputs[channel]->pin, PAL_MODE_INPUT_ANALOG );
+		ADC1_inputs[channel]->current_mode = PAL_MODE_INPUT_ANALOG;
+	}
+}
+
+static void fetch_adc_change_profile(FETCH_ADC_profile_name p)
+{
+	fetch_adc1_reset();
+	switch(p)
+	{
+		case FETCH_ADC1_DEFAULT:
+			fetch_adc1_state.profile = &adc1_default_profile;
+			fetch_adc_io_set_defaults();
+			fetch_adc1_io_to_analog(ADC_CH13);
+			break;
+		case FETCH_ADC1_DEMO:
+			fetch_adc1_state.profile = &adc1_demo_profile;
+			fetch_adc_io_set_defaults();
+			fetch_adc1_io_to_analog(ADC_CH13);
+			break;
+		case FETCH_ADC1_PA:
+			fetch_adc1_state.profile = &adc1_pa_profile;
+			fetch_adc_io_set_defaults();
+			fetch_adc1_io_to_analog(ADC_CH0);
+			fetch_adc1_io_to_analog(ADC_CH13);
+			break;
+		default:
+			break;
+	}
+}
+
 /*! \brief change the profile for adc1
  */
 bool fetch_adc1_profile(BaseSequentialStream * chp, Fetch_terminals * fetch_terms,
@@ -314,20 +390,17 @@ bool fetch_adc1_profile(BaseSequentialStream * chp, Fetch_terminals * fetch_term
 {
 	if (strncasecmp(cmd_list[ADC_PROFILE], "default", strlen("default") ) == 0)
 	{
-		fetch_adc1_reset();
-		fetch_adc1_state.profile = &adc1_default_profile;
+		fetch_adc_change_profile(FETCH_ADC1_DEFAULT);
 		return true;
 	}
 	else if (strncasecmp(cmd_list[ADC_PROFILE], "demo", strlen("demo") ) == 0)
 	{
-		fetch_adc1_reset();
-		fetch_adc1_state.profile = &adc1_demo_profile;
+		fetch_adc_change_profile(FETCH_ADC1_DEMO);
 		return true;
 	}
 	else if (strncasecmp(cmd_list[ADC_PROFILE], "pa", strlen("pa") ) == 0)
 	{
-		fetch_adc1_reset();
-		fetch_adc1_state.profile = &adc1_pa_profile;
+		fetch_adc_change_profile(FETCH_ADC1_PA);
 		return true;
 	}
 	else
@@ -338,7 +411,7 @@ bool fetch_adc1_profile(BaseSequentialStream * chp, Fetch_terminals * fetch_term
 	return false;
 }
 
-/*! \brief Initialize the ADC 
+/*! \brief Initialize the ADC
  *
  * Use default profile
  * Use oneshot by default
@@ -361,7 +434,6 @@ void fetch_adc_init(BaseSequentialStream * chp)
 	adcStart(&ADCD1, NULL);
 	//adcConfigWatchdog()...
 	adcSTM32EnableTSVREFE();
-	palSetPadMode(ADC1_IN13.port, ADC1_IN13.pin, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(ADC1_IN0.port, ADC1_IN0.pin, PAL_MODE_INPUT_ANALOG);
 	fetch_adc1_state.chp = chp;
 
@@ -481,3 +553,4 @@ bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 }
 
 /*! @} */
+

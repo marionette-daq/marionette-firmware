@@ -23,11 +23,13 @@ Connect a device to the Default_Port.
 """
 
 import sys
+import os
 import threading
 import serial
 from time import sleep
 import utils as u
 
+DUT_SERIAL_WAKEUP     = 2
 DUT_WAITTIME     = 0.200
 Default_Baudrate = 115200
 Default_Timeout  = 2
@@ -55,6 +57,10 @@ class DUTSerial():
             """
             self.ser.parity   = serial.PARITY_ODD
             try:
+                if os.path.exists(self.ser.port)!=True:
+                    u.info("Pausing for serial")
+                    sleep(DUT_SERIAL_WAKEUP/2)
+                sleep(DUT_SERIAL_WAKEUP/2)
                 self.ser.open()
             except serial.SerialException  as e:
                 u.error("Error opening serial port: " + str(e))
@@ -107,8 +113,9 @@ class DUTSerial():
             u.error("Error reading serial port: " + str(e))
             sys.exit()
 
-    def teststr(self, string):
-        #u.info("sending\t->"+string)
+    def teststr(self, string, echo=False):
+        if echo==True:
+            u.info("sending\t->"+string)
         self.write(string)
         sleep(DUT_WAITTIME)
 
@@ -122,8 +129,8 @@ class DUTSerial():
         try:
 #            response = input("test one shot with default profile(Y/n) ")
 #            if response!='y':
-               self.teststr("adc:conf_adc1:profile:default\r\n")
-               self.teststr("adc:start\r\n")
+               self.teststr("adc:conf_adc1:profile:default\r\n", True)
+               self.teststr("adc:start\r\n",0)
 #            response = input("Test continuous with default profile(y/N) ")
 #            if response=='y':
 #                self.teststr("adc:conf_adc1:continuous\r\n")
@@ -134,7 +141,7 @@ class DUTSerial():
 # 
 #            response = input("Test one shot with demo profile(y/N) ")
 #            if response=='y':
-               self.teststr("adc:conf_adc1:profile:demo\r\n")
+               self.teststr("adc:conf_adc1:profile:demo\r\n", True)
                self.teststr("adc:conf_adc1:oneshot\r\n")
                self.teststr("adc:start\r\n")
 #           response = input("test continuous with demo profile(y/N) ")
@@ -147,8 +154,11 @@ class DUTSerial():
 
 #            response = input("test one shot with PA profile(y/N) ")
 #            if response=='y':
-               self.teststr("adc:conf_adc1:profile:pa\r\n")
+               self.teststr("adc:conf_adc1:profile:pa\r\n", True)
                self.teststr("adc:start\r\n")
+               self.teststr("adc:conf_adc1:profile:default\r\n", True)
+               self.teststr("adc:start\r\n")
+#
 #                self.teststr("adc:conf_adc1:profile:default\r\n")
 #                self.teststr("adc:start\r\n")
 
