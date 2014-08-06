@@ -185,12 +185,30 @@ class DUTSerial():
         u.info("Confirm reset to default profile and one shot.")
         self.teststr("adc:start\r\n")
  
+    def testheartbeat(self):
+        self.teststr("+threads\r\n");
+        self.teststr("heartbeat_toggle\r\n");
+        u.info("HB on?");
+        sleep(2)
+        self.teststr("+threads\r\n");
+        self.teststr("heartbeat_toggle\r\n");
+        u.info("HB off?");
+        sleep(2)
+        self.teststr("+threads\r\n");
+        self.teststr("heartbeat_toggle\r\n");
+        u.info("HB on?");
+        sleep(2)
+        self.teststr("+threads\r\n");
+        self.teststr("heartbeat_toggle\r\n");
+        u.info("HB off?");
+        sleep(2)
+        self.teststr("+threads\r\n");
     def writer(self):
         try:
             if self.alive:
                 self.testctl()
-                self.write("\r\n")
                 sleep(2.5)
+                self.testheartbeat()
                 self.teststr("+noprompt\r\n")
                 sleep(0.5)
                 self.write("resetpins\r\n")

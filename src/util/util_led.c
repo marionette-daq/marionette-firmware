@@ -195,15 +195,19 @@ void hbStop(LED_config * cfg)
 	}
 
 	// Kill the heartbeat thread.
-	if(hbthd != NULL ) {
-		chThdTerminate(hbthd);
+	if(hb_state)
+	{
+		if(hbthd != NULL )
+		{
+			chThdTerminate(hbthd);
+		}
 	}
 
 	hb_state = false;
-	
-	const struct led **          led           = cfg->led;
+
+	const struct led      **     led           = cfg->led;
 	// UnInitialize the led(s)
-	uint8_t		num_leds 		= 0;
+	uint8_t         num_leds                = 0;
 
 	for(; led[num_leds]; ++num_leds)
 	{
@@ -211,6 +215,7 @@ void hbStop(LED_config * cfg)
 		ledOff(led[num_leds]);
 	}
 }
+
 
 
 void hbStart(LED_config * cfg)
@@ -229,8 +234,10 @@ void hbStart(LED_config * cfg)
 	}
 	chDbgAssert(cfg->cycle_ms > 0, DBG_PREFIX "LED cycle time > 0", NULL);
 
-	hb_state = true;
-	hbthd = chThdCreateStatic(wa_hbled, sizeof(wa_hbled), NORMALPRIO, (tfunc_t)hbled_thd, cfg);
+	if(!hb_state) {
+		hb_state=true;
+		hbthd = chThdCreateStatic(wa_hbled, sizeof(wa_hbled), NORMALPRIO, (tfunc_t)hbled_thd, cfg);
+	}
 }
 
 
