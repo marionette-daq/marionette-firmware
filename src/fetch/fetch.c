@@ -17,6 +17,7 @@
 #include "util_strings.h"
 #include "util_messages.h"
 #include "util_version.h"
+#include "util_led.h"
 #include "fetch_gpio.h"
 #include "fetch_adc.h"
 
@@ -43,7 +44,7 @@ P - Production Rules:
                      | <command> ":" <adc_subcommandA>  ":" <adc_configure> <EOL>
                      | <command> ":" <adc_subcommandA>  ":" <adc_configure>   ":" <adc_profile> <EOL>
                      | <command> ":" <adc_subcommandA>  ":" <adc_configure>(<dec>) <EOL>
-<command>          ::= "?"      | "help"     | "gpio"  | "adc"   | "dac"   | "spi" | "i2c" | "resetpins"
+<command>          ::= "?"      | "help"     | "gpio"  | "adc"   | "dac"   | "spi" | "i2c" | "resetpins" | "heartbeat_toggle" | "version"
 <adc_subcommandA>  ::= "conf_adc1" | "start" | "stop"
 <adc_configure>    ::= "profile" | "oneshot" | "continuous" | "reset" | "vref_mv"
 <adc_profile>      ::= "default" | "PA"   | "PB"
@@ -91,7 +92,7 @@ static Command_dictionary          resetpins_dict = { .enabled = true, .max_data
  */
 static Fetch_terminals fetch_terms =
 {
-	.command          = {"?", "help", "version", "gpio", "adc", "spi", "i2c", "resetpins"},
+	.command          = {"?", "help", "version", "gpio", "adc", "spi", "i2c", "resetpins", "heartbeat_toggle"},
 	.gpio_subcommandA = {"get", "set", "clear", "configure"},
 	.gpio_direction   = {"input", "output"},
 	.gpio_sense       = {"pullup", "pulldown", "floating", "analog"},
@@ -208,6 +209,16 @@ static bool fetch_version(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
 	return true;
 }
 
+/*! \brief VERSION command callback for fetch language
+ */
+static bool fetch_hbtoggle(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
+                          char * data_list[] UNUSED)
+{
+	hbToggle();
+	return true;
+}
+
+
 /*! \brief RESETPINS command callback for fetch language
  */
 static bool fetch_resetpins(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
@@ -242,6 +253,11 @@ static void fetch_init_cmd_fns(BaseSequentialStream * chp)
 		                     strlen(fetch_terms.command[i]) ) == 0)
 		{
 			cmd_fns[i] = fetch_version;
+		}
+		else if (strncasecmp(fetch_terms.command[i], "heartbeat_toggle",
+		                     strlen(fetch_terms.command[i]) ) == 0)
+		{
+			cmd_fns[i] = fetch_hbtoggle;
 		}
 		else if (strncasecmp(fetch_terms.command[i], "gpio",
 		                     strlen(fetch_terms.command[i]) ) == 0)

@@ -80,6 +80,10 @@ void ledOn(const struct led * led);
 void ledOff(const struct led * led);
 void ledToggle(const struct led * led);
 
+/*! \brief Toggle the hb function
+ */
+void hbToggle(void);
+
 /*!
  * Starts a thread that will:
  * 1. Turn off all given leds.

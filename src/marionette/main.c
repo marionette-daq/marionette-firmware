@@ -35,7 +35,6 @@
 #include "fetch_adc.h"
 #include "util_general.h"
 #include "util_version.h"
-#include "util_led.h"
 #include "usbcfg.h"
 
 #include "main.h"
@@ -47,6 +46,7 @@ extern const struct led        LED1 ;
 extern const struct led        LED2 ;
 extern const struct led        LED3 ;
 extern const struct led        LED4 ;
+
 extern       struct led_config led_cfg ;
 
 /*! status

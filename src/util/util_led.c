@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <stdbool.h>
 
 #include "ch.h"
 #include "hal.h"
@@ -7,7 +8,9 @@
 #include "util_led.h"
 
 
-static Thread * hbthd = NULL;
+static Thread * hbthd    = NULL;
+
+static bool     hb_state = false;
 
 /* Pre-filled led_configs */
 #ifdef BOARD_ST_STM32F4_DISCOVERY
@@ -92,10 +95,10 @@ void ledToggle(const LED * led)
 }
 
 static WORKING_AREA(wa_hbled, 512);
-NORETURN static void hbled(void * arg)
+NORETURN static void hbled_thd(void * arg)
 {
-	struct       led_config *    cfg           = (struct led_config *) arg;
-	const struct led **          led           = cfg->led;
+	struct       led_config   *  cfg           = (struct led_config *) arg;
+	const struct led      **     led           = cfg->led;
 
 	uint32_t                     start_cycles  = 0;
 	systime_t                    start_blink   = 0;
@@ -106,7 +109,7 @@ NORETURN static void hbled(void * arg)
 	chRegSetThreadName("Heartbeat");
 
 	// Initialize the led(s)
-	uint8_t		num_leds 		= 0;
+	uint8_t         num_leds                = 0;
 
 	for(; led[num_leds]; ++num_leds)
 	{
@@ -114,11 +117,11 @@ NORETURN static void hbled(void * arg)
 		ledOff(led[num_leds]);
 	}
 
-	start_cycles  = 2; 
+	start_cycles  = 2;
 	start_blink   = cfg->cycle_ms / num_leds;
 
 	// Start pattern
-	for(int i=0; start_cycles > 0; --start_cycles)
+	for(int i = 0; start_cycles > 0; --start_cycles)
 	{
 		for(i = 0; i < num_leds; ++i)
 		{
@@ -134,6 +137,10 @@ NORETURN static void hbled(void * arg)
 	cycletime = cfg->cycle_ms;
 	while (TRUE)
 	{
+		if(chThdShouldTerminate() )
+		{
+			chThdExit(THD_TERMINATE);
+		}
 		ledToggle(led[hbled]);
 		switch(M_Status.status)
 		{
@@ -159,12 +166,24 @@ NORETURN static void hbled(void * arg)
 	}
 }
 
+
+void hbToggle()
+{
+	if(hb_state)
+	{
+		hbStop(&led_cfg);
+	}
+	else
+	{
+		hbStart(&led_cfg);
+	}
+}
+
 void hbStop(LED_config * cfg)
 {
-	const struct led **          led           = cfg->led;
 	// If cfg is null see if a default one can be found. If it can't it is
 	// set to an to an invalid config.
-	if(!cfg)
+	if(cfg == NULL)
 	{
 		cfg = &led_cfg;
 	}
@@ -174,13 +193,15 @@ void hbStop(LED_config * cfg)
 	{
 		return; //no defined leds
 	}
-	chDbgAssert(cfg->cycle_ms > 0, DBG_PREFIX "LED cycle time > 0", NULL);
 
 	// Kill the heartbeat thread.
 	if(hbthd != NULL ) {
 		chThdTerminate(hbthd);
 	}
 
+	hb_state = false;
+	
+	const struct led **          led           = cfg->led;
 	// UnInitialize the led(s)
 	uint8_t		num_leds 		= 0;
 
@@ -189,8 +210,6 @@ void hbStop(LED_config * cfg)
 		palSetPadMode(led[num_leds]->port, led[num_leds]->pad, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING);
 		ledOff(led[num_leds]);
 	}
-
-
 }
 
 
@@ -198,7 +217,7 @@ void hbStart(LED_config * cfg)
 {
 	// If cfg is null see if a default one can be found. If it can't it is
 	// set to an to an invalid config.
-	if(!cfg)
+	if(cfg==NULL)
 	{
 		cfg = &led_cfg;
 	}
@@ -210,7 +229,8 @@ void hbStart(LED_config * cfg)
 	}
 	chDbgAssert(cfg->cycle_ms > 0, DBG_PREFIX "LED cycle time > 0", NULL);
 
-	hbthd = chThdCreateStatic(wa_hbled, sizeof(wa_hbled), NORMALPRIO, (tfunc_t)hbled, cfg);
+	hb_state = true;
+	hbthd = chThdCreateStatic(wa_hbled, sizeof(wa_hbled), NORMALPRIO, (tfunc_t)hbled_thd, cfg);
 }
 
 
