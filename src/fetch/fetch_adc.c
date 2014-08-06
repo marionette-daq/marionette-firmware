@@ -28,21 +28,19 @@
 
 #include "fetch_adc.h"
 
-#define FETCH_DEFAULT_VREF_MV         3300
-#define FETCH_ADC_DATA_STACKSIZE      2048
-#define FETCH_ADC1_MAX_CHANNELS       19
+#define        FETCH_DEFAULT_VREF_MV                 3300
+#define        FETCH_ADC_DATA_STACKSIZE              2048
+#define        FETCH_ADC1_MAX_CHANNELS               19
 
 /*! Total number of channels to be sampled by a single ADC operation.*/
-#define FETCH_ADC1_DEMO_GRP_NUM_CHANNELS      2
-#define FETCH_ADC1_DEFAULT_GRP_NUM_CHANNELS   1
-#define FETCH_ADC1_PA_GRP_NUM_CHANNELS        16
+#define        FETCH_ADC1_DEMO_GRP_NUM_CHANNELS      2
+#define        FETCH_ADC1_DEFAULT_GRP_NUM_CHANNELS   1
+#define        FETCH_ADC1_PA_GRP_NUM_CHANNELS        16
 
-/*! Depth of the conversion buffer, channels are sampled four times each.*/
-#define FETCH_ADC1_DEMO_GRP_BUF_DEPTH         4
-#define FETCH_ADC1_DEFAULT_GRP_BUF_DEPTH      10
-#define FETCH_ADC1_PA_GRP_BUF_DEPTH           1
-
-//#ifdef BOARD_ST_STM32F4_DISCOVERY
+/*! Depth of the conversion buffer.*/
+#define        FETCH_ADC1_DEMO_GRP_BUF_DEPTH         4
+#define        FETCH_ADC1_DEFAULT_GRP_BUF_DEPTH      10
+#define        FETCH_ADC1_PA_GRP_BUF_DEPTH           1
 
 typedef enum channel_io
 {
@@ -103,11 +101,10 @@ static ADCChannel adc1_default_channel =ADC_CH13;
 
 static EventSource fetch_adc1_data_ready;
 
-/*! \brief ADC default conversion group.
- * Mode:        Linear buffer, 1 adc1_sample_buf of 2 channels, SW triggered.
+/*! \brief ADC demo conversion group.
+ * Mode:        Linear buffer, 2 channels, SW triggered.
  * Channels:    IN13   (56 cycles sample time)
  *              Sensor (144 cycles sample time)
- * Analog Watchdog: TBD  (need to set adc_ltr and adc_htr which are not part of ADCConversionGroup)
  */
 static ADCConversionGroup adc1_demo_cfg =
 {
@@ -126,9 +123,8 @@ static ADCConversionGroup adc1_demo_cfg =
 };
 
 /*! \brief ADC default conversion group.
- * Mode:        Linear buffer, 1 adc1_sample_buf of 1 channels, SW triggered.
- * Channels:    IN13   (3 cycles sample time)
- * Analog Watchdog: TBD  (need to set adc_ltr and adc_htr which are not part of ADCConversionGroup)
+ * Mode:        Linear buffer,  1 channel, SW triggered.
+ * Channels:    IN13   (56 cycles sample time)
  */
 static ADCConversionGroup adc1_default_cfg =
 {
@@ -136,7 +132,7 @@ static ADCConversionGroup adc1_default_cfg =
 	.num_channels    = FETCH_ADC1_DEFAULT_GRP_NUM_CHANNELS,
 	.end_cb          = fetch_adc1_cb,
 	.error_cb        = NULL,
-	/* HW dependent part.*/
+	/* HW registers */
 	.cr1             = 0,
 	.cr2             = ADC_CR2_SWSTART,
 	.smpr1           = ADC_SMPR1_SMP_AN13(ADC_SAMPLE_56),
@@ -146,10 +142,9 @@ static ADCConversionGroup adc1_default_cfg =
 	.sqr3            = ADC_SQR3_SQ1_N(ADC_CHANNEL_IN13)
 };
 
-/*! \brief ADC default conversion group.
- * Mode:        Linear buffer, 1 adc1_sample_buf of 1 channels, SW triggered.
- * Channels:    IN13   (3 cycles sample time)
- * Analog Watchdog: TBD  (need to set adc_ltr and adc_htr which are not part of ADCConversionGroup)
+/*! \brief ADC PA conversion group.
+ *  Mode:        Linear buffer, 16 channels, SW triggered.
+ *  Channels:    All available inputs for Waveshare (56 cycles sample time)
  */
 static ADCConversionGroup adc1_pa_cfg =
 {
@@ -157,10 +152,9 @@ static ADCConversionGroup adc1_pa_cfg =
 	.num_channels    = FETCH_ADC1_PA_GRP_NUM_CHANNELS,
 	.end_cb          = fetch_adc1_cb,
 	.error_cb        = NULL,
-	/* HW dependent part.*/
+	/* HW registers */
 	.cr1             = 0,
 	.cr2             = ADC_CR2_SWSTART,
-	//.smpr1           = ADC_SMPR1_SMP_AN13(ADC_SAMPLE_56),
 	.smpr1           = ADC_SMPR1_SMP_AN10(ADC_SAMPLE_56) \
 	| ADC_SMPR1_SMP_AN13(ADC_SAMPLE_56) \
 	| ADC_SMPR1_SMP_AN14(ADC_SAMPLE_56) \
@@ -200,14 +194,6 @@ static ADCConversionGroup adc1_pa_cfg =
 	| ADC_SQR3_SQ6_N(ADC_CHANNEL_IN6)
 };
 
-
-
-
-/*! \brief ADC1 Demo profile
- * oneshot
- * adc1_default_cfg
- * adc1_sample_buf
- */
 static const  FETCH_adc_profile adc1_demo_profile =
 {
 	.name                 = FETCH_ADC1_DEMO,
@@ -218,12 +204,6 @@ static const  FETCH_adc_profile adc1_demo_profile =
 	.adc_sample_buf       = adc1_demo_sample_buf
 };
 
-
-/*! \brief ADC1 Default profile
- * oneshot
- * adc1_default_cfg
- * adc1_sample_buf
- */
 static const  FETCH_adc_profile adc1_default_profile =
 {
 	.name                 = FETCH_ADC1_DEFAULT,
@@ -243,7 +223,6 @@ static const  FETCH_adc_profile adc1_pa_profile =
 	.adc_grp_buf_depth    = FETCH_ADC1_PA_GRP_BUF_DEPTH,
 	.adc_sample_buf       = adc1_pa_sample_buf
 };
-
 
 /*! \brief track the state of the conversion
  *
@@ -266,7 +245,7 @@ static FETCH_adc_state fetch_adc1_state =
 static uint16_t fetch_adc_calc_temp(uint16_t t_raw, uint32_t uv_per_bit )
 {
 
-	uint32_t t_voltage = (t_raw * uv_per_bit) / 1000000; // \todo units are confusing in data sheet....review?
+	uint32_t t_voltage = (t_raw * uv_per_bit) / 1000000; //>! \todo units are confusing in data sheet....review?
 
 	return((uint16_t )(((t_voltage - ADC_V_25) / ADC_VSLOPE) + 25));
 }
@@ -292,7 +271,6 @@ static void sum_reduce_samples(uint32_t * results)
 		results[i] /=  fetch_adc1_state.profile->adc_grp_buf_depth;
 	}
 }
-
 
 /*! \brief Process new data based on current profile
  */
@@ -359,14 +337,12 @@ static void adc1_new_data(eventid_t id UNUSED)
 	}
 }
 
-
-
 /*! \brief Thread for new data event
-  *
-  * chprintf can not be called from within an interrupt ('I')
-  *   context in ChibiOS. The interrupt callback generates an
-  *   event which this thread receives.
-  */
+ *
+ * chprintf can not be called from within an interrupt ('I')
+ *   context in ChibiOS. The interrupt callback generates an
+ *   event which this thread receives.
+ */
 static WORKING_AREA(wa_fetch_adc_data, FETCH_ADC_DATA_STACKSIZE);
 static msg_t fetch_adc_data(void * p UNUSED)
 {
@@ -389,7 +365,7 @@ static msg_t fetch_adc_data(void * p UNUSED)
 	return 0;
 }
 
-/*
+/*!
  * ADC end conversion callback
  */
 static void fetch_adc1_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n)
@@ -436,6 +412,8 @@ static void fetch_adc_io_set_defaults(void)
 	}
 }
 
+/*! Set a channel to Analog Mode 
+ */
 static void fetch_adc1_io_to_analog(ADCChannel channel)
 {
 	if(ADC1_inputs[channel] != NULL)
@@ -445,6 +423,11 @@ static void fetch_adc1_io_to_analog(ADCChannel channel)
 	}
 }
 
+/*! \brief Change from one profile to another.
+ *
+ * Reset I/Os to default mode before changing for new profile
+ *
+ */ 
 static void fetch_adc_change_profile(FETCH_ADC_profile_name p)
 {
 	fetch_adc1_reset();
@@ -518,12 +501,10 @@ bool fetch_adc1_profile(BaseSequentialStream * chp, Fetch_terminals * fetch_term
  */
 void fetch_adc_init(BaseSequentialStream * chp)
 {
-	/*
-	 * Initializes the ADC driver 1 and enable the thermal sensor.
-	 * The pin PC1 on the port GPIOC is programmed as analog input.
-	 */
+	// ADC1 
 	chEvtInit(&fetch_adc1_data_ready);
 
+	// State initialization
 	fetch_adc1_state.vref_mv                = FETCH_DEFAULT_VREF_MV;
 	fetch_adc1_state.init                   = false;
 	fetch_adc1_state.printheader            = false;
@@ -531,14 +512,21 @@ void fetch_adc_init(BaseSequentialStream * chp)
 	fetch_adc1_state.profile                = &adc1_default_profile;
 	fetch_adc1_state.chp                    = chp;
 
-	// Default input
-        fetch_adc1_io_to_analog(adc1_default_channel);
+	// Default input channel to Analog Mode
+	fetch_adc1_io_to_analog(adc1_default_channel);
 
 	adcStart(&ADCD1, NULL);
-	//adcConfigWatchdog()...
-	adcSTM32EnableTSVREFE();
-        fetch_adc1_state.chp = chp;
 
+    // enable the thermal sensor.
+	adcSTM32EnableTSVREFE();
+
+#if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
+    //>! \warning on stm32f42x and stm32f43x EITHER the Temperature or Battery can be monitored-but not both
+	adcSTM32EnableVBATE();
+#endif
+
+
+	fetch_adc1_state.chp = chp;
 
 	// start a thread waiting for data event.....
 	chThdCreateStatic(wa_fetch_adc_data, sizeof(wa_fetch_adc_data), NORMALPRIO, fetch_adc_data,
@@ -556,7 +544,6 @@ static bool fetch_adc1_start(void)
 	fetch_adc1_state.printheader = true;
 	return true;
 }
-
 
 /*! \brief Stop the current conversion
  */
@@ -615,7 +602,6 @@ static bool fetch_adc1_configure(BaseSequentialStream * chp ,
 	return false;
 }
 
-
 static inline int fetch_adc_is_valid_adc_subcommandA(BaseSequentialStream * chp,
                 Fetch_terminals * fetch_terms,
                 char * chkadc_subcommandA)
@@ -633,7 +619,6 @@ bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 	fetch_adc1_state.chp = chp;
 	if(fetch_adc_is_valid_adc_subcommandA(chp, fetch_terms, cmd_list[ADC_ACTION]) >= 0)
 	{
-
 		if (strncasecmp(cmd_list[ADC_ACTION], "conf_adc1", strlen("conf_adc1") ) == 0)
 		{
 			return(fetch_adc1_configure(chp, fetch_terms, cmd_list, data_list));
@@ -654,7 +639,5 @@ bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 	}
 	return false;
 }
-
 /*! @} */
-
 
