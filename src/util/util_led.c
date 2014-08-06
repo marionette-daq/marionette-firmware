@@ -6,14 +6,17 @@
 #include "util_general.h"
 #include "util_led.h"
 
+
+static Thread * hbthd = NULL;
+
 /* Pre-filled led_configs */
 #ifdef BOARD_ST_STM32F4_DISCOVERY
-const struct led GREEN          = {GPIOD, GPIO_LED4, DOWN};
-const struct led ORANGE         = {GPIOD, GPIO_LED3, DOWN};
-const struct led RED            = {GPIOD, GPIO_LED5, DOWN};
-const struct led BLUE           = {GPIOD, GPIO_LED6, DOWN};
+const LED GREEN          = {GPIOD, GPIO_LED4, DOWN};
+const LED ORANGE         = {GPIOD, GPIO_LED3, DOWN};
+const LED RED            = {GPIOD, GPIO_LED5, DOWN};
+const LED BLUE           = {GPIOD, GPIO_LED6, DOWN};
 
-static struct led_config led_cfg =
+LED_config led_cfg =
 {
 	.cycle_ms = 500,
 	.start_ms = 2500,
@@ -26,63 +29,34 @@ static struct led_config led_cfg =
 		NULL
 	}
 };
-#elif defined BOARD_OLIMEX_STM32_E407
-const struct led GREEN = {GPIOC, GPIOC_LED, UP};
 
-static struct led_config led_cfg =
-{
-	.cycle_ms = 500,
-	.start_ms = 0,
-	.led = (const struct led * [])
-	{
-		&GREEN,
-		NULL
-	}
-};
 #elif defined BOARD_WAVESHARE_CORE407I
-const struct led LEDA = {GPIOD, GPIOD_LED2, DOWN};
-const struct led LEDB = {GPIOD, GPIOD_LED4, DOWN};
-const struct led LEDC = {GPIOD, GPIOD_LED5, DOWN};
-const struct led LEDD = {GPIOD, GPIOD_RGB_R, DOWN};
-static struct led_config led_cfg =
+const LED LED1 = {GPIOH, GPIOH_PIN2, DOWN};
+const LED LED2 = {GPIOH, GPIOD_PIN3, DOWN};
+const LED LED3 = {GPIOI, GPIOD_PIN8, DOWN};
+const LED LED4 = {GPIOI, GPIOD_PIN10, DOWN};
+LED_config led_cfg =
 {
-	.cycle_ms = 500,
+	.cycle_ms = 800,
 	.start_ms = 4000,
 	.led = (const struct led * [])
 	{
-		&LEDA,
-		&LEDB,
-		&LEDC,
-		&LEDD,
+		&LED1,
+		&LED2,
+		&LED3,
+		&LED4,
 		NULL
 	}
 };
 #else
-static struct led_config led_cfg = {0};
+LED_config led_cfg = {0};
 #endif
 
-#define SIZE 32
-static msg_t buffer[SIZE];
-MAILBOX_DECL(mailbox, buffer, SIZE);
-
-#define NOMINAL 1
-#define ERROR 2
-
-void ledError(void)
-{
-	chMBPost(&mailbox, ERROR, TIME_IMMEDIATE);
-}
-
-void ledNominal(void)
-{
-	chMBPost(&mailbox, NOMINAL, TIME_IMMEDIATE);
-}
-
-void ledOn(const struct led * led)
+void ledOn(const LED * led)
 {
 	if(led)
 	{
-		if(led->LED_polarity == DOWN)
+		if(led->pol == DOWN)
 		{
 			palSetPad(led->port, led->pad);
 		}
@@ -93,11 +67,11 @@ void ledOn(const struct led * led)
 	}
 }
 
-void ledOff(const struct led * led)
+void ledOff(const LED * led)
 {
 	if(led)
 	{
-		if(led->LED_polarity == DOWN)
+		if(led->pol == DOWN)
 		{
 			palClearPad(led->port, led->pad);
 		}
@@ -109,7 +83,7 @@ void ledOff(const struct led * led)
 	}
 }
 
-void ledToggle(const struct led * led)
+void ledToggle(const LED * led)
 {
 	if(led)
 	{
@@ -117,16 +91,22 @@ void ledToggle(const struct led * led)
 	}
 }
 
-static WORKING_AREA(wa_led, 512); //fixme mailboxes demand a bizarrely large amount of space
-NORETURN static void led(void * arg)
+static WORKING_AREA(wa_hbled, 512);
+NORETURN static void hbled(void * arg)
 {
-	struct led_config * cfg = (struct led_config *) arg;
-	const struct led ** led = cfg->led;
+	struct       led_config *    cfg           = (struct led_config *) arg;
+	const struct led **          led           = cfg->led;
 
-	chRegSetThreadName("LED");
+	uint32_t                     start_cycles  = 0;
+	systime_t                    start_blink   = 0;
 
-	/* Turn off leds, also count them */
-	int 		num_leds 		= 0;
+	uint32_t                     hbled         = 0;
+	systime_t                    cycletime     = 0;
+
+	chRegSetThreadName("Heartbeat");
+
+	// Initialize the led(s)
+	uint8_t		num_leds 		= 0;
 
 	for(; led[num_leds]; ++num_leds)
 	{
@@ -134,12 +114,11 @@ NORETURN static void led(void * arg)
 		ledOff(led[num_leds]);
 	}
 
-	unsigned start_cycles = cfg->start_ms / cfg->cycle_ms;
-	systime_t start_blink = cfg->cycle_ms / num_leds;
+	start_cycles  = 2; 
+	start_blink   = cfg->cycle_ms / num_leds;
 
-	/* Run the start pattern */
-	int i = 0;
-	for(; start_cycles > 0; --start_cycles)
+	// Start pattern
+	for(int i=0; start_cycles > 0; --start_cycles)
 	{
 		for(i = 0; i < num_leds; ++i)
 		{
@@ -147,35 +126,75 @@ NORETURN static void led(void * arg)
 			chThdSleepMilliseconds(start_blink);
 			ledOff(led[i]);
 		}
-		chThdSleepMilliseconds(cfg->cycle_ms % num_leds);
+		chThdSleepMilliseconds(200);
 	}
 
-	/* Run the toggle pattern */
-	int activeled = 0;
-	systime_t cycletime = cfg->cycle_ms;
+	// Toggle pattern
+	hbled     = 0;
+	cycletime = cfg->cycle_ms;
 	while (TRUE)
 	{
-		ledToggle(led[activeled]);
-		msg_t msg = 0;
-		chMBFetch(&mailbox, &msg, cycletime);
-		switch(msg)
+		ledToggle(led[hbled]);
+		switch(M_Status.status)
 		{
-			case NOMINAL:
+			case GEN_OK:
 				cycletime = cfg->cycle_ms;
-				activeled = 0;
+				hbled = 0;
 				break;
-			case ERROR:
+			case GEN_NOMINAL:
 				cycletime = cfg->cycle_ms / 2;
+				hbled = 0;
+				break;
+			case GEN_ERROR:
+				cycletime = cfg->cycle_ms / 4;
 				if(led[1]->port != NULL)
 				{
-					activeled = 1;
+					hbled = 1;
 				}
 				break;
+			default:
+				break;
 		}
+		chThdSleepMilliseconds(cycletime);
 	}
 }
 
-void ledStart(struct led_config * cfg)
+void hbStop(LED_config * cfg)
+{
+	const struct led **          led           = cfg->led;
+	// If cfg is null see if a default one can be found. If it can't it is
+	// set to an to an invalid config.
+	if(!cfg)
+	{
+		cfg = &led_cfg;
+	}
+
+	//Triggers if cfg isnvalid.
+	if(!(cfg->led && cfg->led[0]->port))
+	{
+		return; //no defined leds
+	}
+	chDbgAssert(cfg->cycle_ms > 0, DBG_PREFIX "LED cycle time > 0", NULL);
+
+	// Kill the heartbeat thread.
+	if(hbthd != NULL ) {
+		chThdTerminate(hbthd);
+	}
+
+	// UnInitialize the led(s)
+	uint8_t		num_leds 		= 0;
+
+	for(; led[num_leds]; ++num_leds)
+	{
+		palSetPadMode(led[num_leds]->port, led[num_leds]->pad, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING);
+		ledOff(led[num_leds]);
+	}
+
+
+}
+
+
+void hbStart(LED_config * cfg)
 {
 	// If cfg is null see if a default one can be found. If it can't it is
 	// set to an to an invalid config.
@@ -189,9 +208,9 @@ void ledStart(struct led_config * cfg)
 	{
 		return; //no defined leds
 	}
-	chDbgAssert(cfg->cycle_ms > 0, DBG_PREFIX "LED cycle time must be positive", NULL);
+	chDbgAssert(cfg->cycle_ms > 0, DBG_PREFIX "LED cycle time > 0", NULL);
 
-	chThdCreateStatic(wa_led, sizeof(wa_led), NORMALPRIO, (tfunc_t)led, cfg);
+	hbthd = chThdCreateStatic(wa_hbled, sizeof(wa_hbled), NORMALPRIO, (tfunc_t)hbled, cfg);
 }
 
 

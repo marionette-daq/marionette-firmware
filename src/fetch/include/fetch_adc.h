@@ -45,7 +45,7 @@ typedef enum FETCH_ADC_token
 
 typedef struct adc_input {
     const ioportid_t port;
-    const uint32_t   pin;
+    const uint32_t   pad;
 	const iomode_t   default_mode;
 	iomode_t   current_mode;
 } ADC_input;

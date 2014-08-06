@@ -344,7 +344,7 @@ static void adc1_new_data(eventid_t id UNUSED)
  *   event which this thread receives.
  */
 static WORKING_AREA(wa_fetch_adc_data, FETCH_ADC_DATA_STACKSIZE);
-static msg_t fetch_adc_data(void * p UNUSED)
+NORETURN static msg_t fetch_adc_data(void * p UNUSED)
 {
 	struct       EventListener el0;
 
@@ -360,9 +360,6 @@ static msg_t fetch_adc_data(void * p UNUSED)
 	{
 		chEvtDispatch(evhndl, chEvtWaitAny(ALL_EVENTS));
 	}
-
-	/* Never executed, silencing a warning.*/
-	return 0;
 }
 
 /*!
@@ -392,21 +389,13 @@ static void fetch_adc1_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n)
 	}
 }
 
-/*! \brief Reset adc1
- */
-static void fetch_adc1_reset(void)
-{
-	adcStop(&ADCD1);
-	fetch_adc_init(fetch_adc1_state.chp);
-}
-
 static void fetch_adc_io_set_defaults(void)
 {
 	for(uint8_t i = 0; i < NELEMS(ADC1_inputs); ++i)
 	{
 		if(ADC1_inputs[i] != NULL)
 		{
-			palSetPadMode(ADC1_inputs[i]->port, ADC1_inputs[i]->pin, ADC1_inputs[i]->default_mode);
+			palSetPadMode(ADC1_inputs[i]->port, ADC1_inputs[i]->pad, ADC1_inputs[i]->default_mode);
 			ADC1_inputs[i]->current_mode = ADC1_inputs[i]->default_mode;
 		}
 	}
@@ -418,9 +407,78 @@ static void fetch_adc1_io_to_analog(ADCChannel channel)
 {
 	if(ADC1_inputs[channel] != NULL)
 	{
-		palSetPadMode(ADC1_inputs[channel]->port, ADC1_inputs[channel]->pin, PAL_MODE_INPUT_ANALOG );
+		palSetPadMode(ADC1_inputs[channel]->port, ADC1_inputs[channel]->pad, PAL_MODE_INPUT_ANALOG );
 		ADC1_inputs[channel]->current_mode = PAL_MODE_INPUT_ANALOG;
 	}
+}
+
+
+/*! \brief Initialize the ADC
+ *
+ * Use default profile
+ * Use oneshot by default
+ *
+ */
+void fetch_adc_init(BaseSequentialStream * chp)
+{
+	// ADC1 
+	chEvtInit(&fetch_adc1_data_ready);
+
+	// State initialization
+	fetch_adc1_state.vref_mv                = FETCH_DEFAULT_VREF_MV;
+	fetch_adc1_state.init                   = false;
+	fetch_adc1_state.printheader            = false;
+	fetch_adc1_state.oneshot                = true;
+	fetch_adc1_state.profile                = &adc1_default_profile;
+	fetch_adc1_state.chp                    = chp;
+
+	// Default input channel to Analog Mode
+	fetch_adc1_io_to_analog(adc1_default_channel);
+
+	adcStart(&ADCD1, NULL);
+
+    // enable the thermal sensor.
+	adcSTM32EnableTSVREFE();
+
+#if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
+    //>! \warning on stm32f42x and stm32f43x EITHER the Temperature or Battery can be monitored-but not both
+	adcSTM32EnableVBATE();
+#endif
+
+	// start a thread waiting for data event.....
+	chThdCreateStatic(wa_fetch_adc_data, sizeof(wa_fetch_adc_data), NORMALPRIO, fetch_adc_data,
+	                  NULL);
+
+	fetch_adc1_state.init = true;
+}
+
+
+/*! \brief Reset adc1
+ */
+static void fetch_adc1_reset(void)
+{
+	adcStop(&ADCD1);
+	
+	fetch_adc1_state.vref_mv                = FETCH_DEFAULT_VREF_MV;
+	fetch_adc1_state.printheader            = false;
+	fetch_adc1_state.oneshot                = true;
+	fetch_adc1_state.profile                = &adc1_default_profile;
+
+	// Reset inputs
+	fetch_adc_io_set_defaults();
+	// Default input channel to Analog Mode
+	fetch_adc1_io_to_analog(adc1_default_channel);
+
+	adcStart(&ADCD1, NULL);
+
+    // enable the thermal sensor.
+	adcSTM32EnableTSVREFE();
+
+#if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
+    //>! \warning on stm32f42x and stm32f43x EITHER the Temperature or Battery can be monitored-but not both
+	adcSTM32EnableVBATE();
+#endif
+
 }
 
 /*! \brief Change from one profile to another.
@@ -491,48 +549,6 @@ bool fetch_adc1_profile(BaseSequentialStream * chp, Fetch_terminals * fetch_term
 		return false;
 	}
 	return false;
-}
-
-/*! \brief Initialize the ADC
- *
- * Use default profile
- * Use oneshot by default
- *
- */
-void fetch_adc_init(BaseSequentialStream * chp)
-{
-	// ADC1 
-	chEvtInit(&fetch_adc1_data_ready);
-
-	// State initialization
-	fetch_adc1_state.vref_mv                = FETCH_DEFAULT_VREF_MV;
-	fetch_adc1_state.init                   = false;
-	fetch_adc1_state.printheader            = false;
-	fetch_adc1_state.oneshot                = true;
-	fetch_adc1_state.profile                = &adc1_default_profile;
-	fetch_adc1_state.chp                    = chp;
-
-	// Default input channel to Analog Mode
-	fetch_adc1_io_to_analog(adc1_default_channel);
-
-	adcStart(&ADCD1, NULL);
-
-    // enable the thermal sensor.
-	adcSTM32EnableTSVREFE();
-
-#if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
-    //>! \warning on stm32f42x and stm32f43x EITHER the Temperature or Battery can be monitored-but not both
-	adcSTM32EnableVBATE();
-#endif
-
-
-	fetch_adc1_state.chp = chp;
-
-	// start a thread waiting for data event.....
-	chThdCreateStatic(wa_fetch_adc_data, sizeof(wa_fetch_adc_data), NORMALPRIO, fetch_adc_data,
-	                  NULL);
-
-	fetch_adc1_state.init = true;
 }
 
 /*! \brief Start a conversion

@@ -33,13 +33,25 @@
 
 #include "fetch.h"
 #include "fetch_adc.h"
+#include "util_general.h"
 #include "util_version.h"
+#include "util_led.h"
 #include "usbcfg.h"
 
 #include "main.h"
 
 /*! Virtual serial port over USB.*/
 SerialUSBDriver SDU1;
+
+extern const struct led        LED1 ;
+extern const struct led        LED2 ;
+extern const struct led        LED3 ;
+extern const struct led        LED4 ;
+extern       struct led_config led_cfg ;
+
+/*! status
+ */
+Util_status      M_Status = { .status=GEN_OK };
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(8192)
 
@@ -127,6 +139,8 @@ static void main_app(void)
 	usbConnectBus(serusbcfg.usbp);
 
 	fetch_adc_init((BaseSequentialStream *) &SDU1);
+
+	//hbStart(&led_cfg);
 
 	while (TRUE)
 	{

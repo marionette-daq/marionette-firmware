@@ -19,44 +19,41 @@
 
 #include "ch.h"
 #include "hal.h"
-#include "utils_hal.h"
 
-typedef struct
+typedef enum led_polarity
 {
-	UP,           // LED is connected through VDD
-	DOWN          // LED is connected through VSS
+	UP,           //>! LED is connected through VDD
+	DOWN          //>! LED is connected through VSS
 } LED_polarity;
 
-
-struct led
+typedef struct led
 {
 	ioportid_t                  port;
-	uint16_t                    pad;
-	LED_polarity                pol;            // some LED's are connected through VDD, others through VSS.             
-};
+	uint32_t                    pad;
+	LED_polarity                pol;            //>! some LED's are connected through VDD, others through VSS.             
+} LED;
 
-struct led_config
+typedef struct led_config
 {
-	systime_t                       cycle_ms;   // Main sequence led toggle time, must be positive
-	systime_t                       start_ms;   // Start pattern duration
-	const struct led       **       led;        // Null terminated array of led pointers
-};
+	const systime_t                       cycle_ms;   //>! Main sequence led toggle time, must be positive
+	const systime_t                       start_ms;   //>! Start pattern duration
+	const  LED             **       led;        //>! Null terminated array of led pointers
+} LED_config;
 
 /* Board dependent physical leds */
 #ifdef BOARD_ST_STM32F4_DISCOVERY
-extern const struct     led             GREEN;
-extern const struct     led             ORANGE;
-extern const struct     led             RED;
-extern const struct     led             BLUE;
-#elif defined BOARD_OLIMEX_STM32_E407
-extern const struct     led 			GREEN;
+extern const LED             GREEN;
+extern const LED             ORANGE;
+extern const LED             RED;
+extern const LED             BLUE;
 #elif defined BOARD_WAVESHARE_CORE407I
-extern const struct     led             LEDA;
-extern const struct     led             LEDB;
-extern const struct     led             LEDC;
-extern const struct     led             LEDD;
+extern const LED             LED1;
+extern const LED             LED2;
+extern const LED             LED3;
+extern const LED             LED4;
 #endif
 
+extern Util_status   M_Status;
 /*!
  * Suggested project code usage:
  *
@@ -94,7 +91,11 @@ void ledToggle(const struct led * led);
  * suitable for the board it was compiled for. Otherwise it will raise an
  * assertion.
  */
-void ledStart(struct led_config * cfg);
+void hbStart(LED_config * cfg);
+
+
+/*! Stops a thread if it is running */
+void hbStop(LED_config * cfg);
 
 /*!
  * Indicate an error has occurred.
