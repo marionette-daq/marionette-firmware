@@ -99,6 +99,8 @@ static adcsample_t adc1_demo_sample_buf[FETCH_ADC1_DEMO_GRP_NUM_CHANNELS * FETCH
 static adcsample_t adc1_default_sample_buf[FETCH_ADC1_DEFAULT_GRP_NUM_CHANNELS * FETCH_ADC1_DEFAULT_GRP_BUF_DEPTH];
 static adcsample_t adc1_pa_sample_buf[FETCH_ADC1_PA_GRP_NUM_CHANNELS * FETCH_ADC1_PA_GRP_BUF_DEPTH];
 
+static ADCChannel adc1_default_channel =ADC_CH13;
+
 static EventSource fetch_adc1_data_ready;
 
 /*! \brief ADC default conversion group.
@@ -330,7 +332,7 @@ static void adc1_new_data(eventid_t id UNUSED)
 					fetch_adc1_state.printheader = false;
 				}
 				sum_reduce_samples(avg_vals);
-				chprintf(fetch_adc1_state.chp, "%u: %u,%u,%u,%u, %u,%u,%u,%u, %u,%u,%u,%u, %u,T:%u,%u,z%u\r\n",
+				chprintf(fetch_adc1_state.chp, "%u: %u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\r\n",
 				         timenow,
 				         avg_vals[0] * uv_per_bit,  // in0
 				         avg_vals[1] * uv_per_bit,  // in1
@@ -451,7 +453,7 @@ static void fetch_adc_change_profile(FETCH_ADC_profile_name p)
 		case FETCH_ADC1_DEFAULT:
 			fetch_adc1_state.profile = &adc1_default_profile;
 			fetch_adc_io_set_defaults();
-			fetch_adc1_io_to_analog(ADC_CH13);
+			fetch_adc1_io_to_analog(adc1_default_channel);
 			break;
 		case FETCH_ADC1_DEMO:
 			fetch_adc1_state.profile = &adc1_demo_profile;
@@ -524,15 +526,19 @@ void fetch_adc_init(BaseSequentialStream * chp)
 
 	fetch_adc1_state.vref_mv                = FETCH_DEFAULT_VREF_MV;
 	fetch_adc1_state.init                   = false;
+	fetch_adc1_state.printheader            = false;
 	fetch_adc1_state.oneshot                = true;
 	fetch_adc1_state.profile                = &adc1_default_profile;
 	fetch_adc1_state.chp                    = chp;
 
+	// Default input
+        fetch_adc1_io_to_analog(adc1_default_channel);
+
 	adcStart(&ADCD1, NULL);
 	//adcConfigWatchdog()...
 	adcSTM32EnableTSVREFE();
-	palSetPadMode(ADC1_IN0.port, ADC1_IN0.pin, PAL_MODE_INPUT_ANALOG);
-	fetch_adc1_state.chp = chp;
+        fetch_adc1_state.chp = chp;
+
 
 	// start a thread waiting for data event.....
 	chThdCreateStatic(wa_fetch_adc_data, sizeof(wa_fetch_adc_data), NORMALPRIO, fetch_adc_data,
