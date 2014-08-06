@@ -11,8 +11,8 @@ digraph Fetch {
 	conf_adc1   -> vref_mv;
 	profile     -> default;
 	profile     -> demo;
-	profile     -> PA;
-	profile     -> PB;
+	profile     -> pa;
+	profile     -> pb;
 	vref_mv     -> "(mV)"
   	adc [color=lightgrey, peripheries=2, style=filled];
 	label="Fetch ADC"
