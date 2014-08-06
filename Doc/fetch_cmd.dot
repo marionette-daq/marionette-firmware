@@ -1,6 +1,7 @@
 digraph Fetch {
   graph [fontname="lucidasans-bold-14"];
   node [fontname="lucidasans-bold-14"];
+  "->" -> heartbeat_toggle;
   "->" -> version;
   "->" -> help;
   "->" -> gpio;
@@ -18,6 +19,7 @@ digraph Fetch {
   dac [color=turquoise, peripheries=2, style=filled];
   spi [color=cyan3, peripheries=2, style=filled];
   i2c [color=violet, peripheries=2, style=filled];
+  heartbeat_toggle [color=purple4, fontsize=8, fontcolor=white, peripheries=2, style=filled];
   label="Fetch Command";
   labelloc=top;
   labeljust=left;
