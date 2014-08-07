@@ -44,10 +44,14 @@ P - Production Rules:
                      | <command> ":" <adc_subcommandA>  ":" <adc_configure> <EOL>
                      | <command> ":" <adc_subcommandA>  ":" <adc_configure>   ":" <adc_profile> <EOL>
                      | <command> ":" <adc_subcommandA>  ":" <adc_configure>(<dec>) <EOL>
+                     | <command> ":" <dac_subcommandA>  <EOL>
+                     | <command> ":" <dac_subcommandA>  ":" <dac_configure>(<dec>) <EOL>
 <command>          ::= "?"      | "help"     | "gpio"  | "adc"   | "dac"   | "spi" | "i2c" | "resetpins" | "heartbeat_toggle" | "version"
 <adc_subcommandA>  ::= "conf_adc1" | "start" | "stop"
 <adc_configure>    ::= "profile" | "oneshot" | "continuous" | "reset" | "vref_mv"
 <adc_profile>      ::= "default" | "PA"   | "PB"
+<dac_subcommandA>  ::= "on"      | "off" | "configure"
+<dac_configure>    ::= "dc_mv"   
 <spi_subcommandA>  ::= TBD
 <i2c_subcommandA>  ::= TBD
 <gpio_subcommandA> ::= "get"    | "set"      | "clear"    | "configure"
@@ -82,11 +86,15 @@ Example:
 \endverbatim
 */
 
-static Command_dictionary          help_dict      = { .enabled = true, .max_data_bytes = HELP_MAX_DATA_BYTES,      .helpstring = HELP_HELPSTRING};
-static Command_dictionary          gpio_dict      = { .enabled = true, .max_data_bytes = GPIO_MAX_DATA_BYTES,      .helpstring = GPIO_HELPSTRING};
-static Command_dictionary          adc_dict       = { .enabled = true, .max_data_bytes = ADC_MAX_DATA_BYTES,       .helpstring = ADC_HELPSTRING};
-static Command_dictionary          version_dict   = { .enabled = true, .max_data_bytes = VERSION_MAX_DATA_BYTES,   .helpstring = VERSION_HELPSTRING};
-static Command_dictionary          resetpins_dict = { .enabled = true, .max_data_bytes = RESETPINS_MAX_DATA_BYTES, .helpstring = RESETPINS_HELPSTRING};
+/*! \todo put this into iterable structure
+  * \sa fetch_info()
+  */
+static Command_dictionary          help_dict               = { .enabled = true, .max_data_bytes = HELP_MAX_DATA_BYTES,      .helpstring = HELP_HELPSTRING};
+static Command_dictionary          gpio_dict               = { .enabled = true, .max_data_bytes = GPIO_MAX_DATA_BYTES,      .helpstring = GPIO_HELPSTRING};
+static Command_dictionary          adc_dict                = { .enabled = true, .max_data_bytes = ADC_MAX_DATA_BYTES,       .helpstring = ADC_HELPSTRING};
+static Command_dictionary          version_dict            = { .enabled = true, .max_data_bytes = VERSION_MAX_DATA_BYTES,   .helpstring = VERSION_HELPSTRING};
+static Command_dictionary          heartbeat_toggle_dict   = { .enabled = true, .max_data_bytes = HEARTBEAT_TOGGLE_MAX_DATA_BYTES,   .helpstring = HEARTBEAT_TOGGLE_HELPSTRING};
+static Command_dictionary          resetpins_dict          = { .enabled = true, .max_data_bytes = RESETPINS_MAX_DATA_BYTES, .helpstring = RESETPINS_HELPSTRING};
 
 /*! \brief Terminals for the Fetch grammar
  */
@@ -167,6 +175,7 @@ inline int fetch_is_valid_whitespace(BaseSequentialStream * chp, char * chkwhite
 static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl[] UNUSED)
 {
 	util_infomsg(chp, "Help");
+	chprintf(chp, "%s\r\n", heartbeat_toggle_dict.helpstring);
 	chprintf(chp, "%s\r\n", version_dict.helpstring);
 	chprintf(chp, "%s\r\n", resetpins_dict.helpstring);
 	chprintf(chp, "%s\r\n", gpio_dict.helpstring);
@@ -181,9 +190,8 @@ static bool fetch_adc(BaseSequentialStream  * chp, char * cmd_list[], char * dat
 	{
 		return(fetch_adc_dispatch(chp, cmd_list, data_list, &fetch_terms));
 	}
-
-	DBG_MSG(chp, "Not yet implemented");
-	return true;
+	util_infomsg(chp, "Command not enabled");
+	return false;
 }
 
 /*! \brief GPIO command callback for fetch language
@@ -194,6 +202,7 @@ static bool fetch_gpio(BaseSequentialStream  * chp, char * cmd_list[], char * da
 	{
 		return(fetch_gpio_dispatch(chp, cmd_list, data_list, &fetch_terms));
 	}
+	util_infomsg(chp, "Command not enabled");
 	return false;
 }
 
@@ -214,8 +223,13 @@ static bool fetch_version(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
 static bool fetch_hbtoggle(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
                           char * data_list[] UNUSED)
 {
-	hbToggle();
-	return true;
+	if(heartbeat_toggle_dict.enabled)
+	{
+		hbToggle();
+	}
+
+	util_infomsg(chp, "Command not enabled");
+	return false;
 }
 
 

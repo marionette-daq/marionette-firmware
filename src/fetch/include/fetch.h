@@ -28,6 +28,9 @@
 #define 		VERSION_MAX_DATA_BYTES 					0
 #define 		VERSION_HELPSTRING   					((const char *) "\r\n\tVERSION:\tversion")
 
+#define 		HEARTBEAT_TOGGLE_MAX_DATA_BYTES 		0
+#define 		HEARTBEAT_TOGGLE_HELPSTRING 			((const char *) "\r\n\tHEARTBEAT_TOGGLE:\theartbeat_toggle")
+
 #define 		RESETPINS_MAX_DATA_BYTES 				0
 #define 		RESETPINS_HELPSTRING   					((const char *) "\r\n\tRESETPINS:\tresetpins")
 

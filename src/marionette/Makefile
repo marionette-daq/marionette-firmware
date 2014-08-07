@@ -93,6 +93,7 @@ LDSCRIPT= $(PORTLD)/STM32F407xG.ld
 MSRC = $(wildcard $(MARIONETTE_UTIL)/*.c)
 MSRC += $(wildcard $(MARIONETTE_USB)/*.c)
 MSRC += $(wildcard $(MARIONETTE_FETCH)/*.c)
+MSRC += $(wildcard $(MARIONETTE_IO)/*.c)
 MSRC += $(wildcard $(MARIONETTE_MSHELL)/*.c)
 CSRC = $(PORTSRC) \
        $(KERNSRC) \
@@ -135,6 +136,7 @@ INCDIR = $(PORTINC) $(KERNINC) \
          $(CHIBIOS)/os/various \
 	 $(MARIONETTE_DEVICES)/include $(MARIONETTE_UTIL)/include \
 	 $(MARIONETTE_USB)/include $(MARIONETTE_FETCH)/include \
+	 $(MARIONETTE_IO)/include \
 	 $(MARIONETTE_MSHELL)/include \
 	 ./include \
 	 $(CONF)
