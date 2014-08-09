@@ -166,7 +166,7 @@ inline int fetch_is_valid_whitespace(BaseSequentialStream * chp, char * chkwhite
  */
 static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl[] UNUSED)
 {
-	util_infomsg(chp, "Help");
+	chprintf(chp, "Help\r\n");
 	chprintf(chp, "%s\r\n", version_dict.helpstring);
 	chprintf(chp, "%s\r\n", resetpins_dict.helpstring);
 	chprintf(chp, "%s\r\n", gpio_dict.helpstring);
@@ -333,7 +333,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 	}
 	else
 	{
-		util_errormsg(chp, "No command-(only data?)");
+		util_error(chp, "No command-(only data?)");
 		return false;
 	}
 
@@ -363,7 +363,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 	{
 		if (n >= FETCH_MAX_COMMANDS)
 		{
-			util_errormsg(chp, "Too many data. Limit: %u", FETCH_MAX_COMMANDS);
+			util_error(chp, "Too many data. Limit: %u", FETCH_MAX_COMMANDS);
 			command_toks[0] = NULL;
 			break;
 		}
@@ -383,7 +383,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 	}
 	else
 	{
-		//DBG_VMSG(chp, "Past array bounds: %d", arrlen);
+		DBG_VMSG(chp, "Past array bounds: %d", arrlen);
 		return false;
 	}
 
@@ -398,7 +398,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 		{
 			if (n >= FETCH_MAX_DATA_ITEMS)
 			{
-				util_errormsg(chp, "Too many data. Limit: %u", FETCH_MAX_DATA_ITEMS);
+				util_error(chp, "Too many data. Limit: %u", FETCH_MAX_DATA_ITEMS);
 				data_toks[0] = NULL;
 				break;
 			}
@@ -444,7 +444,7 @@ bool fetch_dispatch(BaseSequentialStream * chp, char * command_list[], char * da
 
 	if(cindex < 0)
 	{
-		util_errormsg(chp, "Unrecognized command.");
+		DBG_MSG(chp, "Unrecognized command.");
 		return false;
 	}
 

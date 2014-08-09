@@ -100,6 +100,7 @@ CSRC = $(PORTSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
        $(CHIBIOS)/os/various/chprintf.c \
+       $(CHIBIOS)/os/various/memstreams.c \
        $(MSRC) \
        main.c
 
@@ -221,7 +222,7 @@ DLIBS =
 # List all user C define here, like -D_DEBUG=1
 #UDEFS =
 UDEFS = -DGIT_COMMIT_VERSION=$(MARIONETTE_VERSION)
-#UDEFS += -DDBG_MSG_ENABLE=1
+UDEFS += -DDBG_MSG_ENABLE=1
 #UDEFS += -DMSHELL_ECHO_INPUT_CHARS=1
 
 # Define ASM defines here

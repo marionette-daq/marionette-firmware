@@ -30,6 +30,7 @@
 
 #define        FETCH_DEFAULT_VREF_MV                 3300
 #define        FETCH_ADC_DATA_STACKSIZE              2048
+#define        FETCH_ADC_MAX_DATA                   64
 #define        FETCH_ADC1_MAX_CHANNELS               19
 
 /*! Total number of channels to be sampled by a single ADC operation.*/
@@ -285,17 +286,22 @@ static void adc1_new_data(eventid_t id UNUSED)
 		uint32_t    uv_per_bit = ((fetch_adc1_state.vref_mv * 1000) /
 		                          4096);   //>! \todo maybe not all conversions are 12 bit..?;
 		uint32_t    avg_vals[FETCH_ADC1_MAX_CHANNELS] = {0};
+		uint32_t    data_rpt[FETCH_ADC_MAX_DATA]      = {0};
 
 		switch(fetch_adc1_state.profile->name)
 		{
 			case FETCH_ADC1_DEFAULT: // 1 channel in this profile
-				if(fetch_adc1_state.printheader)
-				{
-					chprintf(fetch_adc1_state.chp, "t(ms),ch0-mv\r\n");
-					fetch_adc1_state.printheader = false;
-				}
+				//if(fetch_adc1_state.printheader)
+				//{
+					//chprintf(fetch_adc1_state.chp, "# t(ms),ch0-mv\r\n");
+					//fetch_adc1_state.printheader = false;
+				//}
+				data_rpt[0] = timenow;
+				util_time_data(chp, data_rpt, 1, "adc1"); 
+				//chprintf(fetch_adc1_state.chp, "%u,%u\r\n", timenow, avg_vals[0] * uv_per_bit);
 				sum_reduce_samples(avg_vals);
-				chprintf(fetch_adc1_state.chp, "%u,%u\r\n", timenow, avg_vals[0] * uv_per_bit);
+				data_rpt[0] = avg_vals[0] * uv_per_bit;
+				util_adc_data(chp, data_rpt , 1, "adc1"); 
 				break;
 			case FETCH_ADC1_DEMO:  // 2 channels in this profile
 				sum_reduce_samples(avg_vals);
@@ -303,12 +309,12 @@ static void adc1_new_data(eventid_t id UNUSED)
 				         fetch_adc_calc_temp(avg_vals[0], uv_per_bit), avg_vals[1], avg_vals[1] * uv_per_bit);
 				break;
 			case FETCH_ADC1_PA:  // 16 channels in this profile
-				if(fetch_adc1_state.printheader)
-				{
-					chprintf(fetch_adc1_state.chp,
-					         "#t(ms),ch0-mV,ch1-mV,ch2-mV,ch4-mV,ch5-mV,ch6-mV,ch7-mV,ch8-mV,ch9-mV,ch10-mV,ch13-mV,ch14-mV,ch15-mV,T(C),VREFINT,VBAT\r\n");
-					fetch_adc1_state.printheader = false;
-				}
+				//if(fetch_adc1_state.printheader)
+				//{
+					//chprintf(fetch_adc1_state.chp,
+							 //"#t(ms),ch0-mV,ch1-mV,ch2-mV,ch4-mV,ch5-mV,ch6-mV,ch7-mV,ch8-mV,ch9-mV,ch10-mV,ch13-mV,ch14-mV,ch15-mV,T(C),VREFINT,VBAT\r\n");
+					//fetch_adc1_state.printheader = false;
+				//}
 				sum_reduce_samples(avg_vals);
 				chprintf(fetch_adc1_state.chp, "%u: %u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\r\n",
 				         timenow,
@@ -545,7 +551,7 @@ bool fetch_adc1_profile(BaseSequentialStream * chp, Fetch_terminals * fetch_term
 	}
 	else
 	{
-		util_errormsg(chp, "Profile %s not available.", cmd_list[ADC_PROFILE]);
+		util_error(chp, "Profile not available: %s.", cmd_list[ADC_PROFILE]);
 		return false;
 	}
 	return false;

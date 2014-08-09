@@ -289,8 +289,7 @@ static msg_t mshell_thread(void * p)
 			if(!fetch_parse(chp, command_line))
 			{
 				DBG_MSG(chp, "Parse fail.");
-				util_errormsg(chp,
-				              "Unrecognized Fetch Command. Type \"?\" or \"help\".\r\n\tMarionette Shell Commands start with \"+\". Try +help");
+				//util_errormsg(chp, "Unrecognized Fetch Command. Type \"?\" or \"help\".\r\n\tMarionette Shell Commands start with \"+\". Try +help");
 			};
 		}
 	}
@@ -375,6 +374,8 @@ Thread * shellCreateStatic(const MShellConfig * scp, void * wsp,
  */
 #define        ASCII_EOT                        ((char) 0x4)
 #define        ASCII_BACKSPACE                  ((char) 0x8)
+#define        ASCII_DELETE                     ((char) 0x7F)
+#define        ASCII_CTL_U                      ((char) 0x15)
 #define        ASCII_SPACE                      ((char) 0x20)
 bool_t mshellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
 
@@ -395,7 +396,22 @@ bool_t mshellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
 			}
 			return TRUE;
 		}
-		if (c == ASCII_BACKSPACE)
+		if ((c == ASCII_CTL_U))
+		{
+			while (p != line)
+			{
+				if(mshell_echo_chars)
+				{
+					chSequentialStreamPut(chp, ASCII_BACKSPACE);
+					chSequentialStreamPut(chp, ASCII_SPACE);
+					chSequentialStreamPut(chp, ASCII_BACKSPACE);
+				}
+				p--;
+			}
+			continue;
+		}
+
+		if ((c == ASCII_BACKSPACE) || (c == ASCII_DELETE))
 		{
 			if (p != line)
 			{
