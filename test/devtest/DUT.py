@@ -13,6 +13,7 @@ Connect a device to the Default_Port.
 """
 
 import sys
+import random
 import os
 import threading
 import serial
@@ -24,6 +25,7 @@ DUT_WAITTIME     = 0.200
 Default_Baudrate = 115200
 Default_Timeout  = 2
 Default_Port     = "/dev/ttyACM0"
+Test_cycles      = 1002
 
 class DUTSerial():
     def __init__(self, port=Default_Port, baud=Default_Baudrate, timeout=Default_Timeout):
@@ -156,7 +158,8 @@ class DUTSerial():
         self.teststr("adc:conf_adc1:profile:default\r\n")
         self.teststr("adc:conf_adc1:continuous\r\n")
         self.teststr("adc:start\r\n")
-        sleep(1.5)
+        sleeptime = random.uniform(1, 3)
+        sleep(sleeptime)
         self.teststr("adc:stop\r\n")
         sleep(1.0)
         self.teststr("adc:conf_adc1:profile:demo\r\n")
@@ -165,7 +168,8 @@ class DUTSerial():
         self.teststr("adc:start\r\n")
         self.teststr("adc:conf_adc1:continuous\r\n")
         self.teststr("adc:start\r\n")
-        sleep(1.0)
+        sleeptime = random.uniform(1, 3)
+        sleep(sleeptime)
         self.teststr("adc:stop\r\n")
         sleep(1.0)
         self.teststr("adc:conf_adc1:profile:pa\r\n")
@@ -174,7 +178,8 @@ class DUTSerial():
         self.teststr("adc:start\r\n")
         self.teststr("adc:conf_adc1:continuous\r\n")
         self.teststr("adc:start\r\n")
-        sleep(1.0)
+        sleeptime = random.uniform(1, 3)
+        sleep(sleeptime)
         self.teststr("adc:stop\r\n")
         sleep(1.0)
         self.teststr("adc:conf_adc1:vref_mv(2500)\r\n")
@@ -205,7 +210,8 @@ class DUTSerial():
         self.teststr("+threads\r\n");
     def writer(self):
         try:
-            for i in range(0,7):
+            for i in range(0,Test_cycles):
+                u.info("Test:" + str(i))
                 if self.alive:
                     self.testctl()
                     sleep(2.5)
