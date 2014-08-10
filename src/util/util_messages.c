@@ -16,9 +16,9 @@
 #include "util_messages.h"
 #include "mshell_sync.h"
 
+/*! This is declared extern in util_messages.h 
+ */
 Util_rpt_data           util_report_data;
-
-static MUTEX_DECL(reportMutex);
 
 struct formats
 {
@@ -26,6 +26,7 @@ struct formats
 	char       *      report_code;
 };
 
+/*! \todo codereview: static const or const static? */
 static const struct formats formats[] =
 {
 	{ RPT_INFO,      "I"},
@@ -40,6 +41,8 @@ static const struct formats formats[] =
 	{ RPT_MISC,      "Q"}
 };
 
+/*! \brief Return the text symbol of a msg format 
+ */
 static char * util_getformat(Report_types rpt)
 {
 	for(uint32_t i = 0; i < NELEMS(formats); ++i)
@@ -52,19 +55,24 @@ static char * util_getformat(Report_types rpt)
 	return "I";
 }
 
+/*! \brief Special function for handling debug messages
+ *  \sa DBG_MSG  in util_messages.h
+ *  \sa DBG_VMSG  in util_messages.h
+ */
 void util_debugmsg(BaseSequentialStream * chp,  char * file, int line, const char * func, char * fmt, ...)
 {
 	va_list argList;
 
-	//chMtxLock( &reportMutex );
 	va_start(argList, fmt);
 	chprintf(chp, "%s: %s:%d:%s()->", util_getformat(RPT_DEBUG), file, line, func);
 	chvprintf(chp, fmt, argList);
 	chprintf(chp, "\r\n");
 	va_end(argList);
-	//chMtxUnlock();
 }
 
+/*! \brief Report a time value
+ * \warning Util_rpt_data structure must be correct for correct result
+ */
 void util_time_data(BaseSequentialStream * chp, Util_rpt_data * d, char * fmt, ...)
 {
 	va_list argList;
@@ -74,6 +82,9 @@ void util_time_data(BaseSequentialStream * chp, Util_rpt_data * d, char * fmt, .
 	va_end(argList);
 }
 
+/*! \brief Report an adc result
+ *  \warning Util_rpt_data structure must be correct for correct result
+ */
 void util_adc_data(BaseSequentialStream * chp,  Util_rpt_data * d, char * fmt, ...)
 {
 	va_list argList;
@@ -82,6 +93,8 @@ void util_adc_data(BaseSequentialStream * chp,  Util_rpt_data * d, char * fmt, .
 	va_end(argList);
 }
 
+/*! \brief User Information Message
+ */
 void util_info(BaseSequentialStream * chp, char * fmt, ... )
 {
 
@@ -91,6 +104,8 @@ void util_info(BaseSequentialStream * chp, char * fmt, ... )
 	va_end(argList);
 }
 
+/*! \brief Error message report
+ */
 void util_error(BaseSequentialStream * chp, char * fmt, ... )
 {
 
@@ -100,13 +115,14 @@ void util_error(BaseSequentialStream * chp, char * fmt, ... )
 	va_end(argList);
 }
 
-/*! \brief Most reporting goes through this function
+/*! \brief Base function for reporting
  *
  *  \warn Exception is debug messages (currently).
  *
- * Mutex the reporting so that separate threads don't interleave output.
+ * Mutex (BSemaphore) the reporting so that separate threads don't interleave output.
  *
- * Not using semaphores. \todo Review whether mutex ownership matters
+ * Not using Mutex. Mutex in ChibiOS has thread ownership issues. Semaphores can be
+ * signaled from any thread.
 *  See:
  * http://www.chibios.org/dokuwiki/doku.php?id=chibios:guides:mutual_exclusion_guide
  *
@@ -133,7 +149,7 @@ void util_report(BaseSequentialStream * chp, Report_types rpt, Util_rpt_data * d
 				chprintf(chp, "%s:adc:%d", util_getformat(rpt), d->data[0]);
 				for(int i = 1; i < d->datalen && i < UTIL_MAXDATA; ++i)
 				{
-					chprintf(chp, ",%d", d->data[i]);
+					chprintf(chp, ",%d", d->data[i]);   //>! CSV format
 				}
 				chprintf(chp, ":");
 				chvprintf(chp, fmt, argptr);
@@ -187,4 +203,5 @@ void util_report(BaseSequentialStream * chp, Report_types rpt, Util_rpt_data * d
 
 
 //! @}
+
 

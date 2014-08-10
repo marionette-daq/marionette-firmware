@@ -29,24 +29,18 @@ typedef struct
 } Util_rpt_data;
 extern Util_rpt_data           util_report_data;
 
-//typedef struct
-//{
-	//char str[128];
-	//char str2[128];
-//} Util_string;
-
 typedef enum report_types
 {
-	RPT_INFO = 0,
-	RPT_ERROR,
-	RPT_DEBUG,
-	RPT_ADC,
-	RPT_VOLTS,
-	RPT_TIME,
-	RPT_HDATA,      // Hex data
-	RPT_DDATA,      // Decimal data
-	RPT_COMMENT,
-	RPT_MISC = 99
+	RPT_INFO = 0,    //>! Information
+	RPT_ERROR,       //>! Error Report
+	RPT_DEBUG,       //>! Debug
+	RPT_ADC,         //>! ADC Data
+	RPT_VOLTS,       //>! Voltage Data
+	RPT_TIME,        //>! Time
+	RPT_HDATA,       //>! Hex data
+	RPT_DDATA,       //>! Decimal data
+	RPT_COMMENT,     //>! Comments start with a '#' or comment symbol
+	RPT_MISC = 99    //>! Uncatagorized
 } Report_types;
 
 #define DBG_MSG(chp, fmt) \
@@ -63,6 +57,7 @@ void util_time_data(BaseSequentialStream * chp, Util_rpt_data * d, char * fmt, .
 void util_adc_data(BaseSequentialStream * chp,  Util_rpt_data * d, char * fmt, ...) ;
 void util_info(BaseSequentialStream * chp, char * fmt, ... ) ;
 void util_error(BaseSequentialStream * chp, char * fmt, ... ) ;
+
 void util_report(BaseSequentialStream * chp, Report_types rpt, Util_rpt_data * d, char * fmt, va_list argptr );
 
 #ifdef __cplusplus
@@ -72,4 +67,5 @@ void util_report(BaseSequentialStream * chp, Report_types rpt, Util_rpt_data * d
 #endif
 
 //! @}
+
 

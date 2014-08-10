@@ -25,7 +25,7 @@ DUT_WAITTIME     = 0.200
 Default_Baudrate = 115200
 Default_Timeout  = 2
 Default_Port     = "/dev/ttyACM0"
-Test_cycles      = 1002
+Test_cycles      = 4
 
 class DUTSerial():
     def __init__(self, port=Default_Port, baud=Default_Baudrate, timeout=Default_Timeout):
@@ -120,6 +120,10 @@ class DUTSerial():
         sleep(4.5)
         self.write("\n\r")
 
+    def test_info(self):
+        u.info("Look at version")
+        self.teststr("version\r\n")
+
     def test_gpio(self):
         u.info("Set an output to floating.")
         self.teststr("gpio:configure:porth:pin2:output:floating\r\n")
@@ -208,11 +212,13 @@ class DUTSerial():
         u.info("HB off?");
         sleep(2)
         self.teststr("+threads\r\n");
+
     def writer(self):
         try:
             for i in range(0,Test_cycles):
                 u.info("Test:" + str(i))
                 if self.alive:
+                    self.test_info()
                     self.testctl()
                     sleep(2.5)
                     self.testheartbeat()

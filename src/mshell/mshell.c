@@ -48,7 +48,7 @@ EventSource     mshell_terminated;
 
 static void usage(BaseSequentialStream * chp, char * p)
 {
-	chprintf(chp, "Usage: %s\r\n", p);
+	util_info(chp, "Usage: %s\r\n", p);
 }
 
 static void list_commands(BaseSequentialStream * chp, const MShellCommand * scp)
@@ -64,9 +64,8 @@ static void cmd_version(BaseSequentialStream * chp, int argc, char * argv[] UNUS
 {
 	util_fwversion(&version_data);
 	util_hwversion(&version_data);
-	chprintf(chp, "Firmware Version:   %s\r\n", version_data.firmware);
-	chprintf(chp, "Hardware Version:   0x%x-0x%x-0x%x\r\n", version_data.hardware.id_high,
-	         version_data.hardware.id_center, version_data.hardware.id_low);
+	util_info(chp, "Firmware Version:%s\r\n", version_data.firmware);
+	util_info(chp, "Hardware Version:0x%x-0x%x-0x%x\r\n", version_data.hardware.id_high, version_data.hardware.id_center, version_data.hardware.id_low);
 	if(argc > 0)
 	{
 		usage(chp, "version");

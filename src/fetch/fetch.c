@@ -205,7 +205,9 @@ static bool fetch_version(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
 	static          VERSIONData                     version_data;
 
 	util_fwversion(&version_data);
-	chprintf(chp, "Fetch Firmware Version:   %s\r\n", version_data.firmware);
+	util_hwversion(&version_data);
+	util_info(chp, "Fetch Firmware Version:%s\r\n", version_data.firmware);
+	util_info(chp, "Hardware Version:0x%x-0x%x-0x%x\r\n", version_data.hardware.id_high, version_data.hardware.id_center, version_data.hardware.id_low);
 	return true;
 }
 
