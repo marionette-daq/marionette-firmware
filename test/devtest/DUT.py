@@ -205,19 +205,20 @@ class DUTSerial():
         self.teststr("+threads\r\n");
     def writer(self):
         try:
-            if self.alive:
-                self.testctl()
-                sleep(2.5)
-                self.testheartbeat()
-                self.teststr("+noprompt\r\n")
-                sleep(0.5)
-                self.write("resetpins\r\n")
-                sleep(0.5)
-                self.test_gpio()
-                self.write("resetpins\r\n")
-                self.teststr("+noprompt\r\n")
-                self.test_adc()
-                self.teststr("+prompt\r\n")
+            for i in range(0,7):
+                if self.alive:
+                    self.testctl()
+                    sleep(2.5)
+                    self.testheartbeat()
+                    self.teststr("+noprompt\r\n")
+                    sleep(0.5)
+                    self.write("resetpins\r\n")
+                    sleep(0.5)
+                    self.test_gpio()
+                    self.write("resetpins\r\n")
+                    self.teststr("+noprompt\r\n")
+                    self.test_adc()
+                    self.teststr("+prompt\r\n")
 
         except KeyboardInterrupt:
             self.alive = False

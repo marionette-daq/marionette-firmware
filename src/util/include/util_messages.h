@@ -2,7 +2,7 @@
  *
  * Consistent messages
  *
- * @addtogroup util_messages 
+ * @addtogroup util_messages
  */
 
 #ifndef UTIL_MESSAGE_H_
@@ -11,35 +11,42 @@
 #include "hal.h"
 #include "chprintf.h"
 
-#include "util_messages.h"
-
 #ifndef DBG_MSG_ENABLE
 #define         DBG_MSG_ENABLE          0
 #endif
 
-#define       UTIL_MAXDATA                   256
+#define         UTIL_MAXDATA            256
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/*! \brief Allocate one structure for reporting */
 typedef struct
 {
-    char str[128];
-    //char str2[128];
-} Util_string;
+	uint32_t data[UTIL_MAXDATA];
+	uint8_t  datalen;
+} Util_rpt_data;
+extern Util_rpt_data           util_report_data;
 
-typedef enum report_types {
-		RPT_INFO = 0,
-		RPT_ERROR,
-		RPT_DEBUG,
-		RPT_ADC,
-		RPT_VOLTS,
-		RPT_TIME,
-		RPT_HDATA,      // Hex data
-		RPT_DDATA,      // Decimal data
-		RPT_COMMENT,
-		RPT_MISC=99
+//typedef struct
+//{
+	//char str[128];
+	//char str2[128];
+//} Util_string;
+
+typedef enum report_types
+{
+	RPT_INFO = 0,
+	RPT_ERROR,
+	RPT_DEBUG,
+	RPT_ADC,
+	RPT_VOLTS,
+	RPT_TIME,
+	RPT_HDATA,      // Hex data
+	RPT_DDATA,      // Decimal data
+	RPT_COMMENT,
+	RPT_MISC = 99
 } Report_types;
 
 #define DBG_MSG(chp, fmt) \
@@ -52,11 +59,11 @@ typedef enum report_types {
 void util_debugmsg(BaseSequentialStream * chp,  char * file, int line, const char * func,
                    char * format, ...);
 
-void util_time_data(BaseSequentialStream * chp, uint32_t data[], uint8_t datalen, char * fmt, ...) ;
-void util_adc_data(BaseSequentialStream * chp, uint32_t data[], uint8_t datalen, char * fmt, ...) ;
+void util_time_data(BaseSequentialStream * chp, Util_rpt_data * d, char * fmt, ...) ;
+void util_adc_data(BaseSequentialStream * chp,  Util_rpt_data * d, char * fmt, ...) ;
 void util_info(BaseSequentialStream * chp, char * fmt, ... ) ;
 void util_error(BaseSequentialStream * chp, char * fmt, ... ) ;
-void util_report(BaseSequentialStream * chp, Report_types rpt, uint32_t data[], uint8_t datalen, char * fmt, va_list argptr );
+void util_report(BaseSequentialStream * chp, Report_types rpt, Util_rpt_data * d, char * fmt, va_list argptr );
 
 #ifdef __cplusplus
 }
@@ -65,3 +72,4 @@ void util_report(BaseSequentialStream * chp, Report_types rpt, uint32_t data[], 
 #endif
 
 //! @}
+

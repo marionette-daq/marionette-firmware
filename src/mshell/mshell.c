@@ -29,6 +29,7 @@
 #include "ch.h"
 #include "hal.h"
 #include "chprintf.h"
+#include "chbsem.h"
 
 #include "util_version.h"
 #include "util_general.h"
@@ -37,6 +38,7 @@
 
 #include "fetch.h"
 #include "mshell.h"
+#include "mshell_sync.h"
 
 static          VERSIONData                     version_data;
 static          char                            prompt[MSHELL_MAX_PROMPT_LENGTH];
@@ -208,6 +210,8 @@ static bool_t cmdexec(const MShellCommand * scp, BaseSequentialStream * chp,
 static msg_t mshell_thread(void * p)
 {
 	int n;
+
+	bool_t  ret; 
 	BaseSequentialStream * chp   = ((MShellConfig *)p)->sc_channel;
 	const MShellCommand  * scp   = ((MShellConfig *)p)->sc_commands;
 	char * lp, *cmd, *tokp;
@@ -227,7 +231,8 @@ static msg_t mshell_thread(void * p)
 	while (TRUE)
 	{
 		chprintf(chp, "%s", prompt);
-		if (mshellGetLine(chp, input_line, sizeof(input_line)))
+		ret = mshellGetLine(chp, input_line, sizeof(input_line));
+		if (ret)
 		{
 			chprintf(chp, "\r\nlogout");
 			break;
@@ -289,7 +294,7 @@ static msg_t mshell_thread(void * p)
 			if(!fetch_parse(chp, command_line))
 			{
 				DBG_MSG(chp, "Parse fail.");
-				//util_errormsg(chp, "Unrecognized Fetch Command. Type \"?\" or \"help\".\r\n\tMarionette Shell Commands start with \"+\". Try +help");
+				util_error(chp, "Unrecognized Fetch Command. Type \"?\" or \"help\" or \"+help\"");
 			};
 		}
 	}
@@ -298,14 +303,16 @@ static msg_t mshell_thread(void * p)
 	return 0;
 }
 
+
 /**
  * @brief   MShell manager initialization.
  *
  * @api
  */
-void mshellInit(void)
+void mshellInit()
 {
 	chEvtInit(&mshell_terminated);
+	mshell_io_sem_init();
 }
 
 /**
@@ -361,6 +368,15 @@ Thread * shellCreateStatic(const MShellConfig * scp, void * wsp,
 	return chThdCreateStatic(wsp, size, prio, mshell_thread, (void *)scp);
 }
 
+static bool_t mshell_stream_put(BaseSequentialStream * chp, uint8_t c) {
+	int ret;
+	chBSemWait( &mshell_io_sem );
+    ret = chSequentialStreamPut(chp, c) ;
+	chBSemSignal( &mshell_io_sem );
+	return ret;
+}	
+
+
 /*!
  * \brief   Reads a whole line from the input channel.
  *
@@ -402,9 +418,9 @@ bool_t mshellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
 			{
 				if(mshell_echo_chars)
 				{
-					chSequentialStreamPut(chp, ASCII_BACKSPACE);
-					chSequentialStreamPut(chp, ASCII_SPACE);
-					chSequentialStreamPut(chp, ASCII_BACKSPACE);
+					mshell_stream_put(chp, ASCII_BACKSPACE);
+					mshell_stream_put(chp, ASCII_SPACE);
+					mshell_stream_put(chp, ASCII_BACKSPACE);
 				}
 				p--;
 			}
@@ -417,9 +433,9 @@ bool_t mshellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
 			{
 				if(mshell_echo_chars)
 				{
-					chSequentialStreamPut(chp, c);
-					chSequentialStreamPut(chp, ASCII_SPACE);
-					chSequentialStreamPut(chp, c);
+					mshell_stream_put(chp, c);
+					mshell_stream_put(chp, ASCII_SPACE);
+					mshell_stream_put(chp, c);
 				}
 				p--;
 			}
@@ -434,6 +450,9 @@ bool_t mshellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
 			*p = 0;
 			return FALSE;
 		}
+		if (c == 0) {
+			continue;
+		}
 		if (c < ASCII_SPACE)   // ignore all other special chars.....
 		{
 			continue;
@@ -442,7 +461,7 @@ bool_t mshellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
 		{
 			if(mshell_echo_chars)
 			{
-				chSequentialStreamPut(chp, c);
+				mshell_stream_put(chp, c);
 			}
 			*p++ = (char)c;
 		}

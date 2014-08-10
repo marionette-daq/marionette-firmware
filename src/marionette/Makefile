@@ -152,8 +152,8 @@ MCU  = cortex-m4
 
 #TRGT = arm-elf-
 TRGT = arm-none-eabi-
-CC   = $(TRGT)gcc
-#CC   = $(HOME)/.vim/bundle/clang_complete/bin/cc_args.py $(TRGT)gcc
+#CC   = $(TRGT)gcc
+CC   = $(HOME)/.vim/bundle/clang_complete/bin/cc_args.py $(TRGT)gcc
 CPPC = $(TRGT)g++
 # Enable loading with g++ only if you need C++ runtime support.
 # NOTE: You can use C++ even without C++ support if you are careful. C++
@@ -222,7 +222,7 @@ DLIBS =
 # List all user C define here, like -D_DEBUG=1
 #UDEFS =
 UDEFS = -DGIT_COMMIT_VERSION=$(MARIONETTE_VERSION)
-UDEFS += -DDBG_MSG_ENABLE=1
+#UDEFS += -DDBG_MSG_ENABLE=1
 #UDEFS += -DMSHELL_ECHO_INPUT_CHARS=1
 
 # Define ASM defines here
