@@ -2,6 +2,7 @@
 
 ## util  - general utilities
 
+* led support for heartbeat
 * strings
 * messages
 * version
