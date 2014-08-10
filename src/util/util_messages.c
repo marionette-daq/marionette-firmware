@@ -35,7 +35,7 @@ static const struct formats formats[] =
 	{ RPT_ADC,       "uV"},
 	{ RPT_LOGIC,     "L"},
 	{ RPT_VOLTS,     "V"},
-	{ RPT_TIME,      "T"},
+	{ RPT_TIME,      "mS"},
 	{ RPT_HDATA,     "XD"},
 	{ RPT_DDATA,     "DD"},
 	{ RPT_COMMENT,   "#"},
