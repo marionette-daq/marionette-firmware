@@ -33,6 +33,7 @@ static const struct formats formats[] =
 	{ RPT_ERROR,     "E"},
 	{ RPT_DEBUG,     "?"},
 	{ RPT_ADC,       "uV"},
+	{ RPT_LOGIC,     "L"},
 	{ RPT_VOLTS,     "V"},
 	{ RPT_TIME,      "T"},
 	{ RPT_HDATA,     "XD"},
@@ -69,6 +70,19 @@ void util_debugmsg(BaseSequentialStream * chp,  char * file, int line, const cha
 	chprintf(chp, "\r\n");
 	va_end(argList);
 }
+
+/*! \brief Report a logical value
+ * \warning Util_rpt_data structure must be correct for correct result
+ */
+void util_logic_data(BaseSequentialStream * chp, Util_rpt_data * d, char * fmt, ...)
+{
+	va_list argList;
+	va_start(argList, fmt);
+	d->datalen = 1;
+	util_report(chp, RPT_LOGIC, d, fmt, argList);
+	va_end(argList);
+}
+
 
 /*! \brief Report a time value
  * \warning Util_rpt_data structure must be correct for correct result
@@ -162,6 +176,13 @@ void util_report(BaseSequentialStream * chp, Report_types rpt, Util_rpt_data * d
 				{
 					chprintf(chp, "%s:%d", util_getformat(rpt), d->data[i]);
 				}
+				chvprintf(chp, fmt, argptr);
+			}
+			break;
+		case RPT_LOGIC:
+			if(d != NULL && d->datalen > 0)
+			{
+				chprintf(chp, "%s:logic:%d:", util_getformat(rpt), d->data[0]);
 				chvprintf(chp, fmt, argptr);
 			}
 			break;

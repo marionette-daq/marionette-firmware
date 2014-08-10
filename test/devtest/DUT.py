@@ -108,6 +108,16 @@ class DUTSerial():
         self.write(string)
         sleep(DUT_WAITTIME)
 
+    def testshell(self):
+        u.info("Testing +help command")
+        self.teststr("+help\r\n")
+        u.info("Testing +version.")
+        self.teststr("+version\r\n")
+        u.info("Testing +info.")
+        self.teststr("+info\r\n")
+        u.info("Testing +systime.")
+        self.teststr("+systime\r\n")
+
     def testctl(self):
         u.info("Testing help command")
         self.teststr("help\r\n")
@@ -218,6 +228,7 @@ class DUTSerial():
             for i in range(0,Test_cycles):
                 u.info("Test:" + str(i))
                 if self.alive:
+                    self.testshell()
                     self.test_info()
                     self.testctl()
                     sleep(2.5)

@@ -1,7 +1,8 @@
 /*!
  * \file    mshell.c
  *
- * mshell is the Marionette shell. It is adapted from the example ChibiOS shell.
+ * mshell is the Marionette shell. 
+ * This is derived from the example ChibiOS-RT shell.
  *
  * @defgroup mshell Marionette Shell 
  * @{
@@ -48,7 +49,7 @@ EventSource     mshell_terminated;
 
 static void usage(BaseSequentialStream * chp, char * p)
 {
-	util_info(chp, "Usage: %s\r\n", p);
+	util_info(chp, "Usage: %s", p);
 }
 
 static void list_commands(BaseSequentialStream * chp, const MShellCommand * scp)
@@ -64,8 +65,8 @@ static void cmd_version(BaseSequentialStream * chp, int argc, char * argv[] UNUS
 {
 	util_fwversion(&version_data);
 	util_hwversion(&version_data);
-	util_info(chp, "Firmware Version:%s\r\n", version_data.firmware);
-	util_info(chp, "Hardware Version:0x%x-0x%x-0x%x\r\n", version_data.hardware.id_high, version_data.hardware.id_center, version_data.hardware.id_low);
+	util_info(chp, "Firmware Version:%s", version_data.firmware);
+	util_info(chp, "Hardware Version:0x%x-0x%x-0x%x", version_data.hardware.id_high, version_data.hardware.id_center, version_data.hardware.id_low);
 	if(argc > 0)
 	{
 		usage(chp, "version");
@@ -116,33 +117,35 @@ static void cmd_info(BaseSequentialStream * chp, int argc, char * argv[])
 	(void)argv;
 
 	util_fwversion(&version_data);
+	util_hwversion(&version_data);
 
 	if (argc > 0)
 	{
 		usage(chp, "info");
 		return;
 	}
-	chprintf(chp, "Firmware Version:   %s\r\n", version_data.firmware);
-	chprintf(chp, "Kernel:       %s\r\n", CH_KERNEL_VERSION);
+	util_info(chp, "Firmware Version:%s", version_data.firmware);
+	util_info(chp, "Hardware Version:0x%x-0x%x-0x%x", version_data.hardware.id_high, version_data.hardware.id_center, version_data.hardware.id_low);
+	util_info(chp, "Kernel:%s", CH_KERNEL_VERSION);
 #ifdef CH_COMPILER_NAME
-	chprintf(chp, "Compiler:     %s\r\n", CH_COMPILER_NAME);
+	util_info(chp, "Compiler:%s", CH_COMPILER_NAME);
 #endif
-	chprintf(chp, "Architecture: %s\r\n", CH_ARCHITECTURE_NAME);
+	util_info(chp, "Architecture:%s", CH_ARCHITECTURE_NAME);
 #ifdef CH_CORE_VARIANT_NAME
-	chprintf(chp, "Core Variant: %s\r\n", CH_CORE_VARIANT_NAME);
+	util_info(chp, "Core Variant:%s", CH_CORE_VARIANT_NAME);
 #endif
 #ifdef CH_PORT_INFO
-	chprintf(chp, "Port Info:    %s\r\n", CH_PORT_INFO);
+	util_info(chp, "Port Info:%s", CH_PORT_INFO);
 #endif
 #ifdef PLATFORM_NAME
-	chprintf(chp, "Platform:     %s\r\n", PLATFORM_NAME);
+	util_info(chp, "Platform:%s", PLATFORM_NAME);
 #endif
 #ifdef BOARD_NAME
-	chprintf(chp, "Board:        %s\r\n", BOARD_NAME);
+	util_info(chp, "Board:%s", BOARD_NAME);
 #endif
 #ifdef __DATE__
 #ifdef __TIME__
-	chprintf(chp, "Build time:   %s%s%s\r\n", __DATE__, " - ", __TIME__);
+	util_info(chp, "Build time:%s%s%s", __DATE__, " - ", __TIME__);
 #endif
 #endif
 }
@@ -154,10 +157,10 @@ static void cmd_systime(BaseSequentialStream * chp, int argc, char * argv[])
 	(void)argv;
 	if (argc > 0)
 	{
-		usage(chp, "systime");
+		util_info(chp, "systime");
 		return;
 	}
-	chprintf(chp, "%lu\r\n", (unsigned long)chTimeNow());
+	util_info(chp, "%lu", (unsigned long)chTimeNow());
 }
 
 /**
@@ -192,8 +195,7 @@ static bool_t cmdexec(const MShellCommand * scp, BaseSequentialStream * chp,
 	return TRUE;
 }
 
-/*!
- * \brief   MShell thread function.
+/*! \brief   MShell thread function.
  *
  * Marionette shell commands are escaped with a '+'
  * 
@@ -222,9 +224,10 @@ static msg_t mshell_thread(void * p)
 	strncpy(prompt, "m > ", MSHELL_MAX_PROMPT_LENGTH);
 	chRegSetThreadName("mshell");
 	chThdSleepMilliseconds(1000);
+	//! Initial Welcome Prompt
 	chprintf(chp, "\r\nMarionette Shell (\"+help\" for shell commands)\r\n");
 
-	// initialize parser.
+	//! initialize parser.
 	fetch_init(chp) ;
 
 	while (TRUE)
@@ -233,7 +236,7 @@ static msg_t mshell_thread(void * p)
 		ret = mshellGetLine(chp, input_line, sizeof(input_line));
 		if (ret)
 		{
-			chprintf(chp, "\r\nlogout");
+			util_info(chp, "logout");
 			break;
 		}
 		if(input_line[0] == '+')    // use escape to process mshell commands
@@ -246,7 +249,7 @@ static msg_t mshell_thread(void * p)
 			{
 				if (n >= MSHELL_MAX_ARGUMENTS)
 				{
-					chprintf(chp, "too many arguments\r\n");
+					util_error(chp, "too many arguments");
 					cmd = NULL;
 					break;
 				}
@@ -271,7 +274,7 @@ static msg_t mshell_thread(void * p)
 						usage(chp, "help");
 						continue;
 					}
-					chprintf(chp, "Marionette Shell Commands: +help +exit ");
+					util_info(chp, "Marionette Shell Commands: +help +exit ");
 					list_commands(chp, local_commands);
 					if (scp != NULL)
 					{

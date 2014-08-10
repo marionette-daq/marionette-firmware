@@ -348,7 +348,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 		{
 			strncpy(datastr, parenpart, strlen(parenpart));
 			datastr[strlen(parenpart) - 1] = '\0';
-			//chprintf(chp, "datastr : %s\r\n", datastr);
+			//DBG_VMSG(chp, "datastr : %s\r\n", datastr);
 		}
 	}
 	else

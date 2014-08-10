@@ -35,6 +35,7 @@ typedef enum report_types
 	RPT_ERROR,       //>! Error Report
 	RPT_DEBUG,       //>! Debug
 	RPT_ADC,         //>! ADC Data
+	RPT_LOGIC,       //>! Logic Data
 	RPT_VOLTS,       //>! Voltage Data
 	RPT_TIME,        //>! Time
 	RPT_HDATA,       //>! Hex data
@@ -53,6 +54,7 @@ typedef enum report_types
 void util_debugmsg(BaseSequentialStream * chp,  char * file, int line, const char * func,
                    char * format, ...);
 
+void util_logic_data(BaseSequentialStream * chp, Util_rpt_data * d, char * fmt, ...) ;
 void util_time_data(BaseSequentialStream * chp, Util_rpt_data * d, char * fmt, ...) ;
 void util_adc_data(BaseSequentialStream * chp,  Util_rpt_data * d, char * fmt, ...) ;
 void util_info(BaseSequentialStream * chp, char * fmt, ... ) ;
