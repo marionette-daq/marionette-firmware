@@ -20,16 +20,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <string.h>
 #include <ctype.h>
 
 #include "hal.h"
 #include "chprintf.h"
 
 #include "util_general.h"
-#include "util_strings.h"
 #include "util_messages.h"
-#include "util_version.h"
 
 #include "io_manage.h"
 #include "io_manage_defs.h"
