@@ -13,6 +13,7 @@ Connect a device to the Default_Port.
 """
 
 import sys
+import random
 import os
 import threading
 import serial
@@ -24,6 +25,7 @@ DUT_WAITTIME     = 0.200
 Default_Baudrate = 115200
 Default_Timeout  = 2
 Default_Port     = "/dev/ttyACM0"
+Test_cycles      = 3
 
 class DUTSerial():
     def __init__(self, port=Default_Port, baud=Default_Baudrate, timeout=Default_Timeout):
@@ -106,6 +108,16 @@ class DUTSerial():
         self.write(string)
         sleep(DUT_WAITTIME)
 
+    def testshell(self):
+        u.info("Testing +help command")
+        self.teststr("+help\r\n")
+        u.info("Testing +version.")
+        self.teststr("+version\r\n")
+        u.info("Testing +info.")
+        self.teststr("+info\r\n")
+        u.info("Testing +systime.")
+        self.teststr("+systime\r\n")
+
     def testctl(self):
         u.info("Testing help command")
         self.teststr("help\r\n")
@@ -117,6 +129,10 @@ class DUTSerial():
         self.teststr('\x04')   # ctrl-d in ascii will cause logout event, and marionette terminal will restart
         sleep(4.5)
         self.write("\n\r")
+
+    def test_info(self):
+        u.info("Look at version")
+        self.teststr("version\r\n")
 
     def test_gpio(self):
         u.info("Set an output to floating.")
@@ -156,7 +172,8 @@ class DUTSerial():
         self.teststr("adc:conf_adc1:profile:default\r\n")
         self.teststr("adc:conf_adc1:continuous\r\n")
         self.teststr("adc:start\r\n")
-        sleep(1.5)
+        sleeptime = random.uniform(1, 3)
+        sleep(sleeptime)
         self.teststr("adc:stop\r\n")
         sleep(1.0)
         self.teststr("adc:conf_adc1:profile:demo\r\n")
@@ -165,7 +182,8 @@ class DUTSerial():
         self.teststr("adc:start\r\n")
         self.teststr("adc:conf_adc1:continuous\r\n")
         self.teststr("adc:start\r\n")
-        sleep(1.0)
+        sleeptime = random.uniform(1, 3)
+        sleep(sleeptime)
         self.teststr("adc:stop\r\n")
         sleep(1.0)
         self.teststr("adc:conf_adc1:profile:pa\r\n")
@@ -174,7 +192,8 @@ class DUTSerial():
         self.teststr("adc:start\r\n")
         self.teststr("adc:conf_adc1:continuous\r\n")
         self.teststr("adc:start\r\n")
-        sleep(1.0)
+        sleeptime = random.uniform(1, 3)
+        sleep(sleeptime)
         self.teststr("adc:stop\r\n")
         sleep(1.0)
         self.teststr("adc:conf_adc1:vref_mv(2500)\r\n")
@@ -203,21 +222,26 @@ class DUTSerial():
         u.info("HB off?");
         sleep(2)
         self.teststr("+threads\r\n");
+
     def writer(self):
         try:
-            if self.alive:
-                self.testctl()
-                sleep(2.5)
-                self.testheartbeat()
-                self.teststr("+noprompt\r\n")
-                sleep(0.5)
-                self.write("resetpins\r\n")
-                sleep(0.5)
-                self.test_gpio()
-                self.write("resetpins\r\n")
-                self.teststr("+noprompt\r\n")
-                self.test_adc()
-                self.teststr("+prompt\r\n")
+            for i in range(0,Test_cycles):
+                u.info("Test:" + str(i))
+                if self.alive:
+                    self.testshell()
+                    self.test_info()
+                    self.testctl()
+                    sleep(2.5)
+                    self.testheartbeat()
+                    self.teststr("+noprompt\r\n")
+                    sleep(0.5)
+                    self.write("resetpins\r\n")
+                    sleep(0.5)
+                    self.test_gpio()
+                    self.write("resetpins\r\n")
+                    self.teststr("+noprompt\r\n")
+                    self.test_adc()
+                    self.teststr("+prompt\r\n")
 
         except KeyboardInterrupt:
             self.alive = False

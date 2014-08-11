@@ -25,6 +25,7 @@
 #define _MSHELL_H_
 
 #include <stdbool.h>
+#include "mshell_sync.h"
 
 /**
  * @brief   Shell echo chars enable.

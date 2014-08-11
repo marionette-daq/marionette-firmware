@@ -128,35 +128,33 @@ class DUTSerial():
 
     def test_adc(self):
         try:
-            for i in range(0,10):
+            self.teststr("adc:stop\r\n",0)
+            for i in range(0,1):
 #               response = input("test one shot with default profile(Y/n) ")
 #               if response!='y':
                   self.teststr("adc:conf_adc1:profile:default\r\n", True)
-                  self.teststr("adc:start\r\n",0)
-                  self.teststr("+threads\r\n")
-#               response = input("Test continuous with default profile(y/N) ")
-#               if response=='y':
-                  self.teststr("adc:conf_adc1:continuous\r\n")
-                  self.teststr("adc:start\r\n")
-                  sleep(2.0)
-                  self.teststr("adc:stop\r\n")
-                  sleep(1.0)
-                  self.teststr("+threads\r\n")
-# 
-#               response = input("Test one shot with demo profile(y/N) ")
-#               if response=='y':
-                  self.teststr("adc:conf_adc1:profile:demo\r\n", True)
                   self.teststr("adc:conf_adc1:oneshot\r\n")
-                  self.teststr("adc:start\r\n")
-                  self.teststr("+threads\r\n")
-#          re   sponse = input("test continuous with demo profile(y/N) ")
-#               if response=='y':
-                  self.teststr("adc:conf_adc1:continuous\r\n")
-                  self.teststr("adc:start\r\n")
-                  sleep(1.0)
-                  self.write("adc:stop\r\n")
-                  sleep(1.0)
-                  self.teststr("+threads\r\n")
+                  self.teststr("adc:start\r\n",0)
+              #response = input("Test continuous with default profile(y/N) ")
+              #if response=='y':
+                  #self.teststr("adc:conf_adc1:continuous\r\n")
+                  #self.teststr("adc:start\r\n")
+                  #sleep(1.0)
+                  #self.teststr("adc:stop\r\n")
+                  #sleep(1.0)
+# 
+              #response = input("Test one shot with demo profile(y/N) ")
+              #if response=='y':
+                  #self.teststr("adc:conf_adc1:profile:demo\r\n", True)
+                  #self.teststr("adc:conf_adc1:oneshot\r\n")
+                  #self.teststr("adc:start\r\n")
+              #response = input("test continuous with demo profile(y/N) ")
+              #if response=='y':
+                  #self.teststr("adc:conf_adc1:continuous\r\n")
+                  #self.teststr("adc:start\r\n")
+                  #sleep(1.0)
+                  #self.write("adc:stop\r\n")
+                  #sleep(1.0)
 
 #               response = input("test one shot with PA profile(y/N) ")
 #               if response=='y':
@@ -164,14 +162,12 @@ class DUTSerial():
                   self.teststr("adc:conf_adc1:oneshot\r\n")
                   self.teststr("adc:start\r\n")
                   self.teststr("adc:start\r\n")
-                  self.teststr("+threads\r\n")
 
-                  self.teststr("adc:conf_adc1:continuous\r\n")
-                  self.teststr("adc:start\r\n")
-                  sleep(2.0)
-                  self.teststr("adc:stop\r\n")
-                  sleep(1.0)
-                  self.teststr("+threads\r\n")
+                  #self.teststr("adc:conf_adc1:continuous\r\n")
+                  #self.teststr("adc:start\r\n")
+                  #sleep(2.0)
+                  #self.teststr("adc:stop\r\n")
+                  #sleep(1.0)
      
 
                   self.teststr("adc:conf_adc1:profile:default\r\n")
@@ -184,8 +180,6 @@ class DUTSerial():
         except KeyboardInterrupt:
             self.close()
             u.info("\nQuitting")
-
-
 
     def writer(self):
         try:
@@ -204,7 +198,6 @@ class DUTSerial():
         return numbytes
 
     def close(self):
-        self.write("adc:stop")
         self.join(True)
         self.join()
         self.alive  = False

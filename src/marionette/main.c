@@ -159,7 +159,7 @@ static void main_app(void)
 				mshelltp = NULL;
 			}
 		}
-		chThdSleepMilliseconds(500);
+		chThdSleepMilliseconds(250);
 	}
 }
 

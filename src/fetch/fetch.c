@@ -174,12 +174,12 @@ inline int fetch_is_valid_whitespace(BaseSequentialStream * chp, char * chkwhite
  */
 static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl[] UNUSED)
 {
-	util_infomsg(chp, "Help");
-	chprintf(chp, "%s\r\n", heartbeat_toggle_dict.helpstring);
-	chprintf(chp, "%s\r\n", version_dict.helpstring);
-	chprintf(chp, "%s\r\n", resetpins_dict.helpstring);
-	chprintf(chp, "%s\r\n", gpio_dict.helpstring);
-	chprintf(chp, "%s\r\n", adc_dict.helpstring);
+	util_info(chp, "Help");
+	util_info(chp, "%s\r\n", heartbeat_toggle_dict.helpstring);
+	util_info(chp, "%s\r\n", version_dict.helpstring);
+	util_info(chp, "%s\r\n", resetpins_dict.helpstring);
+	util_info(chp, "%s\r\n", gpio_dict.helpstring);
+	util_info(chp, "%s\r\n", adc_dict.helpstring);
 	return true;
 }
 /*! \brief ADC command callback for fetch language
@@ -190,7 +190,7 @@ static bool fetch_adc(BaseSequentialStream  * chp, char * cmd_list[], char * dat
 	{
 		return(fetch_adc_dispatch(chp, cmd_list, data_list, &fetch_terms));
 	}
-	util_infomsg(chp, "Command not enabled");
+	util_info(chp, "Command not enabled");
 	return false;
 }
 
@@ -202,7 +202,7 @@ static bool fetch_gpio(BaseSequentialStream  * chp, char * cmd_list[], char * da
 	{
 		return(fetch_gpio_dispatch(chp, cmd_list, data_list, &fetch_terms));
 	}
-	util_infomsg(chp, "Command not enabled");
+	util_info(chp, "Command not enabled");
 	return false;
 }
 
@@ -214,7 +214,9 @@ static bool fetch_version(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
 	static          VERSIONData                     version_data;
 
 	util_fwversion(&version_data);
-	chprintf(chp, "Fetch Firmware Version:   %s\r\n", version_data.firmware);
+	util_hwversion(&version_data);
+	util_info(chp, "Fetch Firmware Version:%s\r\n", version_data.firmware);
+	util_info(chp, "Hardware Version:0x%x-0x%x-0x%x\r\n", version_data.hardware.id_high, version_data.hardware.id_center, version_data.hardware.id_low);
 	return true;
 }
 
@@ -228,7 +230,7 @@ static bool fetch_hbtoggle(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
 		hbToggle();
 	}
 
-	util_infomsg(chp, "Command not enabled");
+	util_info(chp, "Command not enabled");
 	return false;
 }
 
@@ -347,7 +349,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 	}
 	else
 	{
-		util_errormsg(chp, "No command-(only data?)");
+		util_error(chp, "No command-(only data?)");
 		return false;
 	}
 
@@ -360,7 +362,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 		{
 			strncpy(datastr, parenpart, strlen(parenpart));
 			datastr[strlen(parenpart) - 1] = '\0';
-			//chprintf(chp, "datastr : %s\r\n", datastr);
+			//DBG_VMSG(chp, "datastr : %s\r\n", datastr);
 		}
 	}
 	else
@@ -377,7 +379,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 	{
 		if (n >= FETCH_MAX_COMMANDS)
 		{
-			util_errormsg(chp, "Too many data. Limit: %u", FETCH_MAX_COMMANDS);
+			util_error(chp, "Too many data. Limit: %u", FETCH_MAX_COMMANDS);
 			command_toks[0] = NULL;
 			break;
 		}
@@ -397,7 +399,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 	}
 	else
 	{
-		//DBG_VMSG(chp, "Past array bounds: %d", arrlen);
+		DBG_VMSG(chp, "Past array bounds: %d", arrlen);
 		return false;
 	}
 
@@ -412,7 +414,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 		{
 			if (n >= FETCH_MAX_DATA_ITEMS)
 			{
-				util_errormsg(chp, "Too many data. Limit: %u", FETCH_MAX_DATA_ITEMS);
+				util_error(chp, "Too many data. Limit: %u", FETCH_MAX_DATA_ITEMS);
 				data_toks[0] = NULL;
 				break;
 			}
@@ -458,7 +460,7 @@ bool fetch_dispatch(BaseSequentialStream * chp, char * command_list[], char * da
 
 	if(cindex < 0)
 	{
-		util_errormsg(chp, "Unrecognized command.");
+		DBG_MSG(chp, "Unrecognized command.");
 		return false;
 	}
 

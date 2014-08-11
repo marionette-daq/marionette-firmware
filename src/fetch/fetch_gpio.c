@@ -203,7 +203,8 @@ bool fetch_gpio_get(BaseSequentialStream * chp, Fetch_terminals * fetch_terms,
 	{
 		if((port != NULL) && (pin != NO_FETCH_GPIO_PIN))
 		{
-			chprintf(chp, "%d\r\n", palReadPad(port, pin));
+			util_report_data.data[0] = palReadPad(port,pin);
+			util_logic_data(chp, &util_report_data, "Pad read");
 			return true;
 		}
 	}
@@ -316,10 +317,10 @@ bool fetch_gpio_config(BaseSequentialStream * chp, Fetch_terminals * fetch_terms
 	{
 		if((port != NULL) && (pin != NO_FETCH_GPIO_PIN))
 		{
-			DBG_VMSG(chp, "pin: %d", pin);
-			DBG_VMSG(chp, "port: 0x%x", port);
-			DBG_VMSG(chp, "dir: %d", direction);
-			DBG_VMSG(chp, "sense: %d", sense);
+			//DBG_VMSG(chp, "pin: %d", pin);
+			//DBG_VMSG(chp, "port: 0x%x", port);
+			//DBG_VMSG(chp, "dir: %d", direction);
+			//DBG_VMSG(chp, "sense: %d", sense);
 			palSetPadMode(port, pin, direction | sense);
 			return true;
 		}
@@ -360,7 +361,7 @@ bool fetch_gpio_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * d
 		}
 		else
 		{
-			DBG_MSG(chp, "sub-command not ready yet...");
+			util_error(chp, "GPIO command not available.");
 			return(false) ;
 		}
 		return true;

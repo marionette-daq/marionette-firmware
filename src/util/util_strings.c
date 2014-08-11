@@ -9,7 +9,6 @@
 #include "ch.h"
 #include "hal.h"
 
-#include "chprintf.h"
 #include <string.h>
 #include <ctype.h>
 #include "util_general.h"
@@ -114,7 +113,6 @@ int token_match(BaseSequentialStream * chp, const char * tok_array[],
 			return i;
 		}
 	}
-	chprintf(chp, "\r\n");
 	return -1;
 }
 

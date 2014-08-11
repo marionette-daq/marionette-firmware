@@ -30,6 +30,7 @@
 
 #define        FETCH_DEFAULT_VREF_MV                 3300
 #define        FETCH_ADC_DATA_STACKSIZE              2048
+#define        FETCH_ADC_MAX_DATA                    64
 #define        FETCH_ADC1_MAX_CHANNELS               19
 
 /*! Total number of channels to be sampled by a single ADC operation.*/
@@ -237,7 +238,6 @@ static FETCH_adc_state fetch_adc1_state =
 	.vref_mv              = 3300,
 	.init                 = false,
 	.oneshot              = true,
-	.printheader          = false,
 	.profile              = &adc1_default_profile,
 	.chp                  = NULL
 };
@@ -289,13 +289,12 @@ static void adc1_new_data(eventid_t id UNUSED)
 		switch(fetch_adc1_state.profile->name)
 		{
 			case FETCH_ADC1_DEFAULT: // 1 channel in this profile
-				if(fetch_adc1_state.printheader)
-				{
-					chprintf(fetch_adc1_state.chp, "t(ms),ch0-mv\r\n");
-					fetch_adc1_state.printheader = false;
-				}
+				util_report_data.data[0] = timenow;
+				util_time_data(chp, &util_report_data, "adc1-default"); 
 				sum_reduce_samples(avg_vals);
-				chprintf(fetch_adc1_state.chp, "%u,%u\r\n", timenow, avg_vals[0] * uv_per_bit);
+				util_report_data.data[0] = avg_vals[0] * uv_per_bit;
+				util_report_data.datalen = 1;
+				util_adc_data(chp, &util_report_data, "adc1-default"); 
 				break;
 			case FETCH_ADC1_DEMO:  // 2 channels in this profile
 				sum_reduce_samples(avg_vals);
@@ -303,31 +302,18 @@ static void adc1_new_data(eventid_t id UNUSED)
 				         fetch_adc_calc_temp(avg_vals[0], uv_per_bit), avg_vals[1], avg_vals[1] * uv_per_bit);
 				break;
 			case FETCH_ADC1_PA:  // 16 channels in this profile
-				if(fetch_adc1_state.printheader)
-				{
-					chprintf(fetch_adc1_state.chp,
-					         "#t(ms),ch0-mV,ch1-mV,ch2-mV,ch4-mV,ch5-mV,ch6-mV,ch7-mV,ch8-mV,ch9-mV,ch10-mV,ch13-mV,ch14-mV,ch15-mV,T(C),VREFINT,VBAT\r\n");
-					fetch_adc1_state.printheader = false;
-				}
+				util_report_data.data[0] = timenow;
+				util_time_data(chp, &util_report_data, "adc1-pa"); 
 				sum_reduce_samples(avg_vals);
-				chprintf(fetch_adc1_state.chp, "%u: %u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\r\n",
-				         timenow,
-				         avg_vals[0] * uv_per_bit,  // in0
-				         avg_vals[1] * uv_per_bit,  // in1
-				         avg_vals[2] * uv_per_bit,  // in2
-				         avg_vals[3] * uv_per_bit,  // in4
-				         avg_vals[4] * uv_per_bit,  // in5
-				         avg_vals[5] * uv_per_bit,  // in6
-				         avg_vals[6] * uv_per_bit,  // in7
-				         avg_vals[7] * uv_per_bit,  // in8
-				         avg_vals[8] * uv_per_bit,  // in9
-				         avg_vals[9] * uv_per_bit,  // in10
-				         avg_vals[10] * uv_per_bit, // in 13
-				         avg_vals[11] * uv_per_bit,  // in 14
-				         avg_vals[12] * uv_per_bit,  // in 15
-				         fetch_adc_calc_temp(avg_vals[13], uv_per_bit),  // T (C)
-				         avg_vals[14] * uv_per_bit,  // VREFINT
-				         avg_vals[15] * uv_per_bit);  // VBAT
+				for(int i=0; i<FETCH_ADC1_PA_GRP_NUM_CHANNELS; ++i) {
+						if(i==13) {
+				         util_report_data.data[i]=fetch_adc_calc_temp(avg_vals[i], uv_per_bit);  // T (C)
+						} else {
+				         util_report_data.data[i]=avg_vals[i] * uv_per_bit;
+						}
+				}
+				util_report_data.datalen = FETCH_ADC1_PA_GRP_NUM_CHANNELS;
+				util_adc_data(chp, &util_report_data, "adc1-pa"); 
 				break;
 			case FETCH_ADC1_PB:
 				break;
@@ -545,7 +531,7 @@ bool fetch_adc1_profile(BaseSequentialStream * chp, Fetch_terminals * fetch_term
 	}
 	else
 	{
-		util_errormsg(chp, "Profile %s not available.", cmd_list[ADC_PROFILE]);
+		util_error(chp, "Profile not available: %s.", cmd_list[ADC_PROFILE]);
 		return false;
 	}
 	return false;

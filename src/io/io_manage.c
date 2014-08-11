@@ -36,6 +36,13 @@
 #include "io_manage.h"
 
 
+//static bool io_manage_check_conflict(ioportid_t port, uint32_t pad, IO_alloc requested) {
+
+
+
+//}
+
+
 
 
 
