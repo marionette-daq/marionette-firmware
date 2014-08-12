@@ -41,6 +41,7 @@ typedef enum report_types
 	RPT_HDATA,       //>! Hex data
 	RPT_DDATA,       //>! Decimal data
 	RPT_COMMENT,     //>! Comments start with a '#' or comment symbol
+	RPT_QUERYPIN,    //>! Pin allocation
 	RPT_MISC = 99    //>! Uncatagorized
 } Report_types;
 
@@ -57,6 +58,7 @@ void util_debugmsg(BaseSequentialStream * chp,  char * file, int line, const cha
 void util_logic_data(BaseSequentialStream * chp, Util_rpt_data * d, char * fmt, ...) ;
 void util_time_data(BaseSequentialStream * chp, Util_rpt_data * d, char * fmt, ...) ;
 void util_adc_data(BaseSequentialStream * chp,  Util_rpt_data * d, char * fmt, ...) ;
+void util_query_pin(BaseSequentialStream * chp, char * fmt, ... );
 void util_info(BaseSequentialStream * chp, char * fmt, ... ) ;
 void util_error(BaseSequentialStream * chp, char * fmt, ... ) ;
 

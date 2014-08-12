@@ -39,6 +39,7 @@ static const struct formats formats[] =
 	{ RPT_HDATA,     "XD"},
 	{ RPT_DDATA,     "DD"},
 	{ RPT_COMMENT,   "#"},
+	{ RPT_QUERYPIN,  "PA"},
 	{ RPT_MISC,      "Q"}
 };
 
@@ -107,6 +108,17 @@ void util_adc_data(BaseSequentialStream * chp,  Util_rpt_data * d, char * fmt, .
 	va_end(argList);
 }
 
+/*! \brief Query pin allocation 
+ */
+void util_query_pin(BaseSequentialStream * chp, char * fmt, ... )
+{
+
+	va_list argList;
+	va_start(argList, fmt);
+	util_report(chp, RPT_QUERYPIN, NULL, fmt, argList);
+	va_end(argList);
+}
+
 /*! \brief User Information Message
  */
 void util_info(BaseSequentialStream * chp, char * fmt, ... )
@@ -143,6 +155,7 @@ void util_error(BaseSequentialStream * chp, char * fmt, ... )
  */
 void util_report(BaseSequentialStream * chp, Report_types rpt, Util_rpt_data * d, char * fmt, va_list argptr )
 {
+	if(fmt == NULL) return;
 	chBSemWait( &mshell_io_sem );
 	switch(rpt)
 	{
@@ -150,12 +163,10 @@ void util_report(BaseSequentialStream * chp, Report_types rpt, Util_rpt_data * d
 		case RPT_ERROR:
 		case RPT_DEBUG:
 		case RPT_COMMENT:
+		case RPT_QUERYPIN:
 		case RPT_MISC:
-			if(fmt != NULL)
-			{
-				chprintf(chp, "%s:", util_getformat(rpt));
-				chvprintf(chp, fmt, argptr);
-			}
+			chprintf(chp, "%s:", util_getformat(rpt));
+			chvprintf(chp, fmt, argptr);
 			break;
 		case RPT_ADC:
 			if(d != NULL && d->datalen > 0)

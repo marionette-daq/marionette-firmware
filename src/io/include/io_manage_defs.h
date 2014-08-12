@@ -2,7 +2,7 @@
  *
  * Definitions for io_manage.h
  *
- * @defgroup io_manaage_defs
+ * @defgroup io_manaage_defs IO Management Tables
  * @{
  */
 
@@ -30,7 +30,7 @@ typedef enum io_alloc
 typedef struct io_namestr
 {
 	IO_alloc   alloc;
-	char   *   name;
+	const char   *   name;
 } IO_namestr;
 
 IO_namestr   io_manage_namestr[] = {{IO_NONE, "None"}, {IO_GPIO, "GPIO"}, {IO_ADC, "ADC"}, {IO_DAC, "DAC"}, {IO_SPI, "SPI"}, {IO_I2C, "I2C"}, {IO_USB, "USB"}};

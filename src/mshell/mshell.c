@@ -41,6 +41,8 @@
 #include "mshell.h"
 #include "mshell_sync.h"
 
+static          Mshell_status                   mshell_state;
+
 static          VERSIONData                     version_data;
 static          char                            prompt[MSHELL_MAX_PROMPT_LENGTH];
 static          bool                            mshell_echo_chars = MSHELL_ECHO_INPUT_CHARS;
@@ -195,6 +197,10 @@ static bool_t cmdexec(const MShellCommand * scp, BaseSequentialStream * chp,
 	return TRUE;
 }
 
+BaseSequentialStream * getMShellStreamPtr() {
+		return(mshell_state.chp);
+}
+
 /*! \brief   MShell thread function.
  *
  * Marionette shell commands are escaped with a '+'
@@ -221,6 +227,7 @@ static msg_t mshell_thread(void * p)
 	char command_line[MSHELL_MAX_LINE_LENGTH];
 	char * args[MSHELL_MAX_ARGUMENTS + 1];
 
+	mshell_state.chp = chp;
 	strncpy(prompt, "m > ", MSHELL_MAX_PROMPT_LENGTH);
 	chRegSetThreadName("mshell");
 	chThdSleepMilliseconds(1000);

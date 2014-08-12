@@ -80,13 +80,18 @@ typedef struct {
                                                  table.                     */
 } MShellConfig;
 
-#if !defined(__DOXYGEN__)
-extern EventSource shell_terminated;
-#endif
+typedef struct mshell_status
+{
+	BaseSequentialStream    *   chp;
+} Mshell_status;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+  extern EventSource shell_terminated;
+
+  BaseSequentialStream * getMShellStreamPtr(void) ;
   void mshellInit(void);
   void mshellExit(msg_t msg);
   Thread *mshellCreate(const MShellConfig *scp, size_t size, tprio_t prio);

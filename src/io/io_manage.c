@@ -2,7 +2,6 @@
   *
   * Keep an accounting of i/o pin configurations
   *
-  * \sa fetch.c
   * @defgroup io_manage IO Management
   * @{
    */
@@ -31,10 +30,19 @@
 #include "io_manage.h"
 #include "io_manage_defs.h"
 
+static const char * io_manage_get_namestr(IO_alloc alloc) {
+	for(uint8_t i = 0; i < NELEMS(io_manage_namestr); ++i) {
+		if(io_manage_namestr[i].alloc == alloc)
+		{
+			return io_manage_namestr[i].name;
+		}
+	}
+	return "NA";	
+}
 
 /*! \brief return pointer to the io port allocation table
  */
-static IO_table * io_manage_get_table(ioportid_t port, uint32_t pad)
+static IO_table * io_manage_get_table(ioportid_t port)
 {
 	for(uint8_t i = 0; i < NELEMS(io_manage_tables); ++i)
 	{
@@ -71,7 +79,7 @@ static bool io_manage_fn_avail(ioportid_t port, uint32_t pad, IO_alloc request_a
 */
 bool io_manage_set_mode(ioportid_t port, uint32_t pad, iomode_t new_mode, IO_alloc request_alloc)
 {
-	IO_table    *    table = io_manage_get_table(port, pad);
+	IO_table    *    table = io_manage_get_table(port);
 
 	if(io_manage_fn_avail(port, pad, request_alloc, table))
 	{
@@ -99,5 +107,13 @@ void io_manage_to_defaults(void)
 		}
 	}
 }
+
+/*! \brief Query the current pin allocation
+ */
+void io_manage_query_pin(BaseSequentialStream * chp, ioportid_t port, uint32_t pad) {
+	IO_table    *    table = io_manage_get_table(port);
+	util_query_pin(chp, "%s",  io_manage_get_namestr(table->pin[pad].current_alloc));
+}
+
 //! @}
 
