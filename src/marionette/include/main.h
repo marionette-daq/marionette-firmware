@@ -30,42 +30,56 @@
 * \section filestructure File Tree
 \verbatim
 
+ tree -d -I ChibiOS-RT
 .
-├── ChibiOS-RT    // Submodule of ChibiOS Operating System
-│   ├── boards
-│   ├── demos
-│   ├── docs
-│   ├── ext
-│   ├── os
-│   ├── test
-│   └── testhal
-├── Doc           // Documentation for doxygen and other miscellaneous documentation
+├── Doc
 │   └── doxydocs
-├── hardware      // Information about the hardware
+│       └── html
+│           └── search
+├── hardware
 │   ├── notes
 │   ├── stdiscovery
 │   └── waveshare
-├── library      // User routines and scripts
+├── library
 │   └── python
-├── notes        // development notes
-├── requirements // Requirements capture and tracking
+├── notes
+├── requirements
 │   └── QFD
-├── src          // Firmware source subtree
+├── src
 │   ├── ARMCM4-STM32F407-DISCOVERY-ADC
 │   ├── ARMCM4-STM32F407-DISCOVERY-MEMS
 │   ├── boards
+│   │   ├── ST_STM32F4_DISCOVERY
+│   │   │   └── cfg
+│   │   └── WAVESHARE_CORE407I
+│   │       └── cfg
 │   ├── devices
+│   │   └── include
 │   ├── fetch
+│   │   └── include
+│   ├── io
+│   │   └── include
 │   ├── marionette
+│   │   ├── build
+│   │   │   ├── lst
+│   │   │   └── obj
+│   │   ├── conf
+│   │   └── include
 │   ├── marionette-stdiscovery
+│   │   ├── conf
+│   │   └── include
 │   ├── mshell
+│   │   └── include
 │   ├── usb
+│   │   └── include
 │   └── util
-├── test        // Testing and demonstration scripts
+│       └── include
+├── test
 │   └── devtest
-├── toolchain   // Toolchain support for build and flash programming
+│       └── __pycache__
+├── toolchain
 │   └── openocd
-└── windows_driver  // APDM signed windows driver
+└── windows_driver
 
 \endverbatim
 * <hr>
