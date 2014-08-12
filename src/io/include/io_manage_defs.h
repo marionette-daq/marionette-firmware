@@ -13,8 +13,6 @@
 extern "C" {
 #endif
 
-#define         IO_MANAGE_DEFS_MAX_TABLES                10
-
 typedef enum io_alloc
 {
 	IO_NONE        = 0b0,   // possibly a hardwired connection

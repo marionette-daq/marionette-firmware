@@ -31,7 +31,7 @@
 #include "io_manage_defs.h"
 
 #if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
-static IO_table * io_manage_tables[IO_MANAGE_DEFS_MAX_TABLES] = { &io_porta, &io_portb, &io_portc, &io_portd, &io_porte, &io_portf, &io_portg, &io_porth, &io_porti };
+static IO_table * io_manage_tables[] = { &io_porta, &io_portb, &io_portc, &io_portd, &io_porte, &io_portf, &io_portg, &io_porth, &io_porti };
 #endif
 
 IO_namestr   io_manage_namestr[] = {{IO_NONE, "None"}, {IO_GPIO, "GPIO"}, {IO_ADC, "ADC"}, {IO_DAC, "DAC"}, {IO_SPI, "SPI"}, {IO_I2C, "I2C"}, {IO_USB, "USB"}};
