@@ -148,7 +148,7 @@ static void main_app(void)
 		{
 			if (SDU1.config->usbp->state == USB_ACTIVE)
 			{
-				mshelltp = mshellCreate(&shell_cfg1, SHELL_WA_SIZE, NORMALPRIO);
+				mshelltp = mshellCreate(&shell_cfg1, SHELL_WA_SIZE, HIGHPRIO);
 			}
 		}
 		else

@@ -25,7 +25,7 @@ DUT_WAITTIME     = 0.200
 Default_Baudrate = 115200
 Default_Timeout  = 2
 Default_Port     = "/dev/ttyACM0"
-Test_cycles      = 3
+Test_cycles      = 250
 
 class DUTSerial():
     def __init__(self, port=Default_Port, baud=Default_Baudrate, timeout=Default_Timeout):
@@ -146,6 +146,9 @@ class DUTSerial():
         u.info("Test configure command")
         self.teststr("gpio:configure:porti:pin10:output:floating\r\n")
         self.teststr("gpio:configure:porth:pin2:output:floating\r\n")
+        u.info("Test query command")
+        self.teststr("gpio:query:porth:pin2\r\n")
+        self.teststr("gpio:query:portc:pin3\r\n")
         u.info("Test set command")
         self.teststr("gpio:set:porth:pin2\r\n")
         self.teststr("gpio:set:porti:pin10\r\n")

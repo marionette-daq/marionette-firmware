@@ -1,14 +1,13 @@
 /*! \file io_manaage_defs.h
  *
- * Definitions for io_manage.h
+ * Definitions for io_manage module
  *
  * @defgroup io_manaage_defs IO Management Tables
  * @{
  */
 
-#ifndef IO_MANAGE_DEFS_H
-#define IO_MANAGE_DEFS_H
-
+#ifndef IO_MANAGE_DEFS_H_
+#define IO_MANAGE_DEFS_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,7 +23,7 @@ typedef enum io_alloc
 	IO_DAC         = 0b100,
 	IO_SPI         = 0b1000,
 	IO_I2C         = 0b10000,
-	IO_USB         = 0b100000 
+	IO_USB         = 0b100000
 } IO_alloc;
 
 typedef struct io_namestr
@@ -32,8 +31,6 @@ typedef struct io_namestr
 	IO_alloc   alloc;
 	const char   *   name;
 } IO_namestr;
-
-IO_namestr   io_manage_namestr[] = {{IO_NONE, "None"}, {IO_GPIO, "GPIO"}, {IO_ADC, "ADC"}, {IO_DAC, "DAC"}, {IO_SPI, "SPI"}, {IO_I2C, "I2C"}, {IO_USB, "USB"}};
 
 typedef struct io_state
 {
@@ -61,7 +58,7 @@ static IO_table io_porta =
 		{.pad = GPIOA_PIN1,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .fn_available = IO_GPIO | IO_ADC } ,
 		{.pad = GPIOA_PIN2,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .fn_available = IO_GPIO | IO_ADC } ,
 		{.pad = GPIOA_PIN3,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .fn_available = IO_GPIO | IO_ADC } ,
-		{.pad = GPIOA_PIN4,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .fn_available = IO_GPIO | IO_ADC | IO_DAC } , 
+		{.pad = GPIOA_PIN4,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .fn_available = IO_GPIO | IO_ADC | IO_DAC } ,
 		{.pad = GPIOA_PIN5,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .fn_available = IO_GPIO | IO_ADC | IO_DAC } ,
 		{.pad = GPIOA_PIN6,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .fn_available = IO_GPIO | IO_ADC } ,
 		{.pad = GPIOA_PIN7,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .fn_available = IO_GPIO | IO_ADC } ,
@@ -268,9 +265,6 @@ static IO_table io_porti =
 		{ .pad = GPIOI_PIN15,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .fn_available = IO_GPIO }
 	}
 };
-
-//! Manage tables through this array. Tables themselves are static to io_manage
-IO_table * io_manage_tables[] = { &io_porta, &io_portb, &io_portc, &io_portd, &io_porte, &io_portf, &io_portg, &io_porth, &io_porti };
 
 #elif defined (BOARD_ST_STM32F4_DISCOVERY)
 #error "ST Discovery Board not defined for Marionette"

@@ -21,6 +21,7 @@
 #include "util_strings.h"
 #include "util_messages.h"
 #include "util_version.h"
+#include "io_manage.h"
 #include "fetch_gpio.h"
 
 #include "fetch_defs.h"
@@ -68,22 +69,22 @@ typedef enum channel_io
 
 /*! \brief pin and port definitions */
 #if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
-static ADC_input ADC1_IN0   = { GPIOA, GPIOA_PIN0, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
-static ADC_input ADC1_IN1   = { GPIOA, GPIOA_PIN1, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
-static ADC_input ADC1_IN2   = { GPIOA, GPIOA_PIN2, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
-static ADC_input ADC1_IN3   = { GPIOA, GPIOA_PIN3, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
-static ADC_input ADC1_IN4   = { GPIOA, GPIOA_PIN4, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
-static ADC_input ADC1_IN5   = { GPIOA, GPIOA_PIN5, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
-static ADC_input ADC1_IN6   = { GPIOA, GPIOA_PIN6, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
-static ADC_input ADC1_IN7   = { GPIOA, GPIOA_PIN7, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
-static ADC_input ADC1_IN8   = { GPIOB, GPIOB_PIN0, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
-static ADC_input ADC1_IN9   = { GPIOB, GPIOB_PIN9, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
-static ADC_input ADC1_IN10  = { GPIOC, GPIOC_PIN0, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
-//static ADC_input ADC1_IN11  = { GPIOC, GPIOC_PIN1,  PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT |PAL_STM32_PUDR_FLOATING } ;  // used for OTG
-//static ADC_input ADC1_IN12  = { GPIOC, GPIOC_PIN2,  PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT |PAL_STM32_PUDR_FLOATING } ;  // used for OTG
-static ADC_input ADC1_IN13  = { GPIOC, GPIOC_PIN3, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
-static ADC_input ADC1_IN14  = { GPIOC, GPIOC_PIN4, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
-static ADC_input ADC1_IN15  = { GPIOC, GPIOC_PIN5, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING } ;
+static ADC_input ADC1_IN0   = { GPIOA, GPIOA_PIN0 };
+static ADC_input ADC1_IN1   = { GPIOA, GPIOA_PIN1 };
+static ADC_input ADC1_IN2   = { GPIOA, GPIOA_PIN2 };
+static ADC_input ADC1_IN3   = { GPIOA, GPIOA_PIN3 };
+static ADC_input ADC1_IN4   = { GPIOA, GPIOA_PIN4 };
+static ADC_input ADC1_IN5   = { GPIOA, GPIOA_PIN5 };
+static ADC_input ADC1_IN6   = { GPIOA, GPIOA_PIN6 };
+static ADC_input ADC1_IN7   = { GPIOA, GPIOA_PIN7 };
+static ADC_input ADC1_IN8   = { GPIOB, GPIOB_PIN0 };
+static ADC_input ADC1_IN9   = { GPIOB, GPIOB_PIN9 };
+static ADC_input ADC1_IN10  = { GPIOC, GPIOC_PIN0 };
+//static ADC_input ADC1_IN11  = { GPIOC, GPIOC_PIN1 },    // used for OTG
+//static ADC_input ADC1_IN12  = { GPIOC, GPIOC_PIN2 },    // used for OTG
+static ADC_input ADC1_IN13  = { GPIOC, GPIOC_PIN3 };
+static ADC_input ADC1_IN14  = { GPIOC, GPIOC_PIN4 };
+static ADC_input ADC1_IN15  = { GPIOC, GPIOC_PIN5 };
 
 static ADC_input * ADC1_inputs[] = {&ADC1_IN0, &ADC1_IN1, &ADC1_IN2, NULL, &ADC1_IN4, &ADC1_IN5, &ADC1_IN6, &ADC1_IN7, &ADC1_IN8, &ADC1_IN9, &ADC1_IN10, NULL, NULL, &ADC1_IN13, &ADC1_IN14, &ADC1_IN15} ;
 #elif defined (BOARD_ST_STM32F4_DISCOVERY)
@@ -381,23 +382,21 @@ static void fetch_adc_io_set_defaults(void)
 	{
 		if(ADC1_inputs[i] != NULL)
 		{
-			palSetPadMode(ADC1_inputs[i]->port, ADC1_inputs[i]->pad, ADC1_inputs[i]->default_mode);
-			ADC1_inputs[i]->current_mode = ADC1_inputs[i]->default_mode;
+			io_manage_set_default_mode(ADC1_inputs[i]->port, ADC1_inputs[i]->pad);
 		}
 	}
 }
 
 /*! Set a channel to Analog Mode 
  */
-static void fetch_adc1_io_to_analog(ADCChannel channel)
+static bool fetch_adc1_io_to_analog(ADCChannel channel)
 {
 	if(ADC1_inputs[channel] != NULL)
 	{
-		palSetPadMode(ADC1_inputs[channel]->port, ADC1_inputs[channel]->pad, PAL_MODE_INPUT_ANALOG );
-		ADC1_inputs[channel]->current_mode = PAL_MODE_INPUT_ANALOG;
+		return(io_manage_set_mode(ADC1_inputs[channel]->port,ADC1_inputs[channel]->pad, PAL_MODE_INPUT_ANALOG, IO_ADC));
 	}
+	return false;
 }
-
 
 /*! \brief Initialize the ADC
  *
@@ -472,41 +471,45 @@ static void fetch_adc1_reset(void)
  * Reset I/Os to default mode before changing for new profile
  *
  */ 
-static void fetch_adc_change_profile(FETCH_ADC_profile_name p)
+static bool fetch_adc_change_profile(FETCH_ADC_profile_name p)
 {
+	bool          ret    =     false;
 	fetch_adc1_reset();
 	switch(p)
 	{
 		case FETCH_ADC1_DEFAULT:
 			fetch_adc1_state.profile = &adc1_default_profile;
 			fetch_adc_io_set_defaults();
-			fetch_adc1_io_to_analog(adc1_default_channel);
+			ret = fetch_adc1_io_to_analog(adc1_default_channel);
 			break;
 		case FETCH_ADC1_DEMO:
 			fetch_adc1_state.profile = &adc1_demo_profile;
 			fetch_adc_io_set_defaults();
-			fetch_adc1_io_to_analog(ADC_CH13);
+			ret = fetch_adc1_io_to_analog(ADC_CH13);
 			break;
 		case FETCH_ADC1_PA:
 			fetch_adc1_state.profile = &adc1_pa_profile;
 			fetch_adc_io_set_defaults();
-			fetch_adc1_io_to_analog(ADC_CH0);
-			fetch_adc1_io_to_analog(ADC_CH1);
-			fetch_adc1_io_to_analog(ADC_CH2);
-			fetch_adc1_io_to_analog(ADC_CH4);
-			fetch_adc1_io_to_analog(ADC_CH5);
-			fetch_adc1_io_to_analog(ADC_CH6);
-			fetch_adc1_io_to_analog(ADC_CH7);
-			fetch_adc1_io_to_analog(ADC_CH8);
-			fetch_adc1_io_to_analog(ADC_CH9);
-			fetch_adc1_io_to_analog(ADC_CH10);
-			fetch_adc1_io_to_analog(ADC_CH13);
-			fetch_adc1_io_to_analog(ADC_CH14);
-			fetch_adc1_io_to_analog(ADC_CH15);
+			if(!fetch_adc1_io_to_analog(ADC_CH0) ) return false;
+			if(!fetch_adc1_io_to_analog(ADC_CH1) ) return false;
+			if(!fetch_adc1_io_to_analog(ADC_CH2) ) return false;
+			if(!fetch_adc1_io_to_analog(ADC_CH4) ) return false;
+			if(!fetch_adc1_io_to_analog(ADC_CH5) ) return false;
+			if(!fetch_adc1_io_to_analog(ADC_CH6) ) return false;
+			if(!fetch_adc1_io_to_analog(ADC_CH7) ) return false;
+			if(!fetch_adc1_io_to_analog(ADC_CH8) ) return false;
+			if(!fetch_adc1_io_to_analog(ADC_CH9) ) return false;
+			if(!fetch_adc1_io_to_analog(ADC_CH10)) return false;
+			if(!fetch_adc1_io_to_analog(ADC_CH13)) return false;
+			if(!fetch_adc1_io_to_analog(ADC_CH14)) return false;
+			if(!fetch_adc1_io_to_analog(ADC_CH15)) return false;
+			ret = true;
 			break;
 		default:
+			ret = false;
 			break;
 	}
+	return ret;
 }
 
 /*! \brief change the profile for adc1
@@ -516,18 +519,15 @@ bool fetch_adc1_profile(BaseSequentialStream * chp, Fetch_terminals * fetch_term
 {
 	if (strncasecmp(cmd_list[ADC_PROFILE], "default", strlen("default") ) == 0)
 	{
-		fetch_adc_change_profile(FETCH_ADC1_DEFAULT);
-		return true;
+		return(fetch_adc_change_profile(FETCH_ADC1_DEFAULT));
 	}
 	else if (strncasecmp(cmd_list[ADC_PROFILE], "demo", strlen("demo") ) == 0)
 	{
-		fetch_adc_change_profile(FETCH_ADC1_DEMO);
-		return true;
+		return(fetch_adc_change_profile(FETCH_ADC1_DEMO));
 	}
 	else if (strncasecmp(cmd_list[ADC_PROFILE], "pa", strlen("pa") ) == 0)
 	{
-		fetch_adc_change_profile(FETCH_ADC1_PA);
-		return true;
+		return(fetch_adc_change_profile(FETCH_ADC1_PA));
 	}
 	else
 	{

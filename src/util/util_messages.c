@@ -39,8 +39,8 @@ static const struct formats formats[] =
 	{ RPT_HDATA,     "XD"},
 	{ RPT_DDATA,     "DD"},
 	{ RPT_COMMENT,   "#"},
-	{ RPT_QUERYPIN,  "PA"},
-	{ RPT_MISC,      "Q"}
+	{ RPT_QUERYPIN,  "QP"},
+	{ RPT_MISC,      "G"}
 };
 
 /*! \brief Return the text symbol of a msg format 

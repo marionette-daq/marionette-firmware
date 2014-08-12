@@ -30,14 +30,22 @@
 #include "io_manage.h"
 #include "io_manage_defs.h"
 
-static const char * io_manage_get_namestr(IO_alloc alloc) {
-	for(uint8_t i = 0; i < NELEMS(io_manage_namestr); ++i) {
+#if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
+static IO_table * io_manage_tables[IO_MANAGE_DEFS_MAX_TABLES] = { &io_porta, &io_portb, &io_portc, &io_portd, &io_porte, &io_portf, &io_portg, &io_porth, &io_porti };
+#endif
+
+IO_namestr   io_manage_namestr[] = {{IO_NONE, "None"}, {IO_GPIO, "GPIO"}, {IO_ADC, "ADC"}, {IO_DAC, "DAC"}, {IO_SPI, "SPI"}, {IO_I2C, "I2C"}, {IO_USB, "USB"}};
+
+static const char * io_manage_get_namestr(IO_alloc alloc)
+{
+	for(uint8_t i = 0; i < NELEMS(io_manage_namestr); ++i)
+	{
 		if(io_manage_namestr[i].alloc == alloc)
 		{
 			return io_manage_namestr[i].name;
 		}
 	}
-	return "NA";	
+	return "NA";
 }
 
 /*! \brief return pointer to the io port allocation table
@@ -76,7 +84,19 @@ static bool io_manage_fn_avail(ioportid_t port, uint32_t pad, IO_alloc request_a
 }
 
 /*! \brief Update the port allocation table
-*/
+ */
+bool io_manage_set_default_mode(ioportid_t port, uint32_t pad)
+{
+	IO_table    *    table = io_manage_get_table(port);
+
+	table->pin[pad].current_mode  = table->pin[pad].default_mode;
+	table->pin[pad].current_alloc = table->pin[pad].default_alloc;
+	palSetPadMode(port, pad, table->pin[pad].default_mode);
+	return true;
+}
+
+/*! \brief Update the port allocation table
+ */
 bool io_manage_set_mode(ioportid_t port, uint32_t pad, iomode_t new_mode, IO_alloc request_alloc)
 {
 	IO_table    *    table = io_manage_get_table(port);
@@ -110,7 +130,8 @@ void io_manage_to_defaults(void)
 
 /*! \brief Query the current pin allocation
  */
-void io_manage_query_pin(BaseSequentialStream * chp, ioportid_t port, uint32_t pad) {
+void io_manage_query_pin(BaseSequentialStream * chp, ioportid_t port, uint32_t pad)
+{
 	IO_table    *    table = io_manage_get_table(port);
 	util_query_pin(chp, "%s",  io_manage_get_namestr(table->pin[pad].current_alloc));
 }

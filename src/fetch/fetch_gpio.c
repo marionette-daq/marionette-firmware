@@ -15,8 +15,12 @@
 #include "util_strings.h"
 #include "util_general.h"
 
+#include "io_manage.h"
+
 #include "fetch_defs.h"
 #include "fetch_gpio.h"
+
+
 
 const StrToPinnum_Map fetch_gpio_pinmap[] =
 {
@@ -193,7 +197,7 @@ static bool fetch_gpio_get_port_pin(BaseSequentialStream * chp, char * cmd_list[
 
 /*! \brief read the input register value for the port and pin
  */
-bool fetch_gpio_get(BaseSequentialStream * chp, Fetch_terminals * fetch_terms,
+static bool fetch_gpio_get(BaseSequentialStream * chp, Fetch_terminals * fetch_terms,
                     char * cmd_list[])
 {
 	GPIO_TypeDef *       port    = GPIOA;
@@ -214,7 +218,7 @@ bool fetch_gpio_get(BaseSequentialStream * chp, Fetch_terminals * fetch_terms,
 
 /*! \brief set the output register value to HIGH for the port and pin
  */
-bool fetch_gpio_set(BaseSequentialStream * chp, Fetch_terminals * fetch_terms,
+static bool fetch_gpio_set(BaseSequentialStream * chp, Fetch_terminals * fetch_terms,
                     char * cmd_list[])
 {
 	GPIO_TypeDef *    port       = NULL;
@@ -233,7 +237,7 @@ bool fetch_gpio_set(BaseSequentialStream * chp, Fetch_terminals * fetch_terms,
 
 /*! \brief clear the output register value (set to LOW) for the port and pin
  */
-bool fetch_gpio_clear(BaseSequentialStream * chp, Fetch_terminals * fetch_terms,
+static bool fetch_gpio_clear(BaseSequentialStream * chp, Fetch_terminals * fetch_terms,
                       char * cmd_list[])
 {
 	GPIO_TypeDef *       port    = NULL;
@@ -250,11 +254,25 @@ bool fetch_gpio_clear(BaseSequentialStream * chp, Fetch_terminals * fetch_terms,
 	return false;
 }
 
+static bool fetch_gpio_query(BaseSequentialStream * chp, Fetch_terminals * fetch_terms, char * cmd_list[]) {
+
+	GPIO_TypeDef *       port    = NULL;
+	FETCH_GPIO_pinnum    pin     = PIN0;
+
+	if(fetch_gpio_get_port_pin(chp, cmd_list, fetch_terms, &port, &pin))
+	{
+		if((port != NULL) && (pin != NO_FETCH_GPIO_PIN))
+		{
+			io_manage_query_pin(chp, port, pin) ;
+			return true;
+		}
+	}
+	return false;
+}
+
 /*! \brief configure a pin
  */
-bool fetch_gpio_config(BaseSequentialStream * chp, Fetch_terminals * fetch_terms,
-                       char * cmd_list[])
-
+static bool fetch_gpio_config(BaseSequentialStream * chp, Fetch_terminals * fetch_terms, char * cmd_list[])
 {
 	GPIO_TypeDef *       port       = NULL;
 	FETCH_GPIO_pinnum    pin        = PIN0;
@@ -321,7 +339,7 @@ bool fetch_gpio_config(BaseSequentialStream * chp, Fetch_terminals * fetch_terms
 			//DBG_VMSG(chp, "port: 0x%x", port);
 			//DBG_VMSG(chp, "dir: %d", direction);
 			//DBG_VMSG(chp, "sense: %d", sense);
-			palSetPadMode(port, pin, direction | sense);
+			io_manage_set_mode(port, pin, direction | sense, IO_GPIO);
 			return true;
 		}
 	}
@@ -347,6 +365,10 @@ bool fetch_gpio_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * d
 		else if (strncasecmp(cmd_list[FETCH_GPIO_ACTION], "clear", strlen("clear") ) == 0)
 		{
 			return(fetch_gpio_clear(chp, fetch_terms, cmd_list));
+		}
+		else if (strncasecmp(cmd_list[FETCH_GPIO_ACTION], "query", strlen("query") ) == 0)
+		{
+			return(fetch_gpio_query(chp, fetch_terms, cmd_list));
 		}
 		else if (strncasecmp(cmd_list[FETCH_GPIO_ACTION], "config", strlen("config") ) == 0)
 		{

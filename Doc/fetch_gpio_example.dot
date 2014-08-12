@@ -8,17 +8,17 @@ digraph Fetch {
 	gpio   -> get;
 	gpio   -> set;
 	gpio   -> clear;
+	gpio   -> query;
 	gpio   -> configure;
-	clear -> clear_port;
-	clear_port -> clear_pin;
-	get -> get_port;
-	get_port -> get_pin;
-	set -> set_port;
-	set_port -> set_pin;
-	configure -> port;
-	port -> pin;
-	pin -> output;	
-	pin -> input;	
+	clear  -> port;
+	get    -> port;
+	set    -> port;
+	query  -> port;
+	port   -> pin;
+	configure -> configure_port;
+	configure_port -> configure_pin;
+	configure_pin -> output;	
+	configure_pin -> input;	
 	output -> pullup;
 	output -> pulldown;
 	output -> floating;
@@ -29,8 +29,8 @@ digraph Fetch {
 	input -> analog;
 	gpio [color=lightblue, peripheries=2, style=filled];
 	configure [color=lightblue, peripheries=2, style=filled];
-	port [color=lightblue, peripheries=2, style=filled];
-	pin [color=lightblue, peripheries=2, style=filled];
+	configure_port [color=lightblue, peripheries=2, style=filled];
+	configure_pin [color=lightblue, peripheries=2, style=filled];
 	output [color=lightblue, peripheries=2, style=filled];
 	pullup [color=lightblue, peripheries=2, style=filled];
 	label="gpio:configure:portb:pin3:output:pullup"

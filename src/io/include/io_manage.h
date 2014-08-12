@@ -14,36 +14,23 @@ extern "C" {
 #include "ch.h"
 #include "hal.h"
 
-#include "adc_lld.h"
-
 #include "io_manage_defs.h"
-
-#include "board.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
-
-
-
-		// query state
-//io_manage_query(port, pad);
-		// state accounting 
-//bool io_manage_set(port, pad, mode, alloc);
-		// do palSetMode here
-		// see gpio
-		// reset to defaults
-//void io_manage_reset(port, pad);
+	bool io_manage_set_default_mode(ioportid_t port, uint32_t pad);
+	bool io_manage_set_mode(ioportid_t port, uint32_t pad, iomode_t new_mode, IO_alloc request_alloc);
+	void io_manage_to_defaults(void);
+	void io_manage_query_pin(BaseSequentialStream * chp, ioportid_t port, uint32_t pad) ;
 
 #ifdef __cplusplus
 }
-#endif
 
 #endif
 
+#endif
 
 //! @}
-
 

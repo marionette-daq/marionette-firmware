@@ -54,7 +54,7 @@ P - Production Rules:
 <dac_configure>    ::= "dc_mv"   
 <spi_subcommandA>  ::= TBD
 <i2c_subcommandA>  ::= TBD
-<gpio_subcommandA> ::= "get"    | "set"      | "clear"    | "configure"
+<gpio_subcommandA> ::= "get"    | "set"      | "clear"    | "configure" | "query"
 <gpio_direction>   ::= "input"  | "output"
 <gpio_sense>       ::= "pullup" | "pulldown" | "floating" | "analog"
 <port_subcommand>  ::= "porta"  | "portb"    | "portc" | "portd" | "porte" | "portf" | "portg" | "porth" | "porti"
@@ -101,7 +101,7 @@ static Command_dictionary          resetpins_dict          = { .enabled = true, 
 static Fetch_terminals fetch_terms =
 {
 	.command          = {"?", "help", "version", "gpio", "adc", "spi", "i2c", "resetpins", "heartbeat_toggle"},
-	.gpio_subcommandA = {"get", "set", "clear", "configure"},
+	.gpio_subcommandA = {"get", "set", "clear", "configure", "query"},
 	.gpio_direction   = {"input", "output"},
 	.gpio_sense       = {"pullup", "pulldown", "floating", "analog"},
 	.adc_subcommandA  = {"conf_adc1", "start", "stop"},
@@ -228,6 +228,7 @@ static bool fetch_hbtoggle(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
 	if(heartbeat_toggle_dict.enabled)
 	{
 		hbToggle();
+		return true;
 	}
 
 	util_info(chp, "Command not enabled");
@@ -336,7 +337,6 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 	uint8_t          n = 0;
 
 	int              arrlen = NELEMS(command_toks);
-
 
 	// don't mess up the string passed from outside this function
 	strncpy(localinput, inputline, FETCH_MAX_LINE_CHARS);

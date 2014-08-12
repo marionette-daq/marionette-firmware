@@ -48,6 +48,7 @@ static          char                            prompt[MSHELL_MAX_PROMPT_LENGTH]
 static          bool                            mshell_echo_chars = MSHELL_ECHO_INPUT_CHARS;
 
 EventSource     mshell_terminated;
+static void mshell_stream_putstr(BaseSequentialStream * chp, char * fmt, ...) ;
 
 static void usage(BaseSequentialStream * chp, char * p)
 {
@@ -230,7 +231,7 @@ static msg_t mshell_thread(void * p)
 	mshell_state.chp = chp;
 	strncpy(prompt, "m > ", MSHELL_MAX_PROMPT_LENGTH);
 	chRegSetThreadName("mshell");
-	chThdSleepMilliseconds(1000);
+	chThdSleepMilliseconds(500);
 	//! Initial Welcome Prompt
 	chprintf(chp, "\r\nMarionette Shell (\"+help\" for shell commands)\r\n");
 
@@ -239,7 +240,7 @@ static msg_t mshell_thread(void * p)
 
 	while (TRUE)
 	{
-		chprintf(chp, "%s", prompt);
+		mshell_stream_putstr(chp, "%s", prompt);
 		ret = mshellGetLine(chp, input_line, sizeof(input_line));
 		if (ret)
 		{
@@ -385,6 +386,15 @@ static bool_t mshell_stream_put(BaseSequentialStream * chp, uint8_t c) {
 	return ret;
 }	
 
+static void mshell_stream_putstr(BaseSequentialStream * chp, char * fmt, ...) {
+	va_list argList;
+	va_start(argList, fmt);
+
+	chBSemWait( &mshell_io_sem );
+	chvprintf(chp, fmt, argList);
+	chBSemSignal( &mshell_io_sem );
+	va_end(argList);
+}
 
 /*!
  * \brief   Reads a whole line from the input channel.
