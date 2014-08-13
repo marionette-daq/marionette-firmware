@@ -31,7 +31,7 @@
  * @brief   Shell echo chars enable.
  */
 #if !defined(MSHELL_MAX_LINE_LENGTH) || defined(__DOXYGEN__)
-#define MSHELL_ECHO_INPUT_CHARS       ((bool) false)
+#define MSHELL_ECHO_INPUT_CHARS       ((bool) true)
 #endif
 
 
