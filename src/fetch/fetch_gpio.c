@@ -274,7 +274,7 @@ static bool fetch_gpio_query(BaseSequentialStream * chp, Fetch_terminals * fetch
  */
 static bool fetch_gpio_config(BaseSequentialStream * chp, Fetch_terminals * fetch_terms, char * cmd_list[])
 {
-	GPIO_TypeDef *       port       = NULL;
+	GPIO_TypeDef    *    port       = NULL;
 	FETCH_GPIO_pinnum    pin        = PIN0;
 
 	int            sense      = PAL_STM32_PUDR_FLOATING;
@@ -301,33 +301,35 @@ static bool fetch_gpio_config(BaseSequentialStream * chp, Fetch_terminals * fetc
 		return false;
 	}
 
-	if(fetch_gpio_is_valid_gpio_sense(chp, fetch_terms, cmd_list[FETCH_GPIO_SENSE]) >= 0)
+	if(direction == PAL_STM32_MODE_INPUT)
 	{
-
-		if( (strncasecmp(cmd_list[FETCH_GPIO_SENSE], "pullup", strlen("pullup") ) == 0) )
+		if(fetch_gpio_is_valid_gpio_sense(chp, fetch_terms, cmd_list[FETCH_GPIO_SENSE]) >= 0)
 		{
-			sense = PAL_STM32_PUDR_PULLUP;
-		}
-		else if ( (strncasecmp(cmd_list[FETCH_GPIO_SENSE], "pulldown", strlen("pulldown") ) == 0) )
-		{
-			sense = PAL_STM32_PUDR_PULLDOWN;
-		}
-		else if ( (strncasecmp(cmd_list[FETCH_GPIO_SENSE], "floating", strlen("floating") ) == 0) )
-		{
-			sense = PAL_STM32_PUDR_FLOATING;
-		}
-		else if ( (strncasecmp(cmd_list[FETCH_GPIO_SENSE], "analog", strlen("analog") ) == 0) )
-		{
-			sense = PAL_STM32_MODE_ANALOG;
+			if( (strncasecmp(cmd_list[FETCH_GPIO_SENSE], "pullup", strlen("pullup") ) == 0) )
+			{
+				sense = PAL_STM32_PUDR_PULLUP;
+			}
+			else if ( (strncasecmp(cmd_list[FETCH_GPIO_SENSE], "pulldown", strlen("pulldown") ) == 0) )
+			{
+				sense = PAL_STM32_PUDR_PULLDOWN;
+			}
+			else if ( (strncasecmp(cmd_list[FETCH_GPIO_SENSE], "floating", strlen("floating") ) == 0) )
+			{
+				sense = PAL_STM32_PUDR_FLOATING;
+			}
+			else if ( (strncasecmp(cmd_list[FETCH_GPIO_SENSE], "analog", strlen("analog") ) == 0) )
+			{
+				sense = PAL_STM32_MODE_ANALOG;
+			}
+			else
+			{
+				return false;
+			}
 		}
 		else
 		{
 			return false;
 		}
-	}
-	else
-	{
-		return false;
 	}
 
 
@@ -339,12 +341,21 @@ static bool fetch_gpio_config(BaseSequentialStream * chp, Fetch_terminals * fetc
 			//DBG_VMSG(chp, "port: 0x%x", port);
 			//DBG_VMSG(chp, "dir: %d", direction);
 			//DBG_VMSG(chp, "sense: %d", sense);
-			io_manage_set_mode(port, pin, direction | sense, IO_GPIO);
+			if(direction == PAL_STM32_MODE_INPUT)
+			{
+				io_manage_set_mode(port, pin, direction | sense, IO_GPIO);
+			}
+			else
+			{
+				io_manage_set_mode(port, pin, direction, IO_GPIO);
+			}
 			return true;
 		}
 	}
 	return false;
 }
+
+
 
 /*! \brief dispatch a specific gpio command
  */
@@ -390,6 +401,5 @@ bool fetch_gpio_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * d
 	}
 	return false;
 }
-
 
 /*! @} */
