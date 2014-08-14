@@ -103,14 +103,26 @@ static void cmd_noprompt(BaseSequentialStream * chp, int argc, char * argv[] UNU
 
 /*! \brief toggle the echo of characters to the serial port
  */
-static void cmd_toggle_echo(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
+static void cmd_echo(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
 {
 	if(argc > 0)
 	{
-		usage(chp, "toggle_echo");
+		usage(chp, "echo");
 		return;
 	}
-	mshell_echo_chars = !mshell_echo_chars;
+	mshell_echo_chars = true;
+}
+
+/*! \brief toggle the echo of characters to the serial port
+ */
+static void cmd_noecho(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
+{
+	if(argc > 0)
+	{
+		usage(chp, "noecho");
+		return;
+	}
+	mshell_echo_chars = false;
 }
 
 /*! \brief information about firmware and hardware
@@ -175,7 +187,8 @@ static MShellCommand local_commands[] =
 	{"systime", cmd_systime},
 	{"prompt", cmd_prompt},
 	{"noprompt", cmd_noprompt},
-	{"toggle_echo", cmd_toggle_echo},
+  {"echo", cmd_echo},
+  {"noecho", cmd_noecho},
 	{"version", cmd_version},
 	{NULL, NULL}
 };
