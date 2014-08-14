@@ -27,6 +27,11 @@ typedef struct
 	uint32_t data[UTIL_MAXDATA];
 	uint8_t  datalen;
 } Util_rpt_data;
+
+/* \todo codereview: This is not thread safe if all threads use the same instance 
+ *  Proposal is to get rid of the extern and local declaration and have each reporting
+ *  thread use its own Util_rpt_data structure.
+ */
 extern Util_rpt_data           util_report_data;
 
 typedef enum report_types

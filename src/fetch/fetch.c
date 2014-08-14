@@ -40,6 +40,7 @@ P - Production Rules:
 <statement>        ::= <command> <EOL>
                      | <command> ":" <gpio_subcommandA> ":" <port_subcommand> ":" <pin_subcommand> <EOL>
                      | <command> ":" <gpio_subcommandA> ":" <port_subcommand> ":" <pin_subcommand> ":" <gpio_direction> ":" <gpio_sense> <EOL>
+                     | <command> ":" <gpio_subcommandA> ":" <port_subcommand> ":" <pin_subcommand> ":" <gpio_direction> <EOL>
                      | <command> ":" <adc_subcommandA> <EOL>
                      | <command> ":" <adc_subcommandA>  ":" <adc_configure> <EOL>
                      | <command> ":" <adc_subcommandA>  ":" <adc_configure>   ":" <adc_profile> <EOL>

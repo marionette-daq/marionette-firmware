@@ -187,12 +187,11 @@ static MShellCommand local_commands[] =
 	{"systime", cmd_systime},
 	{"prompt", cmd_prompt},
 	{"noprompt", cmd_noprompt},
-  {"echo", cmd_echo},
-  {"noecho", cmd_noecho},
+	{"echo", cmd_echo},
+	{"noecho", cmd_noecho},
 	{"version", cmd_version},
 	{NULL, NULL}
 };
-
 
 /*! \brief execute a given command in the shell
  */
