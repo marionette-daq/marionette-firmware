@@ -290,31 +290,32 @@ static void adc1_new_data(eventid_t id UNUSED)
 		switch(fetch_adc1_state.profile->name)
 		{
 			case FETCH_ADC1_DEFAULT: // 1 channel in this profile
-				util_report_data.data[0] = timenow;
-				util_time_data(chp, &util_report_data, "adc1-default"); 
-				sum_reduce_samples(avg_vals);
-				util_report_data.data[0] = avg_vals[0] * uv_per_bit;
-				util_report_data.datalen = 1;
-				util_adc_data(chp, &util_report_data, "adc1-default"); 
+        util_message_uint32(chp, "time", &timenow, 1);
+        
+        avg_vals[0] *= uv_per_bit; // convert to micro-volt
+
+        util_message_uint32(chp, "adc", avg_vals, 1);
 				break;
 			case FETCH_ADC1_DEMO:  // 2 channels in this profile
 				sum_reduce_samples(avg_vals);
+        // FIXME: change this to use one of the util_message functions?
 				chprintf(fetch_adc1_state.chp, "DEMO:\t%u,T(raw): %u\tT(C): %u\tIN13(raw): %u\tIN13(uV):%u\r\n", timenow, avg_vals[0],
 				         fetch_adc_calc_temp(avg_vals[0], uv_per_bit), avg_vals[1], avg_vals[1] * uv_per_bit);
 				break;
 			case FETCH_ADC1_PA:  // 16 channels in this profile
-				util_report_data.data[0] = timenow;
-				util_time_data(chp, &util_report_data, "adc1-pa"); 
+        util_message_uint32(chp, "time", &timenow, 1);
 				sum_reduce_samples(avg_vals);
+
+        // convert values
 				for(int i=0; i<FETCH_ADC1_PA_GRP_NUM_CHANNELS; ++i) {
 						if(i==13) {
-				         util_report_data.data[i]=fetch_adc_calc_temp(avg_vals[i], uv_per_bit);  // T (C)
+				         avg_vals[i]=fetch_adc_calc_temp(avg_vals[i], uv_per_bit);  // T (C)
 						} else {
-				         util_report_data.data[i]=avg_vals[i] * uv_per_bit;
+				         avg_vals[i]=avg_vals[i] * uv_per_bit;
 						}
 				}
-				util_report_data.datalen = FETCH_ADC1_PA_GRP_NUM_CHANNELS;
-				util_adc_data(chp, &util_report_data, "adc1-pa"); 
+
+        util_message_uint32(chp, "adc", avg_vals, FETCH_ADC1_PA_GRP_NUM_CHANNELS);
 				break;
 			case FETCH_ADC1_PB:
 				break;
@@ -531,7 +532,7 @@ bool fetch_adc1_profile(BaseSequentialStream * chp, Fetch_terminals * fetch_term
 	}
 	else
 	{
-		util_error(chp, "Profile not available: %s.", cmd_list[ADC_PROFILE]);
+		util_message_error(chp, "Profile not available: %s.", cmd_list[ADC_PROFILE]);
 		return false;
 	}
 	return false;

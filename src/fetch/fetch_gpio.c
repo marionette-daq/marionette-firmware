@@ -202,13 +202,14 @@ static bool fetch_gpio_get(BaseSequentialStream * chp, Fetch_terminals * fetch_t
 {
 	GPIO_TypeDef *       port    = GPIOA;
 	FETCH_GPIO_pinnum    pin     = PIN0;
+  uint8_t pad_state;
 
 	if(fetch_gpio_get_port_pin(chp, cmd_list, fetch_terms, &port, &pin))
 	{
 		if((port != NULL) && (pin != NO_FETCH_GPIO_PIN))
 		{
-			util_report_data.data[0] = palReadPad(port,pin);
-			util_logic_data(chp, &util_report_data, "Pad read");
+			pad_state = palReadPad(port,pin);
+      util_message_uint8(chp, "logic", &pad_state, 1);
 			return true;
 		}
 	}
@@ -394,7 +395,7 @@ bool fetch_gpio_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * d
 		}
 		else
 		{
-			util_error(chp, "GPIO command not available.");
+			util_message_error(chp, "GPIO command not available.");
 			return(false) ;
 		}
 		return true;

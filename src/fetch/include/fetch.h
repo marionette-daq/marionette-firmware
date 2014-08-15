@@ -20,19 +20,19 @@
 #define         HELP_HELPSTRING                         "\r\n"
 
 #define 		GPIO_MAX_DATA_BYTES 					0
-#define 		GPIO_HELPSTRING   					    ((const char *) "\r\n\tGPIO:\tgpio:<get,set,clear,configure>:port:pin:<input,output>:<pullup,pulldown,floating,analog>")
+#define 		GPIO_HELPSTRING   					    ((const char *) "GPIO:\tgpio:<get,set,clear,configure>:port:pin:<input,output>:<pullup,pulldown,floating,analog>")
 
 #define 		ADC_MAX_DATA_BYTES 					    0
-#define 		ADC_HELPSTRING   					    ((const char *) "\r\n\tADC:\tadc:<conf_adc1,start,stop>:<profile,oneshot,continuous,reset,vref_mv>:<default,demo,PA,PB")
+#define 		ADC_HELPSTRING   					    ((const char *) "ADC:\tadc:<conf_adc1,start,stop>:<profile,oneshot,continuous,reset,vref_mv>:<default,demo,PA,PB")
 
 #define 		VERSION_MAX_DATA_BYTES 					0
-#define 		VERSION_HELPSTRING   					((const char *) "\r\n\tVERSION:\tversion")
+#define 		VERSION_HELPSTRING   					((const char *) "VERSION:\tversion")
 
 #define 		HEARTBEAT_TOGGLE_MAX_DATA_BYTES 		0
-#define 		HEARTBEAT_TOGGLE_HELPSTRING 			((const char *) "\r\n\tHEARTBEAT_TOGGLE:\theartbeat_toggle")
+#define 		HEARTBEAT_TOGGLE_HELPSTRING 			((const char *) "HEARTBEAT_TOGGLE:\theartbeat_toggle")
 
 #define 		RESETPINS_MAX_DATA_BYTES 				0
-#define 		RESETPINS_HELPSTRING   					((const char *) "\r\n\tRESETPINS:\tresetpins")
+#define 		RESETPINS_HELPSTRING   					((const char *) "RESETPINS:\tresetpins")
 
 #include "fetch_defs.h"
 

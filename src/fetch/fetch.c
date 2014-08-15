@@ -175,12 +175,12 @@ inline int fetch_is_valid_whitespace(BaseSequentialStream * chp, char * chkwhite
  */
 static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl[] UNUSED)
 {
-	util_info(chp, "Help");
-	util_info(chp, "%s\r\n", heartbeat_toggle_dict.helpstring);
-	util_info(chp, "%s\r\n", version_dict.helpstring);
-	util_info(chp, "%s\r\n", resetpins_dict.helpstring);
-	util_info(chp, "%s\r\n", gpio_dict.helpstring);
-	util_info(chp, "%s\r\n", adc_dict.helpstring);
+	util_message_comment(chp, "Help");
+	util_message_comment(chp, "\t%s", heartbeat_toggle_dict.helpstring);
+	util_message_comment(chp, "\t%s", version_dict.helpstring);
+	util_message_comment(chp, "\t%s", resetpins_dict.helpstring);
+	util_message_comment(chp, "\t%s", gpio_dict.helpstring);
+	util_message_comment(chp, "\t%s", adc_dict.helpstring);
 	return true;
 }
 /*! \brief ADC command callback for fetch language
@@ -191,7 +191,7 @@ static bool fetch_adc(BaseSequentialStream  * chp, char * cmd_list[], char * dat
 	{
 		return(fetch_adc_dispatch(chp, cmd_list, data_list, &fetch_terms));
 	}
-	util_info(chp, "Command not enabled");
+	util_message_info(chp, "Command not enabled");
 	return false;
 }
 
@@ -203,7 +203,7 @@ static bool fetch_gpio(BaseSequentialStream  * chp, char * cmd_list[], char * da
 	{
 		return(fetch_gpio_dispatch(chp, cmd_list, data_list, &fetch_terms));
 	}
-	util_info(chp, "Command not enabled");
+	util_message_info(chp, "Command not enabled");
 	return false;
 }
 
@@ -212,12 +212,10 @@ static bool fetch_gpio(BaseSequentialStream  * chp, char * cmd_list[], char * da
 static bool fetch_version(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
                           char * data_list[] UNUSED)
 {
-	static          VERSIONData                     version_data;
+  uint32_t chip_id[3] = {STM32F4_UNIQUE_ID_LOW, STM32F4_UNIQUE_ID_CENTER, STM32F4_UNIQUE_ID_HIGH};
 
-	util_fwversion(&version_data);
-	util_hwversion(&version_data);
-	util_info(chp, "Fetch Firmware Version:%s\r\n", version_data.firmware);
-	util_info(chp, "Hardware Version:0x%x-0x%x-0x%x\r\n", version_data.hardware.id_high, version_data.hardware.id_center, version_data.hardware.id_low);
+	util_message_string(chp, "firmware_version", GIT_COMMIT_VERSION);
+	util_message_hex_uint32(chp, "chip_id", chip_id, 3);
 	return true;
 }
 
@@ -232,7 +230,7 @@ static bool fetch_hbtoggle(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
 		return true;
 	}
 
-	util_info(chp, "Command not enabled");
+	util_message_info(chp, "Command not enabled");
 	return false;
 }
 
@@ -350,7 +348,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 	}
 	else
 	{
-		util_error(chp, "No command-(only data?)");
+		util_message_error(chp, "No command-(only data?)");
 		return false;
 	}
 
@@ -380,7 +378,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 	{
 		if (n >= FETCH_MAX_COMMANDS)
 		{
-			util_error(chp, "Too many data. Limit: %u", FETCH_MAX_COMMANDS);
+			util_message_error(chp, "Too many data. Limit: %u", FETCH_MAX_COMMANDS);
 			command_toks[0] = NULL;
 			break;
 		}
@@ -415,7 +413,7 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 		{
 			if (n >= FETCH_MAX_DATA_ITEMS)
 			{
-				util_error(chp, "Too many data. Limit: %u", FETCH_MAX_DATA_ITEMS);
+				util_message_error(chp, "Too many data. Limit: %u", FETCH_MAX_DATA_ITEMS);
 				data_toks[0] = NULL;
 				break;
 			}

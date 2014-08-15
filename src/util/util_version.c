@@ -31,7 +31,6 @@ void util_hwversion(VERSIONData * ver_data)
 		ver_data->hardware.id_low    = STM32F4_UNIQUE_ID_LOW;
 		ver_data->hardware.id_center = STM32F4_UNIQUE_ID_CENTER;
 		ver_data->hardware.id_high   = STM32F4_UNIQUE_ID_HIGH;
-
 }
 
 //! @}

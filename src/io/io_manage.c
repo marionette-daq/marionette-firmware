@@ -133,7 +133,7 @@ void io_manage_to_defaults(void)
 void io_manage_query_pin(BaseSequentialStream * chp, ioportid_t port, uint32_t pad)
 {
 	IO_table    *    table = io_manage_get_table(port);
-	util_query_pin(chp, "%s",  io_manage_get_namestr(table->pin[pad].current_alloc));
+	util_message_info(chp, "%s",  io_manage_get_namestr(table->pin[pad].current_alloc));
 }
 
 //! @}

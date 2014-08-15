@@ -52,7 +52,7 @@ static void mshell_stream_putstr(BaseSequentialStream * chp, char * fmt, ...) ;
 
 static void usage(BaseSequentialStream * chp, char * p)
 {
-	util_info(chp, "Usage: %s", p);
+	util_message_info(chp, "Usage: %s", p);
 }
 
 static void list_commands(BaseSequentialStream * chp, const MShellCommand * scp)
@@ -68,8 +68,8 @@ static void cmd_version(BaseSequentialStream * chp, int argc, char * argv[] UNUS
 {
 	util_fwversion(&version_data);
 	util_hwversion(&version_data);
-	util_info(chp, "Firmware Version:%s", version_data.firmware);
-	util_info(chp, "Hardware Version:0x%x-0x%x-0x%x", version_data.hardware.id_high, version_data.hardware.id_center, version_data.hardware.id_low);
+	util_message_info(chp, "Firmware Version:%s", version_data.firmware);
+	util_message_info(chp, "Hardware Version:0x%x-0x%x-0x%x", version_data.hardware.id_high, version_data.hardware.id_center, version_data.hardware.id_low);
 	if(argc > 0)
 	{
 		usage(chp, "version");
@@ -139,28 +139,28 @@ static void cmd_info(BaseSequentialStream * chp, int argc, char * argv[])
 		usage(chp, "info");
 		return;
 	}
-	util_info(chp, "Firmware Version:%s", version_data.firmware);
-	util_info(chp, "Hardware Version:0x%x-0x%x-0x%x", version_data.hardware.id_high, version_data.hardware.id_center, version_data.hardware.id_low);
-	util_info(chp, "Kernel:%s", CH_KERNEL_VERSION);
+	util_message_info(chp, "Firmware Version:%s", version_data.firmware);
+	util_message_info(chp, "Hardware Version:0x%x-0x%x-0x%x", version_data.hardware.id_high, version_data.hardware.id_center, version_data.hardware.id_low);
+	util_message_info(chp, "Kernel:%s", CH_KERNEL_VERSION);
 #ifdef CH_COMPILER_NAME
-	util_info(chp, "Compiler:%s", CH_COMPILER_NAME);
+	util_message_info(chp, "Compiler:%s", CH_COMPILER_NAME);
 #endif
-	util_info(chp, "Architecture:%s", CH_ARCHITECTURE_NAME);
+	util_message_info(chp, "Architecture:%s", CH_ARCHITECTURE_NAME);
 #ifdef CH_CORE_VARIANT_NAME
-	util_info(chp, "Core Variant:%s", CH_CORE_VARIANT_NAME);
+	util_message_info(chp, "Core Variant:%s", CH_CORE_VARIANT_NAME);
 #endif
 #ifdef CH_PORT_INFO
-	util_info(chp, "Port Info:%s", CH_PORT_INFO);
+	util_message_info(chp, "Port Info:%s", CH_PORT_INFO);
 #endif
 #ifdef PLATFORM_NAME
-	util_info(chp, "Platform:%s", PLATFORM_NAME);
+	util_message_info(chp, "Platform:%s", PLATFORM_NAME);
 #endif
 #ifdef BOARD_NAME
-	util_info(chp, "Board:%s", BOARD_NAME);
+	util_message_info(chp, "Board:%s", BOARD_NAME);
 #endif
 #ifdef __DATE__
 #ifdef __TIME__
-	util_info(chp, "Build time:%s%s%s", __DATE__, " - ", __TIME__);
+	util_message_info(chp, "Build time:%s%s%s", __DATE__, " - ", __TIME__);
 #endif
 #endif
 }
@@ -172,10 +172,10 @@ static void cmd_systime(BaseSequentialStream * chp, int argc, char * argv[])
 	(void)argv;
 	if (argc > 0)
 	{
-		util_info(chp, "systime");
+		util_message_info(chp, "systime");
 		return;
 	}
-	util_info(chp, "%lu", (unsigned long)chTimeNow());
+	util_message_info(chp, "%lu", (unsigned long)chTimeNow());
 }
 
 /**
@@ -245,7 +245,8 @@ static msg_t mshell_thread(void * p)
 	chRegSetThreadName("mshell");
 	chThdSleepMilliseconds(500);
 	//! Initial Welcome Prompt
-	chprintf(chp, "\r\nMarionette Shell (\"+help\" for shell commands)\r\n");
+  chprintf(chp, "\r\n");
+	util_message_comment(chp, "Marionette Shell (\"+help\" for shell commands)");
 
 	//! initialize parser.
 	fetch_init(chp) ;
@@ -256,7 +257,7 @@ static msg_t mshell_thread(void * p)
 		ret = mshellGetLine(chp, input_line, sizeof(input_line));
 		if (ret)
 		{
-			util_info(chp, "logout");
+			util_message_info(chp, "logout");
 			break;
 		}
 		if(input_line[0] == '+')    // use escape to process mshell commands
@@ -269,7 +270,7 @@ static msg_t mshell_thread(void * p)
 			{
 				if (n >= MSHELL_MAX_ARGUMENTS)
 				{
-					util_error(chp, "too many arguments");
+					util_message_error(chp, "too many arguments");
 					cmd = NULL;
 					break;
 				}
@@ -294,7 +295,7 @@ static msg_t mshell_thread(void * p)
 						usage(chp, "help");
 						continue;
 					}
-					util_info(chp, "Marionette Shell Commands: +help +exit ");
+					util_message_info(chp, "Marionette Shell Commands: +help +exit ");
 					list_commands(chp, local_commands);
 					if (scp != NULL)
 					{
@@ -316,7 +317,7 @@ static msg_t mshell_thread(void * p)
 			if(!fetch_parse(chp, command_line))
 			{
 				DBG_MSG(chp, "Parse fail.");
-				util_error(chp, "Unrecognized Fetch Command. Type \"?\" or \"help\" or \"+help\"");
+				util_message_error(chp, "Unrecognized Fetch Command. Type \"?\" or \"help\" or \"+help\"");
 			};
 		}
 	}

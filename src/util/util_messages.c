@@ -15,224 +15,334 @@
 #include "util_general.h"
 #include "util_messages.h"
 #include "mshell_sync.h"
+#include "util_strings.h"
 
-/*! This is declared extern in util_messages.h 
- */
-Util_rpt_data           util_report_data;
-
-struct formats
+static bool needs_newline(char * str)
 {
-	Report_types      t;
-	char       *      report_code;
-};
+  if( str == NULL || str[0] == '\0' )
+  {
+    return true;
+  }
 
-/*! \todo codereview: static const or const static? */
-static const struct formats formats[] =
-{
-	{ RPT_INFO,      "I"},
-	{ RPT_ERROR,     "E"},
-	{ RPT_DEBUG,     "?"},
-	{ RPT_ADC,       "uV"},
-	{ RPT_LOGIC,     "L"},
-	{ RPT_VOLTS,     "V"},
-	{ RPT_TIME,      "mS"},
-	{ RPT_HDATA,     "XD"},
-	{ RPT_DDATA,     "DD"},
-	{ RPT_COMMENT,   "#"},
-	{ RPT_QUERYPIN,  "QP"},
-	{ RPT_MISC,      "G"}
-};
+  int end = strlen(str) - 1;
 
-/*! \brief Return the text symbol of a msg format 
- */
-static char * util_getformat(Report_types rpt)
-{
-	for(uint32_t i = 0; i < NELEMS(formats); ++i)
-	{
-		if(formats[i].t == rpt)
-		{
-			return(formats[i].report_code);
-		}
-	}
-	return "I";
+  return !(str[end] == '\n' || str[end] == '\r');
 }
 
-/*! \brief Special function for handling debug messages
- *  \sa DBG_MSG  in util_messages.h
- *  \sa DBG_VMSG  in util_messages.h
- */
-void util_debugmsg(BaseSequentialStream * chp,  char * file, int line, const char * func, char * fmt, ...)
+void util_message_debug( BaseSequentialStream * chp, char * file, int line, const char * func, char * fmt, ...)
 {
-	va_list argList;
+	if(fmt == NULL || file == NULL || func == NULL)
+  {
+    return;
+  }
 
-	va_start(argList, fmt);
-	chprintf(chp, "%s: %s:%d:%s()->", util_getformat(RPT_DEBUG), file, line, func);
-	chvprintf(chp, fmt, argList);
-	chprintf(chp, "\r\n");
-	va_end(argList);
-}
-
-/*! \brief Report a logical value
- * \warning Util_rpt_data structure must be correct for correct result
- */
-void util_logic_data(BaseSequentialStream * chp, Util_rpt_data * d, char * fmt, ...)
-{
-	va_list argList;
-	va_start(argList, fmt);
-	d->datalen = 1;
-	util_report(chp, RPT_LOGIC, d, fmt, argList);
-	va_end(argList);
-}
-
-
-/*! \brief Report a time value
- * \warning Util_rpt_data structure must be correct for correct result
- */
-void util_time_data(BaseSequentialStream * chp, Util_rpt_data * d, char * fmt, ...)
-{
-	va_list argList;
-	va_start(argList, fmt);
-	d->datalen = 1;
-	util_report(chp, RPT_TIME, d, fmt, argList);
-	va_end(argList);
-}
-
-/*! \brief Report an adc result
- *  \warning Util_rpt_data structure must be correct for correct result
- */
-void util_adc_data(BaseSequentialStream * chp,  Util_rpt_data * d, char * fmt, ...)
-{
-	va_list argList;
-	va_start(argList, fmt);
-	util_report(chp, RPT_ADC, d, fmt, argList);
-	va_end(argList);
-}
-
-/*! \brief Query pin allocation 
- */
-void util_query_pin(BaseSequentialStream * chp, char * fmt, ... )
-{
-
-	va_list argList;
-	va_start(argList, fmt);
-	util_report(chp, RPT_QUERYPIN, NULL, fmt, argList);
-	va_end(argList);
-}
-
-/*! \brief User Information Message
- */
-void util_info(BaseSequentialStream * chp, char * fmt, ... )
-{
-
-	va_list argList;
-	va_start(argList, fmt);
-	util_report(chp, RPT_INFO, NULL, fmt, argList);
-	va_end(argList);
-}
-
-/*! \brief Error message report
- */
-void util_error(BaseSequentialStream * chp, char * fmt, ... )
-{
-
-	va_list argList;
-	va_start(argList, fmt);
-	util_report(chp, RPT_ERROR, NULL, fmt, argList);
-	va_end(argList);
-}
-
-/*! \brief Base function for reporting
- *
- *  \warn Exception is debug messages (currently).
- *
- * Mutex (BSemaphore) the reporting so that separate threads don't interleave output.
- *
- * Not using Mutex. Mutex in ChibiOS has thread ownership issues. Semaphores can be
- * signaled from any thread.
-*  See:
- * http://www.chibios.org/dokuwiki/doku.php?id=chibios:guides:mutual_exclusion_guide
- *
- */
-void util_report(BaseSequentialStream * chp, Report_types rpt, Util_rpt_data * d, char * fmt, va_list argptr )
-{
-	if(fmt == NULL) return;
 	chBSemWait( &mshell_io_sem );
-	switch(rpt)
-	{
-		case RPT_INFO:
-		case RPT_ERROR:
-		case RPT_DEBUG:
-		case RPT_COMMENT:
-		case RPT_QUERYPIN:
-		case RPT_MISC:
-			chprintf(chp, "%s:", util_getformat(rpt));
-			chvprintf(chp, fmt, argptr);
-			break;
-		case RPT_ADC:
-			if(d != NULL && d->datalen > 0)
-			{
-				chprintf(chp, "%s:adc:%d", util_getformat(rpt), d->data[0]);
-				for(int i = 1; i < d->datalen && i < UTIL_MAXDATA; ++i)
-				{
-					chprintf(chp, ",%d", d->data[i]);   //>! CSV format
-				}
-				chprintf(chp, ":");
-				chvprintf(chp, fmt, argptr);
-			}
-			break;
-		case RPT_VOLTS:
-			if(d != NULL && d->datalen > 0)
-			{
-				for(int i = 0; i < d->datalen && i < UTIL_MAXDATA; ++i)
-				{
-					chprintf(chp, "%s:%d", util_getformat(rpt), d->data[i]);
-				}
-				chvprintf(chp, fmt, argptr);
-			}
-			break;
-		case RPT_LOGIC:
-			if(d != NULL && d->datalen > 0)
-			{
-				chprintf(chp, "%s:logic:%d:", util_getformat(rpt), d->data[0]);
-				chvprintf(chp, fmt, argptr);
-			}
-			break;
-		case RPT_TIME:
-			if(d != NULL && d->datalen > 0)
-			{
-				chprintf(chp, "%s:time:%d:", util_getformat(rpt), d->data[0]);
-				chvprintf(chp, fmt, argptr);
-			}
-			break;
-		case RPT_HDATA:
-			if(d != NULL && d->datalen > 0)
-			{
-				chprintf(chp, "%s:", util_getformat(rpt), d->data[0]);
-				for(int i = 0; i < d->datalen && i < UTIL_MAXDATA; ++i)
-				{
-					chprintf(chp, "%2x",  d->data);
-				}
-				chvprintf(chp, fmt, argptr);
-			}
-			break;
-		case RPT_DDATA:
-			if(d != NULL && d->datalen > 0)
-			{
-				chprintf(chp, "%s:", util_getformat(rpt), d->data);
-				for(int i = 0; i < d->datalen && i < UTIL_MAXDATA; ++i)
-				{
-					chprintf(chp, "%2d ", d->data);
-				}
-				chvprintf(chp, fmt, argptr);
-			}
-			break;
-		default:
-			break;
-	};
+
+  chprintf(chp, "?:%s:%d:%s:",file,line,func);
+
+	va_list arg_list;
+	va_start(arg_list, fmt);
+  chvprintf(chp, fmt, arg_list);
+	va_end(arg_list);
+
+  if( needs_newline(fmt) )
+  {
+	  chprintf(chp, "\r\n");
+  }
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_info( BaseSequentialStream * chp, char * fmt, ...)
+{
+	if(fmt == NULL)
+  {
+    return;
+  }
+
+	chBSemWait( &mshell_io_sem );
+
+  chprintf(chp, "I:");
+
+	va_list arg_list;
+	va_start(arg_list, fmt);
+  chvprintf(chp, fmt, arg_list);
+	va_end(arg_list);
+
+  if( needs_newline(fmt) )
+  {
+	  chprintf(chp, "\r\n");
+  }
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_error( BaseSequentialStream * chp, char * fmt, ...)
+{
+	if(fmt == NULL)
+  {
+    return;
+  }
+
+	chBSemWait( &mshell_io_sem );
+
+  chprintf(chp, "E:");
+
+	va_list arg_list;
+	va_start(arg_list, fmt);
+  chvprintf(chp, fmt, arg_list);
+	va_end(arg_list);
+
+  if( needs_newline(fmt) )
+  {
+	  chprintf(chp, "\r\n");
+  }
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_comment( BaseSequentialStream * chp, char * fmt, ...)
+{
+	if(fmt == NULL)
+  {
+    return;
+  }
+
+	chBSemWait( &mshell_io_sem );
+
+  chprintf(chp, "#:");
+
+	va_list arg_list;
+	va_start(arg_list, fmt);
+  chvprintf(chp, fmt, arg_list);
+	va_end(arg_list);
+
+  if( needs_newline(fmt) )
+  {
+	  chprintf(chp, "\r\n");
+  }
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_string( BaseSequentialStream *chp, char * name, char * fmt, ...)
+{
+	if(fmt == NULL)
+  {
+    return;
+  }
+
+	chBSemWait( &mshell_io_sem );
+
+  chprintf(chp, "S:%s:", name);
+
+	va_list arg_list;
+	va_start(arg_list, fmt);
+  chvprintf(chp, fmt, arg_list);
+	va_end(arg_list);
+
+  if( needs_newline(fmt) )
+  {
+	  chprintf(chp, "\r\n");
+  }
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_double( BaseSequentialStream * chp, char * name, double * data, uint32_t count)
+{
+	chBSemWait( &mshell_io_sem );
+
+  chprintf(chp, "F:%s:", name);
+
+  for( uint32_t i = 0; i < count; i++ )
+  {
+    chprintf(chp, "%f", data[i]);
+
+    if( (i+1) < count )
+    {
+      chprintf(chp, ",");
+    }
+  }
+
 	chprintf(chp, "\r\n");
 	chBSemSignal( &mshell_io_sem );
 }
 
+void util_message_int8( BaseSequentialStream * chp, char * name, int8_t * data, uint32_t count)
+{
+	chBSemWait( &mshell_io_sem );
+
+  chprintf(chp, "S8:%s:", name);
+
+  for( ; count > 0; count-- )
+  {
+    chprintf(chp, "%d", *(data++));
+
+    if( count > 1 )
+    {
+      chprintf(chp, ",");
+    }
+  }
+
+	chprintf(chp, "\r\n");
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_uint8( BaseSequentialStream * chp, char * name, uint8_t * data, uint32_t count)
+{
+	chBSemWait( &mshell_io_sem );
+
+  chprintf(chp, "U8:%s:", name);
+
+  for( ; count > 0; count-- )
+  {
+    chprintf(chp, "%u", *(data++));
+
+    if( count > 1 )
+    {
+      chprintf(chp, ",");
+    }
+  }
+
+	chprintf(chp, "\r\n");
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_int16( BaseSequentialStream * chp, char * name, int16_t * data, uint32_t count)
+{
+	chBSemWait( &mshell_io_sem );
+  
+  chprintf(chp, "S16:%s:", name);
+
+  for( ; count > 0; count-- )
+  {
+    chprintf(chp, "%d", *(data++));
+
+    if( count > 1 )
+    {
+      chprintf(chp, ",");
+    }
+  }
+
+	chprintf(chp, "\r\n");
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_uint16( BaseSequentialStream * chp, char * name, uint16_t * data, uint32_t count)
+{
+	chBSemWait( &mshell_io_sem );
+
+  chprintf(chp, "U16:%s:", name);
+
+  for( ; count > 0; count-- )
+  {
+    chprintf(chp, "%u", *(data++));
+
+    if( count > 1 )
+    {
+      chprintf(chp, ",");
+    }
+  }
+
+	chprintf(chp, "\r\n");
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_int32( BaseSequentialStream * chp, char * name, int32_t * data, uint32_t count)
+{
+	chBSemWait( &mshell_io_sem );
+  
+  chprintf(chp, "S32:%s:", name);
+
+  for( ; count > 0; count-- )
+  {
+    chprintf(chp, "%d", *(data++));
+
+    if( count > 1 )
+    {
+      chprintf(chp, ",");
+    }
+  }
+
+	chprintf(chp, "\r\n");
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_uint32( BaseSequentialStream * chp, char * name, uint32_t * data, uint32_t count)
+{
+	chBSemWait( &mshell_io_sem );
+  
+  chprintf(chp, "U32:%s:", name);
+
+  for( ; count > 0; count-- )
+  {
+    chprintf(chp, "%d", *(data++));
+
+    if( count > 1 )
+    {
+      chprintf(chp, ",");
+    }
+  }
+
+	chprintf(chp, "\r\n");
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_hex_uint8( BaseSequentialStream * chp, char * name, uint8_t * data, uint32_t count)
+{
+	chBSemWait( &mshell_io_sem );
+
+  chprintf(chp, "H8:%s:", name);
+
+  for( ; count > 0; count-- )
+  {
+    chprintf(chp, "%02X", *(data++));
+
+    if( count > 1 )
+    {
+      chprintf(chp, ",");
+    }
+  }
+
+	chprintf(chp, "\r\n");
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_hex_uint16( BaseSequentialStream * chp, char * name, uint16_t * data, uint32_t count)
+{
+	chBSemWait( &mshell_io_sem );
+
+  chprintf(chp, "H16:%s:", name);
+
+  for( ; count > 0; count-- )
+  {
+    chprintf(chp, "%04X", *(data++));
+    
+    if( count > 1 )
+    {
+      chprintf(chp, ",");
+    }
+  }
+
+	chprintf(chp, "\r\n");
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_hex_uint32( BaseSequentialStream * chp, char * name, uint32_t * data, uint32_t count)
+{
+	chBSemWait( &mshell_io_sem );
+
+  chprintf(chp, "H32:%s:", name);
+
+  for( ; count > 0; count-- )
+  {
+    chprintf(chp, "%08X", *(data++));
+    
+    if( count > 1 )
+    {
+      chprintf(chp, ",");
+    }
+  }
+
+	chprintf(chp, "\r\n");
+	chBSemSignal( &mshell_io_sem );
+}
 
 //! @}
 
