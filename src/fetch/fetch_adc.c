@@ -99,7 +99,7 @@ static adcsample_t adc1_demo_sample_buf[FETCH_ADC1_DEMO_GRP_NUM_CHANNELS * FETCH
 static adcsample_t adc1_default_sample_buf[FETCH_ADC1_DEFAULT_GRP_NUM_CHANNELS * FETCH_ADC1_DEFAULT_GRP_BUF_DEPTH];
 static adcsample_t adc1_pa_sample_buf[FETCH_ADC1_PA_GRP_NUM_CHANNELS * FETCH_ADC1_PA_GRP_BUF_DEPTH];
 
-static ADCChannel adc1_default_channel =ADC_CH13;
+static ADCChannel adc1_default_channel = ADC_CH13;
 
 static EventSource fetch_adc1_data_ready;
 
@@ -260,7 +260,7 @@ static void sum_reduce_samples(uint32_t * results)
 	for(uint16_t j = 0; j < fetch_adc1_state.profile->adc_grp_num_channels; ++j)
 	{
 		for(uint16_t i = j; i < fetch_adc1_state.profile->adc_grp_buf_depth * fetch_adc1_state.profile->adc_grp_num_channels ;
-		i += fetch_adc1_state.profile->adc_grp_num_channels )
+		                i += fetch_adc1_state.profile->adc_grp_num_channels )
 		{
 			results[j] += fetch_adc1_state.profile->adc_sample_buf[i] ;
 		}
@@ -276,46 +276,50 @@ static void sum_reduce_samples(uint32_t * results)
 /*! \brief Process new data based on current profile
  */
 static void adc1_new_data(eventid_t id UNUSED)
-
 {
 	BaseSequentialStream * chp        = fetch_adc1_state.chp;
 
 	if((fetch_adc1_state.profile->adc_grp_buf_depth > 0) && (fetch_adc1_state.chp != NULL))
 	{
-		systime_t          timenow = chTimeNow() ;
-		uint32_t    uv_per_bit = ((fetch_adc1_state.vref_mv * 1000) /
-		                          4096);   //>! \todo maybe not all conversions are 12 bit..?;
-		uint32_t    avg_vals[FETCH_ADC1_MAX_CHANNELS] = {0};
-
+		systime_t               timenow = chTimeNow() ;
+		uint32_t                uv_per_bit = ((fetch_adc1_state.vref_mv * 1000) / 4096); // 12 bit conversion
+		uint32_t                avg_vals[FETCH_ADC1_MAX_CHANNELS] = {0};
+		uint32_t                degC, adcUV;
 		switch(fetch_adc1_state.profile->name)
 		{
 			case FETCH_ADC1_DEFAULT: // 1 channel in this profile
-        util_message_uint32(chp, "time", &timenow, 1);
-        
-        avg_vals[0] *= uv_per_bit; // convert to micro-volt
-
-        util_message_uint32(chp, "adc", avg_vals, 1);
+				sum_reduce_samples(avg_vals);
+				util_message_uint32(chp, "time", &timenow, 1);
+				avg_vals[0] *= uv_per_bit; // convert to micro-volt
+				util_message_uint32(chp, "adc", avg_vals, 1);
 				break;
 			case FETCH_ADC1_DEMO:  // 2 channels in this profile
 				sum_reduce_samples(avg_vals);
-        // FIXME: change this to use one of the util_message functions?
-				chprintf(fetch_adc1_state.chp, "DEMO:\t%u,T(raw): %u\tT(C): %u\tIN13(raw): %u\tIN13(uV):%u\r\n", timenow, avg_vals[0],
-				         fetch_adc_calc_temp(avg_vals[0], uv_per_bit), avg_vals[1], avg_vals[1] * uv_per_bit);
+				util_message_uint32(chp, "time", &timenow, 1);
+				util_message_uint32(chp, "adc-degC-raw", &avg_vals[0], 1);
+				degC = fetch_adc_calc_temp(avg_vals[0], uv_per_bit);
+				util_message_uint32(chp, "adc-degC", &degC, 1);
+				util_message_uint32(chp, "adc-raw", &avg_vals[1], 1);
+				adcUV = avg_vals[1] * uv_per_bit;
+				util_message_uint32(chp, "adc", &adcUV, 1);
 				break;
 			case FETCH_ADC1_PA:  // 16 channels in this profile
-        util_message_uint32(chp, "time", &timenow, 1);
+				util_message_uint32(chp, "time", &timenow, 1);
 				sum_reduce_samples(avg_vals);
 
-        // convert values
-				for(int i=0; i<FETCH_ADC1_PA_GRP_NUM_CHANNELS; ++i) {
-						if(i==13) {
-				         avg_vals[i]=fetch_adc_calc_temp(avg_vals[i], uv_per_bit);  // T (C)
-						} else {
-				         avg_vals[i]=avg_vals[i] * uv_per_bit;
-						}
+				// convert values
+				for(int i = 0; i < FETCH_ADC1_PA_GRP_NUM_CHANNELS; ++i)
+				{
+					if(i == 13)
+					{
+						avg_vals[i] = fetch_adc_calc_temp(avg_vals[i], uv_per_bit); // T (C)
+					}
+					else
+					{
+						avg_vals[i] = avg_vals[i] * uv_per_bit;
+					}
 				}
-
-        util_message_uint32(chp, "adc", avg_vals, FETCH_ADC1_PA_GRP_NUM_CHANNELS);
+				util_message_uint32(chp, "adc", avg_vals, FETCH_ADC1_PA_GRP_NUM_CHANNELS);
 				break;
 			case FETCH_ADC1_PB:
 				break;
@@ -388,13 +392,13 @@ static void fetch_adc_io_set_defaults(void)
 	}
 }
 
-/*! Set a channel to Analog Mode 
+/*! Set a channel to Analog Mode
  */
 static bool fetch_adc1_io_to_analog(ADCChannel channel)
 {
 	if(ADC1_inputs[channel] != NULL)
 	{
-		return(io_manage_set_mode(ADC1_inputs[channel]->port,ADC1_inputs[channel]->pad, PAL_MODE_INPUT_ANALOG, IO_ADC));
+		return(io_manage_set_mode(ADC1_inputs[channel]->port, ADC1_inputs[channel]->pad, PAL_MODE_INPUT_ANALOG, IO_ADC));
 	}
 	return false;
 }
@@ -407,7 +411,7 @@ static bool fetch_adc1_io_to_analog(ADCChannel channel)
  */
 void fetch_adc_init(BaseSequentialStream * chp)
 {
-	// ADC1 
+	// ADC1
 	chEvtInit(&fetch_adc1_data_ready);
 
 	// State initialization
@@ -423,11 +427,11 @@ void fetch_adc_init(BaseSequentialStream * chp)
 
 	adcStart(&ADCD1, NULL);
 
-    // enable the thermal sensor.
+	// enable the thermal sensor.
 	adcSTM32EnableTSVREFE();
 
 #if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
-    //>! \warning on stm32f42x and stm32f43x EITHER the Temperature or Battery can be monitored-but not both
+	//>! \warning on stm32f42x and stm32f43x EITHER the Temperature or Battery can be monitored-but not both
 	adcSTM32EnableVBATE();
 #endif
 
@@ -444,7 +448,7 @@ void fetch_adc_init(BaseSequentialStream * chp)
 static void fetch_adc1_reset(void)
 {
 	adcStop(&ADCD1);
-	
+
 	fetch_adc1_state.vref_mv                = FETCH_DEFAULT_VREF_MV;
 	fetch_adc1_state.printheader            = false;
 	fetch_adc1_state.oneshot                = true;
@@ -457,11 +461,11 @@ static void fetch_adc1_reset(void)
 
 	adcStart(&ADCD1, NULL);
 
-    // enable the thermal sensor.
+	// enable the thermal sensor.
 	adcSTM32EnableTSVREFE();
 
 #if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
-    //>! \warning on stm32f42x and stm32f43x EITHER the Temperature or Battery can be monitored-but not both
+	//>! \warning on stm32f42x and stm32f43x EITHER the Temperature or Battery can be monitored-but not both
 	adcSTM32EnableVBATE();
 #endif
 
@@ -471,7 +475,7 @@ static void fetch_adc1_reset(void)
  *
  * Reset I/Os to default mode before changing for new profile
  *
- */ 
+ */
 static bool fetch_adc_change_profile(FETCH_ADC_profile_name p)
 {
 	bool          ret    =     false;
@@ -491,19 +495,58 @@ static bool fetch_adc_change_profile(FETCH_ADC_profile_name p)
 		case FETCH_ADC1_PA:
 			fetch_adc1_state.profile = &adc1_pa_profile;
 			fetch_adc_io_set_defaults();
-			if(!fetch_adc1_io_to_analog(ADC_CH0) ) return false;
-			if(!fetch_adc1_io_to_analog(ADC_CH1) ) return false;
-			if(!fetch_adc1_io_to_analog(ADC_CH2) ) return false;
-			if(!fetch_adc1_io_to_analog(ADC_CH4) ) return false;
-			if(!fetch_adc1_io_to_analog(ADC_CH5) ) return false;
-			if(!fetch_adc1_io_to_analog(ADC_CH6) ) return false;
-			if(!fetch_adc1_io_to_analog(ADC_CH7) ) return false;
-			if(!fetch_adc1_io_to_analog(ADC_CH8) ) return false;
-			if(!fetch_adc1_io_to_analog(ADC_CH9) ) return false;
-			if(!fetch_adc1_io_to_analog(ADC_CH10)) return false;
-			if(!fetch_adc1_io_to_analog(ADC_CH13)) return false;
-			if(!fetch_adc1_io_to_analog(ADC_CH14)) return false;
-			if(!fetch_adc1_io_to_analog(ADC_CH15)) return false;
+			if(!fetch_adc1_io_to_analog(ADC_CH0) )
+			{
+				return false;
+			}
+			if(!fetch_adc1_io_to_analog(ADC_CH1) )
+			{
+				return false;
+			}
+			if(!fetch_adc1_io_to_analog(ADC_CH2) )
+			{
+				return false;
+			}
+			if(!fetch_adc1_io_to_analog(ADC_CH4) )
+			{
+				return false;
+			}
+			if(!fetch_adc1_io_to_analog(ADC_CH5) )
+			{
+				return false;
+			}
+			if(!fetch_adc1_io_to_analog(ADC_CH6) )
+			{
+				return false;
+			}
+			if(!fetch_adc1_io_to_analog(ADC_CH7) )
+			{
+				return false;
+			}
+			if(!fetch_adc1_io_to_analog(ADC_CH8) )
+			{
+				return false;
+			}
+			if(!fetch_adc1_io_to_analog(ADC_CH9) )
+			{
+				return false;
+			}
+			if(!fetch_adc1_io_to_analog(ADC_CH10))
+			{
+				return false;
+			}
+			if(!fetch_adc1_io_to_analog(ADC_CH13))
+			{
+				return false;
+			}
+			if(!fetch_adc1_io_to_analog(ADC_CH14))
+			{
+				return false;
+			}
+			if(!fetch_adc1_io_to_analog(ADC_CH15))
+			{
+				return false;
+			}
 			ret = true;
 			break;
 		default:
