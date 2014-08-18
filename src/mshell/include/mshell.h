@@ -26,6 +26,7 @@
 
 #include <stdbool.h>
 #include "mshell_sync.h"
+#include "mshell_state.h"
 
 /**
  * @brief   Shell echo chars enable.
@@ -40,13 +41,6 @@
  */
 #if !defined(MSHELL_MAX_LINE_LENGTH) || defined(__DOXYGEN__)
 #define MSHELL_MAX_LINE_LENGTH       256
-#endif
-
-/**
- * @brief   Shell prompt maximum length.
- */
-#if !defined(MSHELL_MAX_PROMPT_LENGTH) || defined(__DOXYGEN__)
-#define MSHELL_MAX_PROMPT_LENGTH       10
 #endif
 
 
@@ -79,19 +73,12 @@ typedef struct {
   const MShellCommand    *sc_commands;       /**< @brief Shell extra commands
                                                  table.                     */
 } MShellConfig;
-
-typedef struct mshell_status
-{
-	BaseSequentialStream    *   chp;
-} Mshell_status;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
   extern EventSource shell_terminated;
 
-  BaseSequentialStream * getMShellStreamPtr(void) ;
   void mshellInit(void);
   void mshellExit(msg_t msg);
   Thread *mshellCreate(const MShellConfig *scp, size_t size, tprio_t prio);

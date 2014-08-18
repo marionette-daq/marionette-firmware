@@ -21,6 +21,9 @@
 #include "util_strings.h"
 #include "util_messages.h"
 #include "util_version.h"
+
+#include "mshell_state.h"
+
 #include "io_manage.h"
 #include "fetch_gpio.h"
 
@@ -285,12 +288,16 @@ static void adc1_new_data(eventid_t id UNUSED)
 		uint32_t                uv_per_bit = ((fetch_adc1_state.vref_mv * 1000) / 4096); // 12 bit conversion
 		uint32_t                avg_vals[FETCH_ADC1_MAX_CHANNELS] = {0};
 		uint32_t                degC, adcUV;
+		if(getMShellVisiblePrompt()){
+			mshell_putnewline();
+		}
 		switch(fetch_adc1_state.profile->name)
 		{
 			case FETCH_ADC1_DEFAULT: // 1 channel in this profile
 				sum_reduce_samples(avg_vals);
 				util_message_uint32(chp, "time", &timenow, 1);
 				avg_vals[0] *= uv_per_bit; // convert to micro-volt
+				util_message_uint32(chp, "adc", avg_vals, 1);
 				util_message_uint32(chp, "adc", avg_vals, 1);
 				break;
 			case FETCH_ADC1_DEMO:  // 2 channels in this profile
@@ -327,6 +334,7 @@ static void adc1_new_data(eventid_t id UNUSED)
 				break;
 		}
 	}
+	mshell_putprompt();
 }
 
 /*! \brief Thread for new data event

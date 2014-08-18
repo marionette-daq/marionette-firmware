@@ -40,15 +40,12 @@
 #include "fetch.h"
 #include "mshell.h"
 #include "mshell_sync.h"
-
-static          Mshell_status                   mshell_state;
+#include "mshell_state.h"
 
 static          VERSIONData                     version_data;
-static          char                            prompt[MSHELL_MAX_PROMPT_LENGTH];
 static          bool                            mshell_echo_chars = MSHELL_ECHO_INPUT_CHARS;
 
 EventSource     mshell_terminated;
-static void mshell_stream_putstr(BaseSequentialStream * chp, char * fmt, ...) ;
 
 static void usage(BaseSequentialStream * chp, char * p)
 {
@@ -86,7 +83,8 @@ static void cmd_prompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSE
 		usage(chp, "prompt");
 		return;
 	}
-	strncpy(prompt, "m > ", MSHELL_MAX_PROMPT_LENGTH);
+	setMShellVisiblePrompt(true);
+	setMShellPrompt("m > ");
 }
 
 /*! \brief turn off the prompt
@@ -98,7 +96,8 @@ static void cmd_noprompt(BaseSequentialStream * chp, int argc, char * argv[] UNU
 		usage(chp, "noprompt");
 		return;
 	}
-	prompt[0] = '\0';
+	setMShellVisiblePrompt(false);
+	setMShellPrompt("");
 }
 
 /*! \brief toggle the echo of characters to the serial port
@@ -210,9 +209,7 @@ static bool_t cmdexec(const MShellCommand * scp, BaseSequentialStream * chp,
 	return TRUE;
 }
 
-BaseSequentialStream * getMShellStreamPtr() {
-		return(mshell_state.chp);
-}
+
 
 /*! \brief   MShell thread function.
  *
@@ -240,12 +237,13 @@ static msg_t mshell_thread(void * p)
 	char command_line[MSHELL_MAX_LINE_LENGTH];
 	char * args[MSHELL_MAX_ARGUMENTS + 1];
 
-	mshell_state.chp = chp;
-	strncpy(prompt, "m > ", MSHELL_MAX_PROMPT_LENGTH);
+	setMShellStreamPtr(chp);
+	setMShellPrompt("m > ");
+	setMShellVisiblePrompt(true);
 	chRegSetThreadName("mshell");
 	chThdSleepMilliseconds(500);
 	//! Initial Welcome Prompt
-  chprintf(chp, "\r\n");
+    chprintf(chp, "\r\n");
 	util_message_comment(chp, "Marionette Shell (\"+help\" for shell commands)");
 
 	//! initialize parser.
@@ -253,7 +251,7 @@ static msg_t mshell_thread(void * p)
 
 	while (TRUE)
 	{
-		mshell_stream_putstr(chp, "%s", prompt);
+		mshell_putprompt(); 
 		ret = mshellGetLine(chp, input_line, sizeof(input_line));
 		if (ret)
 		{
@@ -389,24 +387,6 @@ Thread * shellCreateStatic(const MShellConfig * scp, void * wsp,
                            size_t size, tprio_t prio)
 {
 	return chThdCreateStatic(wsp, size, prio, mshell_thread, (void *)scp);
-}
-
-static bool_t mshell_stream_put(BaseSequentialStream * chp, uint8_t c) {
-	int ret;
-	chBSemWait( &mshell_io_sem );
-    ret = chSequentialStreamPut(chp, c) ;
-	chBSemSignal( &mshell_io_sem );
-	return ret;
-}	
-
-static void mshell_stream_putstr(BaseSequentialStream * chp, char * fmt, ...) {
-	va_list argList;
-	va_start(argList, fmt);
-
-	chBSemWait( &mshell_io_sem );
-	chvprintf(chp, fmt, argList);
-	chBSemSignal( &mshell_io_sem );
-	va_end(argList);
 }
 
 /*!

@@ -12,8 +12,9 @@
 #include "chprintf.h"
 #include "chbsem.h"
 
-#include "util_general.h"
 #include "mshell_sync.h"
+
+#include "util_general.h"
 #include "util_strings.h"
 
 #include "util_messages.h"
