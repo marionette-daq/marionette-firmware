@@ -25,7 +25,7 @@ DUT_WAITTIME     = 0.200
 Default_Baudrate = 115200
 Default_Timeout  = 2
 Default_Port     = "/dev/ttyACM0"
-Test_cycles      = 4
+Test_cycles      = 20
 
 class DUTSerial():
     def __init__(self, port=Default_Port, baud=Default_Baudrate, timeout=Default_Timeout):
@@ -135,6 +135,8 @@ class DUTSerial():
         self.teststr("version\r\n")
 
     def test_gpio(self):
+        u.info("Try to set an restricted output.(Should produce error)")
+        self.teststr("gpio:configure:porth:pin0:output\r\n")
         u.info("Set an output to floating.")
         self.teststr("gpio:configure:porth:pin2:output:floating\r\n")
         u.info("Test extra spaces in command.")
