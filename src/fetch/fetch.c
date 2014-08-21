@@ -48,12 +48,13 @@ P - Production Rules:
                      | <command> ":" <adc_subcommandA>  ":" <adc_configure>(<dec>) <EOL>
                      | <command> ":" <dac_subcommandA>  <EOL>
                      | <command> ":" <dac_subcommandA>  ":" <dac_configure>(<dec>) <EOL>
+                     | <command> ":" <dac_subcommandA>  ":" <dac_configure> ":" <dac_channel> ":" (<dec>) <EOL>
 <command>          ::= "?"      | "help"     | "gpio"  | "adc"   | "dac"   | "spi" | "i2c" | "resetpins" | "heartbeat_toggle" | "version"
 <adc_subcommandA>  ::= "conf_adc1" | "start" | "stop"
 <adc_configure>    ::= "profile" | "oneshot" | "continuous" | "reset" | "vref_mv"
 <adc_profile>      ::= "default" | "PA"   | "PB"
 <dac_subcommandA>  ::= "on"      | "off" | "configure"
-<dac_configure>    ::= "dc_mv"   
+<dac_channel>      ::= "ch0"     | "ch1" 
 <spi_subcommandA>  ::= TBD
 <i2c_subcommandA>  ::= TBD
 <gpio_subcommandA> ::= "get"    | "set"      | "clear"    | "configure" | "query"
