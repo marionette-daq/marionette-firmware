@@ -21,6 +21,7 @@
 #include "io_manage.h"
 #include "fetch_gpio.h"
 #include "fetch_adc.h"
+#include "fetch_dac.h"
 
 #include "fetch_defs.h"
 #include "fetch.h"
@@ -35,7 +36,7 @@
 (N,∑,P,S)
 
 N - Non-terminals: { <statement>, <command>, <datastr>, <byte>, <constant> }
-∑ - Terminals:     { <command>, <gpio_subcommandA>, <gpio_direction>, <gpio_sense>, <port_subcommand>, <pin_subcommand>, <subcommandD>, <digit>, <EOL>, <whitespace>}
+∑ - Terminals:     { <command>, <gpio_subcommandA>, <gpio_direction>, <gpio_sense>, <adc_configure>, <adc_profile>, <dac_subcommandA>, <dac_configure>, <dac_channel>, <port_subcommand>, <pin_subcommand>, <subcommandD>, <digit>, <EOL>, <whitespace>}
 P - Production Rules:
 
 <statement>        ::= <command> <EOL>
@@ -48,13 +49,12 @@ P - Production Rules:
                      | <command> ":" <adc_subcommandA>  ":" <adc_configure>(<dec>) <EOL>
                      | <command> ":" <dac_subcommandA>  <EOL>
                      | <command> ":" <dac_subcommandA>  ":" <dac_configure>(<dec>) <EOL>
-                     | <command> ":" <dac_subcommandA>  ":" <dac_configure> ":" <dac_channel> ":" (<dec>) <EOL>
 <command>          ::= "?"      | "help"     | "gpio"  | "adc"   | "dac"   | "spi" | "i2c" | "resetpins" | "heartbeat_toggle" | "version"
 <adc_subcommandA>  ::= "conf_adc1" | "start" | "stop"
 <adc_configure>    ::= "profile" | "oneshot" | "continuous" | "reset" | "vref_mv"
 <adc_profile>      ::= "default" | "PA"   | "PB"
 <dac_subcommandA>  ::= "on"      | "off" | "configure"
-<dac_channel>      ::= "ch0"     | "ch1" 
+<dac_configure>    ::= "dc_mv"  
 <spi_subcommandA>  ::= TBD
 <i2c_subcommandA>  ::= TBD
 <gpio_subcommandA> ::= "get"    | "set"      | "clear"    | "configure" | "query"
@@ -95,6 +95,7 @@ Example:
 static Command_dictionary          help_dict               = { .enabled = true, .max_data_bytes = HELP_MAX_DATA_BYTES,      .helpstring = HELP_HELPSTRING};
 static Command_dictionary          gpio_dict               = { .enabled = true, .max_data_bytes = GPIO_MAX_DATA_BYTES,      .helpstring = GPIO_HELPSTRING};
 static Command_dictionary          adc_dict                = { .enabled = true, .max_data_bytes = ADC_MAX_DATA_BYTES,       .helpstring = ADC_HELPSTRING};
+static Command_dictionary          dac_dict                = { .enabled = true, .max_data_bytes = DAC_MAX_DATA_BYTES,       .helpstring = DAC_HELPSTRING};
 static Command_dictionary          version_dict            = { .enabled = true, .max_data_bytes = VERSION_MAX_DATA_BYTES,   .helpstring = VERSION_HELPSTRING};
 static Command_dictionary          heartbeat_toggle_dict   = { .enabled = true, .max_data_bytes = HEARTBEAT_TOGGLE_MAX_DATA_BYTES,   .helpstring = HEARTBEAT_TOGGLE_HELPSTRING};
 static Command_dictionary          resetpins_dict          = { .enabled = true, .max_data_bytes = RESETPINS_MAX_DATA_BYTES, .helpstring = RESETPINS_HELPSTRING};
@@ -109,7 +110,9 @@ static Fetch_terminals fetch_terms =
 	.gpio_sense       = {"pullup", "pulldown", "floating", "analog"},
 	.adc_subcommandA  = {"conf_adc1", "start", "stop"},
 	.adc_configure    = {"profile", "oneshot", "continuous", "reset", "vref_mv"},
-	.adc_profile      = {"default" , "PA"   , "PB"},
+	.adc_profile      = {"default", "PA", "PB"},
+	.dac_subcommandA  = {"on", "off", "conf_ch1, conf_ch2"},
+    .dac_configure    = {"dc_mv"},  
 	.port_subcommand  = {"porta", "portb", "portc", "portd", "porte", "portf", "portg", "porth", "porti" },
 	.pin_subcommand   = {"pin0", "pin1", "pin2", "pin3", "pin4", "pin5", "pin6", "pin7", "pin8", "pin9", "pin10", "pin11", "pin12", "pin13", "pin14", "pin15" },
 	.subcommandD      = {},
@@ -183,8 +186,10 @@ static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl
 	util_message_comment(chp, "\t%s", resetpins_dict.helpstring);
 	util_message_comment(chp, "\t%s", gpio_dict.helpstring);
 	util_message_comment(chp, "\t%s", adc_dict.helpstring);
+	util_message_comment(chp, "\t%s", dac_dict.helpstring);
 	return true;
 }
+
 /*! \brief ADC command callback for fetch language
  */
 static bool fetch_adc(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[])
@@ -196,6 +201,19 @@ static bool fetch_adc(BaseSequentialStream  * chp, char * cmd_list[], char * dat
 	util_message_info(chp, "Command not enabled");
 	return false;
 }
+
+/*! \brief DAC command callback for fetch language
+ */
+static bool fetch_dac(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[])
+{
+	if(dac_dict.enabled)
+	{
+		return(fetch_dac_dispatch(chp, cmd_list, data_list, &fetch_terms));
+	}
+	util_message_info(chp, "Command not enabled");
+	return false;
+}
+
 
 /*! \brief GPIO command callback for fetch language
  */
@@ -301,6 +319,11 @@ static void fetch_init_cmd_fns(BaseSequentialStream * chp)
 		                     strlen(fetch_terms.command[i]) ) == 0)
 		{
 			cmd_fns[i] = fetch_adc;
+		}
+		else if (strncasecmp(fetch_terms.command[i], "dac",
+		                     strlen(fetch_terms.command[i]) ) == 0)
+		{
+			cmd_fns[i] = fetch_dac;
 		}
 		else
 		{
