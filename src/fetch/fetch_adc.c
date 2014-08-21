@@ -288,7 +288,8 @@ static void adc1_new_data(eventid_t id UNUSED)
 		uint32_t                uv_per_bit = ((fetch_adc1_state.vref_mv * 1000) / 4096); // 12 bit conversion
 		uint32_t                avg_vals[FETCH_ADC1_MAX_CHANNELS] = {0};
 		uint32_t                degC, adcUV;
-		if(getMShellVisiblePrompt()){
+		if(getMShellVisiblePrompt())
+		{
 			mshell_putnewline();
 		}
 		switch(fetch_adc1_state.profile->name)
@@ -564,27 +565,42 @@ static bool fetch_adc_change_profile(FETCH_ADC_profile_name p)
 	return ret;
 }
 
+static inline int fetch_adc_is_valid_adc_profile(BaseSequentialStream * chp,
+                Fetch_terminals * fetch_terms,
+                char * chkadc_profile)
+{
+	return(token_match(chp, fetch_terms->adc_profile, chkadc_profile,
+	                   ((int) NELEMS(fetch_terms->adc_profile)) ) );
+}
+
 /*! \brief change the profile for adc1
  */
 bool fetch_adc1_profile(BaseSequentialStream * chp, Fetch_terminals * fetch_terms,
                         char * cmd_list[])
 {
-	if (strncasecmp(cmd_list[ADC_PROFILE], "default", strlen("default") ) == 0)
+	if(fetch_adc_is_valid_adc_profile(chp, fetch_terms, cmd_list[ADC_PROFILE]) >= 0)
 	{
-		return(fetch_adc_change_profile(FETCH_ADC1_DEFAULT));
-	}
-	else if (strncasecmp(cmd_list[ADC_PROFILE], "demo", strlen("demo") ) == 0)
-	{
-		return(fetch_adc_change_profile(FETCH_ADC1_DEMO));
-	}
-	else if (strncasecmp(cmd_list[ADC_PROFILE], "pa", strlen("pa") ) == 0)
-	{
-		return(fetch_adc_change_profile(FETCH_ADC1_PA));
+		if (strncasecmp(cmd_list[ADC_PROFILE], "default", strlen("default") ) == 0)
+		{
+			return(fetch_adc_change_profile(FETCH_ADC1_DEFAULT));
+		}
+		else if (strncasecmp(cmd_list[ADC_PROFILE], "demo", strlen("demo") ) == 0)
+		{
+			return(fetch_adc_change_profile(FETCH_ADC1_DEMO));
+		}
+		else if (strncasecmp(cmd_list[ADC_PROFILE], "pa", strlen("pa") ) == 0)
+		{
+			return(fetch_adc_change_profile(FETCH_ADC1_PA));
+		}
+		else
+		{
+			util_message_error(chp, "Profile not available: %s.", cmd_list[ADC_PROFILE]);
+			return false;
+		}
 	}
 	else
 	{
-		util_message_error(chp, "Profile not available: %s.", cmd_list[ADC_PROFILE]);
-		return false;
+		util_message_error(chp, "Not a valid profile");
 	}
 	return false;
 }
@@ -672,7 +688,8 @@ bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 {
 	fetch_adc1_state.chp = chp;
 
-	if(!fetch_adc1_state.init) {
+	if(!fetch_adc1_state.init)
+	{
 		fetch_adc_init(chp);
 	};
 
@@ -699,4 +716,5 @@ bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 	return false;
 }
 /*! @} */
+
 
