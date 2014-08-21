@@ -671,6 +671,11 @@ bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
                         Fetch_terminals * fetch_terms)
 {
 	fetch_adc1_state.chp = chp;
+
+	if(!fetch_adc1_state.init) {
+		fetch_adc_init(chp);
+	};
+
 	if(fetch_adc_is_valid_adc_subcommandA(chp, fetch_terms, cmd_list[ADC_ACTION]) >= 0)
 	{
 		if (strncasecmp(cmd_list[ADC_ACTION], "conf_adc1", strlen("conf_adc1") ) == 0)

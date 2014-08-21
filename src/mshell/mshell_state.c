@@ -13,7 +13,7 @@
 #include "mshell_sync.h"
 #include "mshell_state.h"
 
-static          Mshell_status                   mshell_state;
+Mshell_status                   mshell_state;
 
 bool_t mshell_stream_put(BaseSequentialStream * chp, uint8_t c) {
 	int ret;
@@ -33,12 +33,11 @@ void mshell_stream_putstr(BaseSequentialStream * chp, char * fmt, ...) {
 	va_end(argList);
 }
 
-//! |todo review gcc inline rules - maybe it doesn't matter.
-inline bool getMShellVisiblePrompt() {
+bool getMShellVisiblePrompt() {
 		return(mshell_state.visibleprompt);
 }
 
-inline BaseSequentialStream * getMShellStreamPtr() {
+BaseSequentialStream * getMShellStreamPtr() {
 		return(mshell_state.chp);
 }
 

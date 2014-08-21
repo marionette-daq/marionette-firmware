@@ -244,7 +244,7 @@ static msg_t mshell_thread(void * p)
 	chThdSleepMilliseconds(500);
 	//! Initial Welcome Prompt
     chprintf(chp, "\r\n");
-	util_message_comment(chp, "Marionette Shell (\"+help\" for shell commands)");
+	util_message_comment(getMShellStreamPtr(), "Marionette Shell (\"+help\" for shell commands)");
 
 	//! initialize parser.
 	fetch_init(chp) ;
@@ -314,8 +314,7 @@ static msg_t mshell_thread(void * p)
 			strncpy(command_line, &input_line[0], MSHELL_MAX_LINE_LENGTH);
 			if(!fetch_parse(chp, command_line))
 			{
-				DBG_MSG(chp, "Parse fail.");
-				util_message_error(chp, "Unrecognized Fetch Command. Type \"?\" or \"help\" or \"+help\"");
+				util_message_error(chp, "Fetch Command Fail. Type \"help\" or \"+help\"");
 			};
 		}
 	}

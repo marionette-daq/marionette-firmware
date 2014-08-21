@@ -53,7 +53,7 @@ extern       struct led_config led_cfg ;
  */
 Util_status      M_Status = { .status=GEN_OK };
 
-#define SHELL_WA_SIZE   THD_WA_SIZE(8192)
+#define SHELL_WA_SIZE   THD_WA_SIZE(16384)
 
 /*! \brief Show memory usage
  */
@@ -137,10 +137,6 @@ static void main_app(void)
 	chThdSleepMilliseconds(1000);
 	usbStart(serusbcfg.usbp, &usbcfg);
 	usbConnectBus(serusbcfg.usbp);
-
-	fetch_adc_init((BaseSequentialStream *) &SDU1);
-
-	//hbStart(&led_cfg);
 
 	while (TRUE)
 	{

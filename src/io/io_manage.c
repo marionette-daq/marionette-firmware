@@ -27,6 +27,7 @@
 #include "util_general.h"
 #include "util_messages.h"
 
+#include "mshell_state.h"
 #include "io_manage.h"
 #include "io_manage_defs.h"
 
@@ -108,6 +109,7 @@ bool io_manage_set_mode(ioportid_t port, uint32_t pad, iomode_t new_mode, IO_all
 		palSetPadMode(port, pad, new_mode);
 		return true;
 	}
+	util_message_error(getMShellStreamPtr(), "Function not available.\r\n");
 	return false;
 }
 

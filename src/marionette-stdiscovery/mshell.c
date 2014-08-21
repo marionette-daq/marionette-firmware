@@ -258,9 +258,7 @@ static msg_t shell_thread(void * p)
 			strncpy(command_line, &input_line[0], SHELL_MAX_LINE_LENGTH);
 			if(!fetch_parse(chp, command_line))
 			{
-				DBG_MSG(chp, "Parse fail.");
-				util_errormsg(chp,
-				              "Unrecognized Fetch Command. Type \"?\" or \"help\".\r\n\tMarionette Shell Commands start with \"+\". Try +help");
+				util_errormsg(chp, "Command Failed. Type \"help\".\r\n\tMarionette Shell Commands start with \"+\". Try +help");
 			};
 		}
 	}

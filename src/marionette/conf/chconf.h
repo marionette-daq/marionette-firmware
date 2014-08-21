@@ -264,7 +264,7 @@
  * @note    Requires @p CH_USE_SEMAPHORES.
  */
 #if !defined(CH_USE_MAILBOXES) || defined(__DOXYGEN__)
-#define CH_USE_MAILBOXES                TRUE
+#define CH_USE_MAILBOXES                FALSE
 #endif
 
 /**

@@ -459,7 +459,6 @@ bool fetch_dispatch(BaseSequentialStream * chp, char * command_list[], char * da
 
 	if(cindex < 0)
 	{
-		DBG_MSG(chp, "Unrecognized command.");
 		return false;
 	}
 

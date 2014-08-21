@@ -338,19 +338,14 @@ static bool fetch_gpio_config(BaseSequentialStream * chp, Fetch_terminals * fetc
 	{
 		if((port != NULL) && (pin != NO_FETCH_GPIO_PIN))
 		{
-			//DBG_VMSG(chp, "pin: %d", pin);
-			//DBG_VMSG(chp, "port: 0x%x", port);
-			//DBG_VMSG(chp, "dir: %d", direction);
-			//DBG_VMSG(chp, "sense: %d", sense);
 			if(direction == PAL_STM32_MODE_INPUT)
 			{
-				io_manage_set_mode(port, pin, direction | sense, IO_GPIO);
+				return(io_manage_set_mode(port, pin, direction | sense, IO_GPIO));
 			}
 			else
 			{
-				io_manage_set_mode(port, pin, direction, IO_GPIO);
+				return(io_manage_set_mode(port, pin, direction, IO_GPIO));
 			}
-			return true;
 		}
 	}
 	return false;
