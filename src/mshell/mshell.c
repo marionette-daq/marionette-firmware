@@ -169,12 +169,8 @@ static void cmd_info(BaseSequentialStream * chp, int argc, char * argv[])
 static void cmd_systime(BaseSequentialStream * chp, int argc, char * argv[])
 {
 	(void)argv;
-	if (argc > 0)
-	{
-		util_message_info(chp, "systime");
-		return;
-	}
-	util_message_info(chp, "%lu", (unsigned long)chTimeNow());
+  uint32_t time_value = chTimeNow();
+	util_message_uint32(chp, "systime", &time_value, 1);
 }
 
 /**
