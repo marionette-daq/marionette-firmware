@@ -18,6 +18,7 @@
 #include "util_messages.h"
 #include "util_version.h"
 #include "util_led.h"
+#include "io_manage.h"
 #include "fetch_gpio.h"
 #include "fetch_adc.h"
 
@@ -241,6 +242,7 @@ static bool fetch_resetpins(BaseSequentialStream * chp, char * cmd_list[] UNUSED
                             char * data_list[] UNUSED)
 {
 	palInit(&pal_default_config);
+	io_manage_table_to_defaults();
 	return true;
 }
 

@@ -113,9 +113,9 @@ bool io_manage_set_mode(ioportid_t port, uint32_t pad, iomode_t new_mode, IO_all
 	return false;
 }
 
-/*! \brief Reset port allocation table to defaults and reset pad modes to defaults.
+/*! \brief Reset port allocation table to defaults
  */
-void io_manage_to_defaults(void)
+void io_manage_table_to_defaults(void)
 {
 	IO_table    *    table;
 	for(uint8_t i = 0; i < NELEMS(io_manage_tables); ++i)
@@ -125,11 +125,23 @@ void io_manage_to_defaults(void)
 		{
 			table->pin[j].current_mode    = table->pin[j].default_mode;
 			table->pin[j].current_alloc   = table->pin[j].default_alloc;
-			palSetPadMode(table->port, table->pin[j].pad, table->pin[j].current_mode);
+			//palSetPadMode(table->port, table->pin[j].pad, table->pin[j].current_mode);
 		}
 	}
 }
 
+/*! \brief Query whether a function is available on that port
+ */
+bool io_manage_query_fn_avail(ioportid_t port, uint32_t pad, IO_alloc request_alloc)
+{
+	IO_table    *    table = io_manage_get_table(port);
+
+	if(io_manage_fn_avail(port, pad, request_alloc, table))
+	{
+		return true;
+	}
+	return false;
+}
 /*! \brief Query the current pin allocation
  */
 void io_manage_query_pin(BaseSequentialStream * chp, ioportid_t port, uint32_t pad)
@@ -139,4 +151,5 @@ void io_manage_query_pin(BaseSequentialStream * chp, ioportid_t port, uint32_t p
 }
 
 //! @}
+
 
