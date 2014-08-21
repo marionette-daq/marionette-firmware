@@ -1,6 +1,6 @@
 /*! \file fetch_gpio.c
  * Marionette fetch_gpio routines
- * @defgroup fetch_gpio Fetch GPIO 
+ * @defgroup fetch_gpio Fetch GPIO
  * @{
  */
 
@@ -19,8 +19,6 @@
 
 #include "fetch_defs.h"
 #include "fetch_gpio.h"
-
-
 
 const StrToPinnum_Map fetch_gpio_pinmap[] =
 {
@@ -122,7 +120,7 @@ static FETCH_GPIO_pinnum string_to_pinnum(BaseSequentialStream * chp, char * pin
 
 /*! \brief convert string to gpioport
  *
- * \param[in] portstr      Input String representing port 
+ * \param[in] portstr      Input String representing port
  * \return GPIO_TypeDef Port
  * \return NULL on error
  */
@@ -145,14 +143,14 @@ static GPIO_TypeDef * string_to_gpioport(BaseSequentialStream * chp, char * port
 	return NULL;
 }
 
-/*! \brief get the port and pin information 
+/*! \brief get the port and pin information
  */
 static bool fetch_gpio_get_port_pin(BaseSequentialStream * chp, char * cmd_list[],
                                     Fetch_terminals * fetch_terms,
                                     GPIO_TypeDef ** port, FETCH_GPIO_pinnum * pin)
 {
 	size_t               maxlen                  = 0;
-	GPIO_TypeDef *       fetch_gpio_port;
+	GPIO_TypeDef    *    fetch_gpio_port;
 	FETCH_GPIO_pinnum    fetch_gpio_pinnum;
 
 	if(fetch_gpio_is_valid_port_subcommand(chp, fetch_terms, cmd_list[FETCH_GPIO_PORT]) >= 0)
@@ -198,18 +196,18 @@ static bool fetch_gpio_get_port_pin(BaseSequentialStream * chp, char * cmd_list[
 /*! \brief read the input register value for the port and pin
  */
 static bool fetch_gpio_get(BaseSequentialStream * chp, Fetch_terminals * fetch_terms,
-                    char * cmd_list[])
+                           char * cmd_list[])
 {
-	GPIO_TypeDef *       port    = GPIOA;
+	GPIO_TypeDef    *    port    = GPIOA;
 	FETCH_GPIO_pinnum    pin     = PIN0;
-  uint8_t pad_state;
+	uint8_t pad_state;
 
 	if(fetch_gpio_get_port_pin(chp, cmd_list, fetch_terms, &port, &pin))
 	{
 		if((port != NULL) && (pin != NO_FETCH_GPIO_PIN))
 		{
-			pad_state = palReadPad(port,pin);
-      util_message_uint8(chp, "logic", &pad_state, 1);
+			pad_state = palReadPad(port, pin);
+			util_message_uint8(chp, "logic", &pad_state, 1);
 			return true;
 		}
 	}
@@ -220,9 +218,9 @@ static bool fetch_gpio_get(BaseSequentialStream * chp, Fetch_terminals * fetch_t
 /*! \brief set the output register value to HIGH for the port and pin
  */
 static bool fetch_gpio_set(BaseSequentialStream * chp, Fetch_terminals * fetch_terms,
-                    char * cmd_list[])
+                           char * cmd_list[])
 {
-	GPIO_TypeDef *    port       = NULL;
+	GPIO_TypeDef   *  port       = NULL;
 	FETCH_GPIO_pinnum pin        = PIN0;
 
 	if(fetch_gpio_get_port_pin(chp, cmd_list, fetch_terms, &port, &pin))
@@ -239,9 +237,9 @@ static bool fetch_gpio_set(BaseSequentialStream * chp, Fetch_terminals * fetch_t
 /*! \brief clear the output register value (set to LOW) for the port and pin
  */
 static bool fetch_gpio_clear(BaseSequentialStream * chp, Fetch_terminals * fetch_terms,
-                      char * cmd_list[])
+                             char * cmd_list[])
 {
-	GPIO_TypeDef *       port    = NULL;
+	GPIO_TypeDef    *    port    = NULL;
 	FETCH_GPIO_pinnum    pin     = PIN0;
 
 	if(fetch_gpio_get_port_pin(chp, cmd_list, fetch_terms, &port, &pin))
@@ -255,9 +253,10 @@ static bool fetch_gpio_clear(BaseSequentialStream * chp, Fetch_terminals * fetch
 	return false;
 }
 
-static bool fetch_gpio_query(BaseSequentialStream * chp, Fetch_terminals * fetch_terms, char * cmd_list[]) {
+static bool fetch_gpio_query(BaseSequentialStream * chp, Fetch_terminals * fetch_terms, char * cmd_list[])
+{
 
-	GPIO_TypeDef *       port    = NULL;
+	GPIO_TypeDef    *    port    = NULL;
 	FETCH_GPIO_pinnum    pin     = PIN0;
 
 	if(fetch_gpio_get_port_pin(chp, cmd_list, fetch_terms, &port, &pin))
@@ -293,7 +292,6 @@ static bool fetch_gpio_config(BaseSequentialStream * chp, Fetch_terminals * fetc
 		}
 		else
 		{
-			DBG_MSG(chp, "The port direction is not available");
 			return false;
 		}
 	}
@@ -320,7 +318,23 @@ static bool fetch_gpio_config(BaseSequentialStream * chp, Fetch_terminals * fetc
 			}
 			else if ( (strncasecmp(cmd_list[FETCH_GPIO_SENSE], "analog", strlen("analog") ) == 0) )
 			{
-				sense = PAL_STM32_MODE_ANALOG;
+				//! Ref: F4 Reference section 8.3.12 Analog configuration
+				if(fetch_gpio_get_port_pin(chp, cmd_list, fetch_terms, &port, &pin))
+				{
+					if(io_manage_query_fn_avail(port, pin, IO_ADC))    // ADC pins are available Analog pins
+					{
+						sense = PAL_STM32_MODE_ANALOG;
+					}
+					else
+					{
+						util_message_error(chp, "GPIO analog mode not available on this pin.");
+						return false;
+					}
+				}
+				else
+				{
+					return false;
+				}
 			}
 			else
 			{
@@ -350,8 +364,6 @@ static bool fetch_gpio_config(BaseSequentialStream * chp, Fetch_terminals * fetc
 	}
 	return false;
 }
-
-
 
 /*! \brief dispatch a specific gpio command
  */
@@ -399,3 +411,4 @@ bool fetch_gpio_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * d
 }
 
 /*! @} */
+
