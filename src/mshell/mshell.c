@@ -61,35 +61,6 @@ static void list_commands(BaseSequentialStream * chp, const MShellCommand * scp)
 	}
 }
 
-static void cmd_version(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
-{
-	util_fwversion(&version_data);
-	util_hwversion(&version_data);
-	util_message_info(chp, "Firmware Version:%s", version_data.firmware);
-	util_message_info(chp, "Hardware Version:0x%x-0x%x-0x%x", version_data.hardware.id_high, version_data.hardware.id_center, version_data.hardware.id_low);
-	if(argc > 0)
-	{
-		usage(chp, "version");
-		return;
-	}
-}
-
-/*! \brief query unique chip id
- */
-static void cmd_chip_id(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
-{
-  uint32_t chip_id_values[3] = {STM32F4_UNIQUE_ID_LOW,
-                                STM32F4_UNIQUE_ID_CENTER,
-                                STM32F4_UNIQUE_ID_HIGH};
-  if(argc > 0)
-  {
-    usage(chp, "chipid");
-    return;
-  }
-  
-	util_message_uint32(chp, "chip_id", chip_id_values, 3);
-}
-
 /*! \brief turn on the prompt
  */
 static void cmd_prompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
@@ -200,8 +171,6 @@ static MShellCommand local_commands[] =
 	{"noprompt", cmd_noprompt},
 	{"echo", cmd_echo},
 	{"noecho", cmd_noecho},
-	{"version", cmd_version},
-  {"chipid", cmd_chip_id},
 	{NULL, NULL}
 };
 
