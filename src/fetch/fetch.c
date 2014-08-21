@@ -103,7 +103,7 @@ static Command_dictionary          resetpins_dict          = { .enabled = true, 
  */
 static Fetch_terminals fetch_terms =
 {
-	.command          = {"?", "help", "version", "gpio", "adc", "spi", "i2c", "resetpins", "heartbeat_toggle"},
+	.command          = {"?", "help", "version", "chipid", "gpio", "adc", "spi", "i2c", "resetpins", "heartbeat_toggle"},
 	.gpio_subcommandA = {"get", "set", "clear", "configure", "query"},
 	.gpio_direction   = {"input", "output"},
 	.gpio_sense       = {"pullup", "pulldown", "floating", "analog"},
@@ -214,14 +214,23 @@ static bool fetch_gpio(BaseSequentialStream  * chp, char * cmd_list[], char * da
 static bool fetch_version(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
                           char * data_list[] UNUSED)
 {
+	util_message_string(chp, "firmware_version", GIT_COMMIT_VERSION);
+	return true;
+}
+
+/*! \brief CHIPID command callback for fetch language
+ */
+static bool fetch_chip_id(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
+                          char * data_list[] UNUSED)
+{
   uint32_t chip_id[3] = {STM32F4_UNIQUE_ID_LOW, STM32F4_UNIQUE_ID_CENTER, STM32F4_UNIQUE_ID_HIGH};
 
-	util_message_string(chp, "firmware_version", GIT_COMMIT_VERSION);
 	util_message_hex_uint32(chp, "chip_id", chip_id, 3);
 	return true;
 }
 
-/*! \brief VERSION command callback for fetch language
+
+/*! \brief HBTOGGLE command callback for fetch language
  */
 static bool fetch_hbtoggle(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
                           char * data_list[] UNUSED)
@@ -272,6 +281,11 @@ static void fetch_init_cmd_fns(BaseSequentialStream * chp)
 		                     strlen(fetch_terms.command[i]) ) == 0)
 		{
 			cmd_fns[i] = fetch_version;
+		}
+		else if (strncasecmp(fetch_terms.command[i], "chipid",
+		                     strlen(fetch_terms.command[i]) ) == 0)
+		{
+			cmd_fns[i] = fetch_chip_id;
 		}
 		else if (strncasecmp(fetch_terms.command[i], "heartbeat_toggle",
 		                     strlen(fetch_terms.command[i]) ) == 0)
