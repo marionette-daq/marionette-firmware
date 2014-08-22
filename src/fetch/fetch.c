@@ -53,7 +53,7 @@ P - Production Rules:
 <adc_subcommandA>  ::= "conf_adc1" | "start" | "stop"
 <adc_configure>    ::= "profile" | "oneshot" | "continuous" | "reset" | "vref_mv"
 <adc_profile>      ::= "default" | "PA"   | "PB"
-<dac_subcommandA>  ::= "on"      | "off" | "configure"
+<dac_subcommandA>  ::= "on"      | "off" | "conf_ch1" | "conf_ch2"
 <dac_configure>    ::= "dc_mv"  
 <spi_subcommandA>  ::= TBD
 <i2c_subcommandA>  ::= TBD
@@ -104,14 +104,14 @@ static Command_dictionary          resetpins_dict          = { .enabled = true, 
  */
 static Fetch_terminals fetch_terms =
 {
-	.command          = {"?", "help", "version", "chipid", "gpio", "adc", "spi", "i2c", "resetpins", "heartbeat_toggle"},
+	.command          = {"?", "help", "version", "chipid", "gpio", "adc", "dac", "spi", "i2c", "resetpins", "heartbeat_toggle"},
 	.gpio_subcommandA = {"get", "set", "clear", "configure", "query"},
 	.gpio_direction   = {"input", "output"},
 	.gpio_sense       = {"pullup", "pulldown", "floating", "analog"},
 	.adc_subcommandA  = {"conf_adc1", "start", "stop"},
 	.adc_configure    = {"profile", "oneshot", "continuous", "reset", "vref_mv"},
 	.adc_profile      = {"default", "PA", "PB"},
-	.dac_subcommandA  = {"on", "off", "conf_ch1, conf_ch2"},
+	.dac_subcommandA  = {"on", "off", "conf_ch1", "conf_ch2"},
     .dac_configure    = {"dc_mv"},  
 	.port_subcommand  = {"porta", "portb", "portc", "portd", "porte", "portf", "portg", "porth", "porti" },
 	.pin_subcommand   = {"pin0", "pin1", "pin2", "pin3", "pin4", "pin5", "pin6", "pin7", "pin8", "pin9", "pin10", "pin11", "pin12", "pin13", "pin14", "pin15" },

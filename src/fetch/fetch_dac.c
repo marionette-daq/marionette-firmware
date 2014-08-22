@@ -48,9 +48,9 @@ static FETCH_dac_state fetch_dac_state =
 	.chp                  = NULL
 };
 
-static void             fetch_dac_init(BaseSequentialStream * chp)
+static void fetch_dac_init(BaseSequentialStream * chp)
 {
-	;
+	util_message_error(chp, "init: Command not yet available");
 };
 
 static inline int fetch_dac_is_valid_dac_configure(BaseSequentialStream * chp,
@@ -69,7 +69,7 @@ static bool fetch_dac_ch1_configure(BaseSequentialStream * chp ,
 
 	if(fetch_dac_is_valid_dac_configure(chp, fetch_terms, cmd_list[DAC_CONFIGURE])) {};
 
-	util_message_error(chp, "Command not yet available");
+	util_message_error(chp, "ch1 Command not yet available");
 	return false;
 }
 
@@ -99,9 +99,7 @@ static inline int fetch_dac_is_valid_dac_subcommandA(BaseSequentialStream * chp,
                 Fetch_terminals * fetch_terms,
                 char * chkdac_subcommandA)
 {
-
-	return(token_match(chp, fetch_terms->dac_subcommandA, chkdac_subcommandA,
-	                   ((int) NELEMS(fetch_terms->dac_subcommandA)) ) );
+	return(token_match(chp, fetch_terms->dac_subcommandA, chkdac_subcommandA, ((int) NELEMS(fetch_terms->dac_subcommandA)) ) );
 }
 
 /*! \brief dispatch an DAC command
@@ -118,11 +116,11 @@ bool fetch_dac_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 
 	if(fetch_dac_is_valid_dac_subcommandA(chp, fetch_terms, cmd_list[DAC_SCA]) >= 0)
 	{
-		if (strncasecmp(cmd_list[DAC_SCA], "conf_dac1", strlen("conf_ch1") ) == 0)
+		if (strncasecmp(cmd_list[DAC_SCA], "conf_ch1", strlen("conf_ch1") ) == 0)
 		{
 			return(fetch_dac_ch1_configure(chp, fetch_terms, cmd_list, data_list));
 		}
-		else if (strncasecmp(cmd_list[DAC_SCA], "conf_dac1", strlen("conf_ch2") ) == 0)
+		else if (strncasecmp(cmd_list[DAC_SCA], "conf_ch2", strlen("conf_ch2") ) == 0)
 		{
 			return(fetch_dac_ch2_configure(chp, fetch_terms, cmd_list, data_list));
 		}
