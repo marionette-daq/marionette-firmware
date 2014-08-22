@@ -81,7 +81,7 @@ static ADC_input ADC1_IN5   = { GPIOA, GPIOA_PIN5 };
 static ADC_input ADC1_IN6   = { GPIOA, GPIOA_PIN6 };
 static ADC_input ADC1_IN7   = { GPIOA, GPIOA_PIN7 };
 static ADC_input ADC1_IN8   = { GPIOB, GPIOB_PIN0 };
-static ADC_input ADC1_IN9   = { GPIOB, GPIOB_PIN9 };
+//static ADC_input ADC1_IN9   = { GPIOB, GPIOB_PIN9 };
 static ADC_input ADC1_IN10  = { GPIOC, GPIOC_PIN0 };
 //static ADC_input ADC1_IN11  = { GPIOC, GPIOC_PIN1 },    // used for OTG
 //static ADC_input ADC1_IN12  = { GPIOC, GPIOC_PIN2 },    // used for OTG
@@ -89,7 +89,7 @@ static ADC_input ADC1_IN13  = { GPIOC, GPIOC_PIN3 };
 static ADC_input ADC1_IN14  = { GPIOC, GPIOC_PIN4 };
 static ADC_input ADC1_IN15  = { GPIOC, GPIOC_PIN5 };
 
-static ADC_input * ADC1_inputs[] = {&ADC1_IN0, &ADC1_IN1, &ADC1_IN2, NULL, &ADC1_IN4, &ADC1_IN5, &ADC1_IN6, &ADC1_IN7, &ADC1_IN8, &ADC1_IN9, &ADC1_IN10, NULL, NULL, &ADC1_IN13, &ADC1_IN14, &ADC1_IN15} ;
+static ADC_input * ADC1_inputs[] = {&ADC1_IN0, &ADC1_IN1, &ADC1_IN2, &ADC1_IN3, &ADC1_IN4, &ADC1_IN5, &ADC1_IN6, &ADC1_IN7, &ADC1_IN8, NULL, &ADC1_IN10, NULL, NULL, &ADC1_IN13, &ADC1_IN14, &ADC1_IN15} ;
 #elif defined (BOARD_ST_STM32F4_DISCOVERY)
 #error "ST Discovery Board not defined for ADC"
 #else
@@ -299,7 +299,6 @@ static void adc1_new_data(eventid_t id UNUSED)
 				util_message_uint32(chp, "time", &timenow, 1);
 				avg_vals[0] *= uv_per_bit; // convert to micro-volt
 				util_message_uint32(chp, "adc", avg_vals, 1);
-				util_message_uint32(chp, "adc", avg_vals, 1);
 				break;
 			case FETCH_ADC1_DEMO:  // 2 channels in this profile
 				sum_reduce_samples(avg_vals);
@@ -496,11 +495,6 @@ static bool fetch_adc_change_profile(FETCH_ADC_profile_name p)
 			fetch_adc_io_set_defaults();
 			ret = fetch_adc1_io_to_analog(adc1_default_channel);
 			break;
-		case FETCH_ADC1_DEMO:
-			fetch_adc1_state.profile = &adc1_demo_profile;
-			fetch_adc_io_set_defaults();
-			ret = fetch_adc1_io_to_analog(ADC_CH13);
-			break;
 		case FETCH_ADC1_PA:
 			fetch_adc1_state.profile = &adc1_pa_profile;
 			fetch_adc_io_set_defaults();
@@ -513,6 +507,10 @@ static bool fetch_adc_change_profile(FETCH_ADC_profile_name p)
 				return false;
 			}
 			if(!fetch_adc1_io_to_analog(ADC_CH2) )
+			{
+				return false;
+			}
+			if(!fetch_adc1_io_to_analog(ADC_CH3) )
 			{
 				return false;
 			}
@@ -536,10 +534,10 @@ static bool fetch_adc_change_profile(FETCH_ADC_profile_name p)
 			{
 				return false;
 			}
-			if(!fetch_adc1_io_to_analog(ADC_CH9) )
-			{
-				return false;
-			}
+			//if(!fetch_adc1_io_to_analog(ADC_CH9) )
+			//{
+				//return false;
+			//}
 			if(!fetch_adc1_io_to_analog(ADC_CH10))
 			{
 				return false;
