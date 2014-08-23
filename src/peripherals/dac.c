@@ -71,22 +71,8 @@ void dacInit(void) {
  * @init
  */
 void dacObjectInit(DACDriver *dacp) {
-
-  dacp->state = DAC_STOP;
-  dacp->config = NULL;
-#if DAC_USE_WAIT
-  dacp->thread = NULL;
-#endif /* DAC_USE_WAIT */
-#if DAC_USE_MUTUAL_EXCLUSION
-#if CH_USE_MUTEXES
-  chMtxInit(&dacp->mutex);
-#else
-  chSemInit(&dacp->semaphore, 1);
-#endif
-#endif /* DAC_USE_MUTUAL_EXCLUSION */
-#if defined(DAC_DRIVER_EXT_INIT_HOOK)
-  DAC_DRIVER_EXT_INIT_HOOK(dacp);
-#endif
+  dacp->state         = DAC_STOP;
+  dacp->config        = NULL;
 }
 
 /**
