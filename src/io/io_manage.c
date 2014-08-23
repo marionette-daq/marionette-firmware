@@ -100,18 +100,33 @@ bool io_manage_set_default_mode(ioportid_t port, uint32_t pad)
  */
 bool io_manage_set_mode(ioportid_t port, uint32_t pad, iomode_t new_mode, IO_alloc request_alloc)
 {
+	IO_alloc         curr_alloc;
 	IO_table    *    table = io_manage_get_table(port);
+
+	curr_alloc = table->pin[pad].current_alloc;
+	if(curr_alloc == request_alloc)
+	{
+		return true;
+	}
+
+	if(curr_alloc != IO_NONE)
+	{
+		util_message_error(getMShellStreamPtr(), "Function already allocated to: %s", io_manage_get_namestr(curr_alloc) );
+		return false;
+	}
 
 	if(io_manage_fn_avail(port, pad, request_alloc, table))
 	{
+
 		table->pin[pad].current_mode  = new_mode;
 		table->pin[pad].current_alloc = request_alloc;
 		palSetPadMode(port, pad, new_mode);
 		return true;
 	}
-	util_message_error(getMShellStreamPtr(), "Function not available.\r\n");
+	util_message_error(getMShellStreamPtr(), "Function not available. %s", io_manage_get_namestr(request_alloc) );
 	return false;
 }
+
 
 /*! \brief Reset port allocation table to defaults
  */

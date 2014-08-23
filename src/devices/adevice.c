@@ -1,2 +1,0 @@
-
-/* a device c file */
