@@ -22,7 +22,7 @@
 
  /* @brief   STM32 DAC subsystem low level driver source.
  *
- * @defgroup M_DAC Marionette DAC Peripheral Driver
+ * @defgroup M_DAC Marionette DAC Low Level Peripheral Driver
  * @{
  */
 
@@ -31,6 +31,7 @@
 
 #if HAL_USE_DAC || defined(__DOXYGEN__)
 
+#include "dac.h"
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
@@ -108,8 +109,7 @@ void dac_lld_start(DACDriver * dacp)
 		{
 			rccEnableDAC1(FALSE);
 			/* DAC1 CR data is at bits 0:15 */
-			regshift      = 0;
-			dataoffset    = 0;
+			dacp->dac->CR |= (STM32_DAC_CR_EN | dacp->config->cr_flags);
 		}
 #endif
 #if STM32_DAC_USE_CHN2
@@ -118,16 +118,8 @@ void dac_lld_start(DACDriver * dacp)
 			rccEnableDAC1(FALSE);
 			/* DAC2 CR data is at bits 16:31 */
 			regshift = 16;
-			dataoffset = &dacp->dac->DHR12R2 - &dacp->dac->DHR12R1;
+			dacp->dac->CR |= ((STM32_DAC_CR_EN <<16) | dacp->config->cr_flags);
 		}
-#endif
-
-#if STM32_DAC_USE_CHN1 || STM32_DAC_USE_CHN2
-
-		/* DAC configuration */
-		dacp->dac->CR |= ( (dacp->dac->CR & ~STM32_DAC_CR_MASK) | \
-		                   (STM32_DAC_CR_EN |  dacp->config->cr_flags) ) << regshift;
-
 #endif
 	}
 }

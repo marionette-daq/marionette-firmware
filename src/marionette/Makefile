@@ -92,6 +92,7 @@ LDSCRIPT= $(PORTLD)/STM32F407xG.ld
 # setting.
 MSRC = $(wildcard $(MARIONETTE_UTIL)/*.c)
 MSRC += $(wildcard $(MARIONETTE_USB)/*.c)
+MSRC += $(wildcard $(MARIONETTE_PERIPHERALS)/*.c)
 MSRC += $(wildcard $(MARIONETTE_FETCH)/*.c)
 MSRC += $(wildcard $(MARIONETTE_IO)/*.c)
 MSRC += $(wildcard $(MARIONETTE_MSHELL)/*.c)
@@ -135,7 +136,7 @@ ASMSRC = $(PORTASM)
 INCDIR = $(PORTINC) $(KERNINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) \
          $(CHIBIOS)/os/various \
-	 $(MARIONETTE_DEVICES)/include $(MARIONETTE_UTIL)/include \
+	 $(MARIONETTE_PERIPHERALS)/include $(MARIONETTE_UTIL)/include \
 	 $(MARIONETTE_USB)/include $(MARIONETTE_FETCH)/include \
 	 $(MARIONETTE_IO)/include \
 	 $(MARIONETTE_MSHELL)/include \
@@ -159,7 +160,7 @@ CPPC = $(TRGT)g++
 # Enable loading with g++ only if you need C++ runtime support.
 # NOTE: You can use C++ even without C++ support if you are careful. C++
 #       runtime support makes code size explode.
-LD   = $(TRGT)gcc
+LD   = $(TRGT)gcc 
 #LD   = $(TRGT)g++
 CP   = $(TRGT)objcopy
 AS   = $(TRGT)gcc -x assembler-with-cpp
@@ -236,7 +237,7 @@ UINCDIR =
 ULIBDIR =
 
 # List all user libraries here
-ULIBS =
+ULIBS = -lm
 
 #
 # End of user defines

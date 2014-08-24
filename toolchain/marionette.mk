@@ -3,7 +3,7 @@
 
 MARIONETTE_TOP           = ../..
 MARIONETTE_OPENOCD       = $(MARIONETTE_TOP)/toolchain/openocd
-MARIONETTE_DEVICES       = $(MARIONETTE_TOP)/src/devices
+MARIONETTE_PERIPHERALS   = $(MARIONETTE_TOP)/src/peripherals
 MARIONETTE_UTIL          = $(MARIONETTE_TOP)/src/util
 MARIONETTE_USB           = $(MARIONETTE_TOP)/src/usb
 MARIONETTE_FETCH         = $(MARIONETTE_TOP)/src/fetch
