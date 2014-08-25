@@ -20,11 +20,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
- /* @brief   STM32 DAC subsystem low level driver source.
- *
- * @defgroup M_DAC Marionette DAC Low Level Peripheral Driver
- * @{
- */
+/* @brief   STM32 DAC subsystem low level driver source.
+*
+* @defgroup M_DAC Marionette DAC Low Level Peripheral Driver
+* @{
+*/
 
 #include "ch.h"
 #include "hal.h"
@@ -32,6 +32,8 @@
 #if HAL_USE_DAC || defined(__DOXYGEN__)
 
 #include "dac.h"
+#include "util_messages.h"
+#include "mshell_state.h"
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
@@ -79,15 +81,8 @@ DACDriver DACD2;
  */
 void dac_lld_init(void)
 {
-#if STM32_DAC_USE_CHN1
 	dacObjectInit(&DACD1);
 	DACD1.dac     = DAC1;
-#endif
-
-#if STM32_DAC_USE_CHN2
-	dacObjectInit(&DACD2);
-	DACD2.dac     = DAC1;
-#endif
 }
 
 /**
@@ -113,12 +108,11 @@ void dac_lld_start(DACDriver * dacp)
 		}
 #endif
 #if STM32_DAC_USE_CHN2
-		if (&DACD2 == dacp)
+		if (&DACD1 == dacp)
 		{
 			rccEnableDAC1(FALSE);
-			/* DAC2 CR data is at bits 16:31 */
-			regshift = 16;
-			dacp->dac->CR |= ((STM32_DAC_CR_EN <<16) | dacp->config->cr_flags);
+			/* DAC1 CR data is at bits 16:31 */
+			dacp->dac->CR |= ((STM32_DAC_CR_EN << 16) | dacp->config->cr_flags);
 		}
 #endif
 	}
@@ -163,3 +157,4 @@ void dac_lld_stop(DACDriver * dacp)
 #endif /* HAL_USE_DAC */
 
 /** @} */
+

@@ -5,7 +5,7 @@
   * \sa fetch.c
   * @defgroup fetch_dac Fetch DAC
   * @{
-   */
+  */
 
 /*!
  * <hr>
@@ -47,7 +47,6 @@
  *   parasitic consumption, the PA4 or PA5 pin should first be configured to analog (AIN).
  */
 
-
 /*! \brief Channel output pins */
 #if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
 static DAC_output DAC_CH1_PIN   = { GPIOA, GPIOA_PIN4 };
@@ -62,7 +61,6 @@ static DAC_output * DAC_outputs[] = {&DAC_CH1_PIN, &DAC_CH2_PIN};
 
 bool fetch_dac_start(void);
 bool fetch_dac_stop(void);
-
 
 static DACConfig  fetch_dac_config_ch1 =
 {
@@ -114,9 +112,17 @@ static void fetch_dac_init(BaseSequentialStream * chp)
 
 	dacInit();
 
-	fetch_dac_start();
+	// Default output channel to Analog Mode
+	fetch_dac_io_to_analog(DAC_CH1);
+	fetch_dac_io_to_analog(DAC_CH2);
 
 	fetch_dac_state.init      = true;
+	fetch_dac_start();
+
+	// start at 0v
+	DACD1.dac->DHR12R1 = 0;
+	DACD1.dac->DHR12R2 = 0;
+
 };
 
 /*! \brief Reset dac
@@ -127,7 +133,7 @@ static void fetch_dac_reset(void)
 	fetch_dac_state.dc_mv_ch2 = 0;
 
 	fetch_dac_state.init      = false;
-	dacStop(&DACD1);
+	fetch_dac_stop();
 
 	// Reset inputs
 	fetch_dac_io_set_defaults();
@@ -136,8 +142,11 @@ static void fetch_dac_reset(void)
 	fetch_dac_io_to_analog(DAC_CH1);
 	fetch_dac_io_to_analog(DAC_CH2);
 
-	dacStart(&DACD1, fetch_dac_state.config);
 	fetch_dac_state.init      = true;
+	fetch_dac_start();
+
+	DACD1.dac->DHR12R1 = 0;
+	DACD1.dac->DHR12R2 = 0;
 }
 
 static inline int fetch_dac_is_valid_dac_configure(BaseSequentialStream * chp,
@@ -166,16 +175,18 @@ static bool fetch_dac_dc(int dc_mv, DACChannel ch)
 	 */
 	ch_dor = (int) (lrint(((dc_mv) * 4095 ) / fetch_dac_state.vref_mv));
 
-	if(ch==DAC_CH1) {
+	if(ch == DAC_CH1)
+	{
 		DACD1.dac->DHR12R1 = ch_dor;
 	}
-	if(ch==DAC_CH2) {
+	if(ch == DAC_CH2)
+	{
 		DACD1.dac->DHR12R2 = ch_dor;
+		DBG_VMSG(getMShellStreamPtr(), "CR 0x%x, DOR2: 0x%x", DACD1.dac->CR, DACD1.dac->DOR2);
 	}
 
 	return true;
 }
-
 
 static bool fetch_dac_ch1_configure(BaseSequentialStream * chp , Fetch_terminals * fetch_terms, char * cmd_list[],
                                     char * data_list[])
@@ -184,21 +195,22 @@ static bool fetch_dac_ch1_configure(BaseSequentialStream * chp , Fetch_terminals
 	{
 		if (strncasecmp(cmd_list[DAC_CONFIGURE], "dc_mv", strlen("dc_mv") ) == 0)
 		{
-			return(fetch_dac_dc(atoi(data_list[0]),DAC_CH1));
+			return(fetch_dac_dc(atoi(data_list[0]), DAC_CH1));
 		}
 	}
-	util_message_error(chp, "ch1 Command not yet available");
 	return false;
 }
-
 
 static bool fetch_dac_ch2_configure(BaseSequentialStream * chp ,
                                     Fetch_terminals * fetch_terms, char * cmd_list[], char * data_list[])
 {
-
-	if(fetch_dac_is_valid_dac_configure(chp, fetch_terms, cmd_list[DAC_CONFIGURE])) {};
-
-	util_message_error(chp, "Command not yet available");
+	if(fetch_dac_is_valid_dac_configure(chp, fetch_terms, cmd_list[DAC_CONFIGURE]) >= 0)
+	{
+		if (strncasecmp(cmd_list[DAC_CONFIGURE], "dc_mv", strlen("dc_mv") ) == 0)
+		{
+			return(fetch_dac_dc(atoi(data_list[0]), DAC_CH2));
+		}
+	}
 	return false;
 }
 
@@ -207,27 +219,31 @@ static bool fetch_dac_release(void)
 	fetch_dac_state.dc_mv_ch1 = 0;
 	fetch_dac_state.dc_mv_ch2 = 0;
 
+	DACD1.dac->DHR12R1 = 0;
+	DACD1.dac->DHR12R2 = 0;
+
+	fetch_dac_stop();
 	fetch_dac_state.init      = false;
-	dacStop(&DACD1);
 
 	// Reset inputs
 	fetch_dac_io_set_defaults();
-
-	util_message_error(getMShellStreamPtr(), "Command not yet available");
 
 	return true;
 }
 
 bool fetch_dac_start()
 {
+	DBG_MSG(getMShellStreamPtr(), "dac start.");
 	if(fetch_dac_state.init)
 	{
 		dacStart(&DACD1, &fetch_dac_config_ch1);
+		int test = ((STM32_DAC_CR_EN << 16) | DACD1.config->cr_flags);
+		DBG_VMSG(getMShellStreamPtr(), "test: 0x%x", test);
 		return true;
 	}
 	else
 	{
-		util_message_error(getMShellStreamPtr(), "DAC is not initialized.");
+		util_message_error(getMShellStreamPtr(), "DAC is not initialized. %d", fetch_dac_state.init);
 		return false;
 	}
 	return false;
@@ -255,6 +271,7 @@ bool fetch_dac_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 
 	if(!fetch_dac_state.init)
 	{
+		DBG_MSG(chp, "init");
 		fetch_dac_init(chp);
 	};
 
@@ -274,11 +291,11 @@ bool fetch_dac_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 			{
 				fetch_dac_state.vref_mv = atoi(data_list[0]);
 			}
-			DBG_VMSG(chp, "vref_mv: %d", fetch_dac_state.vref_mv);
 			return true;
 		}
 		else if (strncasecmp(cmd_list[DAC_SCA], "start", strlen("start") ) == 0)
 		{
+			DBG_VMSG(chp, "init: %d", fetch_dac_state.init);
 			return(fetch_dac_start());
 		}
 		else if (strncasecmp(cmd_list[DAC_SCA], "stop", strlen("stop") ) == 0)
@@ -289,7 +306,6 @@ bool fetch_dac_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 		{
 			return(fetch_dac_release());
 		}
-
 		else
 		{
 			DBG_MSG(chp, "sub-command not ready yet...");
@@ -299,5 +315,4 @@ bool fetch_dac_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 	return false;
 }
 //! @}
-
 

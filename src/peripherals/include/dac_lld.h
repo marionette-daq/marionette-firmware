@@ -118,7 +118,7 @@
  * @note    The default is @p TRUE.
  */
 #if !defined(STM32_DAC_USE_CHN1) || defined(__DOXYGEN__)
-#define STM32_DAC_USE_CHN1       FALSE
+#define STM32_DAC_USE_CHN1       TRUE
 #endif
 
 /**
@@ -127,7 +127,7 @@
  * @note    The default is @p TRUE.
  */
 #if !defined(STM32_DAC_USE_CHN2) || defined(__DOXYGEN__)
-#define STM32_DAC_USE_CHN2       FALSE
+#define STM32_DAC_USE_CHN2       TRUE
 #endif
 
 /*===========================================================================*/
@@ -202,16 +202,8 @@ struct DACDriver
 	/**
 	 * @brief Pointer to the DAC registers block.
 	 */
-	DAC_TypeDef  *     dac;
+	DAC_TypeDef    *   dac;
 };
-
-/*===========================================================================*/
-/* Driver macros.                                                            */
-/*===========================================================================*/
-
-/*===========================================================================*/
-/* External declarations.                                                    */
-/*===========================================================================*/
 
 #if STM32_DAC_USE_CHN1 && !defined(__DOXYGEN__)
 extern DACDriver DACD1;

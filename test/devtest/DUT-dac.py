@@ -168,15 +168,14 @@ class DUTSerial():
             self.isOpen = False
             s="closed port: {}\n".format(self.serial_port)
             u.info(s)
-            print("samples per second approx: ", self.Totallines/2)
         return
 
 if __name__ == "__main__":
     try:
         # optparse here eventually... baud port filename quiet
         serial_port    = Default_Port
-        baud           = 460800
-#        baud           = 115200
+        #baud           = 460800
+        baud           = 115200
         timeout        = Default_Timeout
 
         DUT       = DUTSerial(serial_port, baud, timeout)

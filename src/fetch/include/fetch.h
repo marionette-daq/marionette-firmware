@@ -26,7 +26,7 @@
 #define 		ADC_HELPSTRING   					    ((const char *) "ADC:\tadc:<conf_adc1,start,stop>:<profile,oneshot,continuous,reset,vref_mv>:<default,PA,PB>")
 
 #define 		DAC_MAX_DATA_BYTES 					    0
-#define 		DAC_HELPSTRING   					    ((const char *) "DAC:\tdac:<on, off, conf_ch1, conf_ch2, reset, release, vref_mv>:<dc_mv>")
+#define 		DAC_HELPSTRING   					    ((const char *) "DAC:\tdac:<start, stop, conf_ch1, conf_ch2, reset, release, vref_mv>:<dc_mv>")
 
 #define 		VERSION_MAX_DATA_BYTES 					0
 #define 		VERSION_HELPSTRING   					((const char *) "VERSION:\tversion")
