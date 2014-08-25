@@ -29,6 +29,7 @@ import serial
 from time import sleep
 import utils as u
 
+DUT_DAC_SLEEP     = 0.750
 DUT_SERIAL_WAKEUP     = 2
 DUT_WAITTIME     = 0.200
 Default_Baudrate = 115200
@@ -125,18 +126,38 @@ class DUTSerial():
             for i in range(0,1):
 #               response = input("test one shot with default profile(Y/n) ")
 #               if response!='y':
-                  self.teststr("dac:vref_mv(2203)\r\n", True)
                   self.teststr("dac:vref_mv(3300)\r\n", True)
                   self.teststr("dac:conf_ch1:dc_mv(1000)\r\n", True)
+                  sleep(DUT_DAC_SLEEP)
                   self.teststr("dac:conf_ch1:dc_mv(750)\r\n", True)
+                  sleep(DUT_DAC_SLEEP)
                   self.teststr("dac:conf_ch1:dc_mv(20)\r\n", True)
+                  sleep(DUT_DAC_SLEEP)
+                  self.teststr("dac:conf_ch1:dc_mv(0)\r\n", True)
+                  sleep(DUT_DAC_SLEEP)
                   self.teststr("dac:conf_ch1:dc_mv(3301)\r\n", True)
+                  sleep(DUT_DAC_SLEEP)
+                  self.teststr("dac:conf_ch2:dc_mv(1000)\r\n", True)
+                  sleep(DUT_DAC_SLEEP)
+                  self.teststr("dac:conf_ch2:dc_mv(750)\r\n", True)
+                  sleep(DUT_DAC_SLEEP)
+                  self.teststr("dac:conf_ch2:dc_mv(20)\r\n", True)
+                  sleep(DUT_DAC_SLEEP)
+                  self.teststr("dac:conf_ch2:dc_mv(0)\r\n", True)
+                  sleep(DUT_DAC_SLEEP)
+                  self.teststr("dac:conf_ch2:dc_mv(3301)\r\n", True)
+                  sleep(DUT_DAC_SLEEP)
 
-# test assert --- 
-#                  self.teststr("dac:conf_ch1:dc_mv(-20)\r\n", True)
+            # test assert --- machine will stop
+            #                  self.teststr("dac:conf_ch1:dc_mv(-20)\r\n", True)
 
-                  self.teststr("dac:conf_ch1:dc_mv(2000)\r\n", True)
-                  self.teststr("dac:conf_ch1:dc_mv(3000)\r\n", True)
+                  self.teststr("dac:stop\r\n",0)
+                  self.teststr("dac:start\r\n",0)
+                  sleep(DUT_DAC_SLEEP)
+                  self.teststr("dac:release\r\n",0)
+                  sleep(DUT_DAC_SLEEP)
+                  self.teststr("dac:stop\r\n",0)
+                  sleep(DUT_DAC_SLEEP)
                   self.teststr("dac:start\r\n",0)
         except KeyboardInterrupt:
             self.close()

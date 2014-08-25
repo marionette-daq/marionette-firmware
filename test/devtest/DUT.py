@@ -20,6 +20,7 @@ import serial
 from time import sleep
 import utils as u
 
+DUT_DAC_SLEEP     = 0.750
 DUT_SERIAL_WAKEUP     = 2
 DUT_WAITTIME     = 0.200
 Default_Baudrate = 115200
@@ -103,8 +104,9 @@ class DUTSerial():
             u.error("Error reading serial port: " + str(e))
             sys.exit()
 
-    def teststr(self, string):
-        u.info("sending\t->"+string)
+    def teststr(self, string, echo=False):
+        if echo==True:
+            u.info("sending\t->"+string)
         self.write(string)
         sleep(DUT_WAITTIME)
 
@@ -199,6 +201,49 @@ class DUTSerial():
         u.info("Confirm reset to default profile and one shot.")
         self.teststr("adc:start\r\n")
  
+    def test_dac(self):
+        try:
+            for i in range(0,1):
+#               response = input("test one shot with default profile(Y/n) ")
+#               if response!='y':
+                  self.teststr("dac:vref_mv(3300)\r\n", True)
+                  self.teststr("dac:conf_ch1:dc_mv(1000)\r\n", True)
+                  sleep(DUT_DAC_SLEEP)
+                  self.teststr("dac:conf_ch1:dc_mv(750)\r\n", True)
+                  sleep(DUT_DAC_SLEEP)
+                  self.teststr("dac:conf_ch1:dc_mv(20)\r\n", True)
+                  sleep(DUT_DAC_SLEEP)
+                  self.teststr("dac:conf_ch1:dc_mv(0)\r\n", True)
+                  sleep(DUT_DAC_SLEEP)
+                  self.teststr("dac:conf_ch1:dc_mv(3301)\r\n", True)
+                  sleep(DUT_DAC_SLEEP)
+                  self.teststr("dac:conf_ch2:dc_mv(1000)\r\n", True)
+                  sleep(DUT_DAC_SLEEP)
+                  self.teststr("dac:conf_ch2:dc_mv(750)\r\n", True)
+                  sleep(DUT_DAC_SLEEP)
+                  self.teststr("dac:conf_ch2:dc_mv(20)\r\n", True)
+                  sleep(DUT_DAC_SLEEP)
+                  self.teststr("dac:conf_ch2:dc_mv(0)\r\n", True)
+                  sleep(DUT_DAC_SLEEP)
+                  self.teststr("dac:conf_ch2:dc_mv(3301)\r\n", True)
+                  sleep(DUT_DAC_SLEEP)
+
+            # test assert --- machine will stop
+            #                  self.teststr("dac:conf_ch1:dc_mv(-20)\r\n", True)
+
+                  self.teststr("dac:stop\r\n",0)
+                  self.teststr("dac:start\r\n",0)
+                  sleep(DUT_DAC_SLEEP)
+                  self.teststr("dac:release\r\n",0)
+                  sleep(DUT_DAC_SLEEP)
+                  self.teststr("dac:stop\r\n",0)
+                  sleep(DUT_DAC_SLEEP)
+                  self.teststr("dac:start\r\n",0)
+        except KeyboardInterrupt:
+            self.close()
+            u.info("\nQuitting")
+
+
     def testheartbeat(self):
         self.teststr("+threads\r\n");
         self.teststr("heartbeat_toggle\r\n");
@@ -236,6 +281,8 @@ class DUTSerial():
                     self.write("resetpins\r\n")
                     self.teststr("+noprompt\r\n")
                     self.test_adc()
+                    self.test_dac()
+                    self.test_gpio()
                     self.teststr("+prompt\r\n")
 
         except KeyboardInterrupt:

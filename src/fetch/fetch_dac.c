@@ -182,7 +182,6 @@ static bool fetch_dac_dc(int dc_mv, DACChannel ch)
 	if(ch == DAC_CH2)
 	{
 		DACD1.dac->DHR12R2 = ch_dor;
-		DBG_VMSG(getMShellStreamPtr(), "CR 0x%x, DOR2: 0x%x", DACD1.dac->CR, DACD1.dac->DOR2);
 	}
 
 	return true;
@@ -233,12 +232,9 @@ static bool fetch_dac_release(void)
 
 bool fetch_dac_start()
 {
-	DBG_MSG(getMShellStreamPtr(), "dac start.");
 	if(fetch_dac_state.init)
 	{
 		dacStart(&DACD1, &fetch_dac_config_ch1);
-		int test = ((STM32_DAC_CR_EN << 16) | DACD1.config->cr_flags);
-		DBG_VMSG(getMShellStreamPtr(), "test: 0x%x", test);
 		return true;
 	}
 	else
@@ -271,7 +267,6 @@ bool fetch_dac_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 
 	if(!fetch_dac_state.init)
 	{
-		DBG_MSG(chp, "init");
 		fetch_dac_init(chp);
 	};
 
@@ -295,7 +290,6 @@ bool fetch_dac_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 		}
 		else if (strncasecmp(cmd_list[DAC_SCA], "start", strlen("start") ) == 0)
 		{
-			DBG_VMSG(chp, "init: %d", fetch_dac_state.init);
 			return(fetch_dac_start());
 		}
 		else if (strncasecmp(cmd_list[DAC_SCA], "stop", strlen("stop") ) == 0)
