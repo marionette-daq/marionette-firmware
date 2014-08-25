@@ -148,8 +148,8 @@ class DUTSerial():
                   self.teststr("dac:conf_ch2:dc_mv(3301)\r\n", True)
                   sleep(DUT_DAC_SLEEP)
 
-            # test assert --- machine will stop
-            #                  self.teststr("dac:conf_ch1:dc_mv(-20)\r\n", True)
+                  u.info("Negative Voltage request should produce an error")
+                  self.teststr("dac:conf_ch1:dc_mv(-20)\r\n", True)
 
                   self.teststr("dac:stop\r\n",0)
                   self.teststr("dac:start\r\n",0)

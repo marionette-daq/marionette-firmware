@@ -162,7 +162,13 @@ static bool fetch_dac_dc(int dc_mv, DACChannel ch)
 {
 	uint32_t    ch_dor      = 0;
 
-	chDbgAssert((dc_mv >= 0), "fetch_dac_dc(), #1", "No negative DAC voltages.");
+	//! \todo code review: Asserts are user-unfriendly
+	// chDbgAssert((dc_mv >= 0), "fetch_dac_dc(), #1", "No negative DAC voltages.");
+	if(dc_mv < 0)
+	{
+		util_message_error(getMShellStreamPtr(), "Negative voltage is not possible for DAC");
+		return false;
+	}
 
 	if(dc_mv > fetch_dac_state.vref_mv)
 	{
@@ -177,10 +183,12 @@ static bool fetch_dac_dc(int dc_mv, DACChannel ch)
 
 	if(ch == DAC_CH1)
 	{
+		fetch_dac_state.dc_mv_ch1 = dc_mv;
 		DACD1.dac->DHR12R1 = ch_dor;
 	}
 	if(ch == DAC_CH2)
 	{
+		fetch_dac_state.dc_mv_ch2 = dc_mv;
 		DACD1.dac->DHR12R2 = ch_dor;
 	}
 
