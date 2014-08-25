@@ -1,0 +1,19 @@
+digraph FetchDac {
+        graph [fontname="lucidasans-bold-14"];
+        node [fontname="lucidasans-bold-14"];
+	dac   -> conf_ch1
+	dac   -> conf_ch2
+	dac   -> vref_mv;
+	dac   -> release;
+	dac   -> reset;
+	dac   -> start;
+	dac   -> stop;
+	conf_ch1   -> dc_mv;
+	conf_ch2   -> dc_mv;
+	vref_mv    -> "(mV)"
+	dc_mv      -> "(mV)"
+  	dac [color=turquoise, peripheries=2, style=filled];
+	label="Fetch DAC"
+  	labelloc=top;
+  	labeljust=left;
+}
