@@ -40,7 +40,7 @@ typedef enum FETCH_ADC_token
 	ADC_ACTION,
 	ADC_CONFIGURE,
 	ADC_PROFILE,
-	NO_ADC_GPIO_TOKEN=FETCH_MAX_TERMINALS-1
+	//NO_ADC_GPIO_TOKEN=FETCH_MAX_TERMINALS-1
 } FETCH_ADC_token;
 
 typedef struct adc_input {
@@ -59,8 +59,7 @@ typedef struct fetch_adc_state
 } FETCH_adc_state;
 
 void fetch_adc_init(BaseSequentialStream* chp);
-bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[],
-                         Fetch_terminals * fetch_terms);
+bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 #ifdef __cplusplus
 }
 #endif

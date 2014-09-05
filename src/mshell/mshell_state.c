@@ -48,6 +48,7 @@ void setMShellStreamPtr(BaseSequentialStream * ptr) {
 
 void setMShellPrompt(char * s) {
 	strncpy(mshell_state.prompt, s, MSHELL_MAX_PROMPT_LENGTH);
+  mshell_state.prompt[MSHELL_MAX_PROMPT_LENGTH-1] = '\0';
 }
 
 void mshell_putprompt() {

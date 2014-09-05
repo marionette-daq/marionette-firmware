@@ -40,7 +40,7 @@
  * @brief   Shell maximum input line length.
  */
 #if !defined(MSHELL_MAX_LINE_LENGTH) || defined(__DOXYGEN__)
-#define MSHELL_MAX_LINE_LENGTH       256
+#define MSHELL_MAX_LINE_LENGTH       1024
 #endif
 
 
@@ -60,9 +60,10 @@ typedef void (*shellcmd_t)(BaseSequentialStream *chp, int argc, char *argv[]);
  * @brief   Custom command entry type.
  */
 typedef struct {
-  const char            *sc_name;           /**< @brief Command name.       */
   shellcmd_t            sc_function;        /**< @brief Command function.   */
-} MShellCommand;
+  const char          * sc_name;            /**< @brief Command name.       */
+  const char          * sc_help;            /**< @brief Command help string. */
+} mshell_command_t;
 
 /**
  * @brief   Shell descriptor type.
@@ -70,7 +71,7 @@ typedef struct {
 typedef struct {
   BaseSequentialStream  *sc_channel;        /**< @brief I/O channel associated
                                                  to the shell.              */
-  const MShellCommand    *sc_commands;       /**< @brief Shell extra commands
+  const mshell_command_t    *sc_commands;       /**< @brief Shell extra commands
                                                  table.                     */
 } MShellConfig;
 #ifdef __cplusplus

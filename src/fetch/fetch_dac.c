@@ -149,15 +149,6 @@ static void fetch_dac_reset(void)
 	DACD1.dac->DHR12R2 = 0;
 }
 
-static inline int fetch_dac_is_valid_dac_configure(BaseSequentialStream * chp,
-                Fetch_terminals * fetch_terms,
-                char * chkdac_configure)
-{
-
-	return(token_match(chp, fetch_terms->dac_configure, chkdac_configure,
-	                   ((int) NELEMS(fetch_terms->dac_configure)) ) );
-}
-
 static bool fetch_dac_dc(int dc_mv, DACChannel ch)
 {
 	uint32_t    ch_dor      = 0;
@@ -195,29 +186,21 @@ static bool fetch_dac_dc(int dc_mv, DACChannel ch)
 	return true;
 }
 
-static bool fetch_dac_ch1_configure(BaseSequentialStream * chp , Fetch_terminals * fetch_terms, char * cmd_list[],
-                                    char * data_list[])
+static bool fetch_dac_ch1_configure(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-	if(fetch_dac_is_valid_dac_configure(chp, fetch_terms, cmd_list[DAC_CONFIGURE]) >= 0)
-	{
-		if (strncasecmp(cmd_list[DAC_CONFIGURE], "dc_mv", strlen("dc_mv") ) == 0)
-		{
-			return(fetch_dac_dc(atoi(data_list[0]), DAC_CH1));
-		}
-	}
+  if (strncasecmp(cmd_list[DAC_CONFIGURE], "dc_mv", strlen("dc_mv") ) == 0)
+  {
+    return(fetch_dac_dc(atoi(data_list[0]), DAC_CH1));
+  }
 	return false;
 }
 
-static bool fetch_dac_ch2_configure(BaseSequentialStream * chp ,
-                                    Fetch_terminals * fetch_terms, char * cmd_list[], char * data_list[])
+static bool fetch_dac_ch2_configure(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-	if(fetch_dac_is_valid_dac_configure(chp, fetch_terms, cmd_list[DAC_CONFIGURE]) >= 0)
-	{
-		if (strncasecmp(cmd_list[DAC_CONFIGURE], "dc_mv", strlen("dc_mv") ) == 0)
-		{
-			return(fetch_dac_dc(atoi(data_list[0]), DAC_CH2));
-		}
-	}
+  if (strncasecmp(cmd_list[DAC_CONFIGURE], "dc_mv", strlen("dc_mv") ) == 0)
+  {
+    return(fetch_dac_dc(atoi(data_list[0]), DAC_CH2));
+  }
 	return false;
 }
 
@@ -259,17 +242,9 @@ bool fetch_dac_stop()
 	return true;
 }
 
-static inline int fetch_dac_is_valid_dac_subcommandA(BaseSequentialStream * chp,
-                Fetch_terminals * fetch_terms,
-                char * chkdac_subcommandA)
-{
-	return(token_match(chp, fetch_terms->dac_subcommandA, chkdac_subcommandA, ((int) NELEMS(fetch_terms->dac_subcommandA)) ) );
-}
-
 /*! \brief dispatch an DAC command
  */
-bool fetch_dac_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[],
-                        Fetch_terminals * fetch_terms)
+bool fetch_dac_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
 	fetch_dac_state.chp = chp;
 
@@ -278,43 +253,39 @@ bool fetch_dac_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 		fetch_dac_init(chp);
 	};
 
-	if(fetch_dac_is_valid_dac_subcommandA(chp, fetch_terms, cmd_list[DAC_SCA]) >= 0)
-	{
-		if (strncasecmp(cmd_list[DAC_SCA], "conf_ch1", strlen("conf_ch1") ) == 0)
-		{
-			return(fetch_dac_ch1_configure(chp, fetch_terms, cmd_list, data_list));
-		}
-		else if (strncasecmp(cmd_list[DAC_SCA], "conf_ch2", strlen("conf_ch2") ) == 0)
-		{
-			return(fetch_dac_ch2_configure(chp, fetch_terms, cmd_list, data_list));
-		}
-		else if (strncasecmp(cmd_list[DAC_SCA], "vref_mv", strlen("vref_mv") ) == 0)
-		{
-			if(data_list[0] != NULL)
-			{
-				fetch_dac_state.vref_mv = atoi(data_list[0]);
-			}
-			return true;
-		}
-		else if (strncasecmp(cmd_list[DAC_SCA], "start", strlen("start") ) == 0)
-		{
-			return(fetch_dac_start());
-		}
-		else if (strncasecmp(cmd_list[DAC_SCA], "stop", strlen("stop") ) == 0)
-		{
-			return(fetch_dac_stop());
-		}
-		else if (strncasecmp(cmd_list[DAC_SCA], "release", strlen("release") ) == 0)
-		{
-			return(fetch_dac_release());
-		}
-		else
-		{
-			DBG_MSG(chp, "sub-command not ready yet...");
-			return(false) ;
-		}
-	}
-	return false;
+  if (strncasecmp(cmd_list[DAC_SCA], "conf_ch1", strlen("conf_ch1") ) == 0)
+  {
+    return(fetch_dac_ch1_configure(chp, cmd_list, data_list));
+  }
+  else if (strncasecmp(cmd_list[DAC_SCA], "conf_ch2", strlen("conf_ch2") ) == 0)
+  {
+    return(fetch_dac_ch2_configure(chp, cmd_list, data_list));
+  }
+  else if (strncasecmp(cmd_list[DAC_SCA], "vref_mv", strlen("vref_mv") ) == 0)
+  {
+    if(data_list[0] != NULL)
+    {
+      fetch_dac_state.vref_mv = atoi(data_list[0]);
+    }
+    return true;
+  }
+  else if (strncasecmp(cmd_list[DAC_SCA], "start", strlen("start") ) == 0)
+  {
+    return(fetch_dac_start());
+  }
+  else if (strncasecmp(cmd_list[DAC_SCA], "stop", strlen("stop") ) == 0)
+  {
+    return(fetch_dac_stop());
+  }
+  else if (strncasecmp(cmd_list[DAC_SCA], "release", strlen("release") ) == 0)
+  {
+    return(fetch_dac_release());
+  }
+  else
+  {
+    DBG_MSG(chp, "sub-command not ready yet...");
+    return(false) ;
+  }
 }
 //! @}
 

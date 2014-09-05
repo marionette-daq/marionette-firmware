@@ -22,6 +22,7 @@
 #include "fetch_gpio.h"
 #include "fetch_adc.h"
 #include "fetch_dac.h"
+#include "fetch_spi.h"
 
 #include "fetch_defs.h"
 #include "fetch.h"
@@ -90,51 +91,39 @@ Example:
 \endverbatim
 */
 
-/*! \todo put this into iterable structure
-  * \sa fetch_info()
-  */
-static Command_dictionary          help_dict               = { .enabled = true, .max_data_bytes = HELP_MAX_DATA_BYTES,      .helpstring = HELP_HELPSTRING};
-static Command_dictionary          gpio_dict               = { .enabled = true, .max_data_bytes = GPIO_MAX_DATA_BYTES,      .helpstring = GPIO_HELPSTRING};
-static Command_dictionary          adc_dict                = { .enabled = true, .max_data_bytes = ADC_MAX_DATA_BYTES,       .helpstring = ADC_HELPSTRING};
-static Command_dictionary          dac_dict                = { .enabled = true, .max_data_bytes = DAC_MAX_DATA_BYTES,       .helpstring = DAC_HELPSTRING};
-static Command_dictionary          version_dict            = { .enabled = true, .max_data_bytes = VERSION_MAX_DATA_BYTES,   .helpstring = VERSION_HELPSTRING};
-static Command_dictionary          heartbeat_toggle_dict   = { .enabled = true, .max_data_bytes = HEARTBEAT_TOGGLE_MAX_DATA_BYTES,   .helpstring = HEARTBEAT_TOGGLE_HELPSTRING};
-static Command_dictionary          resetpins_dict          = { .enabled = true, .max_data_bytes = RESETPINS_MAX_DATA_BYTES, .helpstring = RESETPINS_HELPSTRING};
+static bool fetch_help(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_reset_pins(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_version(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_chip_id(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_hbtoggle(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_gpio(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_adc(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_dac(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_test(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
 
-/*! \brief Terminals for the Fetch grammar
+/*! \brief Function command array for fetch_dispatch() callbacks
+ *  Commands with NULL function return as not implemented.
+ *  Commands with NULL help are not displayed with the help command.
+ *  List MUST be NULL terminated. List parsing stops at first NULL command string.
+ *
+ *  Command names will have all whitespace and '_' parsed out before comparison.
  */
-static Fetch_terminals fetch_terms =
-{
-	.command          = {"?", "help", "version", "chipid", "gpio", "adc", "dac", "spi", "i2c", "resetpins", "heartbeat_toggle"},
-	.gpio_subcommandA = {"get", "set", "clear", "configure", "query"},
-	.gpio_direction   = {"input", "output"},
-	.gpio_sense       = {"pullup", "pulldown", "floating", "analog"},
-	.adc_subcommandA  = {"conf_adc1", "start", "stop"},
-	.adc_configure    = {"profile", "oneshot", "continuous", "reset", "vref_mv"},
-	.adc_profile      = {"default", "PA", "PB"},
-	.dac_subcommandA  = {"start", "stop", "conf_ch1", "conf_ch2", "reset", "release", "vref_mv"},
-    .dac_configure    = {"dc_mv"}, 
-	.port_subcommand  = {"porta", "portb", "portc", "portd", "porte", "portf", "portg", "porth", "porti" },
-	.pin_subcommand   = {"pin0", "pin1", "pin2", "pin3", "pin4", "pin5", "pin6", "pin7", "pin8", "pin9", "pin10", "pin11", "pin12", "pin13", "pin14", "pin15" },
-	.subcommandD      = {},
-	.digit            = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e"},
-	.EOL              = {"\n"},
-	.whitespace       = {" ", "\t"}
-};
-
-/*! \brief Function pointer array for \sa fetch_dispatch() callbacks
- */
-static bool (*cmd_fns[NELEMS(fetch_terms.command)]) (BaseSequentialStream * chp,
-                char * l1[], char * l2[]);
-
-/*! \brief Placeholder function for TBD callbacks
- */
-static bool fetch_not_yet(BaseSequentialStream  * chp, char * cmd_list[] UNUSED,
-                          char * data_list[] UNUSED)
-{
-	DBG_MSG(chp, "Not implemented");
-	return false;
-};
+static fetch_command_t fetch_commands[] = {
+  /*  function              command string      help string */
+    { fetch_help,           "?",                "Display command help" },
+    { fetch_help,           "help",             "Display command help" },
+    { fetch_reset_pins,      "resetpins",        "Reset pins to defaults" },
+    { fetch_version,        "version",          "Version information" },
+    { fetch_chip_id,        "chipid",           "Return unique cpu chip id" },
+    { fetch_hbtoggle,       "heatbeattoggle",   "Toggle mode of led heartbeat" },
+    { fetch_gpio_dispatch,  "gpio",             "GPIO command set (*)" },
+    { fetch_adc_dispatch,   "adc",              "ADC command set (*)" },
+    { fetch_dac_dispatch,   "dac",              "DAC command set (*)" },
+    { fetch_spi_dispatch,   "spi",              "SPI command set (*)" },
+    { NULL,                 "i2c",              "I2C command set (*)" },
+    { fetch_test,           "test",             NULL },
+    { NULL, NULL, NULL }
+  };
 
 /*!
  * Here is the theory on why using static inline here might be useful.
@@ -143,89 +132,32 @@ static bool fetch_not_yet(BaseSequentialStream  * chp, char * cmd_list[] UNUSED,
  *
  */
 
-/*!
- * fetch_is_valid_* functions
- * \param[in] chkcommand      Input String to match
-
- * \return index to command match in array
- * \return -1 on fail to match
- *
- * \sa token_match()
+/*! test fetch command format by printing cmd_list and data_list
  */
-static inline int fetch_is_valid_command(BaseSequentialStream * chp, char * chkcommand)
+static bool fetch_test(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-	return(token_match(chp, fetch_terms.command, chkcommand,
-	                   ((int) NELEMS(fetch_terms.command)) ));
-}
+  for( int i = 0; cmd_list[i] != NULL; i++ )
+  {
+    util_message_info(chp, "cmd '%s'", cmd_list[i]);
+  }
+  
+  for( int i = 0; data_list[i] != NULL; i++ )
+  {
+    util_message_info(chp, "data '%s'", data_list[i]);
+  }
 
-inline int fetch_is_valid_digit(BaseSequentialStream * chp, char * chkdigit)
-{
-	return(token_match(chp, fetch_terms.digit, chkdigit,
-	                   ((int) NELEMS(fetch_terms.digit))) );
-}
-
-inline int fetch_is_valid_EOL(BaseSequentialStream * chp, char * chkEOL)
-{
-	return(token_match(chp, fetch_terms.EOL, chkEOL,
-	                   ((int) NELEMS(fetch_terms.EOL))) );
-}
-
-inline int fetch_is_valid_whitespace(BaseSequentialStream * chp, char * chkwhitespace)
-{
-	return(token_match(chp, fetch_terms.whitespace, chkwhitespace,
-	                   ((int) NELEMS(fetch_terms.whitespace))) );
+	return true;
 }
 
 /*! Help command callback for fetch language
  * \todo: This could be turned into an iterator over all the dicts
  */
-static bool fetch_info(BaseSequentialStream * chp, char * cl[] UNUSED, char * dl[] UNUSED)
+static bool fetch_help(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-	util_message_comment(chp, "Help");
-	util_message_comment(chp, "\t%s", heartbeat_toggle_dict.helpstring);
-	util_message_comment(chp, "\t%s", version_dict.helpstring);
-	util_message_comment(chp, "\t%s", resetpins_dict.helpstring);
-	util_message_comment(chp, "\t%s", gpio_dict.helpstring);
-	util_message_comment(chp, "\t%s", adc_dict.helpstring);
-	util_message_comment(chp, "\t%s", dac_dict.helpstring);
+  util_message_info(chp, "Fetch Help:");
+  util_message_info(chp, " (*) use <command>:help for more details");
+  fetch_display_help(chp, fetch_commands);
 	return true;
-}
-
-/*! \brief ADC command callback for fetch language
- */
-static bool fetch_adc(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[])
-{
-	if(adc_dict.enabled)
-	{
-		return(fetch_adc_dispatch(chp, cmd_list, data_list, &fetch_terms));
-	}
-	util_message_info(chp, "Command not enabled");
-	return false;
-}
-
-/*! \brief DAC command callback for fetch language
- */
-static bool fetch_dac(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[])
-{
-	if(dac_dict.enabled)
-	{
-		return(fetch_dac_dispatch(chp, cmd_list, data_list, &fetch_terms));
-	}
-	util_message_info(chp, "Command not enabled");
-	return false;
-}
-
-
-/*! \brief GPIO command callback for fetch language
- */
-static bool fetch_gpio(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[])
-{
-	if(gpio_dict.enabled)
-	{
-		return(fetch_gpio_dispatch(chp, cmd_list, data_list, &fetch_terms));
-	}
-	util_message_info(chp, "Command not enabled");
-	return false;
 }
 
 /*! \brief VERSION command callback for fetch language
@@ -254,83 +186,19 @@ static bool fetch_chip_id(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
 static bool fetch_hbtoggle(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
                           char * data_list[] UNUSED)
 {
-	if(heartbeat_toggle_dict.enabled)
-	{
-		hbToggle();
-		return true;
-	}
-
-	util_message_info(chp, "Command not enabled");
-	return false;
+  hbToggle();
+  return true;
 }
 
 
 /*! \brief RESETPINS command callback for fetch language
  */
-static bool fetch_resetpins(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
+static bool fetch_reset_pins(BaseSequentialStream * chp, char * cmd_list[] UNUSED,
                             char * data_list[] UNUSED)
 {
 	palInit(&pal_default_config);
 	io_manage_table_to_defaults();
 	return true;
-}
-
-/*! \brief register callbacks for command functions here
- *               \sa fetch_init()
- */
-static void fetch_init_cmd_fns(BaseSequentialStream * chp)
-{
-	for(int i = 0; i < ((int) NELEMS(fetch_terms.command)); ++i)
-	{
-		if (strncasecmp(fetch_terms.command[i], "?", strlen(fetch_terms.command[i]) ) == 0)
-		{
-			cmd_fns[i] = fetch_info;
-		}
-		else if (strncasecmp(fetch_terms.command[i], "help",
-		                     strlen(fetch_terms.command[i]) ) == 0)
-		{
-			cmd_fns[i] = fetch_info;
-		}
-		else if (strncasecmp(fetch_terms.command[i], "resetpins",
-		                     strlen(fetch_terms.command[i]) ) == 0)
-		{
-			cmd_fns[i] = fetch_resetpins;
-		}
-		else if (strncasecmp(fetch_terms.command[i], "version",
-		                     strlen(fetch_terms.command[i]) ) == 0)
-		{
-			cmd_fns[i] = fetch_version;
-		}
-		else if (strncasecmp(fetch_terms.command[i], "chipid",
-		                     strlen(fetch_terms.command[i]) ) == 0)
-		{
-			cmd_fns[i] = fetch_chip_id;
-		}
-		else if (strncasecmp(fetch_terms.command[i], "heartbeat_toggle",
-		                     strlen(fetch_terms.command[i]) ) == 0)
-		{
-			cmd_fns[i] = fetch_hbtoggle;
-		}
-		else if (strncasecmp(fetch_terms.command[i], "gpio",
-		                     strlen(fetch_terms.command[i]) ) == 0)
-		{
-			cmd_fns[i] = fetch_gpio;
-		}
-		else if (strncasecmp(fetch_terms.command[i], "adc",
-		                     strlen(fetch_terms.command[i]) ) == 0)
-		{
-			cmd_fns[i] = fetch_adc;
-		}
-		else if (strncasecmp(fetch_terms.command[i], "dac",
-		                     strlen(fetch_terms.command[i]) ) == 0)
-		{
-			cmd_fns[i] = fetch_dac;
-		}
-		else
-		{
-			cmd_fns[i] = fetch_not_yet;
-		}
-	}
 }
 
 /*! \brief Fetch initialization 
@@ -339,7 +207,7 @@ static void fetch_init_cmd_fns(BaseSequentialStream * chp)
  */
 void fetch_init(BaseSequentialStream * chp)
 {
-	fetch_init_cmd_fns(chp) ;
+	/* place holder for future use */
 }
 
 /*! \brief parse the Fetch Statement
@@ -362,47 +230,55 @@ void fetch_init(BaseSequentialStream * chp)
  */
 bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 {
-	static char     localinput[FETCH_MAX_LINE_CHARS];
-	static char     commandstr[FETCH_MAX_LINE_CHARS];
-	static char     datastr[FETCH_MAX_LINE_CHARS];
+	static char   localinput[ FETCH_MAX_LINE_CHARS ];
+	static char   commandstr[ FETCH_MAX_LINE_CHARS ];
+	static char   datastr[ FETCH_MAX_LINE_CHARS ];
 
-	static char      *     command_toks[FETCH_MAX_LINE_CHARS];
-	static char      *     data_toks[FETCH_MAX_LINE_CHARS];
+	static char * command_toks[ FETCH_MAX_COMMANDS ];
+	static char * data_toks[ FETCH_MAX_DATA_ITEMS ];
 
-	char      *      lp;
-	char      *      tokp;
-	char      *      colonpart;
-	char      *      parenpart;
+	char * lp;
+	char * tokp;
+	char * colonpart;
+	char * parenpart;
 
-	uint8_t          n = 0;
+	uint8_t n = 0;
+	int arrlen = 0;
 
-	int              arrlen = NELEMS(command_toks);
+  // NOTE: we use our version of strncpy that guarentees a null terminated string
+  //       along with only copying up to n chars or the first NULL
 
 	// don't mess up the string passed from outside this function
-	strncpy(localinput, inputline, FETCH_MAX_LINE_CHARS);
+	_strncpy( localinput, inputline, FETCH_MAX_LINE_CHARS );
+
+
+  DBG_VMSG(chp, "'%s'", localinput);
 
 	// break up into two strings the colons part and the parens part
-	if(localinput[0] != '(' || localinput[0] == ')')
-	{
-		colonpart = _strtok(localinput, "(", &tokp);
-		parenpart = _strtok(NULL, "(", &tokp);
-	}
-	else
-	{
-		util_message_error(chp, "No command-(only data?)");
-		return false;
-	}
+  colonpart = _strtok(localinput, "(", &tokp);
+  parenpart = _strtok(NULL, "(", &tokp);
 
+  // copy parts to commandstr and datastr, cleaning up spaces
 	if(colonpart != NULL)
 	{
-		strncpy(commandstr, colonpart, strlen(colonpart));
-		commandstr[strlen(colonpart)] = '\0';
-		fetch_remove_spaces(commandstr);
+		_strncpy(commandstr, colonpart, FETCH_MAX_LINE_CHARS);
+		fetch_remove_spaces( commandstr );
 		if(parenpart != NULL)
 		{
-			strncpy(datastr, parenpart, strlen(parenpart));
-			datastr[strlen(parenpart) - 1] = '\0';
-			//DBG_VMSG(chp, "datastr : %s\r\n", datastr);
+			_strncpy(datastr, parenpart, FETCH_MAX_LINE_CHARS);
+
+      // remove trailing ')' if it exists
+      int datastr_end = strlen(datastr) - 1;
+      if( datastr_end >= 0 && datastr[datastr_end] == ')' )
+      {
+			  datastr[datastr_end] = '\0';
+      }
+      else
+      {
+        DBG_VMSG(chp, "'%s'[%d]", datastr, datastr_end);
+        util_message_error(chp, "Missing closing ')'");
+        return false;
+      }
 		}
 	}
 	else
@@ -413,13 +289,14 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 
 	/* break commandstr into array of strings */
 	n   = 0;
-	lp  = _strtok(commandstr, ":", &tokp);
+	arrlen = NELEMS(command_toks);
+	lp  = _strtok(commandstr, FETCH_CMD_DELIM, &tokp);
 	command_toks[n] = lp;
-	while ((lp = _strtok(NULL, ":", &tokp)) != NULL)
+	while ((lp = _strtok(NULL, FETCH_CMD_DELIM, &tokp)) != NULL)
 	{
 		if (n >= FETCH_MAX_COMMANDS)
 		{
-			util_message_error(chp, "Too many data. Limit: %u", FETCH_MAX_COMMANDS);
+			util_message_error(chp, "Too many commands. Limit: %u", FETCH_MAX_COMMANDS);
 			command_toks[0] = NULL;
 			break;
 		}
@@ -429,17 +306,15 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 		}
 		else
 		{
-			//DBG_VMSG(chp, "Past array bounds: %d", arrlen);
 			return false;
 		}
 	}
 	if(n < arrlen - 1)
 	{
-		command_toks[++n] = "\0";
+		command_toks[++n] = NULL;
 	}
 	else
 	{
-		DBG_VMSG(chp, "Past array bounds: %d", arrlen);
 		return false;
 	}
 
@@ -447,14 +322,14 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 	{
 		/* break data into array of strings */
 		n   = 0;
-		lp  = _strtok(datastr, " ", &tokp);
-		data_toks[n] = lp;
 		arrlen = NELEMS(data_toks);
-		while ((lp = _strtok(NULL, " ", &tokp)) != NULL)
+		lp  = _strtok(datastr, FETCH_DATA_DELIM, &tokp);
+		data_toks[n] = lp;
+		while ((lp = _strtok(NULL, FETCH_DATA_DELIM, &tokp)) != NULL)
 		{
 			if (n >= FETCH_MAX_DATA_ITEMS)
 			{
-				util_message_error(chp, "Too many data. Limit: %u", FETCH_MAX_DATA_ITEMS);
+				util_message_error(chp, "Too many data items. Limit: %u", FETCH_MAX_DATA_ITEMS);
 				data_toks[0] = NULL;
 				break;
 			}
@@ -464,18 +339,16 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 			}
 			else
 			{
-				//DBG_VMSG(chp, "Too many tokens. Limit: %d", arrlen);
 				return false;
 			}
 		}
 		if(n < arrlen - 1)
 		{
 
-			data_toks[++n] = "\0";
+			data_toks[++n] = NULL;
 		}
 		else
 		{
-			//DBG_VMSG(chp, "Too many tokens. Limit: %d", arrlen);
 			return false;
 		}
 	}
@@ -483,7 +356,9 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
 	{
 		data_toks[0] = NULL;
 	}
-	return(fetch_dispatch(chp, command_toks, data_toks));
+
+  // fetch_dispatch handles command/data we just parsed
+	return fetch_dispatch(chp, fetch_commands, command_toks[FETCH_TOK_CMD], command_toks, data_toks);
 }
 
 /*! \brief dispatch the commands from here
@@ -492,17 +367,61 @@ bool fetch_parse(BaseSequentialStream * chp, char * inputline)
  *
  * \warning data_list[0] may be null. Not all commands accept data.
  *
- * \sa fetch_init_cmd_fns()
  */
-bool fetch_dispatch(BaseSequentialStream * chp, char * command_list[], char * data_list[])
+bool fetch_dispatch(BaseSequentialStream * chp, fetch_command_t cmd_fn[], char * command, char * command_list[], char * data_list[])
 {
-	int cindex = fetch_is_valid_command(chp, command_list[0]);
+  int index = fetch_find_command(cmd_fn, command);
 
-	if(cindex < 0)
-	{
-		return false;
-	}
-
-	return ( (*cmd_fns[cindex]) (chp, command_list, data_list) );
+  if( command == NULL || cmd_fn == NULL )
+  {
+    return false;
+  }
+  else if( index == FETCH_COMMAND_NOT_FOUND )
+  {
+    util_message_error(chp, "Invalid fetch command");
+    return false;
+  }
+  else if( cmd_fn[index].function == NULL )
+  {
+    util_message_error(chp, "Command not implemented");
+    return false;
+  }
+  else
+  {
+    return ( (*cmd_fn[index].function) ( chp, command_list, data_list ) );
+  }
 }
+
+void fetch_display_help(BaseSequentialStream * chp, fetch_command_t cmd_fn[])
+{
+  for( int index = 0; cmd_fn[index].command != NULL; index++ )
+  {
+    if( cmd_fn[index].help != NULL )
+    {
+      util_message_info(chp, "%s", cmd_fn[index].command);
+      util_message_info(chp, "\t%s", cmd_fn[index].help);
+    }
+  }
+}
+
+int fetch_find_command(fetch_command_t cmd_fn[], char * command)
+{
+  if( command == NULL )
+  {
+    return FETCH_COMMAND_NOT_FOUND;
+  }
+
+  /* loop until we encounter the null item in the list */
+  for( int index = 0; cmd_fn[index].command != NULL; index++ )
+  {
+    if( strncasecmp(command, cmd_fn[index].command, FETCH_MAX_CMD_STRLEN) == 0 )
+    {
+      return index;
+    }
+  }
+
+  return FETCH_COMMAND_NOT_FOUND;
+}
+
+
 /*! @} */

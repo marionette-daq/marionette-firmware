@@ -12,10 +12,8 @@
 #include "chprintf.h"
 
 #ifndef DBG_MSG_ENABLE
-#define         DBG_MSG_ENABLE          0
+#define DBG_MSG_ENABLE          0
 #endif
-
-#define         UTIL_MAXDATA            256
 
 #ifdef __cplusplus
 extern "C" {

@@ -563,43 +563,27 @@ static bool fetch_adc_change_profile(FETCH_ADC_profile_name p)
 	return ret;
 }
 
-static inline int fetch_adc_is_valid_adc_profile(BaseSequentialStream * chp,
-                Fetch_terminals * fetch_terms,
-                char * chkadc_profile)
-{
-	return(token_match(chp, fetch_terms->adc_profile, chkadc_profile,
-	                   ((int) NELEMS(fetch_terms->adc_profile)) ) );
-}
-
 /*! \brief change the profile for adc1
  */
-bool fetch_adc1_profile(BaseSequentialStream * chp, Fetch_terminals * fetch_terms,
-                        char * cmd_list[])
+bool fetch_adc1_profile(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-	if(fetch_adc_is_valid_adc_profile(chp, fetch_terms, cmd_list[ADC_PROFILE]) >= 0)
-	{
-		if (strncasecmp(cmd_list[ADC_PROFILE], "default", strlen("default") ) == 0)
-		{
-			return(fetch_adc_change_profile(FETCH_ADC1_DEFAULT));
-		}
-		else if (strncasecmp(cmd_list[ADC_PROFILE], "demo", strlen("demo") ) == 0)
-		{
-			return(fetch_adc_change_profile(FETCH_ADC1_DEMO));
-		}
-		else if (strncasecmp(cmd_list[ADC_PROFILE], "pa", strlen("pa") ) == 0)
-		{
-			return(fetch_adc_change_profile(FETCH_ADC1_PA));
-		}
-		else
-		{
-			util_message_error(chp, "Profile not available: %s.", cmd_list[ADC_PROFILE]);
-			return false;
-		}
-	}
-	else
-	{
-		util_message_error(chp, "Not a valid profile");
-	}
+  if (strncasecmp(cmd_list[ADC_PROFILE], "default", strlen("default") ) == 0)
+  {
+    return(fetch_adc_change_profile(FETCH_ADC1_DEFAULT));
+  }
+  else if (strncasecmp(cmd_list[ADC_PROFILE], "demo", strlen("demo") ) == 0)
+  {
+    return(fetch_adc_change_profile(FETCH_ADC1_DEMO));
+  }
+  else if (strncasecmp(cmd_list[ADC_PROFILE], "pa", strlen("pa") ) == 0)
+  {
+    return(fetch_adc_change_profile(FETCH_ADC1_PA));
+  }
+  else
+  {
+    util_message_error(chp, "Profile not available: %s.", cmd_list[ADC_PROFILE]);
+    return false;
+  }
 	return false;
 }
 
@@ -621,68 +605,44 @@ static bool fetch_adc1_stop(void)
 	return true;
 }
 
-static inline int fetch_adc_is_valid_adc_configure(BaseSequentialStream * chp,
-                Fetch_terminals * fetch_terms,
-                char * chkadc_configure)
-{
-
-	return(token_match(chp, fetch_terms->adc_configure, chkadc_configure,
-	                   ((int) NELEMS(fetch_terms->adc_configure)) ) );
-}
-
 /*! \brief Process an ADC configure command
  */
-static bool fetch_adc1_configure(BaseSequentialStream * chp ,
-                                 Fetch_terminals * fetch_terms, char * cmd_list[], char * data_list[])
+static bool fetch_adc1_configure(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-	if(fetch_adc_is_valid_adc_configure(chp, fetch_terms, cmd_list[ADC_CONFIGURE]) >= 0)
-	{
-		if (strncasecmp(cmd_list[ADC_CONFIGURE], "oneshot", strlen("oneshot") ) == 0)
-		{
-			fetch_adc1_state.oneshot = true;
-			return true;
-		}
-		else if (strncasecmp(cmd_list[ADC_CONFIGURE], "continuous", strlen("continuous") ) == 0)
-		{
-			fetch_adc1_state.oneshot = false;
-			return true;
-		}
-		else if (strncasecmp(cmd_list[ADC_CONFIGURE], "profile", strlen("profile") ) == 0)
-		{
-			return(fetch_adc1_profile(chp, fetch_terms, cmd_list));
-		}
-		else if (strncasecmp(cmd_list[ADC_CONFIGURE], "reset", strlen("reset") ) == 0)
-		{
-			fetch_adc1_reset();
-			return true;
-		}
-		else if (strncasecmp(cmd_list[ADC_CONFIGURE], "vref_mv", strlen("vref_mv") ) == 0)
-		{
-			fetch_adc1_state.vref_mv = atoi(data_list[0]);
-			return true;
-		}
-		else
-		{
-			DBG_MSG(chp, "configure command not ready yet...");
-			return false ;
-		}
-	}
-	return false;
-}
-
-static inline int fetch_adc_is_valid_adc_subcommandA(BaseSequentialStream * chp,
-                Fetch_terminals * fetch_terms,
-                char * chkadc_subcommandA)
-{
-
-	return(token_match(chp, fetch_terms->adc_subcommandA, chkadc_subcommandA,
-	                   ((int) NELEMS(fetch_terms->adc_subcommandA)) ) );
+  if (strncasecmp(cmd_list[ADC_CONFIGURE], "oneshot", strlen("oneshot") ) == 0)
+  {
+    fetch_adc1_state.oneshot = true;
+    return true;
+  }
+  else if (strncasecmp(cmd_list[ADC_CONFIGURE], "continuous", strlen("continuous") ) == 0)
+  {
+    fetch_adc1_state.oneshot = false;
+    return true;
+  }
+  else if (strncasecmp(cmd_list[ADC_CONFIGURE], "profile", strlen("profile") ) == 0)
+  {
+    return(fetch_adc1_profile(chp, cmd_list, data_list));
+  }
+  else if (strncasecmp(cmd_list[ADC_CONFIGURE], "reset", strlen("reset") ) == 0)
+  {
+    fetch_adc1_reset();
+    return true;
+  }
+  else if (strncasecmp(cmd_list[ADC_CONFIGURE], "vref_mv", strlen("vref_mv") ) == 0)
+  {
+    fetch_adc1_state.vref_mv = atoi(data_list[0]);
+    return true;
+  }
+  else
+  {
+    DBG_MSG(chp, "configure command not ready yet...");
+    return false ;
+  }
 }
 
 /*! \brief dispatch an ADC command
  */
-bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[],
-                        Fetch_terminals * fetch_terms)
+bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
 	fetch_adc1_state.chp = chp;
 
@@ -691,26 +651,23 @@ bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 		fetch_adc_init(chp);
 	};
 
-	if(fetch_adc_is_valid_adc_subcommandA(chp, fetch_terms, cmd_list[ADC_ACTION]) >= 0)
-	{
-		if (strncasecmp(cmd_list[ADC_ACTION], "conf_adc1", strlen("conf_adc1") ) == 0)
-		{
-			return(fetch_adc1_configure(chp, fetch_terms, cmd_list, data_list));
-		}
-		else if (strncasecmp(cmd_list[ADC_ACTION], "start", strlen("start") ) == 0)
-		{
-			return(fetch_adc1_start());
-		}
-		else if (strncasecmp(cmd_list[ADC_ACTION], "stop", strlen("stop") ) == 0)
-		{
-			return(fetch_adc1_stop());
-		}
-		else
-		{
-			DBG_MSG(chp, "sub-command not ready yet...");
-			return(false) ;
-		}
-	}
+  if (strncasecmp(cmd_list[ADC_ACTION], "conf_adc1", strlen("conf_adc1") ) == 0)
+  {
+    return(fetch_adc1_configure(chp, cmd_list, data_list));
+  }
+  else if (strncasecmp(cmd_list[ADC_ACTION], "start", strlen("start") ) == 0)
+  {
+    return(fetch_adc1_start());
+  }
+  else if (strncasecmp(cmd_list[ADC_ACTION], "stop", strlen("stop") ) == 0)
+  {
+    return(fetch_adc1_stop());
+  }
+  else
+  {
+    DBG_MSG(chp, "sub-command not ready yet...");
+    return(false) ;
+  }
 	return false;
 }
 /*! @} */

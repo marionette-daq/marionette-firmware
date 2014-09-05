@@ -40,10 +40,10 @@ typedef enum FETCH_DAC_token
 	DAC_CMD = 0,
 	DAC_SCA,
 	DAC_CONFIGURE,
-	NO_DAC_GPIO_TOKEN = FETCH_MAX_TERMINALS - 1
+	//NO_DAC_GPIO_TOKEN = FETCH_MAX_TERMINALS - 1
 } FETCH_DAC_token;
 
-bool fetch_dac_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[], Fetch_terminals * fetch_terms);
+bool fetch_dac_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 
 
 #ifdef __cplusplus

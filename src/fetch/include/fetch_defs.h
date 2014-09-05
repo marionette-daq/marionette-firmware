@@ -8,37 +8,35 @@
 #ifndef FETCH_DEFS_H_
 #define FETCH_DEFS_H_
 
+#include "hal.h"
 
-#define         FETCH_MAX_TERMINALS                     32
+#define 		FETCH_MAX_LINE_CHARS					1024
+#define 		FETCH_MAX_COMMANDS 						8
+#define 		FETCH_MAX_DATA_ITEMS					50
+#define 		FETCH_MAX_CMD_STRLEN					25
+#define     FETCH_MAX_DATA_STRLEN         25
 
-typedef struct fetch_terminals
+#define     FETCH_COMMAND_NOT_FOUND       -1
+
+#define     FETCH_CMD_DELIM   ":."
+#define     FETCH_DATA_DELIM  " ,"
+
+typedef enum {
+  FETCH_TOK_CMD = 0,
+  FETCH_TOK_SUBCMD_0,
+  FETCH_TOK_SUBCMD_1,
+  FETCH_TOK_SUBCMD_2,
+  FETCH_TOK_SUBCMD_3,
+} fetch_token_t;
+
+typedef bool (*fetch_func_t)(BaseSequentialStream *chp, char * cmd_list[], char * data_list[]);
+
+typedef struct
 {
-	// All elements of the Terminal set (∑) have definitions here.
-	 const char * command[FETCH_MAX_TERMINALS]          ;
-	 const char * gpio_subcommandA[FETCH_MAX_TERMINALS] ;
-	 const char * gpio_direction[FETCH_MAX_TERMINALS]   ;
-	 const char * gpio_sense[FETCH_MAX_TERMINALS]       ;
-	 const char * adc_subcommandA[FETCH_MAX_TERMINALS]  ;
-	 const char * adc_configure[FETCH_MAX_TERMINALS]    ;
-	 const char * adc_profile[FETCH_MAX_TERMINALS]   ;
-	 const char * dac_subcommandA[FETCH_MAX_TERMINALS]   ;
-	 const char * dac_configure[FETCH_MAX_TERMINALS]   ;
-	 const char * port_subcommand[FETCH_MAX_TERMINALS]  ;
-	 const char * pin_subcommand[FETCH_MAX_TERMINALS]   ;
-	 const char * subcommandD[FETCH_MAX_TERMINALS]      ;
-	 const char * digit[FETCH_MAX_TERMINALS]            ;
-	 const char * EOL[FETCH_MAX_TERMINALS]              ;
-	 const char * whitespace[FETCH_MAX_TERMINALS]       ;
-
-} Fetch_terminals;
-
-// Support dictionaries
-typedef struct command_dictionary
-{
-	bool     	   enabled;
-	uint16_t 	   max_data_bytes;
-	const char  *  helpstring;
-} Command_dictionary;
+  fetch_func_t function;
+  const char * command;
+  const char * help;
+} fetch_command_t;
 
 #endif
 /*! @} */

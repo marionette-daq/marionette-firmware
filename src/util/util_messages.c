@@ -31,6 +31,27 @@ static bool needs_newline(char * str)
 	return !(str[end] == '\n' || str[end] == '\r');
 }
 
+void util_message_begin( BaseSequentialStream * chp)
+{
+  chBSemWait( &mshell_io_sem );
+  chprintf(chp, "begin");
+  chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_end( BaseSequentialStream * chp, bool success )
+{
+  chBSemWait( &mshell_io_sem );
+  if( success )
+  {
+    chprintf(chp, "end:ok\r\n");
+  }
+  else
+  {
+    chprintf(chp, "end:error\r\n");
+  }
+  chBSemSignal( &mshell_io_sem );
+}
+
 void util_message_debug( BaseSequentialStream * chp, char * file, int line, const char * func, char * fmt, ...)
 {
 	if(fmt == NULL || file == NULL || func == NULL || chp == NULL)

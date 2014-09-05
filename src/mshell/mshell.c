@@ -47,16 +47,12 @@ static          bool                            mshell_echo_chars = MSHELL_ECHO_
 
 EventSource     mshell_terminated;
 
-static void usage(BaseSequentialStream * chp, char * p)
-{
-	util_message_info(chp, "Usage: %s", p);
-}
-
-static void list_commands(BaseSequentialStream * chp, const MShellCommand * scp)
+static void list_commands(BaseSequentialStream * chp, const mshell_command_t * scp)
 {
 	while (scp->sc_name != NULL)
 	{
-		chprintf(chp, "+%s ", scp->sc_name);
+		util_message_info(chp, "+%s", scp->sc_name);
+		util_message_info(chp, "\t%s", scp->sc_help);
 		scp++;
 	}
 }
@@ -67,7 +63,7 @@ static void cmd_prompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSE
 {
 	if(argc > 0)
 	{
-		usage(chp, "prompt");
+		util_message_error(chp, "extra arguments for command 'prompt'");
 		return;
 	}
 	setMShellVisiblePrompt(true);
@@ -78,9 +74,9 @@ static void cmd_prompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSE
  */
 static void cmd_noprompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
 {
-	if(argc > 0)
+	if (argc > 0)
 	{
-		usage(chp, "noprompt");
+		util_message_error(chp, "extra arguments for command 'noprompt'");
 		return;
 	}
 	setMShellVisiblePrompt(false);
@@ -91,9 +87,9 @@ static void cmd_noprompt(BaseSequentialStream * chp, int argc, char * argv[] UNU
  */
 static void cmd_echo(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
 {
-	if(argc > 0)
+	if (argc > 0)
 	{
-		usage(chp, "echo");
+		util_message_error(chp, "extra arguments for command 'echo'");
 		return;
 	}
 	mshell_echo_chars = true;
@@ -103,9 +99,9 @@ static void cmd_echo(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
  */
 static void cmd_noecho(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
 {
-	if(argc > 0)
+	if (argc > 0)
 	{
-		usage(chp, "noecho");
+		util_message_error(chp, "extra arguments for command 'noecho'");
 		return;
 	}
 	mshell_echo_chars = false;
@@ -122,31 +118,31 @@ static void cmd_info(BaseSequentialStream * chp, int argc, char * argv[])
 
 	if (argc > 0)
 	{
-		usage(chp, "info");
+		util_message_error(chp, "extra arguments for command 'info'");
 		return;
 	}
-	util_message_info(chp, "Firmware Version:%s", version_data.firmware);
-	util_message_info(chp, "Hardware Version:0x%x-0x%x-0x%x", version_data.hardware.id_high, version_data.hardware.id_center, version_data.hardware.id_low);
-	util_message_info(chp, "Kernel:%s", CH_KERNEL_VERSION);
+	util_message_info(chp, "Firmware Version: %s", version_data.firmware);
+	util_message_info(chp, "Chip ID: 0x%x 0x%x 0x%x", version_data.hardware.id_high, version_data.hardware.id_center, version_data.hardware.id_low);
+	util_message_info(chp, "Kernel: %s", CH_KERNEL_VERSION);
 #ifdef CH_COMPILER_NAME
-	util_message_info(chp, "Compiler:%s", CH_COMPILER_NAME);
+	util_message_info(chp, "Compiler: %s", CH_COMPILER_NAME);
 #endif
-	util_message_info(chp, "Architecture:%s", CH_ARCHITECTURE_NAME);
+	util_message_info(chp, "Architecture: %s", CH_ARCHITECTURE_NAME);
 #ifdef CH_CORE_VARIANT_NAME
-	util_message_info(chp, "Core Variant:%s", CH_CORE_VARIANT_NAME);
+	util_message_info(chp, "Core Variant: %s", CH_CORE_VARIANT_NAME);
 #endif
 #ifdef CH_PORT_INFO
-	util_message_info(chp, "Port Info:%s", CH_PORT_INFO);
+	util_message_info(chp, "Port Info: %s", CH_PORT_INFO);
 #endif
 #ifdef PLATFORM_NAME
-	util_message_info(chp, "Platform:%s", PLATFORM_NAME);
+	util_message_info(chp, "Platform: %s", PLATFORM_NAME);
 #endif
 #ifdef BOARD_NAME
-	util_message_info(chp, "Board:%s", BOARD_NAME);
+	util_message_info(chp, "Board: %s", BOARD_NAME);
 #endif
 #ifdef __DATE__
 #ifdef __TIME__
-	util_message_info(chp, "Build time:%s%s%s", __DATE__, " - ", __TIME__);
+	util_message_info(chp, "Build time: %s%s%s", __DATE__, " - ", __TIME__);
 #endif
 #endif
 }
@@ -163,20 +159,20 @@ static void cmd_systime(BaseSequentialStream * chp, int argc, char * argv[])
 /**
  * @brief   Array of the default commands.
  */
-static MShellCommand local_commands[] =
+static mshell_command_t local_commands[] =
 {
-	{"info", cmd_info},
-	{"systime", cmd_systime},
-	{"prompt", cmd_prompt},
-	{"noprompt", cmd_noprompt},
-	{"echo", cmd_echo},
-	{"noecho", cmd_noecho},
-	{NULL, NULL}
+	{cmd_info,      "info",     "Query system info"},
+	{cmd_systime,   "systime",  "Query system time"},
+	{cmd_prompt,    "prompt",   "Enable shell prompt"},
+	{cmd_noprompt,  "noprompt", "Disable shell prompt"},
+	{cmd_echo,      "echo",     "Enable shell echo"},
+	{cmd_noecho,    "noecho",   "Disable shell echo"},
+	{NULL, NULL, NULL}
 };
 
 /*! \brief execute a given command in the shell
  */
-static bool_t cmdexec(const MShellCommand * scp, BaseSequentialStream * chp,
+static bool_t cmdexec(const mshell_command_t * scp, BaseSequentialStream * chp,
                       char * name, int argc, char * argv[])
 {
 	while (scp->sc_name != NULL)
@@ -212,7 +208,7 @@ static msg_t mshell_thread(void * p)
 
 	bool_t  ret; 
 	BaseSequentialStream * chp   = ((MShellConfig *)p)->sc_channel;
-	const MShellCommand  * scp   = ((MShellConfig *)p)->sc_commands;
+	const mshell_command_t  * scp   = ((MShellConfig *)p)->sc_commands;
 	char * lp, *cmd, *tokp;
 
 	char input_line[MSHELL_MAX_LINE_LENGTH];
@@ -226,23 +222,26 @@ static msg_t mshell_thread(void * p)
 	chThdSleepMilliseconds(500);
 	//! Initial Welcome Prompt
     chprintf(chp, "\r\n");
-	util_message_comment(getMShellStreamPtr(), "Marionette Shell (\"+help\" for shell commands)");
+	util_message_comment(getMShellStreamPtr(), "Marionette Shell (\"help\" or \"+help\" for commands)");
 
 	//! initialize parser.
 	fetch_init(chp) ;
 
 	while (TRUE)
 	{
-		mshell_putprompt(); 
+		mshell_putprompt();
 		ret = mshellGetLine(chp, input_line, sizeof(input_line));
 		if (ret)
 		{
-			util_message_info(chp, "logout");
-			break;
+      chprintf(chp, "\r\n");
+			util_message_error(chp, "exit");
+			break; // exit function
 		}
 		if(input_line[0] == '+')    // use escape to process mshell commands
 		{
 			strncpy(command_line, &input_line[1], MSHELL_MAX_LINE_LENGTH);
+      command_line[MSHELL_MAX_LINE_LENGTH-1] = '\0';
+
 			lp = _strtok(command_line, " \t", &tokp);
 			cmd = lp;
 			n = 0;
@@ -261,33 +260,24 @@ static msg_t mshell_thread(void * p)
 			{
 				if (strcasecmp(cmd, "exit") == 0)
 				{
-					if (n > 0)
-					{
-						usage(chp, "exit");
-						continue;
-					}
-					break;
+          util_message_error(chp, "exit");
+          break; // exit function
 				}
 				else if (strcasecmp(cmd, "help") == 0)
 				{
-					if (n > 0)
-					{
-						usage(chp, "help");
-						continue;
-					}
-					util_message_info(chp, "Marionette Shell Commands: +help +exit ");
+					util_message_info(chp, "Marionette Shell Commands:");
+          util_message_info(chp, "+help");
+          util_message_info(chp, "\tList shell commands");
 					list_commands(chp, local_commands);
 					if (scp != NULL)
 					{
 						list_commands(chp, scp);
 					}
-					chprintf(chp, "\r\n");
 				}
 				else if (cmdexec(local_commands, chp, cmd, n, args) &&
 				                ((scp == NULL) || cmdexec(scp, chp, cmd, n, args)))
 				{
-					chprintf(chp, "%s", cmd);
-					chprintf(chp, " ?\r\n");
+          util_message_error(chp, "Invalid shell command '%s'", cmd);
 				}
 			}
 		}
@@ -296,12 +286,11 @@ static msg_t mshell_thread(void * p)
 			strncpy(command_line, &input_line[0], MSHELL_MAX_LINE_LENGTH);
 			if(!fetch_parse(chp, command_line))
 			{
-				util_message_error(chp, "Fetch Command Fail. Type \"help\" or \"+help\"");
-			};
+				util_message_error(chp, "Fetch Command Failed. Type \"help\" or \"+help\"");
+			}
 		}
 	}
 	mshellExit(RDY_OK);
-	/* Never executed, silencing a warning.*/
 	return 0;
 }
 
@@ -411,6 +400,7 @@ bool_t mshellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
 			{
 				if(mshell_echo_chars)
 				{
+          // FIXME why is this sent the way it is?
 					mshell_stream_put(chp, ASCII_BACKSPACE);
 					mshell_stream_put(chp, ASCII_SPACE);
 					mshell_stream_put(chp, ASCII_BACKSPACE);
@@ -426,6 +416,7 @@ bool_t mshellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
 			{
 				if(mshell_echo_chars)
 				{
+          // FIXME why is this sent the way it is?
 					mshell_stream_put(chp, c);
 					mshell_stream_put(chp, ASCII_SPACE);
 					mshell_stream_put(chp, c);
@@ -440,7 +431,7 @@ bool_t mshellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
 			{
 				chprintf(chp, "\r\n");
 			}
-			*p = 0;
+			*p = '\0';
 			return FALSE;
 		}
 		if (c == 0) {

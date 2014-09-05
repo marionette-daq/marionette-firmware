@@ -15,7 +15,7 @@
 #include "util_strings.h"
 
 
-/*! \brief Remove all space types including '\t'
+/*! \brief Remove all space types including '\t' and '_'
  *   \sa isspace() in cytpe.h
  */
 char * fetch_remove_spaces(char * spstr)
@@ -29,7 +29,7 @@ char * fetch_remove_spaces(char * spstr)
 
 	for (i = 0, j = 0; i < strlen(spstr); i++, j++)
 	{
-		if(!isspace((unsigned char)spstr[i]))
+		if(!isspace((unsigned char)spstr[i]) && spstr[i] != '_')
 		{
 			newstr[j] = spstr[i];
 		}
@@ -78,42 +78,53 @@ char * _strtok(char * str, const char * delim, char ** saveptr)
 	return *token ? token : NULL;
 }
 
-/*! \brief support validation functions
- *   \warning don't call string functions on NULL pointers
+/*! \brief a version of strncpy that only copies up to the first NULL or n chars
+ *         also guarenteeing a null terminated string
  *
- *  \param[in] tok_array   array to iterate comparison
- *  \param[in] chk_tok     token to match to array
+ *   This function is similar to the bsd strlcpy()
  *
- *  \return int An index into the array on match
- *  \return -1 on no match
+ *   Conditions for proper execution: n > 0, dest != NULL, src != NULL
  */
-int token_match(BaseSequentialStream * chp, const char * tok_array[],
-                char * chk_tok,
-                int num_elems)
+char * _strncpy(char * dest, const char * src, size_t n)
 {
-	chDbgAssert(((chk_tok != NULL) ), "token_match() #1", "NULL pointer");
+  while(n > 1 && *src != '\0')
+  {
+    *dest=*src;
+    n--;
+    dest++;
+    src++;
+  }
+  *dest = '\0';
 
-	for(int i = 0; i < num_elems; ++i)
-	{
-		size_t maxlen = 1;
-		if(tok_array[i] == NULL)
-		{
-			break;
-		}
+  return dest;
+}
 
-		if (strncasecmp(tok_array[i], "\0", maxlen ) == 0)
-		{
-			break;
-		}
+/*! \brief search an array of string tokens for a match
+ *  \param[in]  tok_str         string to match
+ *  \param[in]  tok_max_len     max search string length
+ *  \param[in]  tok_array       array of string tockens to search
+ *  \param[in]  tok_max_elems   max number of elements in tok_array
+ *
+ *  Searching will stop at tok_max_elems or the first NULL in tok_array.
+ *
+ *  \returns index into tok_array if found and TOKEN_NOT_FOUND otherwise
+ */
+int token_match( const char * tok_str, int tok_max_len, const char * tok_array[], int tok_max_elems )
+{
+  if( tok_str == NULL || tok_array == NULL )
+  {
+    return TOKEN_NOT_FOUND;
+  }
 
-		maxlen = get_longest_str_length(tok_array[i], chk_tok, UTIL_STRINGS_MAX_SEARCH_CHARS);
+  for( int i = 0; i < tok_max_elems && tok_array[i] != NULL; i++ )
+  {
+    if( strncasecmp(tok_array[i], tok_str, tok_max_len) == 0 )
+    {
+      return i;
+    }
+  }
 
-		if (strncasecmp(tok_array[i], chk_tok, maxlen ) == 0)
-		{
-			return i;
-		}
-	}
-	return -1;
+  return TOKEN_NOT_FOUND;
 }
 
 //! @}

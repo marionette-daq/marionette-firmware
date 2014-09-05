@@ -35,6 +35,7 @@
 #include "fetch_adc.h"
 #include "util_general.h"
 #include "util_version.h"
+#include "util_messages.h"
 #include "usbcfg.h"
 
 #include "main.h"
@@ -63,13 +64,13 @@ static void cmd_mem(BaseSequentialStream * chp, int argc, char * argv[])
 	(void)argv;
 	if (argc > 0)
 	{
-		chprintf(chp, "Usage: mem\r\n");
+		util_message_error(chp, "extra arguments for command '+mem'");
 		return;
 	}
 	n = chHeapStatus(NULL, &size);
-	chprintf(chp, "core free memory : %u bytes\r\n", chCoreStatus());
-	chprintf(chp, "heap fragments   : %u\r\n", n);
-	chprintf(chp, "heap free total  : %u bytes\r\n", size);
+	util_message_info(chp, "core free memory : %u bytes", chCoreStatus());
+	util_message_info(chp, "heap fragments   : %u", n);
+	util_message_info(chp, "heap free total  : %u bytes", size);
 }
 
 /*! \brief Show running threads
@@ -83,14 +84,14 @@ static void cmd_threads(BaseSequentialStream * chp, int argc, char * argv[])
 	(void)argv;
 	if (argc > 0)
 	{
-		chprintf(chp, "Usage: threads\r\n");
+		util_message_error(chp, "extra arguments for command '+threads'");
 		return;
 	}
-	chprintf(chp, "addr\t\tstack\t\tprio\trefs\tstate\t\ttime\tname\r\n");
+	util_message_info(chp, "addr\t\tstack\t\tprio\trefs\tstate\t\ttime\tname");
 	tp = chRegFirstThread();
 	do
 	{
-		chprintf(chp, "%.8lx\t%.8lx\t%4lu\t%4lu\t%9s\t%lu\t%s\r\n",
+		util_message_info(chp, "%.8lx\t%.8lx\t%4lu\t%4lu\t%9s\t%lu\t%s",
 		         (uint32_t)tp, (uint32_t)tp->p_ctx.r13,
 		         (uint32_t)tp->p_prio, (uint32_t)(tp->p_refs - 1),
 		         states[tp->p_state], (uint32_t)tp->p_time, tp->p_name);
@@ -102,11 +103,11 @@ static void cmd_threads(BaseSequentialStream * chp, int argc, char * argv[])
 /*! \brief MShell commands described in main
  * \sa MSHELL
  */
-static const MShellCommand commands[] =
+static const mshell_command_t commands[] =
 {
-	{"mem", cmd_mem},
-	{"threads", cmd_threads},
-	{NULL, NULL}
+	{cmd_mem,     "mem",      "Display memory usage"},
+	{cmd_threads, "threads",  "Display threads"},
+	{NULL, NULL, NULL}
 };
 
 /*! \brief MShell configuration
