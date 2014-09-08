@@ -59,57 +59,61 @@ static void list_commands(BaseSequentialStream * chp, const mshell_command_t * s
 
 /*! \brief turn on the prompt
  */
-static void cmd_prompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
+static bool cmd_prompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
 {
 	if(argc > 0)
 	{
 		util_message_error(chp, "extra arguments for command 'prompt'");
-		return;
+		return false;
 	}
 	setMShellVisiblePrompt(true);
 	setMShellPrompt("m > ");
+  return true;
 }
 
 /*! \brief turn off the prompt
  */
-static void cmd_noprompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
+static bool cmd_noprompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
 {
 	if (argc > 0)
 	{
 		util_message_error(chp, "extra arguments for command 'noprompt'");
-		return;
+		return false;
 	}
 	setMShellVisiblePrompt(false);
 	setMShellPrompt("");
+  return true;
 }
 
 /*! \brief toggle the echo of characters to the serial port
  */
-static void cmd_echo(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
+static bool cmd_echo(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
 {
 	if (argc > 0)
 	{
 		util_message_error(chp, "extra arguments for command 'echo'");
-		return;
+		return false;
 	}
 	mshell_echo_chars = true;
+  return true;
 }
 
 /*! \brief toggle the echo of characters to the serial port
  */
-static void cmd_noecho(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
+static bool cmd_noecho(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
 {
 	if (argc > 0)
 	{
 		util_message_error(chp, "extra arguments for command 'noecho'");
-		return;
+		return false;
 	}
 	mshell_echo_chars = false;
+  return true;
 }
 
 /*! \brief information about firmware and hardware
  */
-static void cmd_info(BaseSequentialStream * chp, int argc, char * argv[])
+static bool cmd_info(BaseSequentialStream * chp, int argc, char * argv[])
 {
 	(void)argv;
 
@@ -119,7 +123,7 @@ static void cmd_info(BaseSequentialStream * chp, int argc, char * argv[])
 	if (argc > 0)
 	{
 		util_message_error(chp, "extra arguments for command 'info'");
-		return;
+		return false;
 	}
 	util_message_info(chp, "Firmware Version: %s", version_data.firmware);
 	util_message_info(chp, "Chip ID: 0x%x 0x%x 0x%x", version_data.hardware.id_high, version_data.hardware.id_center, version_data.hardware.id_low);
@@ -145,15 +149,22 @@ static void cmd_info(BaseSequentialStream * chp, int argc, char * argv[])
 	util_message_info(chp, "Build time: %s%s%s", __DATE__, " - ", __TIME__);
 #endif
 #endif
+  return true;
 }
 
 /*! \brief systicks (1mS default) since reboot
  */
-static void cmd_systime(BaseSequentialStream * chp, int argc, char * argv[])
+static bool cmd_systime(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
 {
-	(void)argv;
+	if (argc > 0)
+	{
+		util_message_error(chp, "extra arguments for command 'systime'");
+		return false;
+	}
+
   uint32_t time_value = chTimeNow();
 	util_message_uint32(chp, "systime", &time_value, 1);
+  return true;
 }
 
 /**
@@ -170,23 +181,80 @@ static mshell_command_t local_commands[] =
 	{NULL, NULL, NULL}
 };
 
-/*! \brief execute a given command in the shell
+/*! \brief find comand in list
  */
-static bool_t cmdexec(const mshell_command_t * scp, BaseSequentialStream * chp,
-                      char * name, int argc, char * argv[])
+static int mshell_find_cmd(const mshell_command_t * scp, char * name)
 {
-	while (scp->sc_name != NULL)
-	{
-		if (strcasecmp(scp->sc_name, name) == 0)
+  for( int i = 0; scp[i].sc_name != NULL; i++ )
+  {
+		if (strcasecmp(scp[i].sc_name, name) == 0)
 		{
-			scp->sc_function(chp, argc, argv);
-			return FALSE;
+			return i;
 		}
-		scp++;
 	}
-	return TRUE;
+	return -1;
 }
 
+static bool mshell_parse(BaseSequentialStream* chp, const mshell_command_t * scp, char * inputline)
+{
+	int argc, index;
+	char command_line[MSHELL_MAX_LINE_LENGTH];
+	char * argv[MSHELL_MAX_ARGUMENTS + 1];
+	char * lp, *cmd, *tokp;
+
+  if( inputline == NULL )
+  {
+    return false;
+  }
+
+  // copy to a local buffer to modify
+  _strncpy(command_line, inputline, MSHELL_MAX_LINE_LENGTH);
+
+  lp = _strtok(command_line, " ", &tokp);
+  cmd = lp;
+  argc = 0;
+  while ((lp = _strtok(NULL, " ", &tokp)) != NULL)
+  {
+    if (argc >= MSHELL_MAX_ARGUMENTS)
+    {
+      util_message_error(chp, "too many arguments");
+      return false;
+    }
+    argv[argc++] = lp;
+  }
+  argv[argc] = NULL;
+
+  if(strcasecmp(cmd, "exit") == 0)
+  {
+    util_message_error(chp, "exit");
+    return true;
+  }
+  else if(strcasecmp(cmd, "help") == 0)
+  {
+    util_message_info(chp, "Marionette Shell Commands:");
+    util_message_info(chp, "+help");
+    util_message_info(chp, "\tList shell commands");
+    list_commands(chp, local_commands);
+    if (scp != NULL)
+    {
+      list_commands(chp, scp);
+    }
+    return true;
+  }
+  else if( (index = mshell_find_cmd(local_commands, cmd)) >= 0 )
+  {
+    return (*local_commands[index].sc_function) (chp, argc, argv);
+  }
+  else if( scp != NULL && (index = mshell_find_cmd(scp, cmd)) >= 0 )
+  {
+    return (*scp[index].sc_function) (chp, argc, argv);
+  }
+  else
+  {
+    util_message_error(chp, "Invalid shell command '%s'", cmd);
+    return false;
+  }
+}
 
 
 /*! \brief   MShell thread function.
@@ -204,30 +272,25 @@ static bool_t cmdexec(const mshell_command_t * scp, BaseSequentialStream * chp,
  */
 static msg_t mshell_thread(void * p)
 {
-	int n;
-
-	bool_t  ret; 
+	bool  ret; 
 	BaseSequentialStream * chp   = ((MShellConfig *)p)->sc_channel;
 	const mshell_command_t  * scp   = ((MShellConfig *)p)->sc_commands;
-	char * lp, *cmd, *tokp;
-
-	char input_line[MSHELL_MAX_LINE_LENGTH];
-	char command_line[MSHELL_MAX_LINE_LENGTH];
-	char * args[MSHELL_MAX_ARGUMENTS + 1];
+	static char input_line[MSHELL_MAX_LINE_LENGTH];
 
 	setMShellStreamPtr(chp);
 	setMShellPrompt("m > ");
 	setMShellVisiblePrompt(true);
 	chRegSetThreadName("mshell");
 	chThdSleepMilliseconds(500);
+
 	//! Initial Welcome Prompt
-    chprintf(chp, "\r\n");
-	util_message_comment(getMShellStreamPtr(), "Marionette Shell (\"help\" or \"+help\" for commands)");
+  chprintf(chp, "\r\n");
+	util_message_info(getMShellStreamPtr(), "Marionette Shell (\"help\" or \"+help\" for commands)");
 
 	//! initialize parser.
 	fetch_init(chp) ;
 
-	while (TRUE)
+	while (true)
 	{
 		mshell_putprompt();
 		ret = mshellGetLine(chp, input_line, sizeof(input_line));
@@ -237,59 +300,24 @@ static msg_t mshell_thread(void * p)
 			util_message_error(chp, "exit");
 			break; // exit function
 		}
+
+    if( input_line[0] == '\0' )
+    {
+      continue;
+    }
+
+    util_message_begin(chp);
+
 		if(input_line[0] == '+')    // use escape to process mshell commands
 		{
-			strncpy(command_line, &input_line[1], MSHELL_MAX_LINE_LENGTH);
-      command_line[MSHELL_MAX_LINE_LENGTH-1] = '\0';
-
-			lp = _strtok(command_line, " \t", &tokp);
-			cmd = lp;
-			n = 0;
-			while ((lp = _strtok(NULL, " \t", &tokp)) != NULL)
-			{
-				if (n >= MSHELL_MAX_ARGUMENTS)
-				{
-					util_message_error(chp, "too many arguments");
-					cmd = NULL;
-					break;
-				}
-				args[n++] = lp;
-			}
-			args[n] = NULL;
-			if (cmd != NULL)
-			{
-				if (strcasecmp(cmd, "exit") == 0)
-				{
-          util_message_error(chp, "exit");
-          break; // exit function
-				}
-				else if (strcasecmp(cmd, "help") == 0)
-				{
-					util_message_info(chp, "Marionette Shell Commands:");
-          util_message_info(chp, "+help");
-          util_message_info(chp, "\tList shell commands");
-					list_commands(chp, local_commands);
-					if (scp != NULL)
-					{
-						list_commands(chp, scp);
-					}
-				}
-				else if (cmdexec(local_commands, chp, cmd, n, args) &&
-				                ((scp == NULL) || cmdexec(scp, chp, cmd, n, args)))
-				{
-          util_message_error(chp, "Invalid shell command '%s'", cmd);
-				}
-			}
+      util_message_end(chp, mshell_parse(chp, scp, &input_line[1]) );
 		}
 		else
 		{
-			strncpy(command_line, &input_line[0], MSHELL_MAX_LINE_LENGTH);
-			if(!fetch_parse(chp, command_line))
-			{
-				util_message_error(chp, "Fetch Command Failed. Type \"help\" or \"+help\"");
-			}
+			util_message_end(chp, fetch_parse(chp, input_line) );
 		}
 	}
+
 	mshellExit(RDY_OK);
 	return 0;
 }
@@ -366,8 +394,8 @@ Thread * shellCreateStatic(const MShellConfig * scp, void * wsp,
  * \param[in] line      pointer to the line buffer
  * \param[in] size      buffer maximum length
  * \return              The operation status.
- * \retval TRUE         the channel was reset or CTRL-D pressed.
- * \retval FALSE        operation successful.
+ * \retval true         the channel was reset or CTRL-D pressed.
+ * \retval false        operation successful.
  *
  */
 #define        ASCII_EOT                        ((char) 0x4)
@@ -375,16 +403,16 @@ Thread * shellCreateStatic(const MShellConfig * scp, void * wsp,
 #define        ASCII_DELETE                     ((char) 0x7F)
 #define        ASCII_CTL_U                      ((char) 0x15)
 #define        ASCII_SPACE                      ((char) 0x20)
-bool_t mshellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
+bool mshellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
 
 {
 	char * p = line;
-	while (TRUE)
+	while (true)
 	{
 		char c;
 		if (chSequentialStreamRead(chp, (uint8_t *)&c, 1) == 0)
 		{
-			return TRUE;
+			return true;
 		}
 		if (c == ASCII_EOT)
 		{
@@ -392,7 +420,7 @@ bool_t mshellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
 			{
 				chprintf(chp, "^D");
 			}
-			return TRUE;
+			return true;
 		}
 		if ((c == ASCII_CTL_U))
 		{
@@ -432,7 +460,7 @@ bool_t mshellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
 				chprintf(chp, "\r\n");
 			}
 			*p = '\0';
-			return FALSE;
+			return false;
 		}
 		if (c == 0) {
 			continue;

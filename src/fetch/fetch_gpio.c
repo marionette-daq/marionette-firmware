@@ -19,250 +19,348 @@
 
 #include "fetch_defs.h"
 #include "fetch_gpio.h"
+#include "fetch.h"
 
 // list all command function prototypes here 
-static bool fetch_gpio_get(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_gpio_set(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_gpio_clear(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_gpio_query(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_gpio_config(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_gpio_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_gpio_read_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_gpio_read_port_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_gpio_write_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_gpio_set_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_gpio_clear_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_gpio_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_gpio_info_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_gpio_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_gpio_force_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+
+static const char gpio_config_help_string[] ="Configure pin as GPIO\n" \
+                        "Usage: config(<port>,<pin>,<mode>)\n" \
+                        "\tmode = INPUT_FLOATING, INPUT_PULLUP, INPUT_PULLDOWN,\n" \
+                        "\t       OUTPUT_PUSHPULL, OUTPUT_OPENDRAIN";
 
 static fetch_command_t fetch_gpio_commands[] = {
-    { fetch_gpio_get,     "get",    NULL },
-    { fetch_gpio_set,     "set",    NULL },
-    { fetch_gpio_clear,   "clear",  NULL },
-    { fetch_gpio_query,   "query",  NULL },
-    { fetch_gpio_config,  "config", NULL },
+    { fetch_gpio_help_cmd,        "help",       "Display GPIO help"},
+    { fetch_gpio_read_cmd,        "read",       "Read pin state\nUsage: read(<port>,<pin>)" },
+    { fetch_gpio_read_port_cmd,   "readport",   "Read state of all pins on port\nUsage: readport(<port>)" },
+    { fetch_gpio_write_cmd,       "write",      "Write state to pin\nUsage: write(<port>,<pin>,<state>)" },
+    { fetch_gpio_set_cmd,         "set",        "Set pin to 1\nUsage: set(<port>,<pin>)" },
+    { fetch_gpio_clear_cmd,       "clear",      "Clear pin to 0\nUsage: clear(<port>,<pin>)" },
+    { fetch_gpio_config_cmd,      "config",     gpio_config_help_string },
+    { fetch_gpio_info_cmd,        "info",       "Get pin info\nUsage: info(<port>,<pin>)" },
+    { fetch_gpio_reset_cmd,       "reset",      "Reset GPIO pin to defaults\nUsage: reset(<port>,<pin>)" },
+    { fetch_gpio_force_reset_cmd, "forcereset", NULL },
     { NULL, NULL, NULL } // null terminate list
   };
 
-/*! \brief get the port and pin information
- */
-static bool fetch_gpio_get_port_pin(BaseSequentialStream * chp, char * cmd_list[],
-                                    GPIO_TypeDef ** port, iopin_t * pin)
+static const char * pin_state_tok[] = {"true","false","1","0"};
+static const char * pin_mode_tok[] = {"INPUT_FLOATING","INPUT_PULLUP","INPUT_PULLDOWN",
+                                      "OUTPUT_PUSHPULL","OUTPUT_OPENDRAIN"};
+
+static bool fetch_gpio_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-	GPIO_TypeDef    *    fetch_gpio_port;
-	iopin_t    fetch_gpio_pinnum;
-
-  fetch_gpio_port = string_to_port(cmd_list[FETCH_GPIO_PORT]);
-  if(fetch_gpio_port != NULL )
-  {
-    *port = fetch_gpio_port;
-  }
-  else
-  {
-    *port = NULL;
-    return false;
-  }
-
-  fetch_gpio_pinnum = string_to_pin(cmd_list[FETCH_GPIO_PIN]);
-  if(fetch_gpio_pinnum != INVALID_PIN)
-  {
-    *pin = fetch_gpio_pinnum;
-  }
-  else
-  {
-    *pin = INVALID_PIN;
-    return false;
-  }
-
+  util_message_info(chp, "Fetch GPIO Help:");
+  fetch_display_help(chp, fetch_gpio_commands);
 	return true;
 }
 
-/*! \brief read the input register value for the port and pin
- */
-static bool fetch_gpio_get(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+static bool fetch_gpio_read_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-	GPIO_TypeDef    *    port    = GPIOA;
-	iopin_t    pin     = PIN0;
-	uint8_t pin_state;
+  ioportid_t port = string_to_port(data_list[0]);
+  uint32_t pin = string_to_pin(data_list[1]);
+  bool pin_state;
 
-	if(fetch_gpio_get_port_pin(chp, cmd_list, &port, &pin))
-	{
-		if((port != NULL) && (pin != INVALID_PIN))
-		{
-			pin_state = palReadPad(port, pin);
-			util_message_uint8(chp, "logic", &pin_state, 1);
-			return true;
-		}
-	}
-	return false;
-}
-
-
-/*! \brief set the output register value to HIGH for the port and pin
- */
-static bool fetch_gpio_set(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-	GPIO_TypeDef   *  port       = NULL;
-	iopin_t pin        = PIN0;
-
-	if(fetch_gpio_get_port_pin(chp, cmd_list, &port, &pin))
-	{
-		if((port != NULL) && (pin != INVALID_PIN))
-		{
-			palSetPad(port, pin);
-			return true;
-		}
-	}
-	return false;
-}
-
-/*! \brief clear the output register value (set to LOW) for the port and pin
- */
-static bool fetch_gpio_clear(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-	GPIO_TypeDef    *    port    = NULL;
-	iopin_t    pin     = PIN0;
-
-	if(fetch_gpio_get_port_pin(chp, cmd_list, &port, &pin))
-	{
-		if((port != NULL) && (pin != INVALID_PIN))
-		{
-			palClearPad(port, pin);
-			return true;
-		}
-	}
-	return false;
-}
-
-static bool fetch_gpio_query(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-
-	GPIO_TypeDef    *    port    = NULL;
-	iopin_t    pin     = PIN0;
-  char * fn_name = NULL;
-
-	if(fetch_gpio_get_port_pin(chp, cmd_list, &port, &pin))
-	{
-		if((port != NULL) && (pin != INVALID_PIN))
-		{
-			fn_name = (char*)io_manage_query_pin_current_fn_name(port, pin);
-      util_message_string(chp,"allocation",fn_name);
-			return true;
-		}
-	}
-	return false;
-}
-
-/*! \brief configure a pin
- */
-static bool fetch_gpio_config(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-	GPIO_TypeDef    *    port       = NULL;
-	iopin_t    pin        = PIN0;
-
-	int            sense      = PAL_STM32_PUDR_FLOATING;
-	int            direction  = PAL_STM32_MODE_INPUT;
-
-  if( (strncasecmp(cmd_list[FETCH_GPIO_DIRECTION], "input", strlen("input") ) == 0) )
-  {
-    direction = PAL_STM32_MODE_INPUT;
-  }
-  else if ((strncasecmp(cmd_list[FETCH_GPIO_DIRECTION], "output", strlen("output") ) == 0) )
-  {
-    direction = PAL_STM32_MODE_OUTPUT;
-  }
-  else
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2) )
   {
     return false;
   }
 
-	if(direction == PAL_STM32_MODE_INPUT)
-	{
-    if( (strncasecmp(cmd_list[FETCH_GPIO_SENSE], "pullup", strlen("pullup") ) == 0) )
-    {
-      sense = PAL_STM32_PUDR_PULLUP;
-    }
-    else if ( (strncasecmp(cmd_list[FETCH_GPIO_SENSE], "pulldown", strlen("pulldown") ) == 0) )
-    {
-      sense = PAL_STM32_PUDR_PULLDOWN;
-    }
-    else if ( (strncasecmp(cmd_list[FETCH_GPIO_SENSE], "floating", strlen("floating") ) == 0) )
-    {
-      sense = PAL_STM32_PUDR_FLOATING;
-    }
-    else if ( (strncasecmp(cmd_list[FETCH_GPIO_SENSE], "analog", strlen("analog") ) == 0) )
-    {
-      //! Ref: F4 Reference section 8.3.12 Analog configuration
-      if(fetch_gpio_get_port_pin(chp, cmd_list, &port, &pin))
-      {
-        if(io_manage_query_fn_avail(port, pin, IO_ADC))    // ADC pins are available Analog pins
-        {
-          sense = PAL_STM32_MODE_ANALOG;
-        }
-        else
-        {
-          util_message_error(chp, "GPIO analog mode not available on this pin.");
-          return false;
-        }
-      }
-      else
-      {
-        return false;
-      }
-    }
-    else
-    {
-      return false;
-    }
-	}
+  if( port == NULL || pin == INVALID_PIN )
+  {
+    util_message_error(chp, "invalid port/pin");
+    return false;
+  }
 
-
-	if(fetch_gpio_get_port_pin(chp, cmd_list, &port, &pin))
-	{
-		if((port != NULL) && (pin != INVALID_PIN))
-		{
-			if(direction == PAL_STM32_MODE_INPUT)
-			{
-				return(io_manage_set_mode(port, pin, direction | sense, IO_GPIO));
-			}
-			else
-			{
-				return(io_manage_set_mode(port, pin, direction, IO_GPIO));
-			}
-		}
-	}
-	return false;
+  pin_state = palReadPad(port, pin);
+  util_message_bool(chp, "state", pin_state);
+  return true;
 }
+
+static bool fetch_gpio_read_port_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  ioportid_t port = string_to_port(data_list[0]);
+  uint16_t port_state;
+
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 1) )
+  {
+    return false;
+  }
+
+  if( port == NULL )
+  {
+    util_message_error(chp, "invalid port");
+    return false;
+  }
+
+  port_state = palReadPort(port);
+  util_message_uint16(chp, "state", &port_state, 1);
+  return true;
+}
+
+static bool fetch_gpio_write_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  ioportid_t port = string_to_port(data_list[0]);
+  uint32_t pin = string_to_pin(data_list[1]);
+
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 3) )
+  {
+    return false;
+  }
+
+  if( port == NULL || pin == INVALID_PIN )
+  {
+    util_message_error(chp, "invalid port/pin");
+    return false;
+  }
+
+  switch( token_match( data_list[2], FETCH_MAX_DATA_STRLEN, pin_state_tok, NELEMS(pin_state_tok)) )
+  {
+    case 0: // true
+    case 2: // 1
+      palSetPad(port,pin);
+      break;
+    case 1: // false
+    case 3: // 0
+      palClearPad(port,pin);
+      break;
+    default:
+      util_message_error(chp, "invalid logic state");
+      return false;
+  }
+  return true;
+}
+
+static bool fetch_gpio_set_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  ioportid_t port = string_to_port(data_list[0]);
+  uint32_t pin = string_to_pin(data_list[1]);
+
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2) )
+  {
+    return false;
+  }
+
+  if( port == NULL || pin == INVALID_PIN )
+  {
+    util_message_error(chp, "invalid port/pin");
+    return false;
+  }
+
+  palSetPad(port,pin);
+
+  return true;
+}
+
+static bool fetch_gpio_clear_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  ioportid_t port = string_to_port(data_list[0]);
+  uint32_t pin = string_to_pin(data_list[1]);
+
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2) )
+  {
+    return false;
+  }
+
+  if( port == NULL || pin == INVALID_PIN )
+  {
+    util_message_error(chp, "invalid port/pin");
+    return false;
+  }
+
+  palClearPad(port,pin);
+
+  return true;
+}
+
+static bool fetch_gpio_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  ioportid_t port = string_to_port(data_list[0]);
+  uint32_t pin = string_to_pin(data_list[1]);
+  iomode_t mode = PAL_STM32_PUDR_FLOATING | PAL_STM32_MODE_INPUT;
+
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 3) )
+  {
+    return false;
+  }
+
+  if( port == NULL || pin == INVALID_PIN )
+  {
+    util_message_error(chp, "invalid port/pin");
+    return false;
+  }
+
+  switch( token_match( data_list[2], FETCH_MAX_DATA_STRLEN, pin_mode_tok, NELEMS(pin_mode_tok)) )
+  {
+    case 0: // input floating
+      mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING;
+      break;
+    case 1: // input pullup
+      mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_PULLUP;
+      break;
+    case 2: // input pulldown
+      mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_PULLDOWN;
+      break;
+    case 3: // output pushpull
+      mode = PAL_STM32_MODE_OUTPUT | PAL_STM32_OTYPE_PUSHPULL;
+      break;
+    case 4: // output opendrian
+      mode = PAL_STM32_MODE_OUTPUT | PAL_STM32_OTYPE_OPENDRAIN;
+      break;
+    default:
+      util_message_error(chp, "invalid pin mode");
+      return false;
+  }
+
+  if( !io_manage_set_mode( port, pin, mode, IO_GPIO) )
+  {
+    util_message_error(chp, "unable to allocate pin as GPIO");
+    return false;
+  }
+
+  return true;
+}
+
+static bool fetch_gpio_info_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  ioportid_t port = string_to_port(data_list[0]);
+  uint32_t pin = string_to_pin(data_list[1]);
+  io_alloc_t current_alloc;
+  char * alloc_name;
+  iomode_t current_mode;
+  uint32_t available_alloc;
+
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2) )
+  {
+    return false;
+  }
+
+  if( port == NULL || pin == INVALID_PIN )
+  {
+    util_message_error(chp, "invalid port/pin");
+    return false;
+  }
+
+  current_alloc = io_manage_get_current_alloc(port, pin);
+  current_mode = io_manage_get_current_mode(port, pin);
+  available_alloc = io_manage_get_available_alloc(port, pin);
+
+  alloc_name = (char*)io_manage_get_alloc_name(current_alloc);
+  util_message_string(chp, "current", alloc_name);
+
+  for( int i = 0; i < 32; i++ )
+  {
+    if( available_alloc & (1<<i) )
+    {
+      alloc_name = (char*)io_manage_get_alloc_name(available_alloc & (1<<i));
+      util_message_string(chp, "available", alloc_name);
+    }
+  }
+
+  switch( current_mode & PAL_STM32_MODE_MASK )
+  {
+    case PAL_STM32_MODE_INPUT:
+      switch( current_mode & PAL_STM32_PUDR_MASK )
+      {
+        case PAL_STM32_PUDR_FLOATING:
+          util_message_string(chp, "mode", "INPUT_FLOATING");
+          break;
+        case PAL_STM32_PUDR_PULLUP:
+          util_message_string(chp, "mode", "INPUT_PULLUP");
+          break;
+        case PAL_STM32_PUDR_PULLDOWN:
+          util_message_string(chp, "mode", "INPUT_PULLDOWN");
+          break;
+      }
+      break;
+    case PAL_STM32_MODE_OUTPUT:
+      switch( current_mode & PAL_STM32_OTYPE_MASK )
+      {
+        case PAL_STM32_OTYPE_PUSHPULL:
+          util_message_string(chp, "mode", "OUTPUT_PUSHPULL");
+          break;
+        case PAL_STM32_OTYPE_OPENDRAIN:
+          util_message_string(chp, "mode", "OUTPUT_OPENDRAIN");
+          break;
+      }
+      break;
+    case PAL_STM32_MODE_ALTERNATE:
+      util_message_string(chp, "mode", "ALTERNATE");
+      break;
+    case PAL_STM32_MODE_ANALOG:
+      util_message_string(chp, "mode", "ANALOG");
+      break;
+  }
+
+  return true;
+}
+
+static bool fetch_gpio_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  ioportid_t port = string_to_port(data_list[0]);
+  uint32_t pin = string_to_pin(data_list[1]);
+  io_alloc_t current_alloc;
+
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2) )
+  {
+    return false;
+  }
+
+  if( port == NULL || pin == INVALID_PIN )
+  {
+    util_message_error(chp, "invalid port/pin");
+    return false;
+  }
+
+  current_alloc = io_manage_get_current_alloc(port, pin);
+
+  if( current_alloc != IO_GPIO )
+  {
+    util_message_error(chp, "pin is not allocated as a GPIO");
+    return false;
+  }
+
+  io_manage_set_default_mode(port, pin);
+
+  return true;
+}
+
+static bool fetch_gpio_force_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  ioportid_t port = string_to_port(data_list[0]);
+  uint32_t pin = string_to_pin(data_list[1]);
+  io_alloc_t current_alloc;
+
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2) )
+  {
+    return false;
+  }
+
+  if( port == NULL || pin == INVALID_PIN )
+  {
+    util_message_error(chp, "invalid port/pin");
+    return false;
+  }
+
+  io_manage_set_default_mode(port, pin);
+
+  return true;
+}
+
 
 /*! \brief dispatch a specific gpio command
  */
 bool fetch_gpio_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-  if (strncasecmp(cmd_list[FETCH_GPIO_ACTION], "get", strlen("get") ) == 0)
-  {
-    return(fetch_gpio_get(chp, cmd_list, data_list));
-  }
-  else if (strncasecmp(cmd_list[FETCH_GPIO_ACTION], "set", strlen("set") ) == 0)
-  {
-    return(fetch_gpio_set(chp, cmd_list, data_list));
-  }
-  else if (strncasecmp(cmd_list[FETCH_GPIO_ACTION], "clear", strlen("clear") ) == 0)
-  {
-    return(fetch_gpio_clear(chp, cmd_list, data_list));
-  }
-  else if (strncasecmp(cmd_list[FETCH_GPIO_ACTION], "query", strlen("query") ) == 0)
-  {
-    return(fetch_gpio_query(chp, cmd_list, data_list));
-  }
-  else if (strncasecmp(cmd_list[FETCH_GPIO_ACTION], "config", strlen("config") ) == 0)
-  {
-    if( (cmd_list[FETCH_GPIO_DIRECTION] != NULL) && (cmd_list[FETCH_GPIO_SENSE] != NULL))
-    {
-      return(fetch_gpio_config(chp, cmd_list, data_list));
-    }
-    else
-    {
-      return false;
-    }
-  }
-  else
-  {
-    util_message_error(chp, "GPIO command not available.");
-    return(false);
-  }
-  return true;
+  return fetch_dispatch(chp, fetch_gpio_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);
 }
 
 /*! @} */

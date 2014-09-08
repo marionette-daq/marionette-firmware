@@ -135,7 +135,7 @@ NORETURN static void hbled_thd(void * arg)
 	// Toggle pattern
 	hbled     = 0;
 	cycletime = cfg->cycle_ms;
-	while (TRUE)
+	while (true)
 	{
 		if(chThdShouldTerminate() )
 		{
@@ -167,15 +167,19 @@ NORETURN static void hbled_thd(void * arg)
 }
 
 
-void hbToggle()
+void hbOn()
+{
+  if(!hb_state)
+	{
+		hbStart(&led_cfg);
+	}
+}
+
+void hbOff()
 {
 	if(hb_state)
 	{
 		hbStop(&led_cfg);
-	}
-	else
-	{
-		hbStart(&led_cfg);
 	}
 }
 

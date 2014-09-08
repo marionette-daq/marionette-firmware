@@ -58,24 +58,26 @@ Util_status      M_Status = { .status=GEN_OK };
 
 /*! \brief Show memory usage
  */
-static void cmd_mem(BaseSequentialStream * chp, int argc, char * argv[])
+static bool cmd_mem(BaseSequentialStream * chp, int argc, char * argv[])
 {
 	size_t n, size;
 	(void)argv;
 	if (argc > 0)
 	{
 		util_message_error(chp, "extra arguments for command '+mem'");
-		return;
+		return false;
 	}
 	n = chHeapStatus(NULL, &size);
 	util_message_info(chp, "core free memory : %u bytes", chCoreStatus());
 	util_message_info(chp, "heap fragments   : %u", n);
 	util_message_info(chp, "heap free total  : %u bytes", size);
+
+  return true;
 }
 
 /*! \brief Show running threads
  */
-static void cmd_threads(BaseSequentialStream * chp, int argc, char * argv[])
+static bool cmd_threads(BaseSequentialStream * chp, int argc, char * argv[])
 {
 	(void)chp;
 	static const char * states[] = {THD_STATE_NAMES};
@@ -85,7 +87,7 @@ static void cmd_threads(BaseSequentialStream * chp, int argc, char * argv[])
 	if (argc > 0)
 	{
 		util_message_error(chp, "extra arguments for command '+threads'");
-		return;
+		return false;
 	}
 	util_message_info(chp, "addr\t\tstack\t\tprio\trefs\tstate\t\ttime\tname");
 	tp = chRegFirstThread();
@@ -98,6 +100,8 @@ static void cmd_threads(BaseSequentialStream * chp, int argc, char * argv[])
 		tp = chRegNextThread(tp);
 	}
 	while (tp != NULL);
+
+  return true;
 }
 
 /*! \brief MShell commands described in main
@@ -139,7 +143,7 @@ static void main_app(void)
 	usbStart(serusbcfg.usbp, &usbcfg);
 	usbConnectBus(serusbcfg.usbp);
 
-	while (TRUE)
+	while (true)
 	{
 		if (!mshelltp)
 		{

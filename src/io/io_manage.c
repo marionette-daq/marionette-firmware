@@ -93,22 +93,13 @@ const str_port_map_t fetch_port_map[] =
 };
 
 #if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
-static io_table_t * io_manage_tables[] = { &io_porta, &io_portb, &io_portc, &io_portd, &io_porte, &io_portf, &io_portg, &io_porth, &io_porti };
+static io_table_t * io_manage_tables[] = { &io_porta, &io_portb, &io_portc, &io_portd, &io_porte, 
+                                           &io_portf, &io_portg, &io_porth, &io_porti };
 #endif
 
-io_namestr_t   io_manage_namestr[] = {{IO_NONE, "None"}, {IO_GPIO, "GPIO"}, {IO_ADC, "ADC"}, {IO_DAC, "DAC"}, {IO_SPI, "SPI"}, {IO_I2C, "I2C"}, {IO_USB, "USB"}};
-
-static const char * io_manage_get_namestr(io_alloc_t alloc)
-{
-	for(uint8_t i = 0; i < NELEMS(io_manage_namestr); ++i)
-	{
-		if(io_manage_namestr[i].alloc == alloc)
-		{
-			return io_manage_namestr[i].name;
-		}
-	}
-	return "NA";
-}
+io_namestr_t   io_manage_alloc_name[] = {{IO_NONE, "None"},  {IO_GPIO, "GPIO"},  {IO_ADC, "ADC"}, 
+                                      {IO_DAC,  "DAC"},   {IO_SPI,  "SPI"},   {IO_I2C, "I2C"},
+                                      {IO_USB,  "USB"},   {IO_LED,  "LED"},   {IO_CAN, "CAN"}};
 
 /*! \brief return pointer to the io port allocation table
  */
@@ -122,27 +113,6 @@ static io_table_t * io_manage_get_table(ioportid_t port)
 		}
 	}
 	return NULL;
-}
-
-/*! \brief check availability of requested function against table
- */
-static bool io_manage_fn_avail(ioportid_t port, uint32_t pin, io_alloc_t request_alloc, io_table_t * table)
-{
-	io_alloc_t         curr_alloc;
-
-	if(table != NULL)
-	{
-		curr_alloc = table->pin[pin].current_alloc;
-		if(curr_alloc == request_alloc)
-		{
-			return true;
-		}
-		if((request_alloc & table->pin[pin].fn_available) != 0)
-		{
-			return true;
-		};
-	}
-	return false;
 }
 
 /*! \brief convert string to port pointer
@@ -206,9 +176,14 @@ bool io_manage_set_default_mode(ioportid_t port, uint32_t pin)
 {
 	io_table_t    *    table = io_manage_get_table(port);
 
-	table->pin[pin].current_mode  = table->pin[pin].default_mode;
-	table->pin[pin].current_alloc = table->pin[pin].default_alloc;
-	palSetPadMode(port, pin, table->pin[pin].default_mode);
+  if( table == NULL || pin > 15 )
+  {
+    return false;
+  }
+
+	table->pins[pin].current_mode  = table->pins[pin].default_mode;
+	table->pins[pin].current_alloc = table->pins[pin].default_alloc;
+	palSetPadMode(port, pin, table->pins[pin].default_mode);
 	return true;
 }
 
@@ -219,7 +194,13 @@ bool io_manage_set_mode(ioportid_t port, uint32_t pin, iomode_t new_mode, io_all
 	io_alloc_t         curr_alloc;
 	io_table_t    *    table = io_manage_get_table(port);
 
-	curr_alloc = table->pin[pin].current_alloc;
+  if( table == NULL || pin > 15 )
+  {
+    return false;
+  }
+
+	curr_alloc = table->pins[pin].current_alloc;
+
 	if(curr_alloc == request_alloc)
 	{
 		return true;
@@ -227,68 +208,92 @@ bool io_manage_set_mode(ioportid_t port, uint32_t pin, iomode_t new_mode, io_all
 
 	if(curr_alloc != IO_NONE)
 	{
-		util_message_error(getMShellStreamPtr(), "Function already allocated to: %s", io_manage_get_namestr(curr_alloc) );
 		return false;
 	}
 
-	if(io_manage_fn_avail(port, pin, request_alloc, table))
+	if((table->pins[pin].available_alloc & request_alloc) != 0)
 	{
 
-		table->pin[pin].current_mode  = new_mode;
-		table->pin[pin].current_alloc = request_alloc;
+		table->pins[pin].current_mode  = new_mode;
+		table->pins[pin].current_alloc = request_alloc;
 		palSetPadMode(port, pin, new_mode);
 		return true;
 	}
-	util_message_error(getMShellStreamPtr(), "Function not available. %s", io_manage_get_namestr(request_alloc) );
+
 	return false;
 }
 
 
 /*! \brief Reset port allocation table to defaults
  */
-void io_manage_table_to_defaults(void)
+void io_manage_set_all_to_defaults(void)
 {
 	io_table_t    *    table;
 	for(uint8_t i = 0; i < NELEMS(io_manage_tables); ++i)
 	{
 		table = io_manage_tables[i];
-		for(uint8_t j = 0; j < NELEMS(table->pin); ++j)
+		for(uint8_t j = 0; j < NELEMS(table->pins); ++j)
 		{
-			table->pin[j].current_mode    = table->pin[j].default_mode;
-			table->pin[j].current_alloc   = table->pin[j].default_alloc;
-			//palSetPadMode(table->port, table->pin[j].pin, table->pin[j].current_mode);
+			table->pins[j].current_mode    = table->pins[j].default_mode;
+			table->pins[j].current_alloc   = table->pins[j].default_alloc;
+			//palSetPadMode(table->port, table->pins[j].pin, table->pins[j].current_mode);
 		}
 	}
 }
 
-/*! \brief Query whether a function is available on that port
- */
-bool io_manage_query_fn_avail(ioportid_t port, uint32_t pin, io_alloc_t request_alloc)
-{
-	io_table_t    *    table = io_manage_get_table(port);
 
-	if(io_manage_fn_avail(port, pin, request_alloc, table))
+const char * io_manage_get_alloc_name(io_alloc_t alloc)
+{
+	for(uint8_t i = 0; i < NELEMS(io_manage_alloc_name); ++i)
 	{
-		return true;
+		if(io_manage_alloc_name[i].alloc == alloc)
+		{
+			return io_manage_alloc_name[i].name;
+		}
 	}
-	return false;
+	return "NA";
+}
+
+/*! \brief Query the current pin mode
+ */
+iomode_t io_manage_get_current_mode( ioportid_t port, uint32_t pin )
+{
+  io_table_t * table = io_manage_get_table(port);
+  
+  if( table == NULL || pin > 15 )
+  {
+    return 0;
+  }
+
+	return table->pins[pin].current_mode;
 }
 
 /*! \brief Query the current pin allocation
  */
-io_alloc_t io_manage_query_current_fn(ioportid_t port, uint32_t pin)
+io_alloc_t io_manage_get_current_alloc(ioportid_t port, uint32_t pin)
 {
   io_table_t * table = io_manage_get_table(port);
+  
+  if( table == NULL || pin > 15 )
+  {
+    return IO_NONE;
+  }
 
-	return table->pin[pin].current_alloc;
+	return table->pins[pin].current_alloc;
 }
 
-/*! \brief Query the current pin allocation name string
+/*! \brief Query the available pin allocation
  */
-const char * io_manage_query_pin_current_fn_name(ioportid_t port, uint32_t pin)
+uint32_t io_manage_get_available_alloc(ioportid_t port, uint32_t pin)
 {
   io_table_t * table = io_manage_get_table(port);
-  return io_manage_get_namestr(table->pin[pin].current_alloc);
+
+  if( table == NULL || pin > 15 )
+  {
+    return 0;
+  }
+
+	return table->pins[pin].available_alloc;
 }
 
 //! @}

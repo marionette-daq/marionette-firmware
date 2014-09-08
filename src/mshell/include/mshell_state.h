@@ -40,7 +40,7 @@ BaseSequentialStream * getMShellStreamPtr(void) ;
 void setMShellStreamPtr(BaseSequentialStream * ptr) ;
 void mshell_putprompt(void) ;
 void setMShellPrompt(char * s) ;
-bool_t mshell_stream_put(BaseSequentialStream * chp, uint8_t c) ;
+bool mshell_stream_put(BaseSequentialStream * chp, uint8_t c) ;
 void mshell_stream_putstr(BaseSequentialStream * chp, char * fmt, ...) ;
 void setMShellVisiblePrompt(bool b) ;
 void mshell_putnewline(void) ;

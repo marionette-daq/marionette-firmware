@@ -32,218 +32,162 @@
 
 #include "fetch_adc.h"
 
-#define        FETCH_DEFAULT_VREF_MV                 3300
-#define        FETCH_ADC_DATA_STACKSIZE              2048
-#define        FETCH_ADC_MAX_DATA                    64
-#define        FETCH_ADC1_MAX_CHANNELS               16   // maximum number of channels that can be scanned. 19 available.
+#ifndef FETCH_DEFAULT_VREF_MV
+#define FETCH_DEFAULT_VREF_MV         3300
+#endif
 
-/*! Total number of channels to be sampled by a single ADC operation.*/
-#define        FETCH_ADC1_DEMO_GRP_NUM_CHANNELS      2
-#define        FETCH_ADC1_DEFAULT_GRP_NUM_CHANNELS   1
-#define        FETCH_ADC1_PA_GRP_NUM_CHANNELS        16
+#ifndef FETCH_ADC_BUFFER_SIZE
+#define FETCH_ADC_BUFFER_SIZE         (1024 * 8)
+#endif
 
-/*! Depth of the conversion buffer.*/
-#define        FETCH_ADC1_DEMO_GRP_BUF_DEPTH         4
-#define        FETCH_ADC1_DEFAULT_GRP_BUF_DEPTH      10
-#define        FETCH_ADC1_PA_GRP_BUF_DEPTH           1
+#ifndef FETCH_ADC_MAX_CHANNELS
+#define FETCH_ADC_MAX_CHANNELS        16
+#endif
 
-typedef enum channel_io
-{
-	ADC_CH0 = 0,
-	ADC_CH1,
-	ADC_CH2,
-	ADC_CH3,
-	ADC_CH4,
-	ADC_CH5,
-	ADC_CH6,
-	ADC_CH7,
-	ADC_CH8,
-	ADC_CH9,
-	ADC_CH10,
-	ADC_CH11,
-	ADC_CH12,
-	ADC_CH13,
-	ADC_CH14,
-	ADC_CH15,
-	ADC_CH16,   // ADC1 only
-	ADC_CH17,   // ADC1 only
-	ADC_CH18    // ADC1 only
-} ADCChannel;
+#define FETCH_ADC_MAX_SAMPLES(ch_cnt) (FETCH_ADC_BUFFER_SIZE / (ch_cnt))
+
+#define ADC_ENABLE_CH(n) (1<<(n))
 
 /*! \brief pin and port definitions */
 #if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
-static ADC_input ADC1_IN0   = { GPIOA, GPIOA_PIN0 };
-static ADC_input ADC1_IN1   = { GPIOA, GPIOA_PIN1 };
-static ADC_input ADC1_IN2   = { GPIOA, GPIOA_PIN2 };
-static ADC_input ADC1_IN3   = { GPIOA, GPIOA_PIN3 };
-static ADC_input ADC1_IN4   = { GPIOA, GPIOA_PIN4 };
-static ADC_input ADC1_IN5   = { GPIOA, GPIOA_PIN5 };
-static ADC_input ADC1_IN6   = { GPIOA, GPIOA_PIN6 };
-static ADC_input ADC1_IN7   = { GPIOA, GPIOA_PIN7 };
-static ADC_input ADC1_IN8   = { GPIOB, GPIOB_PIN0 };
-//static ADC_input ADC1_IN9   = { GPIOB, GPIOB_PIN9 };
-static ADC_input ADC1_IN10  = { GPIOC, GPIOC_PIN0 };
-//static ADC_input ADC1_IN11  = { GPIOC, GPIOC_PIN1 },    // used for OTG
-//static ADC_input ADC1_IN12  = { GPIOC, GPIOC_PIN2 },    // used for OTG
-static ADC_input ADC1_IN13  = { GPIOC, GPIOC_PIN3 };
-static ADC_input ADC1_IN14  = { GPIOC, GPIOC_PIN4 };
-static ADC_input ADC1_IN15  = { GPIOC, GPIOC_PIN5 };
+static port_pin_t adc1_inputs[] = { { GPIOA, PIN0 },    // ADC_IN0
+                                  { GPIOA, PIN1 },    // ADC_IN1
+                                  { GPIOA, PIN2 },    // ADC_IN2
+                                  { GPIOA, PIN3 },    // ADC_IN3
+                                  { GPIOA, PIN4 },    // ADC_IN4
+                                  { GPIOA, PIN5 },    // ADC_IN5
+                                  { GPIOA, PIN6 },    // ADC_IN6
+                                  { GPIOA, PIN7 },    // ADC_IN7
+                                  { GPIOB, PIN0 },    // ADC_IN8
+                                  { GPIOB, PIN9 },    // ADC_IN9
+                                  { GPIOC, PIN0 },    // ADC_IN10
+                                  { GPIOC, PIN1 },    // ADC_IN11, jumper to OTG_PWR_OUT
+                                  { GPIOC, PIN2 },    // ADC_IN12, jumper to FLG
+                                  { GPIOC, PIN3 },    // ADC_IN13
+                                  { GPIOC, PIN4 },    // ADC_IN14
+                                  { GPIOC, PIN5 } };  // ADC_IN15
 
-static ADC_input * ADC1_inputs[] = {&ADC1_IN0, &ADC1_IN1, &ADC1_IN2, &ADC1_IN3, &ADC1_IN4, &ADC1_IN5, &ADC1_IN6, &ADC1_IN7, &ADC1_IN8, NULL, &ADC1_IN10, NULL, NULL, &ADC1_IN13, &ADC1_IN14, &ADC1_IN15} ;
+static port_pin_t adc2_inputs[] = { { GPIOA, PIN0 },    // ADC_IN0
+                                  { GPIOA, PIN1 },    // ADC_IN1
+                                  { GPIOA, PIN2 },    // ADC_IN2
+                                  { GPIOA, PIN3 },    // ADC_IN3
+                                  { GPIOA, PIN4 },    // ADC_IN4
+                                  { GPIOA, PIN5 },    // ADC_IN5
+                                  { GPIOA, PIN6 },    // ADC_IN6
+                                  { GPIOA, PIN7 },    // ADC_IN7
+                                  { GPIOB, PIN0 },    // ADC_IN8
+                                  { GPIOB, PIN9 },    // ADC_IN9
+                                  { GPIOC, PIN0 },    // ADC_IN10
+                                  { GPIOC, PIN1 },    // ADC_IN11, jumper to OTG_PWR_OUT
+                                  { GPIOC, PIN2 },    // ADC_IN12, jumper to FLG
+                                  { GPIOC, PIN3 },    // ADC_IN13
+                                  { GPIOC, PIN4 },    // ADC_IN14
+                                  { GPIOC, PIN5 } };  // ADC_IN15
+
+static port_pin_t adc3_inputs[] = { { GPIOA, PIN0 },    // ADC_IN0
+                                  { GPIOA, PIN1 },    // ADC_IN1
+                                  { GPIOA, PIN2 },    // ADC_IN2
+                                  { GPIOA, PIN3 },    // ADC_IN3
+                                  { GPIOF, PIN6 },    // ADC_IN4
+                                  { GPIOF, PIN7 },    // ADC_IN5
+                                  { GPIOF, PIN8 },    // ADC_IN6
+                                  { GPIOF, PIN9 },    // ADC_IN7
+                                  { GPIOF, PIN10 },   // ADC_IN8
+                                  { GPIOF, PIN3 },    // ADC_IN9
+                                  { GPIOC, PIN0 },    // ADC_IN10
+                                  { GPIOC, PIN1 },    // ADC_IN11, jumper to OTG_PWR_OUT
+                                  { GPIOC, PIN2 },    // ADC_IN12, jumper to FLG
+                                  { GPIOC, PIN3 },    // ADC_IN13
+                                  { GPIOF, PIN4 },    // ADC_IN14
+                                  { GPIOF, PIN5 } };  // ADC_IN15
+
+
 #elif defined (BOARD_ST_STM32F4_DISCOVERY)
 #error "ST Discovery Board not defined for ADC"
 #else
 #error "Board not defined for ADC"
 #endif
 
-static void   fetch_adc1_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n);
+enum {
+  ADC_CONFIG_DEV = 0,
+  ADC_CONFIG_RES,
+  ADC_CONFIG_CLK,
+  ADC_CONFIG_VREF,
+  ADC_CONFIG_COUNT,
+  ADC_CONFIG_CHANNELS
+};
 
-static adcsample_t adc1_demo_sample_buf[FETCH_ADC1_DEMO_GRP_NUM_CHANNELS * FETCH_ADC1_DEMO_GRP_BUF_DEPTH];
-static adcsample_t adc1_default_sample_buf[FETCH_ADC1_DEFAULT_GRP_NUM_CHANNELS * FETCH_ADC1_DEFAULT_GRP_BUF_DEPTH];
-static adcsample_t adc1_pa_sample_buf[FETCH_ADC1_PA_GRP_NUM_CHANNELS * FETCH_ADC1_PA_GRP_BUF_DEPTH];
+static const char * adc_dev_tok[] = {"ADC1", "ADC2", "ADC3"};
+static const char * adc_res_tok[] = {"RES12","RES10","RES8","RES6"};
+static const char * adc_sample_tok[] = {"CLK3","CLK15","CLK28","CLK56","CLK84","CLK112","CLK144","CLK480"};
+static const char * adc_ch_tok[] = {"CH0","CH1","CH2","CH3","CH4","CH5","CH6","CH7","CH8","CH9","CH10","CH11","CH12","CH13","CH14","CH15","SENSOR","VREFINT","VBAT"};
 
-static ADCChannel adc1_default_channel = ADC_CH13;
+static void fetch_adc_end_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n);
+static bool fetch_adc_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_adc_samples_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_adc_start_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_adc_stop_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_adc_wait_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_adc_status_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_adc_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_adc_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 
-static EventSource fetch_adc1_data_ready;
+static const char adc_config_help_string[] = "Configure ADC driver\n" \
+                      "Usage: config(<dev>,<resolution>,<sample clocks>,<vref>,<count>,<channels>,...)\n" \
+                      "\tdev = ADC1 | ADC2 | ADC3\n" \
+                      "\tresolution = RES12 | RES10 | RES8 | RES6\n" \
+                      "\tsample clocks = CLK3 | CLK15 | CLK28 | CLK56 | CLK84 | CLK112 | CLK144 | CLK480\n" \
+                      "\tvref = <millivolts>\n" \
+                      "\tcount = <sample count>\n" \
+                      "\tchannels = CH0 | CH1 | CH2 | CH3 | CH4 | CH5 | CH6 | CH7\n" \
+                      "\t           CH8 | CH9 | CH10 | CH11 | CH12 | CH13 | CH14 | CH 15\n" \
+                      "\t           SENSOR, VREFINT, VBAT\n";
 
-/*! \brief ADC demo conversion group.
- * Mode:        Linear buffer, 2 channels, SW triggered.
- * Channels:    IN13   (56 cycles sample time)
- *              Sensor (144 cycles sample time)
+static fetch_command_t fetch_adc_commands[] = {
+  /*  function                command string      help string */
+    { fetch_adc_help_cmd,     "help",             "Display ADC help" },
+    { fetch_adc_samples_cmd,  "samples",          "Return ADC samples" },
+    { fetch_adc_start_cmd,    "start",            "Start ADC sampling" },
+    { fetch_adc_stop_cmd,     "stop",             "Stop ADC sampling" },
+    { fetch_adc_wait_cmd,     "wait",             "Wait for ADC to finish\nUsage: wait(timeout)\n\ttimeout = <milliseconds>" },
+    { fetch_adc_status_cmd,   "status",           "Current ADC status" },
+    { fetch_adc_config_cmd,   "config",           adc_config_help_string },
+    { fetch_adc_reset_cmd,    "reset",            "Reset ADC driver" },
+    { NULL, NULL, NULL }
+  };
+
+static adcsample_t adc_sample_buffer[FETCH_ADC_BUFFER_SIZE];
+
+static uint32_t adc_sample_depth = 1;
+
+static uint32_t adc_enabled_channels = 0; // channel bitmask
+
+static uint32_t adc_vref_mv = FETCH_DEFAULT_VREF_MV;
+
+static ADCDriver * adc_drv = NULL;
+
+static BinarySemaphore adc_data_ready_sem;
+
+static bool adc_init_flag = true;
+
+static systime_t adc_start_timestamp = 0;
+static volatile systime_t adc_end_timestamp = 0;
+
+/*! \brief ADC conversion group configuration
  */
-static ADCConversionGroup adc1_demo_cfg =
-{
-	.circular        = FALSE,
-	.num_channels    = FETCH_ADC1_DEMO_GRP_NUM_CHANNELS,
-	.end_cb          = fetch_adc1_cb,
+static ADCConversionGroup adc_conv_grp = {
+	.circular        = false,
+	.num_channels    = 0,
+	.end_cb          = fetch_adc_end_cb,
 	.error_cb        = NULL,
 	/* HW dependent part.*/
 	.cr1             = 0,
 	.cr2             = ADC_CR2_SWSTART,
-	.smpr1           = ADC_SMPR1_SMP_AN13(ADC_SAMPLE_56) | ADC_SMPR1_SMP_SENSOR(ADC_SAMPLE_144),
+	.smpr1           = 0,
 	.smpr2           = 0,
-	.sqr1            = ADC_SQR1_NUM_CH(FETCH_ADC1_DEMO_GRP_NUM_CHANNELS),
+	.sqr1            = 0, // ADC_SQR1_NUM_CH(n) | ADC_SQR1_N( ADC_CHANNEL_INnn ) ...
 	.sqr2            = 0,
-	.sqr3            = ADC_SQR3_SQ2_N(ADC_CHANNEL_IN13) | ADC_SQR3_SQ1_N(ADC_CHANNEL_SENSOR)
-};
-
-/*! \brief ADC default conversion group.
- * Mode:        Linear buffer,  1 channel, SW triggered.
- * Channels:    IN13   (56 cycles sample time)
- */
-static ADCConversionGroup adc1_default_cfg =
-{
-	.circular        = FALSE,
-	.num_channels    = FETCH_ADC1_DEFAULT_GRP_NUM_CHANNELS,
-	.end_cb          = fetch_adc1_cb,
-	.error_cb        = NULL,
-	/* HW registers */
-	.cr1             = 0,
-	.cr2             = ADC_CR2_SWSTART,
-	.smpr1           = ADC_SMPR1_SMP_AN13(ADC_SAMPLE_56),
-	.smpr2           = 0,
-	.sqr1            = ADC_SQR1_NUM_CH(FETCH_ADC1_DEFAULT_GRP_NUM_CHANNELS),
-	.sqr2            = 0,
-	.sqr3            = ADC_SQR3_SQ1_N(ADC_CHANNEL_IN13)
-};
-
-/*! \brief ADC PA conversion group.
- *  Mode:        Linear buffer, 16 channels, SW triggered.
- *  Channels:    All available inputs for Waveshare (56 cycles sample time)
- */
-static ADCConversionGroup adc1_pa_cfg =
-{
-	.circular        = FALSE,
-	.num_channels    = FETCH_ADC1_PA_GRP_NUM_CHANNELS,
-	.end_cb          = fetch_adc1_cb,
-	.error_cb        = NULL,
-	/* HW registers */
-	.cr1             = 0,
-	.cr2             = ADC_CR2_SWSTART,
-	.smpr1           = ADC_SMPR1_SMP_AN10(ADC_SAMPLE_56) \
-	| ADC_SMPR1_SMP_AN13(ADC_SAMPLE_56) \
-	| ADC_SMPR1_SMP_AN14(ADC_SAMPLE_56) \
-	| ADC_SMPR1_SMP_AN15(ADC_SAMPLE_56) \
-	| ADC_SMPR1_SMP_SENSOR(ADC_SAMPLE_56) \
-	| ADC_SMPR1_SMP_VREF(ADC_SAMPLE_56) \
-	| ADC_SMPR1_SMP_VBAT(ADC_SAMPLE_56)
-	,
-	.smpr2           = ADC_SMPR2_SMP_AN0(ADC_SAMPLE_56) \
-	| ADC_SMPR2_SMP_AN1(ADC_SAMPLE_56) \
-	| ADC_SMPR2_SMP_AN2(ADC_SAMPLE_56) \
-	| ADC_SMPR2_SMP_AN4(ADC_SAMPLE_56) \
-	| ADC_SMPR2_SMP_AN5(ADC_SAMPLE_56) \
-	| ADC_SMPR2_SMP_AN6(ADC_SAMPLE_56) \
-	| ADC_SMPR2_SMP_AN7(ADC_SAMPLE_56) \
-	| ADC_SMPR2_SMP_AN8(ADC_SAMPLE_56) \
-	| ADC_SMPR2_SMP_AN9(ADC_SAMPLE_56) \
-	,
-	.sqr1            = ADC_SQR1_NUM_CH(FETCH_ADC1_PA_GRP_NUM_CHANNELS) \
-	| ADC_SQR1_SQ13_N(ADC_CHANNEL_IN15)   \
-	| ADC_SQR1_SQ14_N(ADC_CHANNEL_SENSOR)   \
-	| ADC_SQR1_SQ15_N(ADC_CHANNEL_VREFINT)   \
-	| ADC_SQR1_SQ16_N(ADC_CHANNEL_VBAT)   \
-	,
-	.sqr2            = ADC_SQR2_SQ7_N(ADC_CHANNEL_IN7)   \
-	| ADC_SQR2_SQ8_N(ADC_CHANNEL_IN8)   \
-	| ADC_SQR2_SQ9_N(ADC_CHANNEL_IN9)   \
-	| ADC_SQR2_SQ10_N(ADC_CHANNEL_IN10)   \
-	| ADC_SQR2_SQ11_N(ADC_CHANNEL_IN13)   \
-	| ADC_SQR2_SQ12_N(ADC_CHANNEL_IN14)   \
-	,
-	.sqr3            = ADC_SQR3_SQ1_N(ADC_CHANNEL_IN0)   \
-	| ADC_SQR3_SQ2_N(ADC_CHANNEL_IN1)   \
-	| ADC_SQR3_SQ3_N(ADC_CHANNEL_IN2)   \
-	| ADC_SQR3_SQ4_N(ADC_CHANNEL_IN4)   \
-	| ADC_SQR3_SQ5_N(ADC_CHANNEL_IN5)   \
-	| ADC_SQR3_SQ6_N(ADC_CHANNEL_IN6)
-};
-
-static const  FETCH_adc_profile adc1_demo_profile =
-{
-	.name                 = FETCH_ADC1_DEMO,
-	.oneshot              = true,
-	.adcgrpcfg            = &adc1_demo_cfg,
-	.adc_grp_num_channels = FETCH_ADC1_DEMO_GRP_NUM_CHANNELS,
-	.adc_grp_buf_depth    = FETCH_ADC1_DEMO_GRP_BUF_DEPTH,
-	.adc_sample_buf       = adc1_demo_sample_buf
-};
-
-static const  FETCH_adc_profile adc1_default_profile =
-{
-	.name                 = FETCH_ADC1_DEFAULT,
-	.oneshot              = true,
-	.adcgrpcfg            = &adc1_default_cfg,
-	.adc_grp_num_channels = FETCH_ADC1_DEFAULT_GRP_NUM_CHANNELS,
-	.adc_grp_buf_depth    = FETCH_ADC1_DEFAULT_GRP_BUF_DEPTH,
-	.adc_sample_buf       = adc1_default_sample_buf
-};
-
-static const  FETCH_adc_profile adc1_pa_profile =
-{
-	.name                 = FETCH_ADC1_PA,
-	.oneshot              = true,
-	.adcgrpcfg            = &adc1_pa_cfg,
-	.adc_grp_num_channels = FETCH_ADC1_PA_GRP_NUM_CHANNELS,
-	.adc_grp_buf_depth    = FETCH_ADC1_PA_GRP_BUF_DEPTH,
-	.adc_sample_buf       = adc1_pa_sample_buf
-};
-
-/*! \brief track the state of the conversion
- *
- * Idea is that starting from a default profile, user may change
- * configuration of conversion.
- * Example instead of oneshot user may select continuous conversion
- * There may be more....
- * Keeping the profiles const allows reset
- */
-static FETCH_adc_state fetch_adc1_state =
-{
-	.vref_mv              = 3300,
-	.init                 = false,
-	.oneshot              = true,
-	.profile              = &adc1_default_profile,
-	.chp                  = NULL
+	.sqr3            = 0
 };
 
 static uint16_t fetch_adc_calc_temp(uint16_t t_raw, uint32_t uv_per_bit )
@@ -254,118 +198,10 @@ static uint16_t fetch_adc_calc_temp(uint16_t t_raw, uint32_t uv_per_bit )
 	return((uint16_t )(((t_voltage - ADC_V_25) / ADC_VSLOPE) + 25));
 }
 
-/*! \brief Average result by the number of ADC conversions in sample buffer
- */
-static void sum_reduce_samples(uint32_t * results)
-
-{
-	// sum
-	for(uint16_t j = 0; j < fetch_adc1_state.profile->adc_grp_num_channels; ++j)
-	{
-		for(uint16_t i = j; i < fetch_adc1_state.profile->adc_grp_buf_depth * fetch_adc1_state.profile->adc_grp_num_channels ;
-		                i += fetch_adc1_state.profile->adc_grp_num_channels )
-		{
-			results[j] += fetch_adc1_state.profile->adc_sample_buf[i] ;
-		}
-	}
-
-	// reduce
-	for(uint16_t i = 0; i < fetch_adc1_state.profile->adc_grp_num_channels; ++i)
-	{
-		results[i] /=  fetch_adc1_state.profile->adc_grp_buf_depth;
-	}
-}
-
-/*! \brief Process new data based on current profile
- */
-static void adc1_new_data(eventid_t id UNUSED)
-{
-	BaseSequentialStream * chp        = fetch_adc1_state.chp;
-
-	if((fetch_adc1_state.profile->adc_grp_buf_depth > 0) && (fetch_adc1_state.chp != NULL))
-	{
-		systime_t               timenow = chTimeNow() ;
-		uint32_t                uv_per_bit = ((fetch_adc1_state.vref_mv * 1000) / 4096); // 12 bit conversion
-		uint32_t                avg_vals[FETCH_ADC1_MAX_CHANNELS] = {0};
-		uint32_t                degC, adcUV;
-		if(getMShellVisiblePrompt())
-		{
-			mshell_putnewline();
-		}
-		switch(fetch_adc1_state.profile->name)
-		{
-			case FETCH_ADC1_DEFAULT: // 1 channel in this profile
-				sum_reduce_samples(avg_vals);
-				util_message_uint32(chp, "time", &timenow, 1);
-				avg_vals[0] *= uv_per_bit; // convert to micro-volt
-				util_message_uint32(chp, "adc", avg_vals, 1);
-				break;
-			case FETCH_ADC1_DEMO:  // 2 channels in this profile
-				sum_reduce_samples(avg_vals);
-				util_message_uint32(chp, "time", &timenow, 1);
-				util_message_uint32(chp, "adc-degC-raw", &avg_vals[0], 1);
-				degC = fetch_adc_calc_temp(avg_vals[0], uv_per_bit);
-				util_message_uint32(chp, "adc-degC", &degC, 1);
-				util_message_uint32(chp, "adc-raw", &avg_vals[1], 1);
-				adcUV = avg_vals[1] * uv_per_bit;
-				util_message_uint32(chp, "adc", &adcUV, 1);
-				break;
-			case FETCH_ADC1_PA:  // 16 channels in this profile
-				util_message_uint32(chp, "time", &timenow, 1);
-				sum_reduce_samples(avg_vals);
-
-				// convert values
-				for(int i = 0; i < FETCH_ADC1_PA_GRP_NUM_CHANNELS; ++i)
-				{
-					if(i == 13)
-					{
-						avg_vals[i] = fetch_adc_calc_temp(avg_vals[i], uv_per_bit); // T (C)
-					}
-					else
-					{
-						avg_vals[i] = avg_vals[i] * uv_per_bit;
-					}
-				}
-				util_message_uint32(chp, "adc", avg_vals, FETCH_ADC1_PA_GRP_NUM_CHANNELS);
-				break;
-			case FETCH_ADC1_PB:
-				break;
-			default:
-				break;
-		}
-	}
-	mshell_putprompt();
-}
-
-/*! \brief Thread for new data event
- *
- * chprintf can not be called from within an interrupt ('I')
- *   context in ChibiOS. The interrupt callback generates an
- *   event which this thread receives.
- */
-static WORKING_AREA(wa_fetch_adc_data, FETCH_ADC_DATA_STACKSIZE);
-NORETURN static msg_t fetch_adc_data(void * p UNUSED)
-{
-	struct       EventListener el0;
-
-	static const evhandler_t   evhndl[] =
-	{
-		adc1_new_data
-	};
-
-	chRegSetThreadName("fetch_adc_data");
-	chEvtRegister(&fetch_adc1_data_ready, &el0, 0);
-
-	while (TRUE)
-	{
-		chEvtDispatch(evhndl, chEvtWaitAny(ALL_EVENTS));
-	}
-}
-
 /*!
  * ADC end conversion callback
  */
-static void fetch_adc1_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n)
+static void fetch_adc_end_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n)
 {
 
 	(void) buffer;
@@ -374,301 +210,591 @@ static void fetch_adc1_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n)
 	   intermediate callback when the buffer is half full.*/
 	if (adcp->state == ADC_COMPLETE)
 	{
-		// check analog watchdog?
-		chSysLockFromIsr();
-		chEvtBroadcastI(&fetch_adc1_data_ready);
-		chSysUnlockFromIsr();
+    adc_end_timestamp = chTimeNow();
 
 		chSysLockFromIsr();
-		if(!fetch_adc1_state.oneshot)
-		{
-			adcStartConversionI(&ADCD1, fetch_adc1_state.profile->adcgrpcfg, fetch_adc1_state.profile->adc_sample_buf,
-			                    fetch_adc1_state.profile->adc_grp_buf_depth);
-		}
+    chBSemSignalI(&adc_data_ready_sem);
 		chSysUnlockFromIsr();
 	}
 }
 
-static void fetch_adc_io_set_defaults(void)
-{
-	for(uint8_t i = 0; i < NELEMS(ADC1_inputs); ++i)
-	{
-		if(ADC1_inputs[i] != NULL)
-		{
-			io_manage_set_default_mode(ADC1_inputs[i]->port, ADC1_inputs[i]->pad);
-		}
-	}
-}
-
-/*! Set a channel to Analog Mode
+/*! \brief display adc help
  */
-static bool fetch_adc1_io_to_analog(ADCChannel channel)
+static bool fetch_adc_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-	if(ADC1_inputs[channel] != NULL)
-	{
-		return(io_manage_set_mode(ADC1_inputs[channel]->port, ADC1_inputs[channel]->pad, PAL_MODE_INPUT_ANALOG, IO_ADC));
-	}
-	return false;
-}
-
-/*! \brief Initialize the ADC
- *
- * Use default profile
- * Use oneshot by default
- *
- */
-void fetch_adc_init(BaseSequentialStream * chp)
-{
-	// ADC1
-	chEvtInit(&fetch_adc1_data_ready);
-
-	// State initialization
-	fetch_adc1_state.vref_mv                = FETCH_DEFAULT_VREF_MV;
-	fetch_adc1_state.init                   = false;
-	fetch_adc1_state.printheader            = false;
-	fetch_adc1_state.oneshot                = true;
-	fetch_adc1_state.profile                = &adc1_default_profile;
-	fetch_adc1_state.chp                    = chp;
-
-	// Default input channel to Analog Mode
-	fetch_adc1_io_to_analog(adc1_default_channel);
-
-	adcStart(&ADCD1, NULL);
-
-	// enable the thermal sensor.
-	adcSTM32EnableTSVREFE();
-
-#if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
-	//>! \warning on stm32f42x and stm32f43x EITHER the Temperature or Battery can be monitored-but not both
-	adcSTM32EnableVBATE();
-#endif
-
-	// start a thread waiting for data event.....
-	chThdCreateStatic(wa_fetch_adc_data, sizeof(wa_fetch_adc_data), NORMALPRIO, fetch_adc_data,
-	                  NULL);
-
-	fetch_adc1_state.init = true;
-}
-
-
-/*! \brief Reset adc1
- */
-static void fetch_adc1_reset(void)
-{
-	adcStop(&ADCD1);
-
-	fetch_adc1_state.vref_mv                = FETCH_DEFAULT_VREF_MV;
-	fetch_adc1_state.printheader            = false;
-	fetch_adc1_state.oneshot                = true;
-	fetch_adc1_state.profile                = &adc1_default_profile;
-
-	// Reset inputs
-	fetch_adc_io_set_defaults();
-	// Default input channel to Analog Mode
-	fetch_adc1_io_to_analog(adc1_default_channel);
-
-	adcStart(&ADCD1, NULL);
-
-	// enable the thermal sensor.
-	adcSTM32EnableTSVREFE();
-
-#if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
-	//>! \warning on stm32f42x and stm32f43x EITHER the Temperature or Battery can be monitored-but not both
-	adcSTM32EnableVBATE();
-#endif
-
-}
-
-/*! \brief Change from one profile to another.
- *
- * Reset I/Os to default mode before changing for new profile
- *
- */
-static bool fetch_adc_change_profile(FETCH_ADC_profile_name p)
-{
-	bool          ret    =     false;
-	fetch_adc1_reset();
-	switch(p)
-	{
-		case FETCH_ADC1_DEFAULT:
-			fetch_adc1_state.profile = &adc1_default_profile;
-			fetch_adc_io_set_defaults();
-			ret = fetch_adc1_io_to_analog(adc1_default_channel);
-			break;
-		case FETCH_ADC1_PA:
-			fetch_adc1_state.profile = &adc1_pa_profile;
-			fetch_adc_io_set_defaults();
-			if(!fetch_adc1_io_to_analog(ADC_CH0) )
-			{
-				return false;
-			}
-			if(!fetch_adc1_io_to_analog(ADC_CH1) )
-			{
-				return false;
-			}
-			if(!fetch_adc1_io_to_analog(ADC_CH2) )
-			{
-				return false;
-			}
-			if(!fetch_adc1_io_to_analog(ADC_CH3) )
-			{
-				return false;
-			}
-			if(!fetch_adc1_io_to_analog(ADC_CH4) )
-			{
-				return false;
-			}
-			if(!fetch_adc1_io_to_analog(ADC_CH5) )
-			{
-				return false;
-			}
-			if(!fetch_adc1_io_to_analog(ADC_CH6) )
-			{
-				return false;
-			}
-			if(!fetch_adc1_io_to_analog(ADC_CH7) )
-			{
-				return false;
-			}
-			if(!fetch_adc1_io_to_analog(ADC_CH8) )
-			{
-				return false;
-			}
-			//if(!fetch_adc1_io_to_analog(ADC_CH9) )
-			//{
-				//return false;
-			//}
-			if(!fetch_adc1_io_to_analog(ADC_CH10))
-			{
-				return false;
-			}
-			if(!fetch_adc1_io_to_analog(ADC_CH13))
-			{
-				return false;
-			}
-			if(!fetch_adc1_io_to_analog(ADC_CH14))
-			{
-				return false;
-			}
-			if(!fetch_adc1_io_to_analog(ADC_CH15))
-			{
-				return false;
-			}
-			ret = true;
-			break;
-		default:
-			ret = false;
-			break;
-	}
-	return ret;
-}
-
-/*! \brief change the profile for adc1
- */
-bool fetch_adc1_profile(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-  if (strncasecmp(cmd_list[ADC_PROFILE], "default", strlen("default") ) == 0)
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 0) )
   {
-    return(fetch_adc_change_profile(FETCH_ADC1_DEFAULT));
-  }
-  else if (strncasecmp(cmd_list[ADC_PROFILE], "demo", strlen("demo") ) == 0)
-  {
-    return(fetch_adc_change_profile(FETCH_ADC1_DEMO));
-  }
-  else if (strncasecmp(cmd_list[ADC_PROFILE], "pa", strlen("pa") ) == 0)
-  {
-    return(fetch_adc_change_profile(FETCH_ADC1_PA));
-  }
-  else
-  {
-    util_message_error(chp, "Profile not available: %s.", cmd_list[ADC_PROFILE]);
     return false;
   }
-	return false;
+
+  util_message_info(chp, "Fetch ADC Help:");
+  fetch_display_help(chp, fetch_adc_commands);
+	return true;
 }
+
+
+/*! \brief return sample data
+ */
+static bool fetch_adc_samples_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 0) )
+  {
+    return false;
+  }
+
+  if( adc_drv == NULL )
+  {
+    util_message_error(chp, "ADC not configured");
+    return false;
+  }
+
+  if( adc_drv->state != ADC_READY )
+  {
+    util_message_error(chp, "ADC not ready");
+    return false;
+  }
+
+  util_message_uint32(chp, "start_time", (uint32_t*)&adc_start_timestamp, 1);
+  util_message_uint32(chp, "end_time", (uint32_t*)&adc_end_timestamp, 1);
+  util_message_uint32(chp, "count", &adc_sample_depth,1);
+  util_message_uint16(chp, "samples", (uint16_t*)&adc_sample_buffer, adc_sample_depth * adc_conv_grp.num_channels);
+
+  return true;
+}
+
 
 /*! \brief Start a conversion
  */
-static bool fetch_adc1_start(void)
+static bool fetch_adc_start_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-	adcStartConversion(&ADCD1, fetch_adc1_state.profile->adcgrpcfg,
-	                   fetch_adc1_state.profile->adc_sample_buf, fetch_adc1_state.profile->adc_grp_buf_depth);
-	fetch_adc1_state.printheader = true;
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 0) )
+  {
+    return false;
+  }
+
+  if( adc_drv == NULL )
+  {
+    util_message_error(chp, "ADC not configured");
+    return false;
+  }
+
+  if( adc_drv->state != ADC_READY )
+  {
+    util_message_error(chp, "ADC not ready");
+    return false;
+  }
+
+  if( chBSemWaitTimeout(&adc_data_ready_sem, TIME_IMMEDIATE) == RDY_TIMEOUT )
+  {
+    util_message_error(chp, "ADC not ready");
+    return false;
+  }
+
+	adcStartConversion( adc_drv, &adc_conv_grp, adc_sample_buffer, adc_sample_depth);
+  adc_start_timestamp = chTimeNow();
+
 	return true;
 }
 
 /*! \brief Stop the current conversion
  */
-static bool fetch_adc1_stop(void)
+static bool fetch_adc_stop_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-	adcStopConversion(&ADCD1) ;
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 0) )
+  {
+    return false;
+  }
+
+  if( adc_drv == NULL )
+  {
+    util_message_error(chp, "ADC not configured");
+    return false;
+  }
+
+	adcStopConversion(adc_drv);
+  
+  adc_end_timestamp = chTimeNow();
+
+  chBSemReset(&adc_data_ready_sem, 0);
+
 	return true;
 }
 
+/*! \brief wait for adc to finish with timeout
+ */
+static bool fetch_adc_wait_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  int32_t timeout;
+  char * endptr;
+
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 1) )
+  {
+    return false;
+  }
+
+  if( adc_drv == NULL )
+  {
+    util_message_error(chp, "ADC not configured");
+    return false;
+  }
+
+  timeout = strtol(data_list[0], &endptr, 0);
+
+  if( timeout <= 0 || *endptr != '\0' )
+  {
+    util_message_error(chp, "invalid timeout");
+    return false;
+  }
+
+  if( chBSemWaitTimeout(&adc_data_ready_sem, MS2ST(timeout)) == RDY_OK )
+  {
+    chBSemReset(&adc_data_ready_sem, 0);
+  }
+
+  util_message_bool(chp, "ready", (bool)(adc_drv->state == ADC_READY) );
+  return true;
+}
+
+/*! \brief check if adc is done
+ */
+static bool fetch_adc_status_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 0) )
+  {
+    return false;
+  }
+
+  if( adc_drv == NULL )
+  {
+    util_message_error(chp, "ADC not configured");
+    return false;
+  }
+
+  util_message_bool(chp, "ready", (bool)(adc_drv->state == ADC_READY) );
+  return true;
+}
+
+
 /*! \brief Process an ADC configure command
  */
-static bool fetch_adc1_configure(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+static bool fetch_adc_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-  if (strncasecmp(cmd_list[ADC_CONFIGURE], "oneshot", strlen("oneshot") ) == 0)
+  uint32_t adc_sample;
+  char * endptr;
+  int32_t sample_count;
+
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 5 + FETCH_ADC_MAX_CHANNELS) )
   {
-    fetch_adc1_state.oneshot = true;
-    return true;
+    return false;
   }
-  else if (strncasecmp(cmd_list[ADC_CONFIGURE], "continuous", strlen("continuous") ) == 0)
+
+  if( adc_drv != NULL )
   {
-    fetch_adc1_state.oneshot = false;
-    return true;
+    util_message_error(chp, "ADC already configured");
+    util_message_info(chp, "use adc.reset");
+    return false;
   }
-  else if (strncasecmp(cmd_list[ADC_CONFIGURE], "profile", strlen("profile") ) == 0)
+
+  // reset conversion group settings
+  adc_conv_grp.circular = false;
+  adc_conv_grp.num_channels = 0;
+  adc_conv_grp.cr1 = 0;
+  adc_conv_grp.cr2 = ADC_CR2_SWSTART;
+  adc_conv_grp.smpr1 = 0;
+  adc_conv_grp.smpr2 = 0;
+  adc_conv_grp.sqr1 = 0;
+  adc_conv_grp.sqr2 = 0;
+  adc_conv_grp.sqr3 = 0;
+  
+  switch( token_match( data_list[ADC_CONFIG_DEV], FETCH_MAX_DATA_STRLEN,
+                       adc_dev_tok, NELEMS(adc_dev_tok)) )
   {
-    return(fetch_adc1_profile(chp, cmd_list, data_list));
+#if STM32_ADC_USE_ADC1
+    case 0:
+      adc_drv = &ADCD1;
+      break;
+#endif
+#if STM32_ADC_USE_ADC2
+    case 1:
+      adc_drv = &ADCD2;
+      break;
+#endif
+#if STM32_ADC_USE_ADC3
+    case 2:
+      adc_drv = &ADCD3;
+      break;
+#endif
+    default:
+      util_message_error(chp, "invalid adc device");
+      return false;
   }
-  else if (strncasecmp(cmd_list[ADC_CONFIGURE], "reset", strlen("reset") ) == 0)
+
+  switch( token_match( data_list[ADC_CONFIG_RES], FETCH_MAX_DATA_STRLEN,
+                       adc_res_tok, NELEMS(adc_res_tok)) )
   {
-    fetch_adc1_reset();
-    return true;
+    case 0: // 12
+      break;
+    case 1: // 10
+      adc_conv_grp.cr1 |= ADC_CR1_RES_0;
+      break;
+    case 2: // 8
+      adc_conv_grp.cr1 |= ADC_CR1_RES_1;
+      break;
+    case 3: // 6
+      adc_conv_grp.cr1 |= ADC_CR1_RES_0 | ADC_CR1_RES_1;
+      break;
+    default:
+      util_message_error(chp, "invalid adc resolution");
+      adc_drv = NULL;
+      return false;
   }
-  else if (strncasecmp(cmd_list[ADC_CONFIGURE], "vref_mv", strlen("vref_mv") ) == 0)
+
+  int32_t vref_config = strtol(data_list[ADC_CONFIG_VREF], &endptr, 0);
+
+  if( vref_config <= 0 || *endptr != '\0' )
   {
-    fetch_adc1_state.vref_mv = atoi(data_list[0]);
-    return true;
+    util_message_error(chp, "invalid adc vref mv");
+    adc_drv = NULL;
+    return false;
   }
   else
   {
-    DBG_MSG(chp, "configure command not ready yet...");
-    return false ;
+    adc_vref_mv = vref_config;
   }
+
+  switch( token_match( data_list[ADC_CONFIG_CLK], FETCH_MAX_DATA_STRLEN,
+                       adc_sample_tok, NELEMS(adc_sample_tok)) )
+  {
+    case 0:
+      adc_sample = ADC_SAMPLE_3;
+      break;
+    case 1:
+      adc_sample = ADC_SAMPLE_15;
+      break;
+    case 2:
+      adc_sample = ADC_SAMPLE_28;
+      break;
+    case 3:
+      adc_sample = ADC_SAMPLE_56;
+      break;
+    case 4:
+      adc_sample = ADC_SAMPLE_84;
+      break;
+    case 5:
+      adc_sample = ADC_SAMPLE_112;
+      break;
+    case 6:
+      adc_sample = ADC_SAMPLE_144;
+      break;
+    case 7:
+      adc_sample = ADC_SAMPLE_480;
+      break;
+    default:
+      util_message_error(chp, "invalid adc sample clocks");
+      adc_drv = NULL;
+      return false;
+  }
+	
+  adc_conv_grp.smpr1 =  ADC_SMPR1_SMP_AN10(   adc_sample ) |
+                        ADC_SMPR1_SMP_AN13(   adc_sample ) |
+	                      ADC_SMPR1_SMP_AN14(   adc_sample ) |
+	                      ADC_SMPR1_SMP_AN15(   adc_sample ) |
+	                      ADC_SMPR1_SMP_SENSOR( adc_sample ) |
+	                      ADC_SMPR1_SMP_VREF(   adc_sample ) |
+	                      ADC_SMPR1_SMP_VBAT(   adc_sample );
+
+	adc_conv_grp.smpr2 =  ADC_SMPR2_SMP_AN0( adc_sample ) |
+                        ADC_SMPR2_SMP_AN1( adc_sample ) |
+                        ADC_SMPR2_SMP_AN2( adc_sample ) |
+                        ADC_SMPR2_SMP_AN4( adc_sample ) |
+                        ADC_SMPR2_SMP_AN5( adc_sample ) |
+                        ADC_SMPR2_SMP_AN6( adc_sample ) |
+                        ADC_SMPR2_SMP_AN7( adc_sample ) |
+                        ADC_SMPR2_SMP_AN8( adc_sample ) |
+                        ADC_SMPR2_SMP_AN9( adc_sample );
+
+  sample_count = strtol(data_list[ADC_CONFIG_COUNT], &endptr, 0);
+
+  if( sample_count <= 0 || *endptr != '\0' )
+  {
+    util_message_error(chp, "invalid sample count");
+    adc_drv = NULL;
+    return false;
+  }
+
+  // sample depths larger than 1 need to be even so add an extra sample if it is odd
+  if( (sample_count > 1) && (sample_count & 1) )
+  {
+    adc_sample_depth = sample_count + 1;
+  }
+  else
+  {
+    adc_sample_depth = sample_count;
+  }
+
+  if( data_list[ADC_CONFIG_CHANNELS] == NULL )
+  {
+    util_message_error(chp, "missing adc channels");
+    adc_drv = NULL;
+    return false;
+  }
+
+  adc_enabled_channels = 0;
+
+  int tok_num;
+
+  for( int i = 0; i < FETCH_ADC_MAX_CHANNELS; i++ )
+  {
+    if( data_list[ADC_CONFIG_CHANNELS + i] == NULL )
+    {
+      break;
+    }
+
+    tok_num = token_match( data_list[ADC_CONFIG_CHANNELS + i], FETCH_MAX_DATA_STRLEN, 
+                           adc_ch_tok, NELEMS(adc_ch_tok) );
+    if( tok_num == TOKEN_NOT_FOUND )
+    {
+      util_message_error(chp, "invalid adc channel");
+      adc_drv = NULL;
+      return false;
+    }
+    else if( adc_enabled_channels & ADC_ENABLE_CH(tok_num) )
+    {
+      util_message_error(chp, "duplicate channels");
+      adc_drv = NULL;
+      return false;
+    }
+    else
+    {
+      adc_enabled_channels |= ADC_ENABLE_CH(tok_num);
+
+      switch( adc_conv_grp.num_channels )
+      {
+        case 0:
+          adc_conv_grp.sqr3 |= ADC_SQR3_SQ1_N(tok_num);
+          break;
+        case 1:
+          adc_conv_grp.sqr3 |= ADC_SQR3_SQ2_N(tok_num);
+          break;
+        case 2:
+          adc_conv_grp.sqr3 |= ADC_SQR3_SQ3_N(tok_num);
+          break;
+        case 3:
+          adc_conv_grp.sqr3 |= ADC_SQR3_SQ4_N(tok_num);
+          break;
+        case 4:
+          adc_conv_grp.sqr3 |= ADC_SQR3_SQ5_N(tok_num);
+          break;
+        case 5:
+          adc_conv_grp.sqr3 |= ADC_SQR3_SQ6_N(tok_num);
+          break;
+        case 6:
+          adc_conv_grp.sqr2 |= ADC_SQR2_SQ7_N(tok_num);
+          break;
+        case 7:
+          adc_conv_grp.sqr2 |= ADC_SQR2_SQ8_N(tok_num);
+          break;
+        case 8:
+          adc_conv_grp.sqr2 |= ADC_SQR2_SQ9_N(tok_num);
+          break;
+        case 9:
+          adc_conv_grp.sqr2 |= ADC_SQR2_SQ10_N(tok_num);
+          break;
+        case 10:
+          adc_conv_grp.sqr2 |= ADC_SQR2_SQ11_N(tok_num);
+          break;
+        case 11:
+          adc_conv_grp.sqr2 |= ADC_SQR2_SQ12_N(tok_num);
+          break;
+        case 12:
+          adc_conv_grp.sqr1 |= ADC_SQR1_SQ13_N(tok_num);
+          break;
+        case 13:
+          adc_conv_grp.sqr1 |= ADC_SQR1_SQ14_N(tok_num);
+          break;
+        case 14:
+          adc_conv_grp.sqr1 |= ADC_SQR1_SQ15_N(tok_num);
+          break;
+        case 15:
+          adc_conv_grp.sqr1 |= ADC_SQR1_SQ16_N(tok_num);
+          break;
+      }
+      adc_conv_grp.num_channels++;
+    }
+  }
+  adc_conv_grp.sqr1 |= ADC_SQR1_NUM_CH(adc_conv_grp.num_channels);
+
+  if( data_list[ADC_CONFIG_CHANNELS + FETCH_ADC_MAX_CHANNELS] != NULL )
+  {
+    util_message_error(chp, "too many channels");
+    adc_drv = NULL;
+    return false;
+  }
+  
+  if( adc_sample_depth > FETCH_ADC_MAX_SAMPLES(adc_conv_grp.num_channels) )
+  {
+    util_message_error(chp, "sample count too large");
+    adc_drv = NULL;
+    return false;
+  }
+
+
+  // claim pins for adc use
+#if STM32_ADC_USE_ADC1
+  if( adc_drv == &ADCD1 )
+  {
+    for( int i = 0; i < FETCH_ADC_MAX_CHANNELS; i++ )
+    {
+      if( (adc_enabled_channels & ADC_ENABLE_CH(i)) &&
+          !io_manage_set_mode( adc1_inputs[i].port, adc1_inputs[i].pin, PAL_MODE_INPUT_ANALOG, IO_ADC) )
+      {
+        util_message_error(chp, "unable to allocate %s:%d", port_to_string(adc1_inputs[i].port), adc1_inputs[i].pin);
+        // loop backwards unrolling what we have done, starting with i-1
+        for( i--; i >= 0; i-- )
+        {
+          io_manage_set_default_mode( adc1_inputs[i].port, adc1_inputs[i].pin );
+        }
+        adc_drv = NULL;
+        return false;
+      }
+    }
+  }
+#endif
+#if STM32_ADC_USE_ADC2
+  if( adc_drv == &ADCD2 )
+  {
+    for( int i = 0; i < FETCH_ADC_MAX_CHANNELS; i++ )
+    {
+      if( (adc_enabled_channels & ADC_ENABLE_CH(i)) &&
+          !io_manage_set_mode( adc2_inputs[i].port, adc2_inputs[i].pin, PAL_MODE_INPUT_ANALOG, IO_ADC) )
+      {
+        util_message_error(chp, "unable to allocate %s:%d", port_to_string(adc2_inputs[i].port), adc2_inputs[i].pin);
+        // loop backwards unrolling what we have done, starting with i-1
+        for( i--; i >= 0; i-- )
+        {
+          io_manage_set_default_mode( adc2_inputs[i].port, adc2_inputs[i].pin );
+        }
+        adc_drv = NULL;
+        return false;
+      }
+    }
+  }
+#endif
+#if STM32_ADC_USE_ADC3
+  if( adc_drv == &ADCD3 )
+  {
+    for( int i = 0; i < FETCH_ADC_MAX_CHANNELS; i++ )
+    {
+      if( (adc_enabled_channels & ADC_ENABLE_CH(i)) &&
+          !io_manage_set_mode( adc3_inputs[i].port, adc3_inputs[i].pin, PAL_MODE_INPUT_ANALOG, IO_ADC) )
+      {
+        util_message_error(chp, "unable to allocate %s:%d", port_to_string(adc3_inputs[i].port), adc3_inputs[i].pin);
+        // loop backwards unrolling what we have done, starting with i-1
+        for( i--; i >= 0; i-- )
+        {
+          io_manage_set_default_mode( adc3_inputs[i].port, adc3_inputs[i].pin );
+        }
+        adc_drv = NULL;
+        return false;
+      }
+    }
+  }
+#endif
+
+  chBSemReset(&adc_data_ready_sem, 0);
+
+  return true;
+}
+
+/*! \brief Reset adc1
+ */
+static bool fetch_adc_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 0) )
+  {
+    return false;
+  }
+
+  if( adc_drv == NULL )
+  {
+    return true;
+  }
+
+#if STM32_ADC_USE_ADC1
+  if( adc_drv == &ADCD1 )
+  {
+    for( uint32_t i = 0; i < NELEMS(adc1_inputs); i++ )
+    {
+      if( io_manage_get_current_alloc( adc1_inputs[i].port, adc1_inputs[i].pin ) == IO_ADC )
+      {
+        io_manage_set_default_mode( adc1_inputs[i].port, adc1_inputs[i].pin );
+      }
+    }
+  }
+#endif
+#if STM32_ADC_USE_ADC2
+  if( adc_drv == &ADCD2 )
+  {
+    for( uint32_t i = 0; i < NELEMS(adc2_inputs); i++ )
+    {
+      if( io_manage_get_current_alloc( adc2_inputs[i].port, adc2_inputs[i].pin ) == IO_ADC )
+      {
+        io_manage_set_default_mode( adc2_inputs[i].port, adc2_inputs[i].pin );
+      }
+    }
+  }
+#endif
+#if STM32_ADC_USE_ADC3
+  if( adc_drv == &ADCD3 )
+  {
+    for( uint32_t i = 0; i < NELEMS(adc3_inputs); i++ )
+    {
+      if( io_manage_get_current_alloc( adc3_inputs[i].port, adc3_inputs[i].pin ) == IO_ADC )
+      {
+        io_manage_set_default_mode( adc3_inputs[i].port, adc3_inputs[i].pin );
+      }
+    }
+  }
+#endif
+
+  adc_drv = NULL;
+
+  chBSemReset(&adc_data_ready_sem, 0);
+
+  return true;
+}
+
+static void fetch_adc_init(void)
+{
+#if STM32_ADC_USE_ADC1
+  adcStart(&ADCD1,NULL);
+#endif
+#if STM32_ADC_USE_ADC2
+  adcStart(&ADCD2,NULL);
+#endif
+#if STM32_ADC_USE_ADC3
+  adcStart(&ADCD3,NULL);
+#endif
+  
+  // enable the thermal sensor and VREFINT.
+  adcSTM32EnableTSVREFE();
+  adcSTM32EnableVBATE();
+
+  chBSemInit(&adc_data_ready_sem, 0);
+
+  adc_init_flag = false;
 }
 
 /*! \brief dispatch an ADC command
  */
 bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-	fetch_adc1_state.chp = chp;
+  if( adc_init_flag )
+  {
+    fetch_adc_init();
+  }
 
-	if(!fetch_adc1_state.init)
-	{
-		fetch_adc_init(chp);
-	};
-
-  if (strncasecmp(cmd_list[ADC_ACTION], "conf_adc1", strlen("conf_adc1") ) == 0)
-  {
-    return(fetch_adc1_configure(chp, cmd_list, data_list));
-  }
-  else if (strncasecmp(cmd_list[ADC_ACTION], "start", strlen("start") ) == 0)
-  {
-    return(fetch_adc1_start());
-  }
-  else if (strncasecmp(cmd_list[ADC_ACTION], "stop", strlen("stop") ) == 0)
-  {
-    return(fetch_adc1_stop());
-  }
-  else
-  {
-    DBG_MSG(chp, "sub-command not ready yet...");
-    return(false) ;
-  }
-	return false;
+  return fetch_dispatch(chp, fetch_adc_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);
 }
 /*! @} */
 

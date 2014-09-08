@@ -34,7 +34,7 @@ static bool needs_newline(char * str)
 void util_message_begin( BaseSequentialStream * chp)
 {
   chBSemWait( &mshell_io_sem );
-  chprintf(chp, "begin");
+  chprintf(chp, "BEGIN:\r\n");
   chBSemSignal( &mshell_io_sem );
 }
 
@@ -43,11 +43,11 @@ void util_message_end( BaseSequentialStream * chp, bool success )
   chBSemWait( &mshell_io_sem );
   if( success )
   {
-    chprintf(chp, "end:ok\r\n");
+    chprintf(chp, "END:OK\r\n");
   }
   else
   {
-    chprintf(chp, "end:error\r\n");
+    chprintf(chp, "END:ERROR\r\n");
   }
   chBSemSignal( &mshell_io_sem );
 }
@@ -84,7 +84,30 @@ void util_message_info( BaseSequentialStream * chp, char * fmt, ...)
 
 	chBSemWait( &mshell_io_sem );
 
-	chprintf(chp, "I:");
+	chprintf(chp, "#:");
+
+	va_list arg_list;
+	va_start(arg_list, fmt);
+	chvprintf(chp, fmt, arg_list);
+	va_end(arg_list);
+
+	if( needs_newline(fmt) )
+	{
+		chprintf(chp, "\r\n");
+	}
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_warning( BaseSequentialStream * chp, char * fmt, ...)
+{
+	if(chp == NULL || fmt == NULL)
+	{
+		return;
+	}
+
+	chBSemWait( &mshell_io_sem );
+
+	chprintf(chp, "W:");
 
 	va_list arg_list;
 	va_start(arg_list, fmt);
@@ -121,26 +144,22 @@ void util_message_error( BaseSequentialStream * chp, char * fmt, ...)
 	chBSemSignal( &mshell_io_sem );
 }
 
-void util_message_comment( BaseSequentialStream * chp, char * fmt, ...)
+void util_message_bool( BaseSequentialStream * chp, char * name, bool data)
 {
-	if(chp == NULL || fmt == NULL)
+	if(chp == NULL)
 	{
 		return;
 	}
 
 	chBSemWait( &mshell_io_sem );
-
-	chprintf(chp, "#:");
-
-	va_list arg_list;
-	va_start(arg_list, fmt);
-	chvprintf(chp, fmt, arg_list);
-	va_end(arg_list);
-
-	if( needs_newline(fmt) )
-	{
-		chprintf(chp, "\r\n");
-	}
+  if( data )
+  {
+	  chprintf(chp, "B:%s:true\r\n", name);
+  }
+  else
+  {
+    chprintf(chp, "B:%s:false\r\n", name);
+  }
 	chBSemSignal( &mshell_io_sem );
 }
 

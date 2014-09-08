@@ -15,7 +15,7 @@
 
 Mshell_status                   mshell_state;
 
-bool_t mshell_stream_put(BaseSequentialStream * chp, uint8_t c) {
+bool mshell_stream_put(BaseSequentialStream * chp, uint8_t c) {
 	int ret;
 	chBSemWait( &mshell_io_sem );
     ret = chSequentialStreamPut(chp, c) ;

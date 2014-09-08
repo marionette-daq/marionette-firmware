@@ -15,7 +15,6 @@
 extern "C" {
 #endif
 
-void fetch_spi_init(void);
 bool fetch_spi_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 
 #ifdef __cplusplus

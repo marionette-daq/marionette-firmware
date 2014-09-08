@@ -54,7 +54,7 @@
 /**
  * @brief   Command handler function type.
  */
-typedef void (*shellcmd_t)(BaseSequentialStream *chp, int argc, char *argv[]);
+typedef bool (*shellcmd_t)(BaseSequentialStream *chp, int argc, char *argv[]);
 
 /**
  * @brief   Custom command entry type.
@@ -85,7 +85,7 @@ extern "C" {
   Thread *mshellCreate(const MShellConfig *scp, size_t size, tprio_t prio);
   Thread *mshellCreateStatic(const MShellConfig *scp, void *wsp,
                             size_t size, tprio_t prio);
-  bool_t mshellGetLine(BaseSequentialStream *chp, char *line, unsigned size);
+  bool mshellGetLine(BaseSequentialStream *chp, char *line, unsigned size);
 #ifdef __cplusplus
 }
 #endif
