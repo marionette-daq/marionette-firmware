@@ -249,7 +249,7 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
         io_manage_set_default_mode( spi_cfg.ssport, spi_cfg.sspad );
       }
       io_manage_set_default_mode( GPIOA, PIN5 );
-      io_manage_set_default_mode( GPIOA, PIN7 );
+      io_manage_set_default_mode( GPIOA, PIN6 );
       spi_drv = NULL;
       return false;
     }
@@ -373,7 +373,6 @@ static bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, char * cmd_list[]
   for( int i = 0; i < MAX_SPI_BYTES && data_list[i+offset] != NULL; i++ )
   {
     byte_value = strtol(data_list[i+offset], &endptr, number_base);
-    byte_count++;
     
     if( *endptr != '\0' )
     {
@@ -384,6 +383,11 @@ static bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, char * cmd_list[]
     {
       util_message_error(chp, "invalid data byte");
       return false;
+    }
+    else
+    {
+      tx_buffer[i] = byte_value;
+      byte_count++;
     }
   }
 

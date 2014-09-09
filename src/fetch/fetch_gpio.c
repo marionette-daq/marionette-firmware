@@ -294,6 +294,8 @@ static bool fetch_gpio_info_cmd(BaseSequentialStream * chp, char * cmd_list[], c
       break;
     case PAL_STM32_MODE_ALTERNATE:
       util_message_string(chp, "mode", "ALTERNATE");
+      uint32_t alt_mode = (current_mode & PAL_STM32_ALTERNATE_MASK) >> 7;
+      util_message_uint32(chp, "alt_func", &alt_mode, 1);
       break;
     case PAL_STM32_MODE_ANALOG:
       util_message_string(chp, "mode", "ANALOG");
