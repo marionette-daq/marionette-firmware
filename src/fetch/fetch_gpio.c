@@ -9,6 +9,7 @@
 
 #include <string.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "chprintf.h"
 #include "util_messages.h"
@@ -21,6 +22,13 @@
 #include "fetch_gpio.h"
 #include "fetch.h"
 
+typedef enum {
+  WAIT_EVENT_HIGH = 0,
+  WAIT_EVENT_LOW,
+  WAIT_EVENT_POS_EDGE,
+  WAIT_EVENT_NEG_EDGE
+} wait_event_t;
+
 // list all command function prototypes here 
 static bool fetch_gpio_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_gpio_read_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
@@ -32,11 +40,16 @@ static bool fetch_gpio_config_cmd(BaseSequentialStream * chp, char * cmd_list[],
 static bool fetch_gpio_info_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_gpio_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_gpio_force_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_gpio_wait_cmd(BaseSequentialStream * chp, char *cmd_list[], char * data_list[]);
 
-static const char gpio_config_help_string[] ="Configure pin as GPIO\n" \
+static const char gpio_config_help_string[] = "Configure pin as GPIO\n" \
                         "Usage: config(<port>,<pin>,<mode>)\n" \
                         "\tmode = INPUT_FLOATING, INPUT_PULLUP, INPUT_PULLDOWN,\n" \
                         "\t       OUTPUT_PUSHPULL, OUTPUT_OPENDRAIN";
+static const char gpio_wait_help_string[] = "Wait for the given event on a gpio pin\n" \
+                                            "Usage: wait(<port>,<pin>,<event>,<timeout>)\n" \
+                                            "\tevent = HIGH, LOW, POS_EDGE, NEG_EDGE\n" \
+                                            "\ttimeout = <milliseconds>\n";
 
 static fetch_command_t fetch_gpio_commands[] = {
     { fetch_gpio_help_cmd,        "help",       "Display GPIO help"},
@@ -45,6 +58,7 @@ static fetch_command_t fetch_gpio_commands[] = {
     { fetch_gpio_write_cmd,       "write",      "Write state to pin\nUsage: write(<port>,<pin>,<state>)" },
     { fetch_gpio_set_cmd,         "set",        "Set pin to 1\nUsage: set(<port>,<pin>)" },
     { fetch_gpio_clear_cmd,       "clear",      "Clear pin to 0\nUsage: clear(<port>,<pin>)" },
+    { fetch_gpio_wait_cmd,        "wait",       gpio_wait_help_string },
     { fetch_gpio_config_cmd,      "config",     gpio_config_help_string },
     { fetch_gpio_info_cmd,        "info",       "Get pin info\nUsage: info(<port>,<pin>)" },
     { fetch_gpio_reset_cmd,       "reset",      "Reset GPIO pin to defaults\nUsage: reset(<port>,<pin>)" },
@@ -55,6 +69,7 @@ static fetch_command_t fetch_gpio_commands[] = {
 static const char * pin_state_tok[] = {"true","false","1","0"};
 static const char * pin_mode_tok[] = {"INPUT_FLOATING","INPUT_PULLUP","INPUT_PULLDOWN",
                                       "OUTPUT_PUSHPULL","OUTPUT_OPENDRAIN"};
+static const char * wait_event_tok[] = {"HIGH","1","LOW","0","POS_EDGE","NEG_EDGE"};
 
 static bool fetch_gpio_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
@@ -178,6 +193,98 @@ static bool fetch_gpio_clear_cmd(BaseSequentialStream * chp, char * cmd_list[], 
 
   palClearPad(port,pin);
 
+  return true;
+}
+
+static bool fetch_gpio_wait_cmd(BaseSequentialStream * chp, char *cmd_list[], char * data_list[])
+{
+  ioportid_t port = string_to_port(data_list[0]);
+  uint32_t pin = string_to_pin(data_list[1]);
+  char * endptr;
+  int32_t timeout;
+  wait_event_t event;
+  systime_t start_time;
+  bool state_next, state_prev;
+
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 4) )
+  {
+    return false;
+  }
+
+  if( port == NULL || pin == INVALID_PIN )
+  {
+    util_message_error(chp, "invalid port/pin");
+    return false;
+  }
+
+  switch( token_match( data_list[2], FETCH_MAX_DATA_STRLEN, wait_event_tok, NELEMS(wait_event_tok)) )
+  {
+    case 0: // HIGH
+    case 1: // 1
+      event = WAIT_EVENT_HIGH;
+      break;
+    case 2: // LOW
+    case 3: // 0
+      event = WAIT_EVENT_LOW;
+      break;
+    case 4: // POS_EDGE
+      event = WAIT_EVENT_POS_EDGE;
+    case 5: // NEG_EDGE
+      event = WAIT_EVENT_NEG_EDGE;
+      break;
+    default:
+      util_message_error(chp, "invalid wait event");
+      return false;
+  }
+
+  timeout = strtol(data_list[3], &endptr, 0);
+
+  if( *endptr != '\0' || timeout <= 0 )
+  {
+    util_message_error(chp, "invalid wait timeout");
+    return false;
+  }
+
+  start_time = chTimeNow();
+  state_next = palReadPad(port,pin);
+
+  while( chTimeElapsedSince(start_time) < MS2ST(timeout) )
+  {
+    state_prev = state_next;
+    state_next = palReadPad(port,pin);
+    switch( event )
+    {
+      case WAIT_EVENT_HIGH:
+        if( state_prev || state_next )
+        {
+          util_message_bool(chp, "event", true);
+          return true;
+        }
+        break;
+      case WAIT_EVENT_LOW:
+        if( !state_prev || !state_next )
+        {
+          util_message_bool(chp, "event", true);
+          return true;
+        }
+        break;
+      case WAIT_EVENT_POS_EDGE:
+        if( !state_prev && state_next )
+        {
+          util_message_bool(chp, "event", true);
+          return true;
+        }
+        break;
+      case WAIT_EVENT_NEG_EDGE:
+        if( state_prev && !state_next )
+        {
+          util_message_bool(chp, "event", true);
+          return true;
+        }
+        break;
+    }
+  }
+  util_message_bool(chp, "event", false);
   return true;
 }
 
