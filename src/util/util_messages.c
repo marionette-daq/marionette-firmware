@@ -186,6 +186,29 @@ void util_message_string( BaseSequentialStream * chp, char * name, char * fmt, .
 	chBSemSignal( &mshell_io_sem );
 }
 
+void util_message_string_array( BaseSequentialStream * chp, char * name, char * str_array[], uint32_t count )
+{
+  if( chp == NULL )
+  {
+    return;
+  }
+
+  chBSemWait( &mshell_io_sem );
+	
+  chprintf(chp, "SA:%s:", name);
+
+  for( uint32_t i = 0; i < count; i++ )
+  {
+    chprintf(chp, "\"%s\"", str_array[i]);
+    if( (i + 1) < count )
+    {
+      chprintf(chp, ",");
+    }
+  }
+
+  chBSemSignal( &mshell_io_sem );
+}
+
 void util_message_double( BaseSequentialStream * chp, char * name, double * data, uint32_t count)
 {
 	if(chp == NULL)

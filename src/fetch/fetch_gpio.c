@@ -344,6 +344,8 @@ static bool fetch_gpio_info_cmd(BaseSequentialStream * chp, char * cmd_list[], c
   char * alloc_name;
   iomode_t current_mode;
   uint32_t available_alloc;
+  char * alloc_name_array[32];
+  uint32_t array_count;
 
   if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2) )
   {
@@ -363,14 +365,16 @@ static bool fetch_gpio_info_cmd(BaseSequentialStream * chp, char * cmd_list[], c
   alloc_name = (char*)io_manage_get_alloc_name(current_alloc);
   util_message_string(chp, "current", alloc_name);
 
+  array_count = 0;
   for( int i = 0; i < 32; i++ )
   {
     if( available_alloc & (1<<i) )
     {
-      alloc_name = (char*)io_manage_get_alloc_name(available_alloc & (1<<i));
-      util_message_string(chp, "available", alloc_name);
+      alloc_name_array[array_count++] = (char*)io_manage_get_alloc_name(available_alloc & (1<<i));
     }
   }
+
+  util_message_string_array(chp, "available", alloc_name_array, array_count );
 
   switch( current_mode & PAL_STM32_MODE_MASK )
   {
