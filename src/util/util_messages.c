@@ -199,7 +199,7 @@ void util_message_string_array( BaseSequentialStream * chp, char * name, char * 
 
   for( uint32_t i = 0; i < count; i++ )
   {
-    chprintf(chp, "\"%s\"", str_array[i]);
+    chprintf(chp, "%s", str_array[i]);
     if( (i + 1) < count )
     {
       chprintf(chp, ",");
