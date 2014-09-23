@@ -206,6 +206,8 @@ void util_message_string_array( BaseSequentialStream * chp, char * name, char * 
     }
   }
 
+  chprintf(chp, "\r\n");
+
   chBSemSignal( &mshell_io_sem );
 }
 

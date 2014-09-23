@@ -25,8 +25,8 @@
 typedef enum {
   WAIT_EVENT_HIGH = 0,
   WAIT_EVENT_LOW,
-  WAIT_EVENT_POS_EDGE,
-  WAIT_EVENT_NEG_EDGE
+  WAIT_EVENT_RISING,
+  WAIT_EVENT_FALLING
 } wait_event_t;
 
 // list all command function prototypes here 
@@ -48,7 +48,7 @@ static const char gpio_config_help_string[] = "Configure pin as GPIO\n" \
                         "\t       OUTPUT_PUSHPULL, OUTPUT_OPENDRAIN";
 static const char gpio_wait_help_string[] = "Wait for the given event on a gpio pin\n" \
                                             "Usage: wait(<port>,<pin>,<event>,<timeout>)\n" \
-                                            "\tevent = HIGH, LOW, POS_EDGE, NEG_EDGE\n" \
+                                            "\tevent = HIGH, LOW, RISING, FALLING\n" \
                                             "\ttimeout = <milliseconds>\n";
 
 static fetch_command_t fetch_gpio_commands[] = {
@@ -69,7 +69,7 @@ static fetch_command_t fetch_gpio_commands[] = {
 static const char * pin_state_tok[] = {"true","false","1","0"};
 static const char * pin_mode_tok[] = {"INPUT_FLOATING","INPUT_PULLUP","INPUT_PULLDOWN",
                                       "OUTPUT_PUSHPULL","OUTPUT_OPENDRAIN"};
-static const char * wait_event_tok[] = {"HIGH","1","LOW","0","POS_EDGE","NEG_EDGE"};
+static const char * wait_event_tok[] = {"HIGH","1","LOW","0","RISING","FALLING"};
 
 static bool fetch_gpio_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
@@ -227,10 +227,10 @@ static bool fetch_gpio_wait_cmd(BaseSequentialStream * chp, char *cmd_list[], ch
     case 3: // 0
       event = WAIT_EVENT_LOW;
       break;
-    case 4: // POS_EDGE
-      event = WAIT_EVENT_POS_EDGE;
-    case 5: // NEG_EDGE
-      event = WAIT_EVENT_NEG_EDGE;
+    case 4: // RISING
+      event = WAIT_EVENT_RISING;
+    case 5: // FALLING
+      event = WAIT_EVENT_FALLING;
       break;
     default:
       util_message_error(chp, "invalid wait event");
@@ -268,14 +268,14 @@ static bool fetch_gpio_wait_cmd(BaseSequentialStream * chp, char *cmd_list[], ch
           return true;
         }
         break;
-      case WAIT_EVENT_POS_EDGE:
+      case WAIT_EVENT_RISING:
         if( !state_prev && state_next )
         {
           util_message_bool(chp, "event", true);
           return true;
         }
         break;
-      case WAIT_EVENT_NEG_EDGE:
+      case WAIT_EVENT_FALLING:
         if( state_prev && !state_next )
         {
           util_message_bool(chp, "event", true);
