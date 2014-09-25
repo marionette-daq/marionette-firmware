@@ -316,7 +316,7 @@ class Marionette(object):
     count = sample count per channel
     channels = list of channel id's (CH0 ... CH15, SENSOR, VREFINT, VBAT)
     """
-    self.command("adc.config(%s,%s,%s,%s,%s,%s)", dev, resolution, sample_clk, vref, count, ",".join(channels))
+    self.command("adc.config(%s,%s,%s,%s,%s,%s)", dev, res, sample_clk, vref, count, ",".join(channels))
 
   def fetch_adc_reset(self):
     self.command("adc.reset")
