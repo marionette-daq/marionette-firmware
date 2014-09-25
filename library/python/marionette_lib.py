@@ -15,7 +15,7 @@ PORTG = 'g'
 PORTH = 'h'
 PORTI = 'i'
 
-INPUT_FLOATING   = "input_floating" 
+INPUT_FLOATING   = "input_floating"
 INPUT_PULLUP     = "input_pullup"
 INPUT_PULLDOWN   = "input_pulldown"
 OUTPUT_OPENDRAIN = "output_opendrain"
@@ -388,7 +388,7 @@ class Marionette(object):
     if isinstance(tx_data, list):
       tx_data = bytearray(tx_data)
     elif isinstance(tx_data, (str,unicode)):
-      tx_data = bytearray(tx_data, 'utf8')
+      tx_data = bytearray(tx_data)
     elif isinstance(tx_data, bytearray):
       pass
     else:
