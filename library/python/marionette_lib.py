@@ -406,8 +406,6 @@ class Marionette(object):
     dev = I2C_1 | I2C_2 | I2C_3
 
     """
-    if port is not None or pin is not None:
-      check_port_pin(port,pin)
 
     if str(dev) in ('1','2','3'):
       dev = "i2c_" + str(dev)
