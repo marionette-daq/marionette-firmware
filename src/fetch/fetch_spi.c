@@ -421,12 +421,6 @@ static bool fetch_spi_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
     return true;
   }
 
-  if( data_list[0] != NULL )
-  {
-    util_message_error(chp, "unexpected data arguments");
-    return false;
-  }
-  
   if( spi_cfg.ssport != NULL )
   {
     io_manage_set_default_mode( spi_cfg.ssport, spi_cfg.sspad );

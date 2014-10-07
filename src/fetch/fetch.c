@@ -23,6 +23,7 @@
 #include "fetch_adc.h"
 #include "fetch_dac.h"
 #include "fetch_spi.h"
+#include "fetch_i2c.h"
 
 #include "fetch_defs.h"
 #include "fetch.h"
@@ -58,7 +59,7 @@ static fetch_command_t fetch_commands[] = {
     { fetch_adc_dispatch,       "adc",              "ADC command set\n(see adc.help)" },
     { fetch_dac_dispatch,       "dac",              "DAC command set\n(see dac.help)" },
     { fetch_spi_dispatch,       "spi",              "SPI command set\n(see spi.help)" },
-    { NULL,                     "i2c",              "I2C command set\n(see i2c.help)" },
+    { fetch_i2c_dispatch,       "i2c",              "I2C command set\n(see i2c.help)" },
     { fetch_test_cmd,           "test",             NULL },
     { NULL, NULL, NULL }
   };

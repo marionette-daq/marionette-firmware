@@ -397,6 +397,68 @@ class Marionette(object):
     result = self.command("spi.exchange(hex,%s)", ",".join(map(lambda d: "%x" % d, tx_data)))
     return bytearray(result['rx'])
 
+  # fetch i2c commands
+
+  def fetch_i2c_config(self, dev):
+    """
+    Configure i2c module
+
+    dev = I2C_1 | I2C_2 | I2C_3
+
+    """
+    if port is not None or pin is not None:
+      check_port_pin(port,pin)
+
+    if str(dev) in ('1','2','3'):
+      dev = "i2c_" + str(dev)
+
+    self.command("i2c.config(%s)", dev)
+
+  def fetch_i2c_reset(self):
+    self.command("i2c.reset")
+
+  def fetch_i2c_transmit(self, address, tx_data):
+    """
+    Transmit data to a i2c slave
+
+    address = 7bit slave address
+    tx_data = bytearray of data to send
+
+    if tx_data is a string or list it will be converted to a bytearray.
+    """
+
+    if isinstance(tx_data, list):
+      tx_data = bytearray(tx_data)
+    elif isinstance(tx_data, (str,unicode)):
+      tx_data = bytearray(tx_data)
+    elif isinstance(tx_data, bytearray):
+      pass
+    else:
+      raise TypeError("tx_data")
+
+    if address < 0 or address > 127:
+      raise ValueError("address")
+
+    self.command("i2c.transmit(%s,hex,%s)", address, ",".join(map(lambda d: "%x" % d, tx_data)))
+
+  def fetch_i2c_receive(self, address, count):
+    """
+    Transmit data to a i2c slave
+
+    address = 7bit slave address
+    count = number of bytes to receive
+    """
+
+    if address < 0 or address > 127:
+      raise ValueError("address")
+
+    result = self.command("i2c.receive(%s,%s)", address, count)
+    return bytearray(result['rx'])
+
+
+
+
+
 
 
 
