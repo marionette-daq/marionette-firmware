@@ -96,13 +96,13 @@ static bool fetch_i2c_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
 #if STM32_I2C_USE_I2C1
   if( i2c_drv == &I2CD1 )
   {
-    if( !io_manage_set_mode( GPIOB, PIN6, PAL_MODE_ALTERNATE(4), IO_I2C) )
+    if( !io_manage_set_mode( GPIOB, PIN6, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
     {
       util_message_error(chp, "unable to allocate PORTB:PIN6");
       i2c_drv = NULL;
       return false;
     }
-    if( !io_manage_set_mode( GPIOB, PIN7, PAL_MODE_ALTERNATE(4), IO_I2C) )
+    if( !io_manage_set_mode( GPIOB, PIN7, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
     {
       util_message_error(chp, "unable to allocate PORTB:PIN7");
       io_manage_set_default_mode( GPIOB, PIN6 );
@@ -114,13 +114,13 @@ static bool fetch_i2c_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
 #if STM32_I2C_USE_I2C2
   if( i2c_drv == &I2CD2 )
   {
-    if( !io_manage_set_mode( GPIOB, PIN10, PAL_MODE_ALTERNATE(4), IO_I2C) )
+    if( !io_manage_set_mode( GPIOB, PIN10, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
     {
       util_message_error(chp, "unable to allocate PORTB:PIN10");
       i2c_drv = NULL;
       return false;
     }
-    if( !io_manage_set_mode( GPIOB, PIN11, PAL_MODE_ALTERNATE(4), IO_I2C) )
+    if( !io_manage_set_mode( GPIOB, PIN11, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
     {
       util_message_error(chp, "unable to allocate PORTB:PIN11");
       io_manage_set_default_mode( GPIOB, PIN10 );
@@ -132,13 +132,13 @@ static bool fetch_i2c_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
 #if STM32_I2C_USE_I2C3
   if( i2c_drv == &I2CD3 )
   {
-    if( !io_manage_set_mode( GPIOH, PIN7, PAL_MODE_ALTERNATE(4), IO_I2C) )
+    if( !io_manage_set_mode( GPIOH, PIN7, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
     {
       util_message_error(chp, "unable to allocate PORTH:PIN7");
       i2c_drv = NULL;
       return false;
     }
-    if( !io_manage_set_mode( GPIOH, PIN8, PAL_MODE_ALTERNATE(4), IO_I2C) )
+    if( !io_manage_set_mode( GPIOH, PIN8, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
     {
       util_message_error(chp, "unable to allocate PORTH:PIN8");
       io_manage_set_default_mode( GPIOH, PIN7 );
