@@ -59,7 +59,7 @@ static port_pin_t adc1_inputs[] = { { GPIOA, PIN0 },    // ADC_IN0
                                   { GPIOA, PIN6 },    // ADC_IN6
                                   { GPIOA, PIN7 },    // ADC_IN7
                                   { GPIOB, PIN0 },    // ADC_IN8
-                                  { GPIOB, PIN9 },    // ADC_IN9
+                                  { GPIOB, PIN1 },    // ADC_IN9
                                   { GPIOC, PIN0 },    // ADC_IN10
                                   { GPIOC, PIN1 },    // ADC_IN11, jumper to OTG_PWR_OUT
                                   { GPIOC, PIN2 },    // ADC_IN12, jumper to FLG
@@ -76,7 +76,7 @@ static port_pin_t adc2_inputs[] = { { GPIOA, PIN0 },    // ADC_IN0
                                   { GPIOA, PIN6 },    // ADC_IN6
                                   { GPIOA, PIN7 },    // ADC_IN7
                                   { GPIOB, PIN0 },    // ADC_IN8
-                                  { GPIOB, PIN9 },    // ADC_IN9
+                                  { GPIOB, PIN1 },    // ADC_IN9
                                   { GPIOC, PIN0 },    // ADC_IN10
                                   { GPIOC, PIN1 },    // ADC_IN11, jumper to OTG_PWR_OUT
                                   { GPIOC, PIN2 },    // ADC_IN12, jumper to FLG
