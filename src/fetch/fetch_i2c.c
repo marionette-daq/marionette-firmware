@@ -347,5 +347,13 @@ bool fetch_i2c_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
   return fetch_dispatch(chp, fetch_i2c_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);
 }
 
+
+bool fetch_i2c_reset(BaseSequentialStream * chp)
+{
+  // TODO reset i2c
+  
+  return true;
+}
+
 /*! @} */
 

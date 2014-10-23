@@ -18,6 +18,8 @@ extern "C" {
 
 bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 
+bool fetch_adc_reset(BaseSequentialStream * chp);
+
 #ifdef __cplusplus
 }
 #endif

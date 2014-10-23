@@ -482,5 +482,13 @@ bool fetch_spi_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
   return fetch_dispatch(chp, fetch_spi_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);
 }
 
+
+bool fetch_spi_reset(BaseSequentialStream * chp)
+{
+  // TODO reset spi
+  
+  return true;
+}
+
 /*! @} */
 

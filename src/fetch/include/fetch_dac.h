@@ -15,6 +15,8 @@ extern "C" {
 
 bool fetch_dac_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 
+bool fetch_dac_reset(BaseSequentialStream * chp);
+
 #ifdef __cplusplus
 }
 #endif

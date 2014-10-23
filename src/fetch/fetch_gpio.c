@@ -476,5 +476,13 @@ bool fetch_gpio_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * d
   return fetch_dispatch(chp, fetch_gpio_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);
 }
 
+bool fetch_gpio_reset(BaseSequentialStream * chp)
+{
+  // TODO iterate through pins resetting any assigned to GPIO
+  // this may not be needed since the fetch_reset_cmd function resets all pins anyways
+  
+  return true;
+}
+
 /*! @} */
 

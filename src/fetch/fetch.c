@@ -29,7 +29,7 @@
 #include "fetch.h"
 
 static bool fetch_help_cmd(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_reset_pins_cmd(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_reset_cmd(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_version_cmd(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_chip_id_cmd(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_heartbeat_on_cmd(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
@@ -50,7 +50,7 @@ static fetch_command_t fetch_commands[] = {
   /*  function                  command string      help string */
     { fetch_help_cmd,           "?",                NULL },
     { fetch_help_cmd,           "help",             "Display command help" },
-    { fetch_reset_pins_cmd,     "resetpins",        "Reset pins to defaults" },
+    { fetch_reset_cmd,          "reset",            "Reset all peripherals and pins" },
     { fetch_version_cmd,        "version",          "Version information" },
     { fetch_chip_id_cmd,        "chipid",           "Return unique cpu chip id" },
     { fetch_heartbeat_on_cmd,   "heartbeaton",      "Turn on led heartbeat" },
@@ -161,17 +161,26 @@ static bool fetch_heartbeat_off_cmd(BaseSequentialStream * chp, char * cmd_list[
   return true;
 }
 
-/*! \brief RESETPINS command callback for fetch language
+/*! \brief RESET command callback for fetch language
  */
-static bool fetch_reset_pins_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+static bool fetch_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
   if( !fetch_input_check(chp, cmd_list, FETCH_TOK_CMD, data_list, 0) )
   {
     return false;
   }
 
+  // Add any new peripheral reset functions here
+  fetch_adc_reset(chp);
+  fetch_dac_reset(chp);
+  fetch_spi_reset(chp);
+  fetch_i2c_reset(chp);
+  fetch_gpio_reset(chp);
+
+  // make sure all pin assignments are set to defaults
 	palInit(&pal_default_config);
 	io_manage_set_all_to_defaults();
+
 	return true;
 }
 

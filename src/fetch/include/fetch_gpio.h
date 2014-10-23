@@ -15,6 +15,8 @@ extern "C" {
 
 bool fetch_gpio_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 
+bool fetch_gpio_reset(BaseSequentialStream * chp);
+
 #ifdef __cplusplus
 }
 #endif
