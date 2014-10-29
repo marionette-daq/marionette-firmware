@@ -9,9 +9,6 @@
 
 #include <stdbool.h>
 
-#define 		  ADC_V_25 			(0.76)   //!< From stm32f4 datasheet. Voltage at 25C
-#define 		  ADC_VSLOPE 			(2.5)    //!< units: mv/C
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -19,6 +16,8 @@ extern "C" {
 bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 
 bool fetch_adc_reset(BaseSequentialStream * chp);
+
+void fetch_adc_init(BaseSequentialStream * chp);
 
 #ifdef __cplusplus
 }

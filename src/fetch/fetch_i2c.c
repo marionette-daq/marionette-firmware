@@ -11,16 +11,19 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "chprintf.h"
 #include "util_messages.h"
 #include "util_strings.h"
 #include "util_general.h"
 
 #include "io_manage.h"
-
+#include "io_manage_defs.h"
 #include "fetch.h"
 #include "fetch_defs.h"
 #include "fetch_i2c.h"
+
+#ifndef MAX_I2C_BYTES
+#define MAX_I2C_BYTES   256
+#endif
 
 #ifndef I2C_TIMEOUT
 #define I2C_TIMEOUT MS2ST(100)
@@ -39,9 +42,9 @@ static bool fetch_i2c_receive_cmd(BaseSequentialStream * chp, char * cmd_list[],
 static bool fetch_i2c_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_i2c_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 
-static const char i2c_config_help_string[] = "Configure I2C driver\n" \
-    "Usage: config(<dev>)\n" \
-    "\tdev = I2C_1 | I2C_2 | I2C_3";
+static const char i2c_config_help_string[] =  "Configure I2C driver\n" \
+                                              "Usage: config(<dev>)\n" \
+                                              "\tdev = I2C_1 | I2C_2 | I2C_3";
 
 static fetch_command_t fetch_i2c_commands[] = {
     { fetch_i2c_transmit_cmd,  "transmit",  "TX data to slave\nUsage: transmit(<addr>,[hex],<byte n>,...,<byte n>)" },
@@ -96,16 +99,16 @@ static bool fetch_i2c_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
 #if STM32_I2C_USE_I2C1
   if( i2c_drv == &I2CD1 )
   {
-    if( !io_manage_set_mode( GPIOB, PIN6, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
+    if( !io_manage_set_mode( i2c1_pins[0].port, i2c1_pins[0].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
     {
-      util_message_error(chp, "unable to allocate PORTB:PIN6");
+      util_message_error(chp, "unable to allocate pins");
       i2c_drv = NULL;
       return false;
     }
-    if( !io_manage_set_mode( GPIOB, PIN7, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
+    if( !io_manage_set_mode( i2c1_pins[1].port, i2c1_pins[1].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
     {
-      util_message_error(chp, "unable to allocate PORTB:PIN7");
-      io_manage_set_default_mode( GPIOB, PIN6 );
+      util_message_error(chp, "unable to allocate pins");
+      io_manage_set_default_mode( i2c1_pins[0].port, i2c1_pins[0].pin );
       i2c_drv = NULL;
       return false;
     }
@@ -114,16 +117,16 @@ static bool fetch_i2c_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
 #if STM32_I2C_USE_I2C2
   if( i2c_drv == &I2CD2 )
   {
-    if( !io_manage_set_mode( GPIOB, PIN10, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
+    if( !io_manage_set_mode( i2c2_pins[0].port, i2c2_pins[0].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
     {
-      util_message_error(chp, "unable to allocate PORTB:PIN10");
+      util_message_error(chp, "unable to allocate pins");
       i2c_drv = NULL;
       return false;
     }
-    if( !io_manage_set_mode( GPIOB, PIN11, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
+    if( !io_manage_set_mode( i2c2_pins[1].port, i2c2_pins[1].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
     {
-      util_message_error(chp, "unable to allocate PORTB:PIN11");
-      io_manage_set_default_mode( GPIOB, PIN10 );
+      util_message_error(chp, "unable to allocate pins");
+      io_manage_set_default_mode( i2c2_pins[0].port, i2c2_pins[0].pin );
       i2c_drv = NULL;
       return false;
     }
@@ -132,16 +135,16 @@ static bool fetch_i2c_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
 #if STM32_I2C_USE_I2C3
   if( i2c_drv == &I2CD3 )
   {
-    if( !io_manage_set_mode( GPIOH, PIN7, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
+    if( !io_manage_set_mode( i2c3_pins[0].port, i2c3_pins[0].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
     {
-      util_message_error(chp, "unable to allocate PORTH:PIN7");
+      util_message_error(chp, "unable to allocate pins");
       i2c_drv = NULL;
       return false;
     }
-    if( !io_manage_set_mode( GPIOH, PIN8, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
+    if( !io_manage_set_mode( i2c3_pins[1].port, i2c3_pins[1].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
     {
-      util_message_error(chp, "unable to allocate PORTH:PIN8");
-      io_manage_set_default_mode( GPIOH, PIN7 );
+      util_message_error(chp, "unable to allocate pins");
+      io_manage_set_default_mode( i2c3_pins[0].port, i2c3_pins[0].pin );
       i2c_drv = NULL;
       return false;
     }
@@ -297,22 +300,22 @@ static bool fetch_i2c_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
 #if STM32_I2C_USE_I2C1
   if( i2c_drv == &I2CD1 )
   {
-    io_manage_set_default_mode( GPIOB, PIN6 );
-    io_manage_set_default_mode( GPIOB, PIN7 );
+    io_manage_set_default_mode( i2c1_pins[0].port, i2c1_pins[0].pin );
+    io_manage_set_default_mode( i2c1_pins[1].port, i2c1_pins[1].pin );
   }
 #endif
 #if STM32_I2C_USE_I2C2
   if( i2c_drv == &I2CD2 )
   {
-    io_manage_set_default_mode( GPIOB, PIN10 );
-    io_manage_set_default_mode( GPIOB, PIN11 );
+    io_manage_set_default_mode( i2c2_pins[0].port, i2c2_pins[0].pin );
+    io_manage_set_default_mode( i2c2_pins[1].port, i2c2_pins[1].pin );
   }
 #endif
 #if STM32_I2C_USE_I2C3
   if( i2c_drv == &I2CD3 )
   {
-    io_manage_set_default_mode( GPIOH, PIN7 );
-    io_manage_set_default_mode( GPIOH, PIN8 );
+    io_manage_set_default_mode( i2c3_pins[0].port, i2c3_pins[0].pin );
+    io_manage_set_default_mode( i2c3_pins[1].port, i2c3_pins[1].pin );
   }
 #endif
   
@@ -326,10 +329,10 @@ static bool fetch_i2c_help_cmd(BaseSequentialStream * chp, char * cmd_list[], ch
 {
   util_message_info(chp, "Fetch I2C Help:");
   fetch_display_help(chp, fetch_i2c_commands);
-	return true;
+  return true;
 }
 
-static void fetch_i2c_init(void)
+void fetch_i2c_init(BaseSequentialStream * chp)
 {
   // TODO do we need anything here?
   
@@ -342,7 +345,7 @@ bool fetch_i2c_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 {
   if( i2c_init_flag )
   {
-    fetch_i2c_init();
+    fetch_i2c_init(chp);
   }
   return fetch_dispatch(chp, fetch_i2c_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);
 }

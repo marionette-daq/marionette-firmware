@@ -6,9 +6,6 @@
 #ifndef FETCH_FETCH_GPIO_H_
 #define FETCH_FETCH_GPIO_H_
 
-#include "chprintf.h"
-#include "fetch_defs.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -16,6 +13,8 @@ extern "C" {
 bool fetch_gpio_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 
 bool fetch_gpio_reset(BaseSequentialStream * chp);
+
+void fetch_gpio_init(BaseSequentialStream * chp);
 
 #ifdef __cplusplus
 }

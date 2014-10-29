@@ -11,16 +11,19 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "chprintf.h"
 #include "util_messages.h"
 #include "util_strings.h"
 #include "util_general.h"
 
 #include "io_manage.h"
-
+#include "io_manage_defs.h"
 #include "fetch_defs.h"
 #include "fetch_gpio.h"
 #include "fetch.h"
+
+#ifndef GPIO_HEARTBEAT_PERIOD_MS
+#define GPIO_HEARTBEAT_PERIOD_MS 500
+#endif
 
 typedef enum {
   WAIT_EVENT_HIGH = 0,
@@ -43,9 +46,9 @@ static bool fetch_gpio_force_reset_cmd(BaseSequentialStream * chp, char * cmd_li
 static bool fetch_gpio_wait_cmd(BaseSequentialStream * chp, char *cmd_list[], char * data_list[]);
 
 static const char gpio_config_help_string[] = "Configure pin as GPIO\n" \
-                        "Usage: config(<port>,<pin>,<mode>)\n" \
-                        "\tmode = INPUT_FLOATING, INPUT_PULLUP, INPUT_PULLDOWN,\n" \
-                        "\t       OUTPUT_PUSHPULL, OUTPUT_OPENDRAIN";
+                                              "Usage: config(<port>,<pin>,<mode>)\n" \
+                                              "\tmode = INPUT_FLOATING, INPUT_PULLUP, INPUT_PULLDOWN,\n" \
+                                              "\t       OUTPUT_PUSHPULL, OUTPUT_OPENDRAIN";
 static const char gpio_wait_help_string[] = "Wait for the given event on a gpio pin\n" \
                                             "Usage: wait(<port>,<pin>,<event>,<timeout>)\n" \
                                             "\tevent = HIGH, LOW, RISING, FALLING\n" \
@@ -70,6 +73,67 @@ static const char * pin_state_tok[] = {"true","false","1","0"};
 static const char * pin_mode_tok[] = {"INPUT_FLOATING","INPUT_PULLUP","INPUT_PULLDOWN",
                                       "OUTPUT_PUSHPULL","OUTPUT_OPENDRAIN"};
 static const char * wait_event_tok[] = {"HIGH","1","LOW","0","RISING","FALLING"};
+
+static volatile ioportid_t  heartbeat_port = NULL;
+static volatile uint32_t    heartbeat_pin = INVALID_PIN;
+
+static bool gpio_init_flag = true;
+
+static WORKING_AREA(wa_gpio_heartbeat_thread, 512);
+
+static Thread * gpio_heartbeat_thread = NULL;
+
+NORETURN static void gpio_heartbeat_tfunc( void * arg UNUSED )
+{
+	chRegSetThreadName("Heartbeat");
+
+	while (true)
+	{
+		if(chThdShouldTerminate() )
+		{
+			chThdExit(THD_TERMINATE);
+		}
+    if( heartbeat_port != NULL && heartbeat_pin != INVALID_PIN )
+    {
+      palSetPad(heartbeat_port, heartbeat_pin);
+    }
+		chThdSleepMilliseconds(GPIO_HEARTBEAT_PERIOD_MS / 2);
+    if( heartbeat_port != NULL && heartbeat_pin != INVALID_PIN )
+    {
+      palClearPad(heartbeat_port, heartbeat_pin);
+    }
+		chThdSleepMilliseconds(GPIO_HEARTBEAT_PERIOD_MS / 2);
+	}
+}
+
+static bool fetch_gpio_heartbeat_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  ioportid_t port = string_to_port(data_list[0]);
+  uint32_t pin = string_to_pin(data_list[1]);
+  iomode_t mode = PAL_STM32_MODE_OUTPUT | PAL_STM32_OTYPE_PUSHPULL;
+
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2) )
+  {
+    return false;
+  }
+
+  if( port == NULL || pin == INVALID_PIN )
+  {
+    util_message_error(chp, "invalid port/pin");
+    return false;
+  }
+
+  if( !io_manage_set_mode( port, pin, mode, IO_GPIO) )
+  {
+    util_message_error(chp, "unable to allocate pin as GPIO");
+    return false;
+  }
+
+  heartbeat_port = port;
+  heartbeat_pin = pin;
+
+  return true;
+}
 
 static bool fetch_gpio_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
@@ -443,6 +507,12 @@ static bool fetch_gpio_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], 
 
   io_manage_set_default_mode(port, pin);
 
+  if( heartbeat_port == port && heartbeat_pin == pin )
+  {
+    heartbeat_port = NULL;
+    heartbeat_pin = INVALID_PIN;
+  }
+
   return true;
 }
 
@@ -464,15 +534,32 @@ static bool fetch_gpio_force_reset_cmd(BaseSequentialStream * chp, char * cmd_li
   }
 
   io_manage_set_default_mode(port, pin);
+  
+  if( heartbeat_port == port && heartbeat_pin == pin )
+  {
+    heartbeat_port = NULL;
+    heartbeat_pin = INVALID_PIN;
+  }
 
   return true;
 }
 
+void fetch_gpio_init(BaseSequentialStream * chp)
+{
+  gpio_heartbeat_thread = chThdCreateStatic(wa_gpio_heartbeat_thread, sizeof(wa_gpio_heartbeat_thread), NORMALPRIO, (tfunc_t)gpio_heartbeat_tfunc, NULL);
+  
+  gpio_init_flag = false;
+}
 
 /*! \brief dispatch a specific gpio command
  */
 bool fetch_gpio_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
+  if( gpio_init_flag )
+  {
+    fetch_gpio_init(chp);
+  }
+
   return fetch_dispatch(chp, fetch_gpio_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);
 }
 

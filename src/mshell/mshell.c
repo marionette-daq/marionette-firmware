@@ -32,17 +32,16 @@
 #include "chprintf.h"
 #include "chbsem.h"
 
-#include "util_version.h"
 #include "util_general.h"
 #include "util_strings.h"
 #include "util_messages.h"
+#include "util_version.h"
 
 #include "fetch.h"
 #include "mshell.h"
 #include "mshell_sync.h"
 #include "mshell_state.h"
 
-static          VERSIONData                     version_data;
 static          bool                            mshell_echo_chars = MSHELL_ECHO_INPUT_CHARS;
 
 EventSource     mshell_terminated;
@@ -116,37 +115,41 @@ static bool cmd_noecho(BaseSequentialStream * chp, int argc, char * argv[] UNUSE
 static bool cmd_info(BaseSequentialStream * chp, int argc, char * argv[])
 {
 	(void)argv;
-
-	util_fwversion(&version_data);
-	util_hwversion(&version_data);
+  uint32_t chip_id[3] = {0,0,0};
+  
+  chip_id[0] = *(uint32_t*)STM32F4_UNIQUE_ID_LOW;
+  chip_id[1] = *(uint32_t*)STM32F4_UNIQUE_ID_CENTER;
+  chip_id[2] = *(uint32_t*)STM32F4_UNIQUE_ID_HIGH;
 
 	if (argc > 0)
 	{
 		util_message_error(chp, "extra arguments for command 'info'");
 		return false;
 	}
-	util_message_info(chp, "Firmware Version: %s", version_data.firmware);
-	util_message_info(chp, "Chip ID: 0x%x 0x%x 0x%x", version_data.hardware.id_high, version_data.hardware.id_center, version_data.hardware.id_low);
-	util_message_info(chp, "Kernel: %s", CH_KERNEL_VERSION);
+
+	util_message_string(chp, "firmware_version", GIT_COMMIT_VERSION);
+	util_message_hex_uint32(chp, "chip_id", chip_id, 3);
+	util_message_string(chp, "kernel", CH_KERNEL_VERSION);
 #ifdef CH_COMPILER_NAME
-	util_message_info(chp, "Compiler: %s", CH_COMPILER_NAME);
+	util_message_string(chp, "compiler", CH_COMPILER_NAME);
 #endif
-	util_message_info(chp, "Architecture: %s", CH_ARCHITECTURE_NAME);
+	util_message_string(chp, "architecture", CH_ARCHITECTURE_NAME);
 #ifdef CH_CORE_VARIANT_NAME
-	util_message_info(chp, "Core Variant: %s", CH_CORE_VARIANT_NAME);
+	util_message_string(chp, "core_variant", CH_CORE_VARIANT_NAME);
 #endif
 #ifdef CH_PORT_INFO
-	util_message_info(chp, "Port Info: %s", CH_PORT_INFO);
+	util_message_string(chp, "port_info", CH_PORT_INFO);
 #endif
 #ifdef PLATFORM_NAME
-	util_message_info(chp, "Platform: %s", PLATFORM_NAME);
+	util_message_string(chp, "platform", PLATFORM_NAME);
 #endif
 #ifdef BOARD_NAME
-	util_message_info(chp, "Board: %s", BOARD_NAME);
+	util_message_string(chp, "board", BOARD_NAME);
 #endif
 #ifdef __DATE__
 #ifdef __TIME__
-	util_message_info(chp, "Build time: %s%s%s", __DATE__, " - ", __TIME__);
+	util_message_string(chp, "build_date", __DATE__);
+	util_message_string(chp, "build_time", __TIME__);
 #endif
 #endif
   return true;

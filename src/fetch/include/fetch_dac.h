@@ -17,6 +17,8 @@ bool fetch_dac_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 
 bool fetch_dac_reset(BaseSequentialStream * chp);
 
+void fetch_dac_init(BaseSequentialStream * chp);
+
 #ifdef __cplusplus
 }
 #endif

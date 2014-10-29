@@ -11,16 +11,19 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "chprintf.h"
 #include "util_messages.h"
 #include "util_strings.h"
 #include "util_general.h"
 
 #include "io_manage.h"
-
+#include "io_manage_defs.h"
 #include "fetch.h"
 #include "fetch_defs.h"
 #include "fetch_spi.h"
+
+#ifndef MAX_SPI_BYTES
+#define MAX_SPI_BYTES   256
+#endif
 
 static SPIDriver * spi_drv = NULL;
 static SPIConfig   spi_cfg = {NULL, NULL, 0, 0};
@@ -220,9 +223,9 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
 #if STM32_SPI_USE_SPI1
   if( spi_drv == &SPID1 )
   {
-    if( !io_manage_set_mode( GPIOA, PIN5, PAL_MODE_ALTERNATE(5), IO_SPI) )
+    if( !io_manage_set_mode( spi1_pins[0].port, spi1_pins[0].pin, PAL_MODE_ALTERNATE(5), IO_SPI) )
     {
-      util_message_error(chp, "unable to allocate PORTA:PIN5");
+      util_message_error(chp, "unable to allocate pins");
       if( spi_cfg.ssport != NULL )
       {
         io_manage_set_default_mode( spi_cfg.ssport, spi_cfg.sspad );
@@ -230,26 +233,26 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
       spi_drv = NULL;
       return false;
     }
-    if( !io_manage_set_mode( GPIOA, PIN6, PAL_MODE_ALTERNATE(5), IO_SPI) )
+    if( !io_manage_set_mode( spi1_pins[1].port, spi1_pins[1].pin, PAL_MODE_ALTERNATE(5), IO_SPI) )
     {
-      util_message_error(chp, "unable to allocate PORTA:PIN6");
+      util_message_error(chp, "unable to allocate pins");
       if( spi_cfg.ssport != NULL )
       {
         io_manage_set_default_mode( spi_cfg.ssport, spi_cfg.sspad );
       }
-      io_manage_set_default_mode( GPIOA, PIN5 );
+      io_manage_set_default_mode( spi1_pins[0].port, spi1_pins[0].pin );
       spi_drv = NULL;
       return false;
     }
-    if( !io_manage_set_mode( GPIOA, PIN7, PAL_MODE_ALTERNATE(5), IO_SPI) )
+    if( !io_manage_set_mode( spi1_pins[2].port, spi1_pins[2].pin, PAL_MODE_ALTERNATE(5), IO_SPI) )
     {
-      util_message_error(chp, "unable to allocate PORTA:PIN7");
+      util_message_error(chp, "unable to allocate pins");
       if( spi_cfg.ssport != NULL )
       {
         io_manage_set_default_mode( spi_cfg.ssport, spi_cfg.sspad );
       }
-      io_manage_set_default_mode( GPIOA, PIN5 );
-      io_manage_set_default_mode( GPIOA, PIN6 );
+      io_manage_set_default_mode( spi1_pins[0].port, spi1_pins[0].pin );
+      io_manage_set_default_mode( spi1_pins[1].port, spi1_pins[1].pin );
       spi_drv = NULL;
       return false;
     }
@@ -258,9 +261,9 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
 #if STM32_SPI_USE_SPI2
   if( spi_drv == &SPID2 )
   {
-    if( !io_manage_set_mode( GPIOI, PIN1, PAL_MODE_ALTERNATE(5), IO_SPI) )
+    if( !io_manage_set_mode( spi2_pins[0].port, spi2_pins[0].pin, PAL_MODE_ALTERNATE(5), IO_SPI) )
     {
-      util_message_error(chp, "unable to allocate PORTI:PIN1");
+      util_message_error(chp, "unable to allocate pins");
       if( spi_cfg.ssport != NULL )
       {
         io_manage_set_default_mode( spi_cfg.ssport, spi_cfg.sspad );
@@ -268,26 +271,26 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
       spi_drv = NULL;
       return false;
     }
-    if( !io_manage_set_mode( GPIOI, PIN2, PAL_MODE_ALTERNATE(5), IO_SPI) )
+    if( !io_manage_set_mode( spi2_pins[1].port, spi2_pins[1].pin, PAL_MODE_ALTERNATE(5), IO_SPI) )
     {
-      util_message_error(chp, "unable to allocate PORTI:PIN2");
+      util_message_error(chp, "unable to allocate pins");
       if( spi_cfg.ssport != NULL )
       {
         io_manage_set_default_mode( spi_cfg.ssport, spi_cfg.sspad );
       }
-      io_manage_set_default_mode( GPIOI, PIN1 );
+      io_manage_set_default_mode( spi2_pins[0].port, spi2_pins[0].pin );
       spi_drv = NULL;
       return false;
     }
-    if( !io_manage_set_mode( GPIOI, PIN3, PAL_MODE_ALTERNATE(5), IO_SPI) )
+    if( !io_manage_set_mode( spi2_pins[2].port, spi2_pins[2].pin, PAL_MODE_ALTERNATE(5), IO_SPI) )
     {
-      util_message_error(chp, "unable to allocate PORTI:PIN3");
+      util_message_error(chp, "unable to allocate pins");
       if( spi_cfg.ssport != NULL )
       {
         io_manage_set_default_mode( spi_cfg.ssport, spi_cfg.sspad );
       }
-      io_manage_set_default_mode( GPIOI, PIN1 );
-      io_manage_set_default_mode( GPIOI, PIN2 );
+      io_manage_set_default_mode( spi2_pins[0].port, spi2_pins[0].pin );
+      io_manage_set_default_mode( spi2_pins[1].port, spi2_pins[1].pin );
       spi_drv = NULL;
       return false;
     }
@@ -296,9 +299,9 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
 #if STM32_SPI_USE_SPI3
   if( spi_drv == &SPID3 )
   {
-    if( !io_manage_set_mode( GPIOC, PIN10, PAL_MODE_ALTERNATE(6), IO_SPI) )
+    if( !io_manage_set_mode( spi3_pins[0].port, spi3_pins[0].pin, PAL_MODE_ALTERNATE(6), IO_SPI) )
     {
-      util_message_error(chp, "unable to allocate PORTC:PIN10");
+      util_message_error(chp, "unable to allocate pins");
       if( spi_cfg.ssport != NULL )
       {
         io_manage_set_default_mode( spi_cfg.ssport, spi_cfg.sspad );
@@ -306,26 +309,26 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
       spi_drv = NULL;
       return false;
     }
-    if( !io_manage_set_mode( GPIOC, PIN11, PAL_MODE_ALTERNATE(6), IO_SPI) )
+    if( !io_manage_set_mode( spi3_pins[1].port, spi3_pins[1].pin, PAL_MODE_ALTERNATE(6), IO_SPI) )
     {
-      util_message_error(chp, "unable to allocate PORTC:PIN11");
+      util_message_error(chp, "unable to allocate pins");
       if( spi_cfg.ssport != NULL )
       {
         io_manage_set_default_mode( spi_cfg.ssport, spi_cfg.sspad );
       }
-      io_manage_set_default_mode( GPIOC, PIN10 );
+      io_manage_set_default_mode( spi3_pins[0].port, spi3_pins[0].pin );
       spi_drv = NULL;
       return false;
     }
-    if( !io_manage_set_mode( GPIOC, PIN12, PAL_MODE_ALTERNATE(6), IO_SPI) )
+    if( !io_manage_set_mode( spi3_pins[2].port, spi3_pins[2].pin, PAL_MODE_ALTERNATE(6), IO_SPI) )
     {
-      util_message_error(chp, "unable to allocate PORTC:PIN12");
+      util_message_error(chp, "unable to allocate pins");
       if( spi_cfg.ssport != NULL )
       {
         io_manage_set_default_mode( spi_cfg.ssport, spi_cfg.sspad );
       }
-      io_manage_set_default_mode( GPIOC, PIN10 );
-      io_manage_set_default_mode( GPIOC, PIN11 );
+      io_manage_set_default_mode( spi3_pins[0].port, spi3_pins[0].pin );
+      io_manage_set_default_mode( spi3_pins[1].port, spi3_pins[1].pin );
       spi_drv = NULL;
       return false;
     }
@@ -429,25 +432,25 @@ static bool fetch_spi_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
 #if STM32_SPI_USE_SPI1
   if( spi_drv == &SPID1 )
   {
-    io_manage_set_default_mode( GPIOA, PIN5 );
-    io_manage_set_default_mode( GPIOA, PIN6 );
-    io_manage_set_default_mode( GPIOA, PIN7 );
+    io_manage_set_default_mode( spi1_pins[0].port, spi1_pins[0].pin );
+    io_manage_set_default_mode( spi1_pins[1].port, spi1_pins[1].pin );
+    io_manage_set_default_mode( spi1_pins[2].port, spi1_pins[2].pin );
   }
 #endif
 #if STM32_SPI_USE_SPI2
   if( spi_drv == &SPID2 )
   {
-    io_manage_set_default_mode( GPIOI, PIN1 );
-    io_manage_set_default_mode( GPIOI, PIN2 );
-    io_manage_set_default_mode( GPIOI, PIN3 );
+    io_manage_set_default_mode( spi2_pins[0].port, spi2_pins[0].pin );
+    io_manage_set_default_mode( spi2_pins[1].port, spi2_pins[1].pin );
+    io_manage_set_default_mode( spi2_pins[2].port, spi2_pins[2].pin );
   }
 #endif
 #if STM32_SPI_USE_SPI3
   if( spi_drv == &SPID3 )
   {
-    io_manage_set_default_mode( GPIOC, PIN10 );
-    io_manage_set_default_mode( GPIOC, PIN11 );
-    io_manage_set_default_mode( GPIOC, PIN12 );
+    io_manage_set_default_mode( spi3_pins[0].port, spi3_pins[0].pin );
+    io_manage_set_default_mode( spi3_pins[1].port, spi3_pins[1].pin );
+    io_manage_set_default_mode( spi3_pins[2].port, spi3_pins[2].pin );
   }
 #endif
   
@@ -464,7 +467,7 @@ static bool fetch_spi_help_cmd(BaseSequentialStream * chp, char * cmd_list[], ch
 	return true;
 }
 
-static void fetch_spi_init(void)
+void fetch_spi_init(BaseSequentialStream * chp)
 {
   // TODO do we need anything here?
   
@@ -477,7 +480,7 @@ bool fetch_spi_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 {
   if( spi_init_flag )
   {
-    fetch_spi_init();
+    fetch_spi_init(chp);
   }
   return fetch_dispatch(chp, fetch_spi_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);
 }

@@ -29,11 +29,9 @@
 #include "util_general.h"
 #include "util_strings.h"
 #include "util_messages.h"
-#include "util_version.h"
-#include "mshell_state.h"
 
 #include "io_manage.h"
-
+#include "io_manage_defs.h"
 #include "fetch_defs.h"
 #include "fetch.h"
 
@@ -46,15 +44,6 @@
  *   parasitic consumption, the PA4 or PA5 pin should first be configured to analog (AIN).
  */
 
-/*! \brief Channel output pins */
-#if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
-static port_pin_t dac_outputs[] = { { GPIOA, GPIOA_PIN4 }, 
-                                    { GPIOA, GPIOA_PIN5 } };
-#elif defined (BOARD_ST_STM32F4_DISCOVERY)
-#error "ST Discovery Board not defined for DAC"
-#else
-#error "Board not defined for DAC"
-#endif
 
 static bool fetch_dac_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_dac_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
@@ -103,16 +92,16 @@ static bool fetch_dac_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
     return false;
   }
 
-  if( !io_manage_set_mode( dac_outputs[0].port, dac_outputs[0].pin, PAL_STM32_MODE_ANALOG, IO_DAC) )
+  if( !io_manage_set_mode( dac_pins[0].port, dac_pins[0].pin, PAL_STM32_MODE_ANALOG, IO_DAC) )
   {
     util_message_error(chp, "unable to allocate dac pins");
     return false;
   }
 
-  if( !io_manage_set_mode( dac_outputs[1].port, dac_outputs[1].pin, PAL_STM32_MODE_ANALOG, IO_DAC) )
+  if( !io_manage_set_mode( dac_pins[1].port, dac_pins[1].pin, PAL_STM32_MODE_ANALOG, IO_DAC) )
   {
     util_message_error(chp, "unable to allocate dac pins");
-    io_manage_set_default_mode( dac_outputs[0].port, dac_outputs[0].pin );
+    io_manage_set_default_mode( dac_pins[0].port, dac_pins[0].pin );
     return false;
   }
 
@@ -157,19 +146,19 @@ static bool fetch_dac_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
 	dacStop(&DACD1);
 
 	// reset dac pins
-  if( io_manage_get_current_alloc( dac_outputs[0].port, dac_outputs[0].pin ) == IO_DAC )
+  if( io_manage_get_current_alloc( dac_pins[0].port, dac_pins[0].pin ) == IO_DAC )
   {
-    io_manage_set_default_mode( dac_outputs[0].port, dac_outputs[0].pin );
+    io_manage_set_default_mode( dac_pins[0].port, dac_pins[0].pin );
   }
-  if( io_manage_get_current_alloc( dac_outputs[1].port, dac_outputs[1].pin ) == IO_DAC )
+  if( io_manage_get_current_alloc( dac_pins[1].port, dac_pins[1].pin ) == IO_DAC )
   {
-    io_manage_set_default_mode( dac_outputs[1].port, dac_outputs[1].pin );
+    io_manage_set_default_mode( dac_pins[1].port, dac_pins[1].pin );
   }
   return true;
 }
 
 
-static void fetch_dac_init(void)
+void fetch_dac_init(BaseSequentialStream * chp)
 {
 	dacInit();
   dac_init_flag = false;
@@ -181,7 +170,7 @@ bool fetch_dac_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 {
 	if( dac_init_flag )
 	{
-		fetch_dac_init();
+		fetch_dac_init(chp);
 	}
 
   return fetch_dispatch(chp, fetch_dac_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);

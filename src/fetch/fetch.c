@@ -11,14 +11,14 @@
 #include <ctype.h>
 
 #include "hal.h"
-#include "chprintf.h"
 
 #include "util_general.h"
 #include "util_strings.h"
 #include "util_messages.h"
-#include "util_version.h"
 #include "util_led.h"
+#include "util_version.h"
 #include "io_manage.h"
+#include "io_manage_defs.h"
 #include "fetch_gpio.h"
 #include "fetch_adc.h"
 #include "fetch_dac.h"
@@ -190,7 +190,11 @@ static bool fetch_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char 
  */
 void fetch_init(BaseSequentialStream * chp)
 {
-	/* place holder for future use */
+  fetch_gpio_init(chp);
+	fetch_adc_init(chp);
+  fetch_dac_init(chp);
+  fetch_spi_init(chp);
+  fetch_i2c_init(chp);
 }
 
 /*! \brief parse the Fetch Statement

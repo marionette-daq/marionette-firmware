@@ -20,13 +20,11 @@
 #include "util_general.h"
 #include "util_strings.h"
 #include "util_messages.h"
-#include "util_version.h"
 
 #include "mshell_state.h"
 
 #include "io_manage.h"
-#include "fetch_gpio.h"
-
+#include "io_manage_defs.h"
 #include "fetch_defs.h"
 #include "fetch.h"
 
@@ -48,65 +46,8 @@
 
 #define ADC_ENABLE_CH(n) (1<<(n))
 
-/*! \brief pin and port definitions */
-#if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
-static port_pin_t adc1_inputs[] = { { GPIOA, PIN0 },    // ADC_IN0
-                                  { GPIOA, PIN1 },    // ADC_IN1
-                                  { GPIOA, PIN2 },    // ADC_IN2
-                                  { GPIOA, PIN3 },    // ADC_IN3
-                                  { GPIOA, PIN4 },    // ADC_IN4
-                                  { GPIOA, PIN5 },    // ADC_IN5
-                                  { GPIOA, PIN6 },    // ADC_IN6
-                                  { GPIOA, PIN7 },    // ADC_IN7
-                                  { GPIOB, PIN0 },    // ADC_IN8
-                                  { GPIOB, PIN1 },    // ADC_IN9
-                                  { GPIOC, PIN0 },    // ADC_IN10
-                                  { GPIOC, PIN1 },    // ADC_IN11, jumper to OTG_PWR_OUT
-                                  { GPIOC, PIN2 },    // ADC_IN12, jumper to FLG
-                                  { GPIOC, PIN3 },    // ADC_IN13
-                                  { GPIOC, PIN4 },    // ADC_IN14
-                                  { GPIOC, PIN5 } };  // ADC_IN15
-
-static port_pin_t adc2_inputs[] = { { GPIOA, PIN0 },    // ADC_IN0
-                                  { GPIOA, PIN1 },    // ADC_IN1
-                                  { GPIOA, PIN2 },    // ADC_IN2
-                                  { GPIOA, PIN3 },    // ADC_IN3
-                                  { GPIOA, PIN4 },    // ADC_IN4
-                                  { GPIOA, PIN5 },    // ADC_IN5
-                                  { GPIOA, PIN6 },    // ADC_IN6
-                                  { GPIOA, PIN7 },    // ADC_IN7
-                                  { GPIOB, PIN0 },    // ADC_IN8
-                                  { GPIOB, PIN1 },    // ADC_IN9
-                                  { GPIOC, PIN0 },    // ADC_IN10
-                                  { GPIOC, PIN1 },    // ADC_IN11, jumper to OTG_PWR_OUT
-                                  { GPIOC, PIN2 },    // ADC_IN12, jumper to FLG
-                                  { GPIOC, PIN3 },    // ADC_IN13
-                                  { GPIOC, PIN4 },    // ADC_IN14
-                                  { GPIOC, PIN5 } };  // ADC_IN15
-
-static port_pin_t adc3_inputs[] = { { GPIOA, PIN0 },    // ADC_IN0
-                                  { GPIOA, PIN1 },    // ADC_IN1
-                                  { GPIOA, PIN2 },    // ADC_IN2
-                                  { GPIOA, PIN3 },    // ADC_IN3
-                                  { GPIOF, PIN6 },    // ADC_IN4
-                                  { GPIOF, PIN7 },    // ADC_IN5
-                                  { GPIOF, PIN8 },    // ADC_IN6
-                                  { GPIOF, PIN9 },    // ADC_IN7
-                                  { GPIOF, PIN10 },   // ADC_IN8
-                                  { GPIOF, PIN3 },    // ADC_IN9
-                                  { GPIOC, PIN0 },    // ADC_IN10
-                                  { GPIOC, PIN1 },    // ADC_IN11, jumper to OTG_PWR_OUT
-                                  { GPIOC, PIN2 },    // ADC_IN12, jumper to FLG
-                                  { GPIOC, PIN3 },    // ADC_IN13
-                                  { GPIOF, PIN4 },    // ADC_IN14
-                                  { GPIOF, PIN5 } };  // ADC_IN15
-
-
-#elif defined (BOARD_ST_STM32F4_DISCOVERY)
-#error "ST Discovery Board not defined for ADC"
-#else
-#error "Board not defined for ADC"
-#endif
+#define ADC_V_25    (0.76)   //!< From stm32f4 datasheet. Voltage at 25C
+#define ADC_VSLOPE 	(2.5)    //!< units: mv/C
 
 enum {
   ADC_CONFIG_DEV = 0,
@@ -646,13 +587,13 @@ static bool fetch_adc_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
     for( int i = 0; i < FETCH_ADC_MAX_CHANNELS; i++ )
     {
       if( (adc_enabled_channels & ADC_ENABLE_CH(i)) &&
-          !io_manage_set_mode( adc1_inputs[i].port, adc1_inputs[i].pin, PAL_MODE_INPUT_ANALOG, IO_ADC) )
+          !io_manage_set_mode( adc1_pins[i].port, adc1_pins[i].pin, PAL_MODE_INPUT_ANALOG, IO_ADC) )
       {
-        util_message_error(chp, "unable to allocate %s:%d", port_to_string(adc1_inputs[i].port), adc1_inputs[i].pin);
+        util_message_error(chp, "unable to allocate %s:%d", port_to_string(adc1_pins[i].port), adc1_pins[i].pin);
         // loop backwards unrolling what we have done, starting with i-1
         for( i--; i >= 0; i-- )
         {
-          io_manage_set_default_mode( adc1_inputs[i].port, adc1_inputs[i].pin );
+          io_manage_set_default_mode( adc1_pins[i].port, adc1_pins[i].pin );
         }
         adc_drv = NULL;
         return false;
@@ -666,13 +607,13 @@ static bool fetch_adc_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
     for( int i = 0; i < FETCH_ADC_MAX_CHANNELS; i++ )
     {
       if( (adc_enabled_channels & ADC_ENABLE_CH(i)) &&
-          !io_manage_set_mode( adc2_inputs[i].port, adc2_inputs[i].pin, PAL_MODE_INPUT_ANALOG, IO_ADC) )
+          !io_manage_set_mode( adc2_pins[i].port, adc2_pins[i].pin, PAL_MODE_INPUT_ANALOG, IO_ADC) )
       {
-        util_message_error(chp, "unable to allocate %s:%d", port_to_string(adc2_inputs[i].port), adc2_inputs[i].pin);
+        util_message_error(chp, "unable to allocate %s:%d", port_to_string(adc2_pins[i].port), adc2_pins[i].pin);
         // loop backwards unrolling what we have done, starting with i-1
         for( i--; i >= 0; i-- )
         {
-          io_manage_set_default_mode( adc2_inputs[i].port, adc2_inputs[i].pin );
+          io_manage_set_default_mode( adc2_pins[i].port, adc2_pins[i].pin );
         }
         adc_drv = NULL;
         return false;
@@ -686,13 +627,13 @@ static bool fetch_adc_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
     for( int i = 0; i < FETCH_ADC_MAX_CHANNELS; i++ )
     {
       if( (adc_enabled_channels & ADC_ENABLE_CH(i)) &&
-          !io_manage_set_mode( adc3_inputs[i].port, adc3_inputs[i].pin, PAL_MODE_INPUT_ANALOG, IO_ADC) )
+          !io_manage_set_mode( adc3_pins[i].port, adc3_pins[i].pin, PAL_MODE_INPUT_ANALOG, IO_ADC) )
       {
-        util_message_error(chp, "unable to allocate %s:%d", port_to_string(adc3_inputs[i].port), adc3_inputs[i].pin);
+        util_message_error(chp, "unable to allocate %s:%d", port_to_string(adc3_pins[i].port), adc3_pins[i].pin);
         // loop backwards unrolling what we have done, starting with i-1
         for( i--; i >= 0; i-- )
         {
-          io_manage_set_default_mode( adc3_inputs[i].port, adc3_inputs[i].pin );
+          io_manage_set_default_mode( adc3_pins[i].port, adc3_pins[i].pin );
         }
         adc_drv = NULL;
         return false;
@@ -723,11 +664,11 @@ static bool fetch_adc_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
 #if STM32_ADC_USE_ADC1
   if( adc_drv == &ADCD1 )
   {
-    for( uint32_t i = 0; i < NELEMS(adc1_inputs); i++ )
+    for( uint32_t i = 0; i < NELEMS(adc1_pins); i++ )
     {
-      if( io_manage_get_current_alloc( adc1_inputs[i].port, adc1_inputs[i].pin ) == IO_ADC )
+      if( io_manage_get_current_alloc( adc1_pins[i].port, adc1_pins[i].pin ) == IO_ADC )
       {
-        io_manage_set_default_mode( adc1_inputs[i].port, adc1_inputs[i].pin );
+        io_manage_set_default_mode( adc1_pins[i].port, adc1_pins[i].pin );
       }
     }
   }
@@ -735,11 +676,11 @@ static bool fetch_adc_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
 #if STM32_ADC_USE_ADC2
   if( adc_drv == &ADCD2 )
   {
-    for( uint32_t i = 0; i < NELEMS(adc2_inputs); i++ )
+    for( uint32_t i = 0; i < NELEMS(adc2_pins); i++ )
     {
-      if( io_manage_get_current_alloc( adc2_inputs[i].port, adc2_inputs[i].pin ) == IO_ADC )
+      if( io_manage_get_current_alloc( adc2_pins[i].port, adc2_pins[i].pin ) == IO_ADC )
       {
-        io_manage_set_default_mode( adc2_inputs[i].port, adc2_inputs[i].pin );
+        io_manage_set_default_mode( adc2_pins[i].port, adc2_pins[i].pin );
       }
     }
   }
@@ -747,11 +688,11 @@ static bool fetch_adc_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
 #if STM32_ADC_USE_ADC3
   if( adc_drv == &ADCD3 )
   {
-    for( uint32_t i = 0; i < NELEMS(adc3_inputs); i++ )
+    for( uint32_t i = 0; i < NELEMS(adc3_pins); i++ )
     {
-      if( io_manage_get_current_alloc( adc3_inputs[i].port, adc3_inputs[i].pin ) == IO_ADC )
+      if( io_manage_get_current_alloc( adc3_pins[i].port, adc3_pins[i].pin ) == IO_ADC )
       {
-        io_manage_set_default_mode( adc3_inputs[i].port, adc3_inputs[i].pin );
+        io_manage_set_default_mode( adc3_pins[i].port, adc3_pins[i].pin );
       }
     }
   }
@@ -764,7 +705,7 @@ static bool fetch_adc_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
   return true;
 }
 
-static void fetch_adc_init(void)
+void fetch_adc_init(BaseSequentialStream * chp)
 {
 #if STM32_ADC_USE_ADC1
   adcStart(&ADCD1,NULL);
@@ -791,7 +732,7 @@ bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 {
   if( adc_init_flag )
   {
-    fetch_adc_init();
+    fetch_adc_init(chp);
   }
 
   return fetch_dispatch(chp, fetch_adc_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);

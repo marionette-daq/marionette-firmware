@@ -99,7 +99,7 @@ static io_table_t * io_manage_tables[] = { &io_porta, &io_portb, &io_portc, &io_
 
 io_namestr_t   io_manage_alloc_name[] = {{IO_NONE, "None"},  {IO_GPIO, "GPIO"},  {IO_ADC, "ADC"}, 
                                       {IO_DAC,  "DAC"},   {IO_SPI,  "SPI"},   {IO_I2C, "I2C"},
-                                      {IO_USB,  "USB"},   {IO_LED,  "LED"},   {IO_CAN, "CAN"}};
+                                      {IO_USB,  "USB"},   {IO_CAN, "CAN"}};
 
 /*! \brief return pointer to the io port allocation table
  */
