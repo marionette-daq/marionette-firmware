@@ -44,6 +44,7 @@ static bool fetch_gpio_info_cmd(BaseSequentialStream * chp, char * cmd_list[], c
 static bool fetch_gpio_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_gpio_force_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_gpio_wait_cmd(BaseSequentialStream * chp, char *cmd_list[], char * data_list[]);
+static bool fetch_gpio_heartbeat_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 
 static const char gpio_config_help_string[] = "Configure pin as GPIO\n" \
                                               "Usage: config(<port>,<pin>,<mode>)\n" \
@@ -65,6 +66,7 @@ static fetch_command_t fetch_gpio_commands[] = {
     { fetch_gpio_config_cmd,      "config",     gpio_config_help_string },
     { fetch_gpio_info_cmd,        "info",       "Get pin info\nUsage: info(<port>,<pin>)" },
     { fetch_gpio_reset_cmd,       "reset",      "Reset GPIO pin to defaults\nUsage: reset(<port>,<pin>)" },
+    { fetch_gpio_heartbeat_config_cmd, "heartbeatconfig", "Configure port/pin for heartbeat led" },
     { fetch_gpio_force_reset_cmd, "forcereset", NULL },
     { NULL, NULL, NULL } // null terminate list
   };

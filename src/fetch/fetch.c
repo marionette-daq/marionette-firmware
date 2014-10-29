@@ -15,7 +15,6 @@
 #include "util_general.h"
 #include "util_strings.h"
 #include "util_messages.h"
-#include "util_led.h"
 #include "util_version.h"
 #include "io_manage.h"
 #include "io_manage_defs.h"
@@ -32,8 +31,6 @@ static bool fetch_help_cmd(BaseSequentialStream  * chp, char * cmd_list[], char 
 static bool fetch_reset_cmd(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_version_cmd(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_chip_id_cmd(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_heartbeat_on_cmd(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_heartbeat_off_cmd(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_gpio(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_adc(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_dac(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
@@ -53,8 +50,6 @@ static fetch_command_t fetch_commands[] = {
     { fetch_reset_cmd,          "reset",            "Reset all peripherals and pins" },
     { fetch_version_cmd,        "version",          "Version information" },
     { fetch_chip_id_cmd,        "chipid",           "Return unique cpu chip id" },
-    { fetch_heartbeat_on_cmd,   "heartbeaton",      "Turn on led heartbeat" },
-    { fetch_heartbeat_off_cmd,  "heartbeatoff",     "Turn off led heartbeat" },
     { fetch_gpio_dispatch,      "gpio",             "GPIO command set\n(see gpio.help)" },
     { fetch_adc_dispatch,       "adc",              "ADC command set\n(see adc.help)" },
     { fetch_dac_dispatch,       "dac",              "DAC command set\n(see dac.help)" },
@@ -132,33 +127,6 @@ static bool fetch_chip_id_cmd(BaseSequentialStream * chp, char * cmd_list[], cha
 
 	util_message_hex_uint32(chp, "chip_id", chip_id, 3);
 	return true;
-}
-
-
-/*! \brief HBON command callback for fetch language
- */
-static bool fetch_heartbeat_on_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_CMD, data_list, 0) )
-  {
-    return false;
-  }
-
-  hbOn();
-  return true;
-}
-
-/*! \brief HBOFF command callback for fetch language
- */
-static bool fetch_heartbeat_off_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_CMD, data_list, 0) )
-  {
-    return false;
-  }
-
-  hbOff();
-  return true;
 }
 
 /*! \brief RESET command callback for fetch language
