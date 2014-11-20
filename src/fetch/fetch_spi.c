@@ -419,6 +419,37 @@ static bool fetch_spi_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
     return false;
   }
 
+  return fetch_spi_reset(chp);
+}
+
+static bool fetch_spi_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  util_message_info(chp, "Fetch SPI Help:");
+  fetch_display_help(chp, fetch_spi_commands);
+	return true;
+}
+
+void fetch_spi_init(BaseSequentialStream * chp)
+{
+  // TODO do we need anything here?
+  
+  spi_init_flag = false;
+}
+
+/*! \brief dispatch a specific spi command
+ */
+bool fetch_spi_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  if( spi_init_flag )
+  {
+    fetch_spi_init(chp);
+  }
+  return fetch_dispatch(chp, fetch_spi_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);
+}
+
+
+bool fetch_spi_reset(BaseSequentialStream * chp)
+{
   if( spi_drv == NULL )
   {
     return true;
@@ -456,39 +487,6 @@ static bool fetch_spi_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
   
   spiStop(spi_drv);
   spi_drv = NULL;
-
-  return true;
-}
-
-static bool fetch_spi_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-  util_message_info(chp, "Fetch SPI Help:");
-  fetch_display_help(chp, fetch_spi_commands);
-	return true;
-}
-
-void fetch_spi_init(BaseSequentialStream * chp)
-{
-  // TODO do we need anything here?
-  
-  spi_init_flag = false;
-}
-
-/*! \brief dispatch a specific spi command
- */
-bool fetch_spi_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-  if( spi_init_flag )
-  {
-    fetch_spi_init(chp);
-  }
-  return fetch_dispatch(chp, fetch_spi_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);
-}
-
-
-bool fetch_spi_reset(BaseSequentialStream * chp)
-{
-  // TODO reset spi
   
   return true;
 }

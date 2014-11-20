@@ -656,6 +656,44 @@ static bool fetch_adc_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
     return false;
   }
 
+  return fetch_adc_reset(chp);
+}
+
+void fetch_adc_init(BaseSequentialStream * chp)
+{
+#if STM32_ADC_USE_ADC1
+  adcStart(&ADCD1,NULL);
+#endif
+#if STM32_ADC_USE_ADC2
+  adcStart(&ADCD2,NULL);
+#endif
+#if STM32_ADC_USE_ADC3
+  adcStart(&ADCD3,NULL);
+#endif
+  
+  // enable the thermal sensor and VREFINT.
+  adcSTM32EnableTSVREFE();
+  adcSTM32EnableVBATE();
+
+  chBSemInit(&adc_data_ready_sem, 0);
+
+  adc_init_flag = false;
+}
+
+/*! \brief dispatch an ADC command
+ */
+bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  if( adc_init_flag )
+  {
+    fetch_adc_init(chp);
+  }
+
+  return fetch_dispatch(chp, fetch_adc_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);
+}
+
+bool fetch_adc_reset(BaseSequentialStream * chp)
+{
   if( adc_drv == NULL )
   {
     return true;
@@ -701,46 +739,6 @@ static bool fetch_adc_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
   adc_drv = NULL;
 
   chBSemReset(&adc_data_ready_sem, 0);
-
-  return true;
-}
-
-void fetch_adc_init(BaseSequentialStream * chp)
-{
-#if STM32_ADC_USE_ADC1
-  adcStart(&ADCD1,NULL);
-#endif
-#if STM32_ADC_USE_ADC2
-  adcStart(&ADCD2,NULL);
-#endif
-#if STM32_ADC_USE_ADC3
-  adcStart(&ADCD3,NULL);
-#endif
-  
-  // enable the thermal sensor and VREFINT.
-  adcSTM32EnableTSVREFE();
-  adcSTM32EnableVBATE();
-
-  chBSemInit(&adc_data_ready_sem, 0);
-
-  adc_init_flag = false;
-}
-
-/*! \brief dispatch an ADC command
- */
-bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-  if( adc_init_flag )
-  {
-    fetch_adc_init(chp);
-  }
-
-  return fetch_dispatch(chp, fetch_adc_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);
-}
-
-bool fetch_adc_reset(BaseSequentialStream * chp)
-{
-  // TODO reset adc
   
   return true;
 }

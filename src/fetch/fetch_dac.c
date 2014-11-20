@@ -143,18 +143,7 @@ static bool fetch_dac_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
     return false;
   }
 
-	dacStop(&DACD1);
-
-	// reset dac pins
-  if( io_manage_get_current_alloc( dac_pins[0].port, dac_pins[0].pin ) == IO_DAC )
-  {
-    io_manage_set_default_mode( dac_pins[0].port, dac_pins[0].pin );
-  }
-  if( io_manage_get_current_alloc( dac_pins[1].port, dac_pins[1].pin ) == IO_DAC )
-  {
-    io_manage_set_default_mode( dac_pins[1].port, dac_pins[1].pin );
-  }
-  return true;
+  return fetch_dac_reset(chp);
 }
 
 
@@ -178,7 +167,17 @@ bool fetch_dac_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 
 bool fetch_dac_reset(BaseSequentialStream * chp)
 {
-  // TODO reset dac
+	dacStop(&DACD1);
+
+	// reset dac pins
+  if( io_manage_get_current_alloc( dac_pins[0].port, dac_pins[0].pin ) == IO_DAC )
+  {
+    io_manage_set_default_mode( dac_pins[0].port, dac_pins[0].pin );
+  }
+  if( io_manage_get_current_alloc( dac_pins[1].port, dac_pins[1].pin ) == IO_DAC )
+  {
+    io_manage_set_default_mode( dac_pins[1].port, dac_pins[1].pin );
+  }
   
   return true;
 }

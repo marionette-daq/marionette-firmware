@@ -292,37 +292,7 @@ static bool fetch_i2c_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
     return false;
   }
 
-  if( i2c_drv == NULL )
-  {
-    return true;
-  }
-
-#if STM32_I2C_USE_I2C1
-  if( i2c_drv == &I2CD1 )
-  {
-    io_manage_set_default_mode( i2c1_pins[0].port, i2c1_pins[0].pin );
-    io_manage_set_default_mode( i2c1_pins[1].port, i2c1_pins[1].pin );
-  }
-#endif
-#if STM32_I2C_USE_I2C2
-  if( i2c_drv == &I2CD2 )
-  {
-    io_manage_set_default_mode( i2c2_pins[0].port, i2c2_pins[0].pin );
-    io_manage_set_default_mode( i2c2_pins[1].port, i2c2_pins[1].pin );
-  }
-#endif
-#if STM32_I2C_USE_I2C3
-  if( i2c_drv == &I2CD3 )
-  {
-    io_manage_set_default_mode( i2c3_pins[0].port, i2c3_pins[0].pin );
-    io_manage_set_default_mode( i2c3_pins[1].port, i2c3_pins[1].pin );
-  }
-#endif
-  
-  i2cStop(i2c_drv);
-  i2c_drv = NULL;
-
-  return true;
+  return fetch_i2c_reset(chp);
 }
 
 static bool fetch_i2c_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
@@ -353,7 +323,35 @@ bool fetch_i2c_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 
 bool fetch_i2c_reset(BaseSequentialStream * chp)
 {
-  // TODO reset i2c
+  if( i2c_drv == NULL )
+  {
+    return true;
+  }
+
+#if STM32_I2C_USE_I2C1
+  if( i2c_drv == &I2CD1 )
+  {
+    io_manage_set_default_mode( i2c1_pins[0].port, i2c1_pins[0].pin );
+    io_manage_set_default_mode( i2c1_pins[1].port, i2c1_pins[1].pin );
+  }
+#endif
+#if STM32_I2C_USE_I2C2
+  if( i2c_drv == &I2CD2 )
+  {
+    io_manage_set_default_mode( i2c2_pins[0].port, i2c2_pins[0].pin );
+    io_manage_set_default_mode( i2c2_pins[1].port, i2c2_pins[1].pin );
+  }
+#endif
+#if STM32_I2C_USE_I2C3
+  if( i2c_drv == &I2CD3 )
+  {
+    io_manage_set_default_mode( i2c3_pins[0].port, i2c3_pins[0].pin );
+    io_manage_set_default_mode( i2c3_pins[1].port, i2c3_pins[1].pin );
+  }
+#endif
+  
+  i2cStop(i2c_drv);
+  i2c_drv = NULL;
   
   return true;
 }
