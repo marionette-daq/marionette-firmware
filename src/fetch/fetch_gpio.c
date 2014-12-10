@@ -22,7 +22,7 @@
 #include "fetch.h"
 
 #ifndef GPIO_HEARTBEAT_PERIOD_MS
-#define GPIO_HEARTBEAT_PERIOD_MS 500
+#define GPIO_HEARTBEAT_PERIOD_MS 1000
 #endif
 
 typedef enum {
@@ -36,6 +36,7 @@ typedef enum {
 static bool fetch_gpio_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_gpio_read_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_gpio_read_port_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_gpio_read_all_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_gpio_write_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_gpio_set_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_gpio_clear_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
@@ -59,6 +60,7 @@ static fetch_command_t fetch_gpio_commands[] = {
     { fetch_gpio_help_cmd,        "help",       "Display GPIO help"},
     { fetch_gpio_read_cmd,        "read",       "Read pin state\nUsage: read(<port>,<pin>)" },
     { fetch_gpio_read_port_cmd,   "readport",   "Read state of all pins on port\nUsage: readport(<port>)" },
+    { fetch_gpio_read_all_cmd,    "readall",    "Read state of all pins on all ports" },
     { fetch_gpio_write_cmd,       "write",      "Write state to pin\nUsage: write(<port>,<pin>,<state>)" },
     { fetch_gpio_set_cmd,         "set",        "Set pin to 1\nUsage: set(<port>,<pin>)" },
     { fetch_gpio_clear_cmd,       "clear",      "Clear pin to 0\nUsage: clear(<port>,<pin>)" },
@@ -66,7 +68,7 @@ static fetch_command_t fetch_gpio_commands[] = {
     { fetch_gpio_config_cmd,      "config",     gpio_config_help_string },
     { fetch_gpio_info_cmd,        "info",       "Get pin info\nUsage: info(<port>,<pin>)" },
     { fetch_gpio_reset_cmd,       "reset",      "Reset GPIO pin to defaults\nUsage: reset(<port>,<pin>)" },
-    { fetch_gpio_heartbeat_config_cmd, "heartbeatconfig", "Configure port/pin for heartbeat led" },
+    { fetch_gpio_heartbeat_config_cmd, "heartbeatconfig", "Configure port/pin for heartbeat led\nUsage: heartbeatconfig(<port>,<pin>)" },
     { fetch_gpio_force_reset_cmd, "forcereset", NULL },
     { NULL, NULL, NULL } // null terminate list
   };
@@ -184,6 +186,37 @@ static bool fetch_gpio_read_port_cmd(BaseSequentialStream * chp, char * cmd_list
 
   port_state = palReadPort(port);
   util_message_uint16(chp, "state", &port_state, 1);
+  return true;
+}
+
+static bool fetch_gpio_read_all_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  uint16_t port_state;
+
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 0) )
+  {
+    return false;
+  }
+
+  port_state = palReadPort(GPIOA);
+  util_message_uint16(chp, "a", &port_state, 1);
+  port_state = palReadPort(GPIOB);
+  util_message_uint16(chp, "b", &port_state, 1);
+  port_state = palReadPort(GPIOC);
+  util_message_uint16(chp, "c", &port_state, 1);
+  port_state = palReadPort(GPIOD);
+  util_message_uint16(chp, "d", &port_state, 1);
+  port_state = palReadPort(GPIOE);
+  util_message_uint16(chp, "e", &port_state, 1);
+  port_state = palReadPort(GPIOF);
+  util_message_uint16(chp, "f", &port_state, 1);
+  port_state = palReadPort(GPIOG);
+  util_message_uint16(chp, "g", &port_state, 1);
+  port_state = palReadPort(GPIOH);
+  util_message_uint16(chp, "h", &port_state, 1);
+  port_state = palReadPort(GPIOI);
+  util_message_uint16(chp, "i", &port_state, 1);
+
   return true;
 }
 
