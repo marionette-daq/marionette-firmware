@@ -287,7 +287,7 @@ class Marionette(object):
 
     Returns true if conversion has completed
     """
-    self.command("adc.wait(%s)", timeout)["ready"]
+    return self.command("adc.wait(%s)", timeout)["ready"]
 
   def fetch_adc_status(self):
     """
@@ -295,7 +295,8 @@ class Marionette(object):
 
     Returns true if conversion has completed
     """
-    self.command("adc.status")["ready"]
+
+    return self.command("adc.status")["ready"]
 
   def fetch_adc_samples(self):
     """
@@ -315,7 +316,7 @@ class Marionette(object):
     vref = millivolts
     count = sample count per channel
     channels = list of channel id's (CH0 ... CH15, SENSOR, VREFINT, VBAT)
-    """
+
     self.command("adc.config(%s,%s,%s,%s,%s,%s)", dev, res, sample_clk, vref, count, ",".join(channels))
 
   def fetch_adc_reset(self):
