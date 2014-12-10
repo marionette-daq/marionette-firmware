@@ -222,6 +222,7 @@ static bool fetch_i2c_transmit_cmd(BaseSequentialStream * chp, char * cmd_list[]
   {
     case RDY_TIMEOUT:
       util_message_error(chp, "i2c timeout");
+      i2cStart(i2c_drv, &i2c_cfg);
       return false;
     case RDY_RESET:
       util_message_error(chp, "i2c error");
@@ -270,6 +271,7 @@ static bool fetch_i2c_receive_cmd(BaseSequentialStream * chp, char * cmd_list[],
   {
     case RDY_TIMEOUT:
       util_message_error(chp, "i2c timeout");
+      i2cStart(i2c_drv, &i2c_cfg);
       return false;
     case RDY_RESET:
       util_message_error(chp, "i2c error");
