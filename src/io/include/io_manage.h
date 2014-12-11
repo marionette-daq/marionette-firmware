@@ -25,7 +25,7 @@ iopin_t string_to_pin( char * str);
 const char * port_to_string( ioportid_t port );
 
 void io_manage_set_all_to_defaults( void );
-bool io_manage_set_default_mode( ioportid_t port, uint32_t pin );
+bool io_manage_set_default_mode(ioportid_t port, uint32_t pin, iomode_t mode_filter );
 bool io_manage_set_mode( ioportid_t port, uint32_t pin, iomode_t new_mode, io_alloc_t request_alloc );
 
 const char * io_manage_get_alloc_name(io_alloc_t alloc);

@@ -59,7 +59,7 @@ def check_port_pin(port,pin):
 
 
 class Marionette(object):
-  def __init__(self, tty=None ):
+  def __init__(self, tty=None, auto_open=True ):
     """
     Initialize marionette instance
 
@@ -69,7 +69,7 @@ class Marionette(object):
     self.tty = tty
     self.serial = None
 
-    if tty:
+    if tty and auto_open:
       self.open(tty)
 
   def open(self, tty=None):
@@ -107,7 +107,7 @@ class Marionette(object):
 
   def command(self, fmt, *args):
     """
-    Issue a command to marionette and return its parsed response
+    Issue a command to marionette and return its parsed response as a dictionary
 
     fmt   = command format string
     args  = optional arguments for positional substitution in fmt
@@ -122,7 +122,7 @@ class Marionette(object):
 
     is equivilent to
     
-    result = command("command(%s,%s) % (arg1, arg2))
+    result = command("command(%s,%s)" % (arg1, arg2))
     """
     if not self.serial:
       raise MarionetteIOError("serial port not open")
@@ -195,19 +195,12 @@ class Marionette(object):
     """ Query fetch version string """
     return self.command("version")
 
-  def fetch_heartbeat(self, enabled):
-    """ Enable/disable led heartbeat """
-    if enabled:
-      self.command("heartbeaton")
-    else:
-      self.command("heartbeatoff")
-
   def fetch_chip_id(self):
     """ Return marionette unique chip id as three 32bit integers """
     return self.command("chipid")["chip_id"]
 
-  def fetch_reset_pins(self):
-    self.command("resetpins")
+  def fetch_reset(self):
+    self.command("reset")
 
   # fetch gpio commands
 
@@ -219,6 +212,10 @@ class Marionette(object):
     """ Read port state as 16 bit value """
     check_port_pin(port,0)
     return self.command("gpio.readport(%s)",port)["state"][0]
+
+  def fetch_gpio_read_all(self):
+    """ Read all ports as 16bit values """
+    return self.command("gpio.readall")
 
   def fetch_gpio_write(self, port, pin, state):
     check_port_pin(port,pin)
@@ -316,6 +313,7 @@ class Marionette(object):
     vref = millivolts
     count = sample count per channel
     channels = list of channel id's (CH0 ... CH15, SENSOR, VREFINT, VBAT)
+    """
 
     self.command("adc.config(%s,%s,%s,%s,%s,%s)", dev, res, sample_clk, vref, count, ",".join(channels))
 
@@ -337,15 +335,15 @@ class Marionette(object):
 
   # fetch spi commands
 
-  def fetch_spi_config(self, dev, clk_polarity, clk_phase, clk_div, order, port, pin):
+  def fetch_spi_config(self, dev, clk_polarity, clk_phase, clk_div, bit_order, port, pin):
     """
     Configure spi module
 
-    dev = SPI1 | SPI2 | SPI3
-    clk_polarity = CPOL0 | CPOL1
-    clk_phase = CPHA0 | CPHA1
-    clk_div = CLKDIV0 ... CLKDIV7
-    order = MSB_FIRST | LSB_FIRST
+    dev = 1 | 2 | 3
+    clk_polarity = 0 | 1
+    clk_phase = 0 | 1
+    clk_div = 0 ... 7
+    bit_order = 0 (msb) | 1 (lsb)
     port = chip select port or None
     pin = chip select pin or None
 
@@ -355,27 +353,12 @@ class Marionette(object):
     if port is not None or pin is not None:
       check_port_pin(port,pin)
 
-    if str(dev) in ('1','2','3'):
-      dev = "spi_" + str(dev)
+    self.command("spi.config(%s,%s,%s,%s,%s,%s,%s)", dev, clk_polarity, clk_phase, clk_div, bit_order, port, pin)
 
-    if str(clk_polarity) in ('0','1'):
-      clk_polarity = "cpol_" + str(clk_polarity)
+  def fetch_spi_reset(self, dev):
+    self.command("spi.reset(%s)", dev)
 
-    if str(clk_phase) in ('0','1'):
-      clk_phase = "cpha_" + str(clk_phase)
-
-    if str(clk_div) in ('0','1','2','3','4','5','6','7'):
-      clk_div = "clk_div_" + str(clk_div)
-
-    if str(order).lower() in ('msb','lsb'):
-      order = str(order) + "_first"
-
-    self.command("spi.config(%s,%s,%s,%s,%s,%s,%s)", dev, clk_polarity, clk_phase, clk_div, order, port, pin)
-
-  def fetch_spi_reset(self):
-    self.command("spi.reset")
-
-  def fetch_spi_exchange(self, tx_data):
+  def fetch_spi_exchange(self, dev, tx_data):
     """
     Clock data out/in spi port
 
@@ -395,7 +378,7 @@ class Marionette(object):
     else:
       raise TypeError("tx_data")
 
-    result = self.command("spi.exchange(hex,%s)", ",".join(map(lambda d: "%x" % d, tx_data)))
+    result = self.command("spi.exchange(%s,16,%s)", dev, ",".join(map(lambda d: "%x" % d, tx_data)))
     return bytearray(result['rx'])
 
   # fetch i2c commands
@@ -404,19 +387,14 @@ class Marionette(object):
     """
     Configure i2c module
 
-    dev = I2C_1 | I2C_2 | I2C_3
-
+    dev = 1 | 2 | 3
     """
-
-    if str(dev) in ('1','2','3'):
-      dev = "i2c_" + str(dev)
-
     self.command("i2c.config(%s)", dev)
 
-  def fetch_i2c_reset(self):
-    self.command("i2c.reset")
+  def fetch_i2c_reset(self, dev):
+    self.command("i2c.reset(%s)", dev)
 
-  def fetch_i2c_transmit(self, address, tx_data):
+  def fetch_i2c_transmit(self, dev, address, tx_data):
     """
     Transmit data to a i2c slave
 
@@ -435,23 +413,16 @@ class Marionette(object):
     else:
       raise TypeError("tx_data")
 
-    if address < 0 or address > 127:
-      raise ValueError("address")
+    self.command("i2c.transmit(%s,%s,16,%s)", dev, address, ",".join(map(lambda d: "%x" % d, tx_data)))
 
-    self.command("i2c.transmit(%s,hex,%s)", address, ",".join(map(lambda d: "%x" % d, tx_data)))
-
-  def fetch_i2c_receive(self, address, count):
+  def fetch_i2c_receive(self, dev, address, count):
     """
     Transmit data to a i2c slave
 
     address = 7bit slave address
     count = number of bytes to receive
     """
-
-    if address < 0 or address > 127:
-      raise ValueError("address")
-
-    result = self.command("i2c.receive(%s,%s)", address, count)
+    result = self.command("i2c.receive(%s,%s,%s)", dev, address, count)
     return bytearray(result['rx'])
 
 

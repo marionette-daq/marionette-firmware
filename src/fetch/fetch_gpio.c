@@ -540,7 +540,7 @@ static bool fetch_gpio_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], 
     return false;
   }
 
-  io_manage_set_default_mode(port, pin);
+  io_manage_set_default_mode(port, pin, IO_GPIO );
 
   if( heartbeat_port == port && heartbeat_pin == pin )
   {
@@ -568,7 +568,7 @@ static bool fetch_gpio_force_reset_cmd(BaseSequentialStream * chp, char * cmd_li
     return false;
   }
 
-  io_manage_set_default_mode(port, pin);
+  io_manage_set_default_mode(port, pin, IO_NONE );
   
   if( heartbeat_port == port && heartbeat_pin == pin )
   {

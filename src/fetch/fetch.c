@@ -46,7 +46,7 @@ static bool fetch_test_cmd(BaseSequentialStream  * chp, char * cmd_list[], char 
 static fetch_command_t fetch_commands[] = {
   /*  function                  command string      help string */
     { fetch_help_cmd,           "?",                NULL },
-    { fetch_help_cmd,           "help",             "Display command help" },
+    { fetch_help_cmd,           "help",             "Display fetch command help" },
     { fetch_reset_cmd,          "reset",            "Reset all peripherals and pins" },
     { fetch_version_cmd,        "version",          "Version information" },
     { fetch_chip_id_cmd,        "chipid",           "Return unique cpu chip id" },
@@ -92,7 +92,7 @@ static bool fetch_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char *
     return false;
   }
 
-  util_message_info(chp, "Fetch Help:");
+  util_message_info(chp, "+help\n\tDislay shell help");
   fetch_display_help(chp, fetch_commands);
 	return true;
 }

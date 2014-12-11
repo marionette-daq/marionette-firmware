@@ -29,11 +29,8 @@
 #define I2C_TIMEOUT MS2ST(100)
 #endif
 
-static I2CDriver * i2c_drv = NULL;
 static I2CConfig   i2c_cfg = {OPMODE_I2C, 100000, STD_DUTY_CYCLE};
 static bool i2c_init_flag = true;
-
-static const char * i2c_dev_tok[]     = {"I2C_1","I2C_2","I2C_3"};
 
 // list all command function prototypes here 
 static bool fetch_i2c_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
@@ -42,115 +39,109 @@ static bool fetch_i2c_receive_cmd(BaseSequentialStream * chp, char * cmd_list[],
 static bool fetch_i2c_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_i2c_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 
-static const char i2c_config_help_string[] =  "Configure I2C driver\n" \
-                                              "Usage: config(<dev>)\n" \
-                                              "\tdev = I2C_1 | I2C_2 | I2C_3";
-
 static fetch_command_t fetch_i2c_commands[] = {
-    { fetch_i2c_transmit_cmd,  "transmit",  "TX data to slave\nUsage: transmit(<addr>,[hex],<byte n>,...,<byte n>)" },
-    { fetch_i2c_receive_cmd,  "receive",   "RX data from slave\nUsage: receive(<addr>,<count>)" },
-    { fetch_i2c_config_cmd,    "config",    i2c_config_help_string},
-    { fetch_i2c_reset_cmd,     "reset",     "Reset I2C driver" },
+    { fetch_i2c_transmit_cmd,  "transmit",  "TX data to slave\n" \
+                                            "Usage: transmit(<dev>,<addr>,<base>,<byte 0>,...,<byte n>)" },
+    { fetch_i2c_receive_cmd,   "receive",   "RX data from slave\n" \
+                                            "Usage: receive(<dev>,<addr>,<count>)" },
+    { fetch_i2c_config_cmd,    "config",    "Configure I2C driver\n" \
+                                            "Usage: config(<dev>)" },
+    { fetch_i2c_reset_cmd,     "reset",     "Reset I2C driver\n" \
+                                            "Usage: reset(<dev>)" },
     { fetch_i2c_help_cmd,      "help",      "I2C command help" },
     { NULL, NULL, NULL } // null terminate list
   };
 
+
+static I2CDriver * parse_i2c_dev( char * str, int32_t * dev )
+{
+  char * endptr;
+  int32_t num = strtol(str, &endptr, 0);
+
+  if(*endptr != '\0')
+  {
+    return NULL;
+  }
+
+  if( dev != NULL )
+  {
+    *dev = num;
+  }
+
+  switch( num )
+  {
+#if STM32_I2C_USE_I2C1
+    case 1:
+      return &I2CD1;
+#endif
+#if STM32_I2C_USE_I2C2
+    case 2:
+      return &I2CD2;
+#endif
+#if STM32_I2C_USE_I2C3
+    case 3:
+      return &I2CD3;
+#endif
+    default:
+      return NULL;
+  }
+}
+
 static bool fetch_i2c_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
+  int32_t i2c_dev;
+  I2CDriver * i2c_drv;
+
   if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 1) )
   {
     return false;
   }
 
-  if( i2c_drv != NULL )
+  if( (i2c_drv = parse_i2c_dev(data_list[0], &i2c_dev)) == NULL)
   {
-    util_message_error(chp, "I2C already configured");
-    util_message_info(chp, "use i2c.reset");
+    util_message_error(chp, "invalid device identifier");
     return false;
   }
-  
+
+  // standard i2c configuration at 100kHz
   i2c_cfg.op_mode = OPMODE_I2C;
   i2c_cfg.clock_speed = 100000;
   i2c_cfg.duty_cycle = STD_DUTY_CYCLE;
 
-  switch( token_match(  data_list[0], FETCH_MAX_DATA_STRLEN,
-                        i2c_dev_tok, NELEMS(i2c_dev_tok)) )
+  switch( i2c_dev )
   {
-#if STM32_I2C_USE_I2C1
-    case 0:
-      i2c_drv = &I2CD1;
-      break;
-#endif
-#if STM32_I2C_USE_I2C2
     case 1:
-      i2c_drv = &I2CD2;
+      if( !io_manage_set_mode( i2c1_pins[0].port, i2c1_pins[0].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) ||
+          !io_manage_set_mode( i2c1_pins[1].port, i2c1_pins[1].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
+      {
+        util_message_error(chp, "unable to allocate pins");
+        io_manage_set_default_mode( i2c1_pins[0].port, i2c1_pins[0].pin, IO_I2C );
+        io_manage_set_default_mode( i2c1_pins[1].port, i2c1_pins[1].pin, IO_I2C );
+        return false;
+      }
       break;
-#endif
-#if STM32_I2C_USE_I2C3
     case 2:
-      i2c_drv = &I2CD3;
+      if( !io_manage_set_mode( i2c2_pins[0].port, i2c2_pins[0].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) ||
+          !io_manage_set_mode( i2c2_pins[1].port, i2c2_pins[1].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
+      {
+        util_message_error(chp, "unable to allocate pins");
+        io_manage_set_default_mode( i2c2_pins[0].port, i2c2_pins[0].pin, IO_I2C );
+        io_manage_set_default_mode( i2c2_pins[1].port, i2c2_pins[1].pin, IO_I2C );
+        return false;
+      }
       break;
-#endif
-    default:
-      util_message_error(chp, "invalid i2c device");
-      return false;
+    case 3:
+      if( !io_manage_set_mode( i2c3_pins[0].port, i2c3_pins[0].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) ||
+          !io_manage_set_mode( i2c3_pins[1].port, i2c3_pins[1].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
+      {
+        util_message_error(chp, "unable to allocate pins");
+        io_manage_set_default_mode( i2c3_pins[0].port, i2c3_pins[0].pin, IO_I2C );
+        io_manage_set_default_mode( i2c3_pins[1].port, i2c3_pins[1].pin, IO_I2C );
+        return false;
+      }
+      break;
   }
 
-#if STM32_I2C_USE_I2C1
-  if( i2c_drv == &I2CD1 )
-  {
-    if( !io_manage_set_mode( i2c1_pins[0].port, i2c1_pins[0].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
-    {
-      util_message_error(chp, "unable to allocate pins");
-      i2c_drv = NULL;
-      return false;
-    }
-    if( !io_manage_set_mode( i2c1_pins[1].port, i2c1_pins[1].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
-    {
-      util_message_error(chp, "unable to allocate pins");
-      io_manage_set_default_mode( i2c1_pins[0].port, i2c1_pins[0].pin );
-      i2c_drv = NULL;
-      return false;
-    }
-  }
-#endif
-#if STM32_I2C_USE_I2C2
-  if( i2c_drv == &I2CD2 )
-  {
-    if( !io_manage_set_mode( i2c2_pins[0].port, i2c2_pins[0].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
-    {
-      util_message_error(chp, "unable to allocate pins");
-      i2c_drv = NULL;
-      return false;
-    }
-    if( !io_manage_set_mode( i2c2_pins[1].port, i2c2_pins[1].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
-    {
-      util_message_error(chp, "unable to allocate pins");
-      io_manage_set_default_mode( i2c2_pins[0].port, i2c2_pins[0].pin );
-      i2c_drv = NULL;
-      return false;
-    }
-  }
-#endif
-#if STM32_I2C_USE_I2C3
-  if( i2c_drv == &I2CD3 )
-  {
-    if( !io_manage_set_mode( i2c3_pins[0].port, i2c3_pins[0].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
-    {
-      util_message_error(chp, "unable to allocate pins");
-      i2c_drv = NULL;
-      return false;
-    }
-    if( !io_manage_set_mode( i2c3_pins[1].port, i2c3_pins[1].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUDR_PULLUP, IO_I2C) )
-    {
-      util_message_error(chp, "unable to allocate pins");
-      io_manage_set_default_mode( i2c3_pins[0].port, i2c3_pins[0].pin );
-      i2c_drv = NULL;
-      return false;
-    }
-  }
-#endif
-  
   // apply configuration
   i2cStart(i2c_drv, &i2c_cfg);
 
@@ -164,21 +155,27 @@ static bool fetch_i2c_transmit_cmd(BaseSequentialStream * chp, char * cmd_list[]
   int number_base = 0;
   char * endptr;
   int byte_value;
-  int offset;
   i2caddr_t address;
+  I2CDriver * i2c_drv;
 
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, MAX_I2C_BYTES + 2) )
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, MAX_I2C_BYTES + 3) )
   {
     return false;
   }
+  
+  if( (i2c_drv = parse_i2c_dev(data_list[0], NULL)) == NULL)
+  {
+    util_message_error(chp, "invalid device identifier");
+    return false;
+  }
 
-  if( i2c_drv == NULL || i2c_drv->state != I2C_READY )
+  if( i2c_drv->state != I2C_READY )
   {
     util_message_error(chp, "I2C not ready");
     return false;
   }
 
-  address = strtol(data_list[0], &endptr, 0);
+  address = strtol(data_list[1], &endptr, 0);
 
   if( *endptr != '\0' || address > 127 )
   {
@@ -186,24 +183,21 @@ static bool fetch_i2c_transmit_cmd(BaseSequentialStream * chp, char * cmd_list[]
     return false;
   }
 
-  if( strcasecmp("HEX", data_list[1]) == 0 )
+  number_base = strtol(data_list[2], &endptr, 0);
+
+  if( *endptr != '\0' || number_base == 1 || number_base < 0 || number_base > 36 )
   {
-    number_base = 16;
-    offset = 2;
-  }
-  else
-  {
-    number_base = 0;
-    offset = 1;
+    util_message_error(chp, "invalid number base");
+    return false;
   }
 
-  for( int i = 0; i < MAX_I2C_BYTES && data_list[i+offset] != NULL; i++ )
+  for( int i = 0; i < MAX_I2C_BYTES && data_list[i+3] != NULL; i++ )
   {
-    byte_value = strtol(data_list[i+offset], &endptr, number_base);
+    byte_value = strtol(data_list[i+3], &endptr, number_base);
     
     if( *endptr != '\0' )
     {
-      util_message_error(chp, "invalid data argument");
+      util_message_error(chp, "invalid data byte");
       return false;
     }
     else if( byte_value < 0 || byte_value > 0xff )
@@ -239,19 +233,26 @@ static bool fetch_i2c_receive_cmd(BaseSequentialStream * chp, char * cmd_list[],
   uint32_t byte_count;
   char * endptr;
   i2caddr_t address;
+  I2CDriver * i2c_drv;
 
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2) )
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 3) )
   {
     return false;
   }
 
-  if( i2c_drv == NULL || i2c_drv->state != I2C_READY )
+  if( (i2c_drv = parse_i2c_dev(data_list[0], NULL)) == NULL)
+  {
+    util_message_error(chp, "invalid device identifier");
+    return false;
+  }
+
+  if( i2c_drv->state != I2C_READY )
   {
     util_message_error(chp, "I2C not ready");
     return false;
   }
 
-  address = strtol(data_list[0], &endptr, 0);
+  address = strtol(data_list[1], &endptr, 0);
 
   if( *endptr != '\0' || address > 127 )
   {
@@ -259,7 +260,7 @@ static bool fetch_i2c_receive_cmd(BaseSequentialStream * chp, char * cmd_list[],
     return false;
   }
   
-  byte_count = strtol(data_list[1], &endptr, 0);
+  byte_count = strtol(data_list[2], &endptr, 0);
 
   if( *endptr != '\0' || byte_count > MAX_I2C_BYTES )
   {
@@ -289,17 +290,60 @@ static bool fetch_i2c_receive_cmd(BaseSequentialStream * chp, char * cmd_list[],
 
 static bool fetch_i2c_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 0) )
+  int32_t i2c_dev;
+  I2CDriver * i2c_drv;
+
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 1) )
   {
     return false;
   }
 
-  return fetch_i2c_reset(chp);
+  if( (i2c_drv = parse_i2c_dev(data_list[0], &i2c_dev)) == NULL)
+  {
+    util_message_error(chp, "invalid device identifier");
+    return false;
+  }
+
+  switch( i2c_dev )
+  {
+    case 1:
+      io_manage_set_default_mode( i2c1_pins[0].port, i2c1_pins[0].pin, IO_I2C );
+      io_manage_set_default_mode( i2c1_pins[1].port, i2c1_pins[1].pin, IO_I2C );
+      i2cStop(i2c_drv);
+      break;
+    case 2:
+      io_manage_set_default_mode( i2c2_pins[0].port, i2c2_pins[0].pin, IO_I2C );
+      io_manage_set_default_mode( i2c2_pins[1].port, i2c2_pins[1].pin, IO_I2C );
+      i2cStop(i2c_drv);
+      break;
+    case 3:
+      io_manage_set_default_mode( i2c3_pins[0].port, i2c3_pins[0].pin, IO_I2C );
+      io_manage_set_default_mode( i2c3_pins[1].port, i2c3_pins[1].pin, IO_I2C );
+      i2cStop(i2c_drv);
+      break;
+  }
+
+  return true;
 }
 
 static bool fetch_i2c_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
   util_message_info(chp, "Fetch I2C Help:");
+
+  util_message_info(chp, "dev = "
+#if STM32_I2C_USE_I2C1
+  "1 "
+#endif
+#if STM32_I2C_USE_I2C2
+  "2 "
+#endif
+#if STM32_I2C_USE_I2C3
+  "3 "
+#endif
+  );
+  util_message_info(chp, "base = (reference strtol c function)");
+  util_message_info(chp, "addr = 7 bit address, no r/w bit");
+
   fetch_display_help(chp, fetch_i2c_commands);
   return true;
 }
@@ -325,35 +369,22 @@ bool fetch_i2c_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 
 bool fetch_i2c_reset(BaseSequentialStream * chp)
 {
-  if( i2c_drv == NULL )
-  {
-    return true;
-  }
 
 #if STM32_I2C_USE_I2C1
-  if( i2c_drv == &I2CD1 )
-  {
-    io_manage_set_default_mode( i2c1_pins[0].port, i2c1_pins[0].pin );
-    io_manage_set_default_mode( i2c1_pins[1].port, i2c1_pins[1].pin );
-  }
+  io_manage_set_default_mode( i2c1_pins[0].port, i2c1_pins[0].pin, IO_I2C );
+  io_manage_set_default_mode( i2c1_pins[1].port, i2c1_pins[1].pin, IO_I2C );
+  i2cStop(&I2CD1);
 #endif
 #if STM32_I2C_USE_I2C2
-  if( i2c_drv == &I2CD2 )
-  {
-    io_manage_set_default_mode( i2c2_pins[0].port, i2c2_pins[0].pin );
-    io_manage_set_default_mode( i2c2_pins[1].port, i2c2_pins[1].pin );
-  }
+  io_manage_set_default_mode( i2c2_pins[0].port, i2c2_pins[0].pin, IO_I2C );
+  io_manage_set_default_mode( i2c2_pins[1].port, i2c2_pins[1].pin, IO_I2C );
+  i2cStop(&I2CD2);
 #endif
 #if STM32_I2C_USE_I2C3
-  if( i2c_drv == &I2CD3 )
-  {
-    io_manage_set_default_mode( i2c3_pins[0].port, i2c3_pins[0].pin );
-    io_manage_set_default_mode( i2c3_pins[1].port, i2c3_pins[1].pin );
-  }
+  io_manage_set_default_mode( i2c3_pins[0].port, i2c3_pins[0].pin, IO_I2C );
+  io_manage_set_default_mode( i2c3_pins[1].port, i2c3_pins[1].pin, IO_I2C );
+  i2cStop(&I2CD3);
 #endif
-  
-  i2cStop(i2c_drv);
-  i2c_drv = NULL;
   
   return true;
 }

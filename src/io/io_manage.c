@@ -172,7 +172,7 @@ const char * port_to_string( ioportid_t port )
 
 /*! \brief Update the port allocation table
  */
-bool io_manage_set_default_mode(ioportid_t port, uint32_t pin)
+bool io_manage_set_default_mode(ioportid_t port, uint32_t pin, iomode_t mode_filter )
 {
 	io_table_t    *    table = io_manage_get_table(port);
 
@@ -181,9 +181,13 @@ bool io_manage_set_default_mode(ioportid_t port, uint32_t pin)
     return false;
   }
 
-	table->pins[pin].current_mode  = table->pins[pin].default_mode;
-	table->pins[pin].current_alloc = table->pins[pin].default_alloc;
-	palSetPadMode(port, pin, table->pins[pin].default_mode);
+  // restrict resetting pins if they are not allocated to the specified mode
+	if( mode_filter == IO_NONE || (mode_filter & table->pins[pin].current_mode) != 0 )
+  {
+	  table->pins[pin].current_mode  = table->pins[pin].default_mode;
+	  table->pins[pin].current_alloc = table->pins[pin].default_alloc;
+	  palSetPadMode(port, pin, table->pins[pin].default_mode);
+  }
 	return true;
 }
 

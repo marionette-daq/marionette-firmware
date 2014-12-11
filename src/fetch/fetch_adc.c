@@ -593,7 +593,7 @@ static bool fetch_adc_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
         // loop backwards unrolling what we have done, starting with i-1
         for( i--; i >= 0; i-- )
         {
-          io_manage_set_default_mode( adc1_pins[i].port, adc1_pins[i].pin );
+          io_manage_set_default_mode( adc1_pins[i].port, adc1_pins[i].pin, IO_ADC );
         }
         adc_drv = NULL;
         return false;
@@ -613,7 +613,7 @@ static bool fetch_adc_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
         // loop backwards unrolling what we have done, starting with i-1
         for( i--; i >= 0; i-- )
         {
-          io_manage_set_default_mode( adc2_pins[i].port, adc2_pins[i].pin );
+          io_manage_set_default_mode( adc2_pins[i].port, adc2_pins[i].pin, IO_ADC);
         }
         adc_drv = NULL;
         return false;
@@ -633,7 +633,7 @@ static bool fetch_adc_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
         // loop backwards unrolling what we have done, starting with i-1
         for( i--; i >= 0; i-- )
         {
-          io_manage_set_default_mode( adc3_pins[i].port, adc3_pins[i].pin );
+          io_manage_set_default_mode( adc3_pins[i].port, adc3_pins[i].pin, IO_ADC );
         }
         adc_drv = NULL;
         return false;
@@ -706,7 +706,7 @@ bool fetch_adc_reset(BaseSequentialStream * chp)
     {
       if( io_manage_get_current_alloc( adc1_pins[i].port, adc1_pins[i].pin ) == IO_ADC )
       {
-        io_manage_set_default_mode( adc1_pins[i].port, adc1_pins[i].pin );
+        io_manage_set_default_mode( adc1_pins[i].port, adc1_pins[i].pin, IO_ADC );
       }
     }
   }
@@ -718,7 +718,7 @@ bool fetch_adc_reset(BaseSequentialStream * chp)
     {
       if( io_manage_get_current_alloc( adc2_pins[i].port, adc2_pins[i].pin ) == IO_ADC )
       {
-        io_manage_set_default_mode( adc2_pins[i].port, adc2_pins[i].pin );
+        io_manage_set_default_mode( adc2_pins[i].port, adc2_pins[i].pin, IO_ADC );
       }
     }
   }
@@ -730,7 +730,7 @@ bool fetch_adc_reset(BaseSequentialStream * chp)
     {
       if( io_manage_get_current_alloc( adc3_pins[i].port, adc3_pins[i].pin ) == IO_ADC )
       {
-        io_manage_set_default_mode( adc3_pins[i].port, adc3_pins[i].pin );
+        io_manage_set_default_mode( adc3_pins[i].port, adc3_pins[i].pin, IO_ADC );
       }
     }
   }
