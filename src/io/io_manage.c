@@ -205,19 +205,13 @@ bool io_manage_set_mode(ioportid_t port, uint32_t pin, iomode_t new_mode, io_all
 
 	curr_alloc = table->pins[pin].current_alloc;
 
-	if(curr_alloc == request_alloc)
-	{
-		return true;
-	}
-
-	if(curr_alloc != IO_NONE)
+	if(curr_alloc != request_alloc && curr_alloc != IO_NONE)
 	{
 		return false;
 	}
 
 	if((table->pins[pin].available_alloc & request_alloc) != 0)
 	{
-
 		table->pins[pin].current_mode  = new_mode;
 		table->pins[pin].current_alloc = request_alloc;
 		palSetPadMode(port, pin, new_mode);
