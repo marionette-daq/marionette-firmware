@@ -21,7 +21,7 @@ tty.flushInput()
 
 try:
   while True:
-    cmd = raw_input("m >").strip()
+    cmd = raw_input("m > ").strip()
     if len(cmd) == 0:
       continue # ignore blank lines
 

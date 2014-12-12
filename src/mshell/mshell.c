@@ -170,6 +170,21 @@ static bool cmd_systime(BaseSequentialStream * chp, int argc, char * argv[] UNUS
   return true;
 }
 
+/*! \brief reset shell options to defaults
+ */
+static bool cmd_reset(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
+{
+	if (argc > 0)
+	{
+		util_message_error(chp, "extra arguments for command 'reset'");
+		return false;
+	}
+	setMShellVisiblePrompt(true);
+	setMShellPrompt("m > ");
+	mshell_echo_chars = true;
+  return true;
+}
+
 /**
  * @brief   Array of the default commands.
  */
@@ -181,6 +196,7 @@ static mshell_command_t local_commands[] =
 	{cmd_noprompt,  "noprompt", "Disable shell prompt"},
 	{cmd_echo,      "echo",     "Enable shell echo"},
 	{cmd_noecho,    "noecho",   "Disable shell echo"},
+  {cmd_reset,     "reset",    "Reset shell to defaults"},
 	{NULL, NULL, NULL}
 };
 
