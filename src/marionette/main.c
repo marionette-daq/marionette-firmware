@@ -128,13 +128,14 @@ static const MShellConfig shell_cfg1 =
 static void main_app(void)
 {
 	Thread             *            mshelltp = NULL;
-	static          VERSIONData     version_data;
 
 	mshellInit();
 
-	util_hwversion(&version_data);
-	usb_set_serial_strings(version_data.hardware.id_high, version_data.hardware.id_center,
-	                       version_data.hardware.id_low);
+  
+	usb_set_serial_strings( *(uint32_t*)STM32F4_UNIQUE_ID_LOW,
+                          *(uint32_t*)STM32F4_UNIQUE_ID_CENTER,
+                          *(uint32_t*)STM32F4_UNIQUE_ID_HIGH);
+
 	sduObjectInit(&SDU1);
 	sduStart(&SDU1, &serusbcfg);
 

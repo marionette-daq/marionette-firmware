@@ -50,13 +50,15 @@ static bool fetch_spi_help_cmd(BaseSequentialStream * chp, char * cmd_list[], ch
 
 static fetch_command_t fetch_spi_commands[] = {
     { fetch_spi_exchange_cmd,  "exchange",  "TX/RX bytes\n" \
-                                            "Usage: exchange(<dev>,<base>,<byte 0>,...,<byte n>)" },
+                                            "Usage: exchange(<dev>,<base>,<byte 0>,[...,<byte n>])" },
     { fetch_spi_config_cmd,    "config",    "Configure SPI driver\n" \
-                                            "Usage: config(<dev>,<cpol>,<cpha>,<clk div>,<order>)\n" \
+                                            "Usage: config(<dev>,<cpol>,<cpha>,<clk div>,<order>,[<ss port>, <ss pin>])\n" \
                                             "\tcpol = 0 | 1\n" \
                                             "\tcpha = 0 | 1\n" \
-                                            "\tclk div = 0...7\n" \
-                                            "\torder = 0 (MSB first) | 1 (LSB first)" },
+                                            "\tclk div = 0 ... 7\n" \
+                                            "\torder = 0 {MSB first} | 1 {LSB first}\n" \
+                                            "\tss port = PORTA ... PORTI {optional}\n" \
+                                            "\tss pin = 0 ... 15 {required if port specified}\n" },
     { fetch_spi_reset_cmd,     "reset",     "Reset SPI driver\n" \
                                             "Usage: reset(<dev>)" },
     { fetch_spi_help_cmd,      "help",      "SPI command help" },
@@ -104,7 +106,7 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
   SPIDriver * spi_drv;
   SPIConfig * spi_cfg;
 
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 7) )
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 5) )
   {
     return false;
   }
@@ -184,25 +186,16 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
       break;
   }
 
-  spi_cfg->ssport = string_to_port(data_list[SPI_CONFIG_CS_PORT]);
-  spi_cfg->sspad  = string_to_pin(data_list[SPI_CONFIG_CS_PIN]);
-
-  if( spi_cfg->ssport == NULL && strncasecmp("none", data_list[SPI_CONFIG_CS_PORT], FETCH_MAX_DATA_STRLEN) != 0 )
+  if( data_list[SPI_CONFIG_CS_PORT] != NULL )
   {
-    util_message_error(chp, "invalid chip select port");
-    return false;
-  }
+    spi_cfg->ssport = string_to_port(data_list[SPI_CONFIG_CS_PORT]);
+    spi_cfg->sspad  = string_to_pin(data_list[SPI_CONFIG_CS_PIN]);
 
-  if( spi_cfg->sspad == INVALID_PIN && strncasecmp("none", data_list[SPI_CONFIG_CS_PIN], FETCH_MAX_DATA_STRLEN) != 0 )
-  {
-    util_message_error(chp, "invalid chip select pin");
-    return false;
-  }
-
-  if( (spi_cfg->ssport == NULL) ^ (spi_cfg->sspad == INVALID_PIN) )
-  {
-    util_message_error(chp, "invalid chip select port/pin");
-    return false;
+    if( (spi_cfg->ssport == NULL) || (spi_cfg->sspad == INVALID_PIN) )
+    {
+      util_message_error(chp, "invalid chip select port/pin");
+      return false;
+    }
   }
 
   // setup io pins
@@ -308,7 +301,7 @@ static bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, char * cmd_list[]
     return false;
   }
 
-  number_base = strtol(data_list[2], &endptr, 0);
+  number_base = strtol(data_list[1], &endptr, 0);
 
   if( *endptr != '\0' || number_base == 1 || number_base < 0 || number_base > 36 )
   {
@@ -316,9 +309,9 @@ static bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, char * cmd_list[]
     return false;
   }
 
-  for( int i = 0; i < MAX_SPI_BYTES && data_list[i+1] != NULL; i++ )
+  for( int i = 0; i < MAX_SPI_BYTES && data_list[i+2] != NULL; i++ )
   {
-    byte_value = strtol(data_list[i+1], &endptr, number_base);
+    byte_value = strtol(data_list[i+2], &endptr, number_base);
     
     if( *endptr != '\0' )
     {
@@ -416,7 +409,8 @@ static bool fetch_spi_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
 
 static bool fetch_spi_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-  util_message_info(chp, "Fetch SPI Help:");
+  util_message_info(chp, "Usage legend: <> required, [] optional, | or,");
+  util_message_info(chp, "              ... continuation, {} comment");
   
   util_message_info(chp, "dev = "
 #if STM32_SPI_USE_SPI1

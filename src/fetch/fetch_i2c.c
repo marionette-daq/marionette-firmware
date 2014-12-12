@@ -41,7 +41,7 @@ static bool fetch_i2c_help_cmd(BaseSequentialStream * chp, char * cmd_list[], ch
 
 static fetch_command_t fetch_i2c_commands[] = {
     { fetch_i2c_transmit_cmd,  "transmit",  "TX data to slave\n" \
-                                            "Usage: transmit(<dev>,<addr>,<base>,<byte 0>,...,<byte n>)" },
+                                            "Usage: transmit(<dev>,<addr>,<base>,<byte 0>,[...,<byte n>])" },
     { fetch_i2c_receive_cmd,   "receive",   "RX data from slave\n" \
                                             "Usage: receive(<dev>,<addr>,<count>)" },
     { fetch_i2c_config_cmd,    "config",    "Configure I2C driver\n" \
@@ -328,7 +328,8 @@ static bool fetch_i2c_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
 
 static bool fetch_i2c_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-  util_message_info(chp, "Fetch I2C Help:");
+  util_message_info(chp, "Usage legend: <> required, [] optional, | or,");
+  util_message_info(chp, "              ... continuation, {} comment");
 
   util_message_info(chp, "dev = "
 #if STM32_I2C_USE_I2C1
