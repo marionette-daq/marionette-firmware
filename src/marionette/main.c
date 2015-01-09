@@ -60,6 +60,8 @@ Util_status      M_Status = { .status=GEN_OK };
  */
 static bool cmd_mem(BaseSequentialStream * chp, int argc, char * argv[])
 {
+    extern uint8_t __ram_size__[];
+
 	size_t n, size;
 	(void)argv;
 	if (argc > 0)
@@ -68,9 +70,10 @@ static bool cmd_mem(BaseSequentialStream * chp, int argc, char * argv[])
 		return false;
 	}
 	n = chHeapStatus(NULL, &size);
-	util_message_info(chp, "core free memory : %u bytes", chCoreStatus());
-	util_message_info(chp, "heap fragments   : %u", n);
-	util_message_info(chp, "heap free total  : %u bytes", size);
+	util_message_info(chp, "core total memory :\t%u bytes", __ram_size__ );
+	util_message_info(chp, "core free memory  :\t%u bytes", chCoreStatus());
+	util_message_info(chp, "heap fragments    :\t%u", n);
+	util_message_info(chp, "heap free total   :\t%u bytes", size);
 
   return true;
 }
