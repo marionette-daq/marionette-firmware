@@ -29,6 +29,8 @@ Interaction through the USB/ttyACMx serial device running in the ChibiOS shell.
 
 Linux tools include 'minicom' and 'gtkterm'.
 
+MAC tools include 'screen'.
+
 Windows tools include *???*
 
 # Building
