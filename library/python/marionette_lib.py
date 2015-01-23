@@ -335,7 +335,7 @@ class Marionette(object):
 
   # fetch spi commands
 
-  def fetch_spi_config(self, dev, clk_polarity, clk_phase, clk_div, bit_order, port, pin):
+  def fetch_spi_config(self, dev, clk_polarity, clk_phase, clk_div, bit_order, port=None, pin=None):
     """
     Configure spi module
 
@@ -350,10 +350,12 @@ class Marionette(object):
     If a chip select port/pin are configured it will be 
     asserted low durring every spi exchange.
     """
-    if port is not None or pin is not None:
-      check_port_pin(port,pin)
 
-    self.command("spi.config(%s,%s,%s,%s,%s,%s,%s)", dev, clk_polarity, clk_phase, clk_div, bit_order, port, pin)
+    if port is not None and pin is not None:
+      check_port_pin(port,pin)
+      self.command("spi.config(%s,%s,%s,%s,%s,%s,%s)", dev, clk_polarity, clk_phase, clk_div, bit_order, port, pin)
+    else:
+      self.command("spi.config(%s,%s,%s,%s,%s)", dev, clk_polarity, clk_phase, clk_div, bit_order)
 
   def fetch_spi_reset(self, dev):
     self.command("spi.reset(%s)", dev)
