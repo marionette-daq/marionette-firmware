@@ -246,9 +246,9 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
 #endif
 #if STM32_SPI_USE_SPI3
     case 3:
-      if( !io_manage_set_mode( spi3_pins[0].port, spi3_pins[0].pin, PAL_MODE_ALTERNATE(5), IO_SPI) ||
-          !io_manage_set_mode( spi3_pins[1].port, spi3_pins[1].pin, PAL_MODE_ALTERNATE(5), IO_SPI) ||
-          !io_manage_set_mode( spi3_pins[2].port, spi3_pins[2].pin, PAL_MODE_ALTERNATE(5), IO_SPI) )
+      if( !io_manage_set_mode( spi3_pins[0].port, spi3_pins[0].pin, PAL_MODE_ALTERNATE(6), IO_SPI) ||
+          !io_manage_set_mode( spi3_pins[1].port, spi3_pins[1].pin, PAL_MODE_ALTERNATE(6), IO_SPI) ||
+          !io_manage_set_mode( spi3_pins[2].port, spi3_pins[2].pin, PAL_MODE_ALTERNATE(6), IO_SPI) )
       {
         util_message_error(chp, "unable to allocate pins");
         if( spi_cfg->ssport != NULL )
