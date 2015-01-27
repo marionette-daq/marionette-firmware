@@ -379,13 +379,21 @@ int fetch_find_command(fetch_command_t cmd_fn[], char * command)
 
 bool fetch_input_check( BaseSequentialStream * chp, char * cmd_list[], uint32_t max_cmd, char * data_list[], uint32_t max_data )
 {
-  if( cmd_list[max_cmd+1] != NULL )
+  uint32_t count;
+
+  for( count = 0; count < FETCH_MAX_COMMANDS && cmd_list[count] != NULL; count++ );
+
+  // max_cmd is a zero based index not a count
+  if( count > (max_cmd+1) )
   {
     util_message_error(chp, "invalid command");
     return false;
   }
+  
+  for( count = 0; count < FETCH_MAX_DATA_ITEMS && data_list[count] != NULL; count++ );
 
-  if( data_list[max_data] != NULL )
+  // max_data is the count of data tokens
+  if( count > max_data )
   {
     util_message_error(chp, "too many arguments");
     return false;
