@@ -12,7 +12,7 @@
 
 #define 		FETCH_MAX_LINE_CHARS					1024
 #define 		FETCH_MAX_COMMANDS 						8
-#define 		FETCH_MAX_DATA_ITEMS					50
+#define 		FETCH_MAX_DATA_ITEMS					260
 #define 		FETCH_MAX_CMD_STRLEN					25
 #define     FETCH_MAX_DATA_STRLEN         25
 #define     FETCH_MAX_HELP_STRLEN         512
