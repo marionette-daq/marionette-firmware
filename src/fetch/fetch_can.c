@@ -23,16 +23,15 @@
 
 static bool can_init_flag = true;
 static bool fetch_can_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_can_transmit_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_can_receive_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_can_exchange_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+/*static bool fetch_can_receive_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);*/
 static bool fetch_can_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_can_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 
 static fetch_command_t fetch_can_commands[] = {
-    { fetch_can_transmit_cmd,  "transmit",  "TX data to slave\n" \
-                                            "Usage: transmit(<dev>,<addr>,<base>,<byte 0>,[...,<byte n>])" },
-    { fetch_can_receive_cmd,   "receive",   "RX data from slave\n" \
-                                            "Usage: receive(<dev>,<addr>,<count>)" },
+    { fetch_can_exchange_cmd,  "exchange",  "TX data to slave\n" \
+                                            "Usage: exchange(<dev>,<addr>,<base>,<byte 0>,[...,<byte n>])" },
+   
     { fetch_can_config_cmd,    "config",    "Configure CAN driver\n" \
                                             "Usage: config(<dev>)" },
     { fetch_can_reset_cmd,     "reset",     "Reset CAN driver\n" \
@@ -130,4 +129,35 @@ bool fetch_can_reset(BaseSequentialStream * chp)
   return true;
 }
 
+static bool fetch_can_config_cmd(BaseSequentialStream * chp, char * cmd_list[],char * data_list[])
+{
+ return true;
+}
 
+static bool fetch_can_exchange_cmd(BaseSequentialStream * chp,char * cmd_list[],char *  data_list[])
+{
+ return true;
+}
+static bool fetch_can_reset_cmd(BaseSequentialStream * chp,char * cmd_list[],char *  data_list[])
+{
+  return true;
+}
+static bool fetch_can_help_cmd(BaseSequentialStream * chp,char * cmd_list[],char *  data_list[])
+{
+  util_message_info(chp, "Usage legend: <> required, [] optional, | or,");
+  util_message_info(chp, "              ... continuation, {} comment");
+
+  util_message_info(chp, "dev = "
+#if STM32_CAN_USE_CAN1
+  "1 "
+#endif
+#if STM32_CAN_USE_CAN2
+  "2 "
+#endif
+  );
+  util_message_info(chp, "base = (reference strtol c function)");
+
+  fetch_display_help(chp, fetch_can_commands);
+        return true;
+
+}
