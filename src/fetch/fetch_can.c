@@ -23,14 +23,17 @@
 
 static bool can_init_flag = true;
 static bool fetch_can_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_can_exchange_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-/*static bool fetch_can_receive_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);*/
+static bool fetch_can_transmit_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_can_receive_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_can_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_can_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 
 static fetch_command_t fetch_can_commands[] = {
-    { fetch_can_exchange_cmd,  "exchange",  "TX data to slave\n" \
-                                            "Usage: exchange(<dev>,<addr>,<base>,<byte 0>,[...,<byte n>])" },
+    { fetch_can_transmit_cmd,  "transmit",  "TX data to slave\n" \
+                                            "Usage: transmit(<dev>,<addr>,<base>,<byte 0>,[...,<byte n>])" },
+    { fetch_can_receive_cmd,   "receive",   "RX data from slave\n" \
+                                            "Usage: receive(<dev>,<addr>,<count>)" },
+
    
     { fetch_can_config_cmd,    "config",    "Configure CAN driver\n" \
                                             "Usage: config(<dev>)" },
@@ -39,69 +42,46 @@ static fetch_command_t fetch_can_commands[] = {
     { fetch_can_help_cmd,      "help",      "CAN command help" },
     { NULL, NULL, NULL } // null terminate list
   };
-struct can_instance {
-  CANDriver     *canp;
-  uint32_t      led;
-};
 
-static const struct can_instance can1 = {&CAND1,1};
-/*static const struct can_instance can2 = {&CAND2, 2}; */
+static CANDriver * parse_can_dev(char * str, int32_t * dev)
+{
+ char * endptr;
+ int32_t num = strtol(str, &endptr, 0);
+ if (*endptr !='\0')
+ {
+  return NULL;
+ }
+ if (dev != NULL)
+ {
+  *dev = num;
+ }
+ switch(num)
+ {
+  #if STM32_CAN_USE_CAN1
+   case 1:
+     return &CAND1;
+  #endif
+  
+  #if STM32_CAN_USE_CAN2
+   case 2:
+     return &CAND2;
+  #endif  
+   default:
+     return NULL;
+ }
+}
 
 /*
  * Internal loopback mode, 500KBaud, automatic wakeup, automatic recover
  * from abort mode.
  * See section 22.7.7 on the STM32 reference manual.
  */
-static const CANConfig cancfg = {
+static const CANConfig can_cfg = {
   CAN_MCR_ABOM | CAN_MCR_AWUM | CAN_MCR_TXFP,
   CAN_BTR_LBKM | CAN_BTR_SJW(0) | CAN_BTR_TS2(1) |
   CAN_BTR_TS1(8) | CAN_BTR_BRP(6)
 };
-static WORKING_AREA(can_rx1_wa, 256);
-static WORKING_AREA(can_rx2_wa, 256);
-static msg_t can_rx(void *p) {
-  struct can_instance *cip = p;
-  EventListener el;
-  CANRxFrame rxmsg;
 
-  (void)p;
-  chRegSetThreadName("receiver");
-  chEvtRegister(&cip->canp->rxfull_event, &el, 0);
-  while(!chThdShouldTerminate()) {
-    if (chEvtWaitAnyTimeout(ALL_EVENTS, MS2ST(100)) == 0)
-      continue;
-    while (canReceive(cip->canp, CAN_ANY_MAILBOX,
-                      &rxmsg, TIME_IMMEDIATE) == RDY_OK) {
-      /* Process message.*/
-      palTogglePad(GPIOD, cip->led);
-    }
-  }
-  chEvtUnregister(&CAND1.rxfull_event, &el);
-  return 0;
-}
-
-/*
- * Transmitter thread.
- */
-static WORKING_AREA(can_tx_wa, 256);
-static msg_t can_tx(void * p) {
-  CANTxFrame txmsg;
- (void)p;
-  chRegSetThreadName("transmitter");
-  txmsg.IDE = CAN_IDE_EXT;
-  txmsg.EID = 0x01234567;
-  txmsg.RTR = CAN_RTR_DATA;
-  txmsg.DLC = 8;
-  txmsg.data32[0] = 0x55AA55AA;
-  txmsg.data32[1] = 0x00FF00FF;
-
-  while (!chThdShouldTerminate()) {
-    canTransmit(&CAND1, CAN_ANY_MAILBOX, &txmsg, MS2ST(100));
-    /*canTransmit(&CAND2, CAN_ANY_MAILBOX, &txmsg, MS2ST(100));*/
-    chThdSleepMilliseconds(500);
-  }
-  return 0;
-}
 void fetch_can_init(BaseSequentialStream * chp)
 {
  /*gpio_heartbeat_thread = chThdCreateStatic(wa_gpio_heartbeat_thread, sizeof(wa_gpio_heartbeat_thread), NORMALPRIO, (tfunc_t)gpio_heartbeat_tfunc, NULL);*/
@@ -131,13 +111,60 @@ bool fetch_can_reset(BaseSequentialStream * chp)
 
 static bool fetch_can_config_cmd(BaseSequentialStream * chp, char * cmd_list[],char * data_list[])
 {
+ int32_t can_dev; /*Can Device */
+ CANDriver * can_drv; /*Can driver */
+ 
+ if(!fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 7)) //max data field is temporary till I figure this out
+ {
+  return false;
+ }
+ if( (can_drv = parse_can_dev(data_list[0], &can_dev)) == NULL)
+ {
+    util_message_error(chp, "invalid device identifier");
+    return false;
+ }
+ switch( can_dev )
+ {
+    case 1:
+      if( !io_manage_set_mode( can1_pins[0].port, can1_pins[0].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN, IO_CAN) ||
+          !io_manage_set_mode( can1_pins[1].port, can1_pins[1].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN, IO_CAN) )
+      {
+        util_message_error(chp, "unable to allocate pins");
+        io_manage_set_default_mode( can1_pins[0].port, can1_pins[0].pin, IO_CAN );
+        io_manage_set_default_mode( can1_pins[1].port, can1_pins[1].pin, IO_CAN );
+        return false;
+      }
+      break;
+    case 2:
+      if( !io_manage_set_mode( can2_pins[0].port, can2_pins[0].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN, IO_CAN) ||
+          !io_manage_set_mode( can2_pins[1].port, can2_pins[1].pin, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN, IO_CAN) )
+      {        util_message_error(chp, "unable to allocate pins");
+        io_manage_set_default_mode( can2_pins[0].port, can2_pins[0].pin, IO_CAN );
+        io_manage_set_default_mode( can2_pins[1].port, can2_pins[1].pin, IO_CAN );
+        return false;
+      }
+      break;
+ }
+
+ /*#if STM32_CAN_USE_CAN1
+  canStart(&CAND1, &can_cfg);
+ #endif
+ #if STM32_CAN_USE_CAN2
+  canStart(&CAND2, &can_cfg);
+ #endif*/
+ canStart(can_drv, &can_cfg);
  return true;
 }
 
-static bool fetch_can_exchange_cmd(BaseSequentialStream * chp,char * cmd_list[],char *  data_list[])
+static bool fetch_can_transmit_cmd(BaseSequentialStream * chp,char * cmd_list[],char *  data_list[])
 {
  return true;
 }
+static bool fetch_can_receive_cmd(BaseSequentialStream * chp,char * cmd_list[],char *  data_list[])
+{
+ return true;
+}
+
 static bool fetch_can_reset_cmd(BaseSequentialStream * chp,char * cmd_list[],char *  data_list[])
 {
   return true;
