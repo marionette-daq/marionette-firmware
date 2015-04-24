@@ -22,8 +22,8 @@ struct can_instance {
   uint32_t      led;
 };
 
-static const struct can_instance can1 = {&CAND1, GPIOD_PIN13};
-static const struct can_instance can2 = {&CAND2, GPIOD_PIN14};
+static const struct can_instance can1 = {&CAND1, GPIOH_PIN2};
+static const struct can_instance can2 = {&CAND2, GPIOH_PIN3};
 
 /*
  * Internal loopback mode, 500KBaud, automatic wakeup, automatic recover
@@ -55,7 +55,7 @@ static msg_t can_rx(void *p) {
     while (canReceive(cip->canp, CAN_ANY_MAILBOX,
                       &rxmsg, TIME_IMMEDIATE) == RDY_OK) {
       /* Process message.*/
-      palTogglePad(GPIOD, cip->led);
+     palTogglePad(GPIOH, cip->led);
     }
   }
   chEvtUnregister(&CAND1.rxfull_event, &el);
@@ -81,6 +81,7 @@ static msg_t can_tx(void * p) {
   while (!chThdShouldTerminate()) {
     canTransmit(&CAND1, CAN_ANY_MAILBOX, &txmsg, MS2ST(100));
     canTransmit(&CAND2, CAN_ANY_MAILBOX, &txmsg, MS2ST(100));
+    palTogglePad(GPIOH,GPIOH_PIN3);
     chThdSleepMilliseconds(500);
   }
   return 0;
@@ -100,6 +101,12 @@ int main(void) {
    */
   halInit();
   chSysInit();
+  palSetPadMode(GPIOB, GPIOB_PIN6, PAL_MODE_ALTERNATE(9));
+  palSetPadMode(GPIOB, GPIOB_PIN5, PAL_MODE_ALTERNATE(9));
+  palSetPadMode(GPIOI, GPIOI_PIN9, PAL_MODE_ALTERNATE(9));
+  palSetPadMode(GPIOH, GPIOH_PIN13, PAL_MODE_ALTERNATE(9));
+  palSetPadMode(GPIOH, GPIOH_PIN2, PAL_MODE_OUTPUT_PUSHPULL);
+  palSetPadMode(GPIOH, GPIOH_PIN3, PAL_MODE_OUTPUT_PUSHPULL);
 
   /*
    * Activates the CAN drivers 1 and 2.
@@ -120,11 +127,11 @@ int main(void) {
   /*
    * Normal main() thread activity, in this demo it does nothing.
    */
-palSetPadMode(GPIOE, GPIOE_PIN2, PAL_MODE_OUTPUT_PUSHPULL);  
+palSetPadMode(GPIOI, GPIOI_PIN10, PAL_MODE_OUTPUT_PUSHPULL);  
 while (TRUE) {
-    palSetPad(GPIOE, GPIOE_PIN2);
+    palSetPad(GPIOI, GPIOI_PIN10);
     chThdSleepMilliseconds(500);
-    palClearPad(GPIOE, GPIOE_PIN2);
+    palClearPad(GPIOI, GPIOI_PIN10);
     chThdSleepMilliseconds(500);
   }
   return 0;
