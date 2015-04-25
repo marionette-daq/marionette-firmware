@@ -1,4 +1,4 @@
-ARM GAS  /tmp/cciM3vJJ.s 			page 1
+ARM GAS  /tmp/cceMFToX.s 			page 1
 
 
    1              		.syntax unified
@@ -58,7 +58,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
   54              		@ args = 0, pretend = 0, frame = 0
   55              		@ frame_needed = 0, uses_anonymous_args = 0
   56              	.LVL1:
-ARM GAS  /tmp/cciM3vJJ.s 			page 2
+ARM GAS  /tmp/cceMFToX.s 			page 2
 
 
   57 0000 38B5     		push	{r3, r4, r5, lr}
@@ -118,7 +118,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  111              		@ args = 0, pretend = 0, frame = 0
  112              		@ frame_needed = 0, uses_anonymous_args = 0
  113              	.LVL5:
-ARM GAS  /tmp/cciM3vJJ.s 			page 3
+ARM GAS  /tmp/cceMFToX.s 			page 3
 
 
  114 0000 38B5     		push	{r3, r4, r5, lr}
@@ -178,7 +178,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  168 0040 FFF7FEFF 		bl	dbg_check_unlock
  169              	.LVL10:
  170              	.LBB3:
-ARM GAS  /tmp/cciM3vJJ.s 			page 4
+ARM GAS  /tmp/cceMFToX.s 			page 4
 
 
  171 0044 0023     		movs	r3, #0
@@ -238,7 +238,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  225              	.LVL14:
  226              	.L14:
  227              		.loc 1 140 0 is_stmt 1
-ARM GAS  /tmp/cciM3vJJ.s 			page 5
+ARM GAS  /tmp/cceMFToX.s 			page 5
 
 
  228 001e 2046     		mov	r0, r4
@@ -298,7 +298,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  282              		.cfi_offset 4, -24
  283              		.cfi_offset 5, -20
  284              		.cfi_offset 6, -16
-ARM GAS  /tmp/cciM3vJJ.s 			page 6
+ARM GAS  /tmp/cceMFToX.s 			page 6
 
 
  285              		.cfi_offset 7, -12
@@ -358,7 +358,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  339              	.LBE7:
  340              		.loc 1 180 0
  341 0046 2078     		ldrb	r0, [r4]	@ zero_extendqisi2
-ARM GAS  /tmp/cciM3vJJ.s 			page 7
+ARM GAS  /tmp/cceMFToX.s 			page 7
 
 
  342 0048 0428     		cmp	r0, #4
@@ -418,7 +418,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  395              		.cfi_offset 4, -24
  396              		.cfi_offset 5, -20
  397              		.cfi_offset 6, -16
-ARM GAS  /tmp/cciM3vJJ.s 			page 8
+ARM GAS  /tmp/cceMFToX.s 			page 8
 
 
  398              		.cfi_offset 7, -12
@@ -478,7 +478,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  452              	.LBE11:
  453              		.loc 1 225 0
  454 0046 2078     		ldrb	r0, [r4]	@ zero_extendqisi2
-ARM GAS  /tmp/cciM3vJJ.s 			page 9
+ARM GAS  /tmp/cceMFToX.s 			page 9
 
 
  455 0048 0428     		cmp	r0, #4
@@ -538,7 +538,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  508              		.cfi_offset 4, -8
  509              		.cfi_offset 14, -4
  510 0002 0446     		mov	r4, r0
-ARM GAS  /tmp/cciM3vJJ.s 			page 10
+ARM GAS  /tmp/cceMFToX.s 			page 10
 
 
  511              	.LBB14:
@@ -598,7 +598,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  565              	.L38:
  566 0048 48000000 		.word	.LC4
  567              	.LBE15:
-ARM GAS  /tmp/cciM3vJJ.s 			page 11
+ARM GAS  /tmp/cceMFToX.s 			page 11
 
 
  568              		.cfi_endproc
@@ -658,7 +658,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  622 002e 00F8303B 		strb	r3, [r0], #48
  623              		.loc 1 283 0
  624 0032 0021     		movs	r1, #0
-ARM GAS  /tmp/cciM3vJJ.s 			page 12
+ARM GAS  /tmp/cceMFToX.s 			page 12
 
 
  625 0034 FFF7FEFF 		bl	chEvtBroadcastFlagsI
@@ -718,7 +718,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  665 0048 63616E53 		.ascii	"canSleep(), #1\000"
  665      6C656570 
  665      28292C20 
-ARM GAS  /tmp/cciM3vJJ.s 			page 13
+ARM GAS  /tmp/cceMFToX.s 			page 13
 
 
  665      233100
@@ -778,7 +778,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  716 0041 45000000 		.4byte	0x45
  717 0045 03       		.uleb128 0x3
  718 0046 01       		.byte	0x1
-ARM GAS  /tmp/cciM3vJJ.s 			page 14
+ARM GAS  /tmp/cceMFToX.s 			page 14
 
 
  719 0047 08       		.byte	0x8
@@ -838,7 +838,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  773 00b3 21       		.byte	0x21
  774 00b4 53000000 		.4byte	0x53
  775 00b8 04       		.uleb128 0x4
-ARM GAS  /tmp/cciM3vJJ.s 			page 15
+ARM GAS  /tmp/cceMFToX.s 			page 15
 
 
  776 00b9 D5040000 		.4byte	.LASF16
@@ -898,7 +898,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  830 012e CD020000 		.4byte	.LASF27
  831 0132 04       		.byte	0x4
  832 0133 33       		.byte	0x33
-ARM GAS  /tmp/cciM3vJJ.s 			page 16
+ARM GAS  /tmp/cceMFToX.s 			page 16
 
 
  833 0134 C3000000 		.4byte	0xc3
@@ -958,7 +958,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  887 01a6 66       		.byte	0x66
  888 01a7 8E020000 		.4byte	0x28e
  889 01ab 10       		.byte	0x10
-ARM GAS  /tmp/cciM3vJJ.s 			page 17
+ARM GAS  /tmp/cceMFToX.s 			page 17
 
 
  890 01ac 06       		.uleb128 0x6
@@ -1018,7 +1018,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  944 0218 06       		.uleb128 0x6
  945 0219 47070000 		.4byte	.LASF45
  946 021d 06       		.byte	0x6
-ARM GAS  /tmp/cciM3vJJ.s 			page 18
+ARM GAS  /tmp/cceMFToX.s 			page 18
 
 
  947 021e B9       		.byte	0xb9
@@ -1078,7 +1078,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  1001 0287 64       		.byte	0x64
  1002 0288 8E020000 		.4byte	0x28e
  1003 028c 04       		.byte	0x4
-ARM GAS  /tmp/cciM3vJJ.s 			page 19
+ARM GAS  /tmp/cceMFToX.s 			page 19
 
 
  1004 028d 00       		.byte	0
@@ -1138,7 +1138,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  1058 02f7 BF020000 		.4byte	0x2bf
  1059 02fb 04       		.byte	0x4
  1060 02fc 0C       		.uleb128 0xc
-ARM GAS  /tmp/cciM3vJJ.s 			page 20
+ARM GAS  /tmp/cceMFToX.s 			page 20
 
 
  1061 02fd 723600   		.ascii	"r6\000"
@@ -1198,7 +1198,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  1115 036d 00       		.byte	0
  1116 036e 09       		.uleb128 0x9
  1117 036f 04       		.byte	0x4
-ARM GAS  /tmp/cciM3vJJ.s 			page 21
+ARM GAS  /tmp/cceMFToX.s 			page 21
 
 
  1118 0370 D7020000 		.4byte	0x2d7
@@ -1258,7 +1258,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  1172 03df 31       		.byte	0x31
  1173 03e0 E6030000 		.4byte	0x3e6
  1174 03e4 0C       		.byte	0xc
-ARM GAS  /tmp/cciM3vJJ.s 			page 22
+ARM GAS  /tmp/cceMFToX.s 			page 22
 
 
  1175 03e5 00       		.byte	0
@@ -1318,7 +1318,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  1229 0451 06       		.uleb128 0x6
  1230 0452 55060000 		.4byte	.LASF72
  1231 0456 0A       		.byte	0xa
-ARM GAS  /tmp/cciM3vJJ.s 			page 23
+ARM GAS  /tmp/cceMFToX.s 			page 23
 
 
  1232 0457 42       		.byte	0x42
@@ -1378,7 +1378,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  1286 04c6 79030000 		.4byte	0x379
  1287 04ca 07       		.byte	0x7
  1288 04cb 00       		.byte	0
-ARM GAS  /tmp/cciM3vJJ.s 			page 24
+ARM GAS  /tmp/cceMFToX.s 			page 24
 
 
  1289 04cc 11       		.uleb128 0x11
@@ -1438,7 +1438,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  1343 0540 00       		.byte	0
  1344 0541 14       		.uleb128 0x14
  1345 0542 57020000 		.4byte	.LASF82
-ARM GAS  /tmp/cciM3vJJ.s 			page 25
+ARM GAS  /tmp/cceMFToX.s 			page 25
 
 
  1346 0546 0B       		.byte	0xb
@@ -1498,7 +1498,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  1400 05b7 74030000 		.4byte	0x374
  1401 05bb 00       		.byte	0
  1402 05bc 0C       		.uleb128 0xc
-ARM GAS  /tmp/cciM3vJJ.s 			page 26
+ARM GAS  /tmp/cceMFToX.s 			page 26
 
 
  1403 05bd 4D535200 		.ascii	"MSR\000"
@@ -1558,7 +1558,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  1457 0633 02060000 		.4byte	.LASF91
  1458 0637 0B       		.byte	0xb
  1459 0638 5D02     		.2byte	0x25d
-ARM GAS  /tmp/cciM3vJJ.s 			page 27
+ARM GAS  /tmp/cceMFToX.s 			page 27
 
 
  1460 063a FB060000 		.4byte	0x6fb
@@ -1618,7 +1618,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  1514 06b8 74030000 		.4byte	0x374
  1515 06bc 1C02     		.2byte	0x21c
  1516 06be 17       		.uleb128 0x17
-ARM GAS  /tmp/cciM3vJJ.s 			page 28
+ARM GAS  /tmp/cceMFToX.s 			page 28
 
 
  1517 06bf 76050000 		.4byte	.LASF100
@@ -1678,7 +1678,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  1571 0739 0C       		.byte	0xc
  1572 073a 6E       		.byte	0x6e
  1573 073b 5E070000 		.4byte	0x75e
-ARM GAS  /tmp/cciM3vJJ.s 			page 29
+ARM GAS  /tmp/cceMFToX.s 			page 29
 
 
  1574 073f 1A       		.uleb128 0x1a
@@ -1738,7 +1738,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  1628 07a5 01       		.byte	0x1
  1629 07a6 01       		.byte	0x1
  1630 07a7 02       		.byte	0x2
-ARM GAS  /tmp/cciM3vJJ.s 			page 30
+ARM GAS  /tmp/cceMFToX.s 			page 30
 
 
  1631 07a8 00       		.byte	0
@@ -1798,7 +1798,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  1685 0805 0D       		.byte	0xd
  1686 0806 A9       		.byte	0xa9
  1687 0807 27080000 		.4byte	0x827
-ARM GAS  /tmp/cciM3vJJ.s 			page 31
+ARM GAS  /tmp/cceMFToX.s 			page 31
 
 
  1688 080b 0F       		.uleb128 0xf
@@ -1858,7 +1858,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  1742 0877 B6       		.byte	0xb6
  1743 0878 AD000000 		.4byte	0xad
  1744 087c 02       		.byte	0x2
-ARM GAS  /tmp/cciM3vJJ.s 			page 32
+ARM GAS  /tmp/cceMFToX.s 			page 32
 
 
  1745 087d 00       		.byte	0
@@ -1918,7 +1918,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  1799 08d4 1B       		.uleb128 0x1b
  1800 08d5 45494400 		.ascii	"EID\000"
  1801 08d9 0D       		.byte	0xd
-ARM GAS  /tmp/cciM3vJJ.s 			page 33
+ARM GAS  /tmp/cceMFToX.s 			page 33
 
 
  1802 08da C2       		.byte	0xc2
@@ -1978,7 +1978,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  1856 0940 0C       		.byte	0xc
  1857 0941 00       		.byte	0
  1858 0942 04       		.uleb128 0x4
-ARM GAS  /tmp/cciM3vJJ.s 			page 34
+ARM GAS  /tmp/cceMFToX.s 			page 34
 
 
  1859 0943 3C000000 		.4byte	.LASF115
@@ -2038,7 +2038,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  1913 09b3 AA030000 		.4byte	0x3aa
  1914 09b7 14       		.byte	0x14
  1915 09b8 14       		.uleb128 0x14
-ARM GAS  /tmp/cciM3vJJ.s 			page 35
+ARM GAS  /tmp/cceMFToX.s 			page 35
 
 
  1916 09b9 D7010000 		.4byte	.LASF121
@@ -2098,7 +2098,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  1970 0a2f 08000000 		.4byte	.LFE118-.LFB118
  1971 0a33 01       		.uleb128 0x1
  1972 0a34 9C       		.byte	0x9c
-ARM GAS  /tmp/cciM3vJJ.s 			page 36
+ARM GAS  /tmp/cceMFToX.s 			page 36
 
 
  1973 0a35 430A0000 		.4byte	0xa43
@@ -2158,7 +2158,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  2027 0a98 09       		.uleb128 0x9
  2028 0a99 04       		.byte	0x4
  2029 0a9a 180A0000 		.4byte	0xa18
-ARM GAS  /tmp/cciM3vJJ.s 			page 37
+ARM GAS  /tmp/cceMFToX.s 			page 37
 
 
  2030 0a9e 1E       		.uleb128 0x1e
@@ -2218,7 +2218,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  2084 0b1f 50       		.byte	0x50
  2085 0b20 05       		.uleb128 0x5
  2086 0b21 03       		.byte	0x3
-ARM GAS  /tmp/cciM3vJJ.s 			page 38
+ARM GAS  /tmp/cceMFToX.s 			page 38
 
 
  2087 0b22 00000000 		.4byte	.LC0
@@ -2278,7 +2278,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  2141 0b94 89       		.byte	0x89
  2142 0b95 C3000000 		.4byte	0xc3
  2143 0b99 01       		.uleb128 0x1
-ARM GAS  /tmp/cciM3vJJ.s 			page 39
+ARM GAS  /tmp/cceMFToX.s 			page 39
 
 
  2144 0b9a 53       		.byte	0x53
@@ -2338,7 +2338,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  2198 0c03 00       		.byte	0
  2199 0c04 21       		.uleb128 0x21
  2200 0c05 3C000000 		.4byte	.LVL17
-ARM GAS  /tmp/cciM3vJJ.s 			page 40
+ARM GAS  /tmp/cceMFToX.s 			page 40
 
 
  2201 0c09 DB100000 		.4byte	0x10db
@@ -2398,7 +2398,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  2255 0c81 26010000 		.4byte	.LLST7
  2256 0c85 24       		.uleb128 0x24
  2257 0c86 0C000000 		.4byte	.LBB6
-ARM GAS  /tmp/cciM3vJJ.s 			page 41
+ARM GAS  /tmp/cceMFToX.s 			page 41
 
 
  2258 0c8a 06000000 		.4byte	.LBE6-.LBB6
@@ -2458,7 +2458,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  2312 0cfc 66000000 		.4byte	.LBB9
  2313 0d00 06000000 		.4byte	.LBE9-.LBB9
  2314 0d04 160D0000 		.4byte	0xd16
-ARM GAS  /tmp/cciM3vJJ.s 			page 42
+ARM GAS  /tmp/cceMFToX.s 			page 42
 
 
  2315 0d08 25       		.uleb128 0x25
@@ -2518,7 +2518,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  2369 0d68 00       		.sleb128 0
  2370 0d69 22       		.uleb128 0x22
  2371 0d6a 01       		.uleb128 0x1
-ARM GAS  /tmp/cciM3vJJ.s 			page 43
+ARM GAS  /tmp/cceMFToX.s 			page 43
 
 
  2372 0d6b 50       		.byte	0x50
@@ -2578,7 +2578,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  2426 0dec 01       		.byte	0x1
  2427 0ded DE       		.byte	0xde
  2428 0dee C3000000 		.4byte	0xc3
-ARM GAS  /tmp/cciM3vJJ.s 			page 44
+ARM GAS  /tmp/cceMFToX.s 			page 44
 
 
  2429 0df2 01       		.uleb128 0x1
@@ -2638,7 +2638,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  2483 0e64 C3000000 		.4byte	0xc3
  2484 0e68 01       		.uleb128 0x1
  2485 0e69 53       		.byte	0x53
-ARM GAS  /tmp/cciM3vJJ.s 			page 45
+ARM GAS  /tmp/cceMFToX.s 			page 45
 
 
  2486 0e6a 00       		.byte	0
@@ -2698,7 +2698,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  2540 0ec4 00       		.byte	0
  2541 0ec5 1F       		.uleb128 0x1f
  2542 0ec6 66000000 		.4byte	.LVL41
-ARM GAS  /tmp/cciM3vJJ.s 			page 46
+ARM GAS  /tmp/cceMFToX.s 			page 46
 
 
  2543 0eca C2100000 		.4byte	0x10c2
@@ -2758,7 +2758,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  2597 0f49 05       		.uleb128 0x5
  2598 0f4a 03       		.byte	0x3
  2599 0f4b 48000000 		.4byte	.LC4
-ARM GAS  /tmp/cciM3vJJ.s 			page 47
+ARM GAS  /tmp/cceMFToX.s 			page 47
 
 
  2600 0f4f 00       		.byte	0
@@ -2818,7 +2818,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  2654 0fc3 28       		.uleb128 0x28
  2655 0fc4 746D7000 		.ascii	"tmp\000"
  2656 0fc8 01       		.byte	0x1
-ARM GAS  /tmp/cciM3vJJ.s 			page 48
+ARM GAS  /tmp/cceMFToX.s 			page 48
 
 
  2657 0fc9 1501     		.2byte	0x115
@@ -2878,7 +2878,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  2711 1037 02       		.uleb128 0x2
  2712 1038 74       		.byte	0x74
  2713 1039 30       		.sleb128 48
-ARM GAS  /tmp/cciM3vJJ.s 			page 49
+ARM GAS  /tmp/cceMFToX.s 			page 49
 
 
  2714 103a 00       		.byte	0
@@ -2938,7 +2938,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  2768 10b1 6D020000 		.4byte	.LASF144
  2769 10b5 0D       		.byte	0xd
  2770 10b6 5601     		.2byte	0x156
-ARM GAS  /tmp/cciM3vJJ.s 			page 50
+ARM GAS  /tmp/cceMFToX.s 			page 50
 
 
  2771 10b8 C2100000 		.4byte	0x10c2
@@ -2998,7 +2998,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  2825 1132 0D       		.byte	0xd
  2826 1133 5A01     		.2byte	0x15a
  2827 1135 49110000 		.4byte	0x1149
-ARM GAS  /tmp/cciM3vJJ.s 			page 51
+ARM GAS  /tmp/cceMFToX.s 			page 51
 
 
  2828 1139 2E       		.uleb128 0x2e
@@ -3058,7 +3058,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  2882 11b4 6401     		.2byte	0x164
  2883 11b6 2E       		.uleb128 0x2e
  2884 11b7 980A0000 		.4byte	0xa98
-ARM GAS  /tmp/cciM3vJJ.s 			page 52
+ARM GAS  /tmp/cceMFToX.s 			page 52
 
 
  2885 11bb 00       		.byte	0
@@ -3118,7 +3118,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  2939 0032 49       		.uleb128 0x49
  2940 0033 13       		.uleb128 0x13
  2941 0034 00       		.byte	0
-ARM GAS  /tmp/cciM3vJJ.s 			page 53
+ARM GAS  /tmp/cceMFToX.s 			page 53
 
 
  2942 0035 00       		.byte	0
@@ -3178,7 +3178,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  2996 006b 0B       		.uleb128 0xb
  2997 006c 01       		.uleb128 0x1
  2998 006d 13       		.uleb128 0x13
-ARM GAS  /tmp/cciM3vJJ.s 			page 54
+ARM GAS  /tmp/cceMFToX.s 			page 54
 
 
  2999 006e 00       		.byte	0
@@ -3238,7 +3238,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  3053 00a4 00       		.byte	0
  3054 00a5 0E       		.uleb128 0xe
  3055 00a6 17       		.uleb128 0x17
-ARM GAS  /tmp/cciM3vJJ.s 			page 55
+ARM GAS  /tmp/cceMFToX.s 			page 55
 
 
  3056 00a7 01       		.byte	0x1
@@ -3298,7 +3298,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  3110 00dd 3A       		.uleb128 0x3a
  3111 00de 0B       		.uleb128 0xb
  3112 00df 3B       		.uleb128 0x3b
-ARM GAS  /tmp/cciM3vJJ.s 			page 56
+ARM GAS  /tmp/cceMFToX.s 			page 56
 
 
  3113 00e0 05       		.uleb128 0x5
@@ -3358,7 +3358,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  3167 0116 05       		.uleb128 0x5
  3168 0117 49       		.uleb128 0x49
  3169 0118 13       		.uleb128 0x13
-ARM GAS  /tmp/cciM3vJJ.s 			page 57
+ARM GAS  /tmp/cceMFToX.s 			page 57
 
 
  3170 0119 38       		.uleb128 0x38
@@ -3418,7 +3418,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  3224 014f 0D       		.uleb128 0xd
  3225 0150 0B       		.uleb128 0xb
  3226 0151 0C       		.uleb128 0xc
-ARM GAS  /tmp/cciM3vJJ.s 			page 58
+ARM GAS  /tmp/cceMFToX.s 			page 58
 
 
  3227 0152 0B       		.uleb128 0xb
@@ -3478,7 +3478,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  3281 018b 00       		.byte	0
  3282 018c 20       		.uleb128 0x20
  3283 018d 05       		.uleb128 0x5
-ARM GAS  /tmp/cciM3vJJ.s 			page 59
+ARM GAS  /tmp/cceMFToX.s 			page 59
 
 
  3284 018e 00       		.byte	0
@@ -3538,7 +3538,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  3338 01cb 34       		.uleb128 0x34
  3339 01cc 00       		.byte	0
  3340 01cd 03       		.uleb128 0x3
-ARM GAS  /tmp/cciM3vJJ.s 			page 60
+ARM GAS  /tmp/cceMFToX.s 			page 60
 
 
  3341 01ce 08       		.uleb128 0x8
@@ -3598,7 +3598,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  3395 0205 34       		.uleb128 0x34
  3396 0206 00       		.byte	0
  3397 0207 03       		.uleb128 0x3
-ARM GAS  /tmp/cciM3vJJ.s 			page 61
+ARM GAS  /tmp/cceMFToX.s 			page 61
 
 
  3398 0208 08       		.uleb128 0x8
@@ -3658,7 +3658,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  3452 023f 03       		.uleb128 0x3
  3453 0240 0E       		.uleb128 0xe
  3454 0241 3A       		.uleb128 0x3a
-ARM GAS  /tmp/cciM3vJJ.s 			page 62
+ARM GAS  /tmp/cceMFToX.s 			page 62
 
 
  3455 0242 0B       		.uleb128 0xb
@@ -3718,7 +3718,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  3509 0278 2F       		.uleb128 0x2f
  3510 0279 2E       		.uleb128 0x2e
  3511 027a 00       		.byte	0
-ARM GAS  /tmp/cciM3vJJ.s 			page 63
+ARM GAS  /tmp/cceMFToX.s 			page 63
 
 
  3512 027b 3F       		.uleb128 0x3f
@@ -3778,7 +3778,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  3566 02b1 32       		.uleb128 0x32
  3567 02b2 2E       		.uleb128 0x2e
  3568 02b3 01       		.byte	0x1
-ARM GAS  /tmp/cciM3vJJ.s 			page 64
+ARM GAS  /tmp/cceMFToX.s 			page 64
 
 
  3569 02b4 3F       		.uleb128 0x3f
@@ -3838,7 +3838,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  3623 0029 0F000000 		.4byte	.LVL6-1
  3624 002d 4C000000 		.4byte	.LVL11
  3625 0031 0100     		.2byte	0x1
-ARM GAS  /tmp/cciM3vJJ.s 			page 65
+ARM GAS  /tmp/cceMFToX.s 			page 65
 
 
  3626 0033 54       		.byte	0x54
@@ -3898,7 +3898,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  3680 00b7 54       		.byte	0x54
  3681 00b8 72000000 		.4byte	.LVL31
  3682 00bc 78000000 		.4byte	.LFE122
-ARM GAS  /tmp/cciM3vJJ.s 			page 66
+ARM GAS  /tmp/cceMFToX.s 			page 66
 
 
  3683 00c0 0400     		.2byte	0x4
@@ -3958,7 +3958,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  3737 0144 0400     		.2byte	0x4
  3738 0146 F3       		.byte	0xf3
  3739 0147 01       		.uleb128 0x1
-ARM GAS  /tmp/cciM3vJJ.s 			page 67
+ARM GAS  /tmp/cceMFToX.s 			page 67
 
 
  3740 0148 53       		.byte	0x53
@@ -4018,7 +4018,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  3794 01d0 0100     		.2byte	0x1
  3795 01d2 52       		.byte	0x52
  3796 01d3 15000000 		.4byte	.LVL34-1
-ARM GAS  /tmp/cciM3vJJ.s 			page 68
+ARM GAS  /tmp/cceMFToX.s 			page 68
 
 
  3797 01d7 72000000 		.4byte	.LVL42
@@ -4078,7 +4078,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  3851 025f 01       		.uleb128 0x1
  3852 0260 50       		.byte	0x50
  3853 0261 9F       		.byte	0x9f
-ARM GAS  /tmp/cciM3vJJ.s 			page 69
+ARM GAS  /tmp/cceMFToX.s 			page 69
 
 
  3854 0262 00000000 		.4byte	0
@@ -4138,7 +4138,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  3908 0018 00000000 		.4byte	.LFB121
  3909 001c 50000000 		.4byte	.LFE121
  3910 0020 00000000 		.4byte	.LFB122
-ARM GAS  /tmp/cciM3vJJ.s 			page 70
+ARM GAS  /tmp/cceMFToX.s 			page 70
 
 
  3911 0024 78000000 		.4byte	.LFE122
@@ -4198,7 +4198,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  3942      54797065 
  3942      44656600 
  3943              	.LASF13:
-ARM GAS  /tmp/cciM3vJJ.s 			page 71
+ARM GAS  /tmp/cceMFToX.s 			page 71
 
 
  3944 007f 6C6F6E67 		.ascii	"long long unsigned int\000"
@@ -4258,7 +4258,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  3972 0113 74736C69 		.ascii	"tslices_t\000"
  3972      6365735F 
  3972      7400
-ARM GAS  /tmp/cciM3vJJ.s 			page 72
+ARM GAS  /tmp/cceMFToX.s 			page 72
 
 
  3973              	.LASF117:
@@ -4318,7 +4318,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  4001              	.LASF6:
  4002 01aa 73686F72 		.ascii	"short unsigned int\000"
  4002      7420756E 
-ARM GAS  /tmp/cciM3vJJ.s 			page 73
+ARM GAS  /tmp/cceMFToX.s 			page 73
 
 
  4002      7369676E 
@@ -4378,7 +4378,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  4028 0239 7354784D 		.ascii	"sTxMailBox\000"
  4028      61696C42 
  4028      6F7800
-ARM GAS  /tmp/cciM3vJJ.s 			page 74
+ARM GAS  /tmp/cceMFToX.s 			page 74
 
 
  4029              	.LASF46:
@@ -4438,7 +4438,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  4058 02d9 474E5520 		.ascii	"GNU C 4.9.2 20150128 (prerelease) -mcpu=cortex-m4 -"
  4058      4320342E 
  4058      392E3220 
-ARM GAS  /tmp/cciM3vJJ.s 			page 75
+ARM GAS  /tmp/cceMFToX.s 			page 75
 
 
  4058      32303135 
@@ -4498,7 +4498,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  4081      7200
  4082              	.LASF69:
  4083 03f7 656C5F6D 		.ascii	"el_mask\000"
-ARM GAS  /tmp/cciM3vJJ.s 			page 76
+ARM GAS  /tmp/cceMFToX.s 			page 76
 
 
  4083      61736B00 
@@ -4558,7 +4558,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  4111 0485 52455345 		.ascii	"RESERVED1\000"
  4111      52564544 
  4111      3100
-ARM GAS  /tmp/cciM3vJJ.s 			page 77
+ARM GAS  /tmp/cceMFToX.s 			page 77
 
 
  4112              	.LASF94:
@@ -4618,7 +4618,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  4140              	.LASF49:
  4141 051a 705F6D74 		.ascii	"p_mtxlist\000"
  4141      786C6973 
-ARM GAS  /tmp/cciM3vJJ.s 			page 78
+ARM GAS  /tmp/cceMFToX.s 			page 78
 
 
  4141      7400
@@ -4678,7 +4678,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  4171      69676E65 
  4171      6420696E 
  4171      7400
-ARM GAS  /tmp/cciM3vJJ.s 			page 79
+ARM GAS  /tmp/cceMFToX.s 			page 79
 
 
  4172              	.LASF77:
@@ -4738,7 +4738,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  4200              	.LASF28:
  4201 0636 666C6167 		.ascii	"flagsmask_t\000"
  4201      736D6173 
-ARM GAS  /tmp/cciM3vJJ.s 			page 80
+ARM GAS  /tmp/cceMFToX.s 			page 80
 
 
  4201      6B5F7400 
@@ -4798,7 +4798,7 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  4229      00
  4230              	.LASF153:
  4231 06d0 63616E5F 		.ascii	"can_lld_is_rx_nonempty\000"
-ARM GAS  /tmp/cciM3vJJ.s 			page 81
+ARM GAS  /tmp/cceMFToX.s 			page 81
 
 
  4231      6C6C645F 
@@ -4843,39 +4843,39 @@ ARM GAS  /tmp/cciM3vJJ.s 			page 1
  4249      6D496E69 
  4249      7400
  4250              		.ident	"GCC: (Arch Repository) 4.9.2 20150128 (prerelease)"
-ARM GAS  /tmp/cciM3vJJ.s 			page 82
+ARM GAS  /tmp/cceMFToX.s 			page 82
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 can.c
-     /tmp/cciM3vJJ.s:19     .text.canInit:0000000000000000 $t
-     /tmp/cciM3vJJ.s:25     .text.canInit:0000000000000000 canInit
-     /tmp/cciM3vJJ.s:44     .text.canObjectInit:0000000000000000 $t
-     /tmp/cciM3vJJ.s:50     .text.canObjectInit:0000000000000000 canObjectInit
-     /tmp/cciM3vJJ.s:101    .text.canStart:0000000000000000 $t
-     /tmp/cciM3vJJ.s:107    .text.canStart:0000000000000000 canStart
-     /tmp/cciM3vJJ.s:181    .text.canStart:000000000000004c $d
-     /tmp/cciM3vJJ.s:187    .text.canStop:0000000000000000 $t
-     /tmp/cciM3vJJ.s:193    .text.canStop:0000000000000000 canStop
-     /tmp/cciM3vJJ.s:261    .text.canStop:000000000000004c $d
-     /tmp/cciM3vJJ.s:267    .text.canTransmit:0000000000000000 $t
-     /tmp/cciM3vJJ.s:273    .text.canTransmit:0000000000000000 canTransmit
-     /tmp/cciM3vJJ.s:375    .text.canTransmit:0000000000000074 $d
-     /tmp/cciM3vJJ.s:380    .text.canReceive:0000000000000000 $t
-     /tmp/cciM3vJJ.s:386    .text.canReceive:0000000000000000 canReceive
-     /tmp/cciM3vJJ.s:488    .text.canReceive:0000000000000074 $d
-     /tmp/cciM3vJJ.s:493    .text.canSleep:0000000000000000 $t
-     /tmp/cciM3vJJ.s:499    .text.canSleep:0000000000000000 canSleep
-     /tmp/cciM3vJJ.s:566    .text.canSleep:0000000000000048 $d
-     /tmp/cciM3vJJ.s:572    .text.canWakeup:0000000000000000 $t
-     /tmp/cciM3vJJ.s:578    .text.canWakeup:0000000000000000 canWakeup
-     /tmp/cciM3vJJ.s:645    .text.canWakeup:0000000000000048 $d
-     /tmp/cciM3vJJ.s:651    .rodata.str1.4:0000000000000000 $d
+     /tmp/cceMFToX.s:19     .text.canInit:0000000000000000 $t
+     /tmp/cceMFToX.s:25     .text.canInit:0000000000000000 canInit
+     /tmp/cceMFToX.s:44     .text.canObjectInit:0000000000000000 $t
+     /tmp/cceMFToX.s:50     .text.canObjectInit:0000000000000000 canObjectInit
+     /tmp/cceMFToX.s:101    .text.canStart:0000000000000000 $t
+     /tmp/cceMFToX.s:107    .text.canStart:0000000000000000 canStart
+     /tmp/cceMFToX.s:181    .text.canStart:000000000000004c $d
+     /tmp/cceMFToX.s:187    .text.canStop:0000000000000000 $t
+     /tmp/cceMFToX.s:193    .text.canStop:0000000000000000 canStop
+     /tmp/cceMFToX.s:261    .text.canStop:000000000000004c $d
+     /tmp/cceMFToX.s:267    .text.canTransmit:0000000000000000 $t
+     /tmp/cceMFToX.s:273    .text.canTransmit:0000000000000000 canTransmit
+     /tmp/cceMFToX.s:375    .text.canTransmit:0000000000000074 $d
+     /tmp/cceMFToX.s:380    .text.canReceive:0000000000000000 $t
+     /tmp/cceMFToX.s:386    .text.canReceive:0000000000000000 canReceive
+     /tmp/cceMFToX.s:488    .text.canReceive:0000000000000074 $d
+     /tmp/cceMFToX.s:493    .text.canSleep:0000000000000000 $t
+     /tmp/cceMFToX.s:499    .text.canSleep:0000000000000000 canSleep
+     /tmp/cceMFToX.s:566    .text.canSleep:0000000000000048 $d
+     /tmp/cceMFToX.s:572    .text.canWakeup:0000000000000000 $t
+     /tmp/cceMFToX.s:578    .text.canWakeup:0000000000000000 canWakeup
+     /tmp/cceMFToX.s:645    .text.canWakeup:0000000000000048 $d
+     /tmp/cceMFToX.s:651    .rodata.str1.4:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
-     /tmp/cciM3vJJ.s:379    .text.canTransmit:0000000000000078 $t
-     /tmp/cciM3vJJ.s:492    .text.canReceive:0000000000000078 $t
-     /tmp/cciM3vJJ.s:571    .text.canSleep:000000000000004c $t
-     /tmp/cciM3vJJ.s:650    .text.canWakeup:000000000000004c $t
+     /tmp/cceMFToX.s:379    .text.canTransmit:0000000000000078 $t
+     /tmp/cceMFToX.s:492    .text.canReceive:0000000000000078 $t
+     /tmp/cceMFToX.s:571    .text.canSleep:000000000000004c $t
+     /tmp/cceMFToX.s:650    .text.canWakeup:000000000000004c $t
 
 UNDEFINED SYMBOLS
 can_lld_init

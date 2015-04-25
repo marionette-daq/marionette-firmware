@@ -1,4 +1,4 @@
-ARM GAS  /tmp/ccKPtmp1.s 			page 1
+ARM GAS  /tmp/ccOiGXXl.s 			page 1
 
 
    1              		.syntax unified
@@ -58,7 +58,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
   54              		.cfi_startproc
   55              		@ args = 0, pretend = 0, frame = 0
   56              		@ frame_needed = 0, uses_anonymous_args = 0
-ARM GAS  /tmp/ccKPtmp1.s 			page 2
+ARM GAS  /tmp/ccOiGXXl.s 			page 2
 
 
   57              	.LVL1:
@@ -118,7 +118,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  111              		.loc 2 43 0
  112 0036 3246     		mov	r2, r6
  113              	.LVL7:
-ARM GAS  /tmp/ccKPtmp1.s 			page 3
+ARM GAS  /tmp/ccOiGXXl.s 			page 3
 
 
  114              	.L10:
@@ -178,7 +178,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  168              		.loc 2 46 0
  169 0068 9642     		cmp	r6, r2
  170 006a 03D0     		beq	.L11
-ARM GAS  /tmp/ccKPtmp1.s 			page 4
+ARM GAS  /tmp/ccOiGXXl.s 			page 4
 
 
  171 006c 9368     		ldr	r3, [r2, #8]
@@ -238,7 +238,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  225 00a2 2B46     		mov	r3, r5
  226              	.LVL20:
  227              	.L15:
-ARM GAS  /tmp/ccKPtmp1.s 			page 5
+ARM GAS  /tmp/ccOiGXXl.s 			page 5
 
 
  228              		.loc 2 45 0
@@ -298,7 +298,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  282              		.loc 1 185 0
  283 00e4 2564     		str	r5, [r4, #64]
  284              	.L2:
-ARM GAS  /tmp/ccKPtmp1.s 			page 6
+ARM GAS  /tmp/ccOiGXXl.s 			page 6
 
 
  285 00e6 70BD     		pop	{r4, r5, r6, pc}
@@ -358,7 +358,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  337              		.thumb
  338 001e 10BD     		pop	{r4, pc}
  339              	.LBE43:
-ARM GAS  /tmp/ccKPtmp1.s 			page 7
+ARM GAS  /tmp/ccOiGXXl.s 			page 7
 
 
  340              		.cfi_endproc
@@ -418,7 +418,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  394              	.LFE11:
  395              		.size	chMtxTryLockS, .-chMtxTryLockS
  396 0028 AFF30080 		.section	.text.chMtxTryLock,"ax",%progbits
-ARM GAS  /tmp/ccKPtmp1.s 			page 8
+ARM GAS  /tmp/ccOiGXXl.s 			page 8
 
 
  396      AFF30080 
@@ -478,7 +478,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  448              		.align	2
  449              		.p2align 4,,15
  450              		.global	chMtxUnlock
-ARM GAS  /tmp/ccKPtmp1.s 			page 9
+ARM GAS  /tmp/ccOiGXXl.s 			page 9
 
 
  451              		.thumb
@@ -538,7 +538,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  505 002e 2268     		ldr	r2, [r4]
  506 0030 A242     		cmp	r2, r4
  507 0032 18D0     		beq	.L35
-ARM GAS  /tmp/ccKPtmp1.s 			page 10
+ARM GAS  /tmp/ccOiGXXl.s 			page 10
 
 
  508              	.LBB47:
@@ -598,7 +598,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  562 0064 01E0     		b	.L39
  563              	.LVL54:
  564              	.L35:
-ARM GAS  /tmp/ccKPtmp1.s 			page 11
+ARM GAS  /tmp/ccOiGXXl.s 			page 11
 
 
  565              		.loc 1 300 0
@@ -658,7 +658,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  617              	.LVL58:
  618              		.loc 1 322 0
  619 000a 2B6C     		ldr	r3, [r5, #64]
-ARM GAS  /tmp/ccKPtmp1.s 			page 12
+ARM GAS  /tmp/ccOiGXXl.s 			page 12
 
 
  620 000c 13B9     		cbnz	r3, .L45
@@ -718,7 +718,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  674              	.LVL65:
  675              	.LBB52:
  676              	.LBB53:
-ARM GAS  /tmp/ccKPtmp1.s 			page 13
+ARM GAS  /tmp/ccOiGXXl.s 			page 13
 
 
  677              		.loc 2 60 0
@@ -778,7 +778,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  729              		@ args = 0, pretend = 0, frame = 0
  730              		@ frame_needed = 0, uses_anonymous_args = 0
  731 0000 10B5     		push	{r4, lr}
-ARM GAS  /tmp/ccKPtmp1.s 			page 14
+ARM GAS  /tmp/ccOiGXXl.s 			page 14
 
 
  732              		.cfi_def_cfa_offset 8
@@ -838,7 +838,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  786              	.LVL76:
  787              	.L58:
  788              		.loc 1 390 0
-ARM GAS  /tmp/ccKPtmp1.s 			page 15
+ARM GAS  /tmp/ccOiGXXl.s 			page 15
 
 
  789 0034 0022     		movs	r2, #0
@@ -898,7 +898,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  833      78556E6C 
  833      6F636B28 
  833      292C2023 
-ARM GAS  /tmp/ccKPtmp1.s 			page 16
+ARM GAS  /tmp/ccOiGXXl.s 			page 16
 
 
  833      3100
@@ -958,7 +958,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  875 002f 23010000 		.4byte	.LASF0
  876 0033 03       		.uleb128 0x3
  877 0034 01       		.byte	0x1
-ARM GAS  /tmp/ccKPtmp1.s 			page 17
+ARM GAS  /tmp/ccOiGXXl.s 			page 17
 
 
  878 0035 06       		.byte	0x6
@@ -1018,7 +1018,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  932 009e 3A000000 		.4byte	0x3a
  933 00a2 04       		.uleb128 0x4
  934 00a3 46030000 		.4byte	.LASF14
-ARM GAS  /tmp/ccKPtmp1.s 			page 18
+ARM GAS  /tmp/ccOiGXXl.s 			page 18
 
 
  935 00a7 04       		.byte	0x4
@@ -1078,7 +1078,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  989 011c 05       		.byte	0x5
  990 011d 33       		.byte	0x33
  991 011e AD000000 		.4byte	0xad
-ARM GAS  /tmp/ccKPtmp1.s 			page 19
+ARM GAS  /tmp/ccOiGXXl.s 			page 19
 
 
  992 0122 04       		.uleb128 0x4
@@ -1138,7 +1138,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  1046 0191 07       		.byte	0x7
  1047 0192 6E       		.byte	0x6e
  1048 0193 27040000 		.4byte	0x427
-ARM GAS  /tmp/ccKPtmp1.s 			page 20
+ARM GAS  /tmp/ccOiGXXl.s 			page 20
 
 
  1049 0197 18       		.byte	0x18
@@ -1198,7 +1198,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  1103 0203 30       		.byte	0x30
  1104 0204 06       		.uleb128 0x6
  1105 0205 00000000 		.4byte	.LASF43
-ARM GAS  /tmp/ccKPtmp1.s 			page 21
+ARM GAS  /tmp/ccOiGXXl.s 			page 21
 
 
  1106 0209 07       		.byte	0x7
@@ -1258,7 +1258,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  1160 026f 41020000 		.4byte	0x241
  1161 0273 08       		.uleb128 0x8
  1162 0274 04       		.byte	0x4
-ARM GAS  /tmp/ccKPtmp1.s 			page 22
+ARM GAS  /tmp/ccOiGXXl.s 			page 22
 
 
  1163 0275 06       		.byte	0x6
@@ -1318,7 +1318,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  1217 02e1 2201     		.2byte	0x122
  1218 02e3 93020000 		.4byte	0x293
  1219 02e7 0C       		.byte	0xc
-ARM GAS  /tmp/ccKPtmp1.s 			page 23
+ARM GAS  /tmp/ccOiGXXl.s 			page 23
 
 
  1220 02e8 0C       		.uleb128 0xc
@@ -1378,7 +1378,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  1274 0355 1C       		.byte	0x1c
  1275 0356 09       		.byte	0x9
  1276 0357 5E       		.byte	0x5e
-ARM GAS  /tmp/ccKPtmp1.s 			page 24
+ARM GAS  /tmp/ccOiGXXl.s 			page 24
 
 
  1277 0358 A5030000 		.4byte	0x3a5
@@ -1438,7 +1438,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  1331 03c7 00       		.byte	0
  1332 03c8 06       		.uleb128 0x6
  1333 03c9 89040000 		.4byte	.LASF64
-ARM GAS  /tmp/ccKPtmp1.s 			page 25
+ARM GAS  /tmp/ccOiGXXl.s 			page 25
 
 
  1334 03cd 0A       		.byte	0xa
@@ -1498,7 +1498,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  1388 0439 09       		.uleb128 0x9
  1389 043a 04       		.byte	0x4
  1390 043b A0020000 		.4byte	0x2a0
-ARM GAS  /tmp/ccKPtmp1.s 			page 26
+ARM GAS  /tmp/ccOiGXXl.s 			page 26
 
 
  1391 043f 09       		.uleb128 0x9
@@ -1558,7 +1558,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  1445 04ae 747000   		.ascii	"tp\000"
  1446 04b1 02       		.byte	0x2
  1447 04b2 3C       		.byte	0x3c
-ARM GAS  /tmp/ccKPtmp1.s 			page 27
+ARM GAS  /tmp/ccOiGXXl.s 			page 27
 
 
  1448 04b3 62020000 		.4byte	0x262
@@ -1618,7 +1618,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  1502 0534 01       		.byte	0x1
  1503 0535 8E       		.byte	0x8e
  1504 0536 44050000 		.4byte	0x544
-ARM GAS  /tmp/ccKPtmp1.s 			page 28
+ARM GAS  /tmp/ccOiGXXl.s 			page 28
 
 
  1505 053a 1B       		.uleb128 0x1b
@@ -1678,7 +1678,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  1559 05cd 1B010000 		.4byte	.LLST10
  1560 05d1 00       		.byte	0
  1561 05d2 00       		.byte	0
-ARM GAS  /tmp/ccKPtmp1.s 			page 29
+ARM GAS  /tmp/ccOiGXXl.s 			page 29
 
 
  1562 05d3 1A       		.uleb128 0x1a
@@ -1738,7 +1738,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  1616 0657 00000000 		.4byte	.LC0
  1617 065b 00       		.byte	0
  1618 065c 21       		.uleb128 0x21
-ARM GAS  /tmp/ccKPtmp1.s 			page 30
+ARM GAS  /tmp/ccOiGXXl.s 			page 30
 
 
  1619 065d DC000000 		.4byte	.LVL25
@@ -1798,7 +1798,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  1673 06d4 0E000000 		.4byte	.LVL29
  1674 06d8 F90A0000 		.4byte	0xaf9
  1675 06dc 1F       		.uleb128 0x1f
-ARM GAS  /tmp/ccKPtmp1.s 			page 31
+ARM GAS  /tmp/ccOiGXXl.s 			page 31
 
 
  1676 06dd 14000000 		.4byte	.LVL30
@@ -1858,7 +1858,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  1730 0757 C3000000 		.4byte	0xc3
  1731 075b 01       		.uleb128 0x1
  1732 075c 54       		.byte	0x54
-ARM GAS  /tmp/ccKPtmp1.s 			page 32
+ARM GAS  /tmp/ccOiGXXl.s 			page 32
 
 
  1733 075d 19       		.uleb128 0x19
@@ -1918,7 +1918,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  1787 07d9 01       		.byte	0x1
  1788 07da 0201     		.2byte	0x102
  1789 07dc 62020000 		.4byte	0x262
-ARM GAS  /tmp/ccKPtmp1.s 			page 33
+ARM GAS  /tmp/ccOiGXXl.s 			page 33
 
 
  1790 07e0 11020000 		.4byte	.LLST18
@@ -1978,7 +1978,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  1844 086b 08000000 		.4byte	.LBE49-.LBB49
  1845 086f 1D       		.uleb128 0x1d
  1846 0870 AD040000 		.4byte	0x4ad
-ARM GAS  /tmp/ccKPtmp1.s 			page 34
+ARM GAS  /tmp/ccOiGXXl.s 			page 34
 
 
  1847 0874 7B020000 		.4byte	.LLST23
@@ -2038,7 +2038,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  1901 08e7 24       		.uleb128 0x24
  1902 08e8 9F030000 		.4byte	.LASF80
  1903 08ec 01       		.byte	0x1
-ARM GAS  /tmp/ccKPtmp1.s 			page 35
+ARM GAS  /tmp/ccOiGXXl.s 			page 35
 
 
  1904 08ed 3D01     		.2byte	0x13d
@@ -2098,7 +2098,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  1958 097c 08000000 		.4byte	.LBE53-.LBB53
  1959 0980 1D       		.uleb128 0x1d
  1960 0981 AD040000 		.4byte	0x4ad
-ARM GAS  /tmp/ccKPtmp1.s 			page 36
+ARM GAS  /tmp/ccOiGXXl.s 			page 36
 
 
  1961 0985 F8020000 		.4byte	.LLST29
@@ -2158,7 +2158,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  2015 0a02 7901     		.2byte	0x179
  2016 0a04 AD000000 		.4byte	0xad
  2017 0a08 01       		.uleb128 0x1
-ARM GAS  /tmp/ccKPtmp1.s 			page 37
+ARM GAS  /tmp/ccOiGXXl.s 			page 37
 
 
  2018 0a09 53       		.byte	0x53
@@ -2218,7 +2218,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  2072 0a93 00       		.byte	0
  2073 0a94 1E       		.uleb128 0x1e
  2074 0a95 10000000 		.4byte	.LVL72
-ARM GAS  /tmp/ccKPtmp1.s 			page 38
+ARM GAS  /tmp/ccOiGXXl.s 			page 38
 
 
  2075 0a99 F90A0000 		.4byte	0xaf9
@@ -2278,7 +2278,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  2129 0b0e 1D0B0000 		.4byte	0xb1d
  2130 0b12 2D       		.uleb128 0x2d
  2131 0b13 62020000 		.4byte	0x262
-ARM GAS  /tmp/ccKPtmp1.s 			page 39
+ARM GAS  /tmp/ccOiGXXl.s 			page 39
 
 
  2132 0b17 2D       		.uleb128 0x2d
@@ -2338,7 +2338,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  2186 002c 03       		.uleb128 0x3
  2187 002d 0E       		.uleb128 0xe
  2188 002e 3A       		.uleb128 0x3a
-ARM GAS  /tmp/ccKPtmp1.s 			page 40
+ARM GAS  /tmp/ccOiGXXl.s 			page 40
 
 
  2189 002f 0B       		.uleb128 0xb
@@ -2398,7 +2398,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  2243 0065 01       		.byte	0x1
  2244 0066 0B       		.uleb128 0xb
  2245 0067 0B       		.uleb128 0xb
-ARM GAS  /tmp/ccKPtmp1.s 			page 41
+ARM GAS  /tmp/ccOiGXXl.s 			page 41
 
 
  2246 0068 3A       		.uleb128 0x3a
@@ -2458,7 +2458,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  2300 009e 0D       		.uleb128 0xd
  2301 009f 35       		.uleb128 0x35
  2302 00a0 00       		.byte	0
-ARM GAS  /tmp/ccKPtmp1.s 			page 42
+ARM GAS  /tmp/ccOiGXXl.s 			page 42
 
 
  2303 00a1 49       		.uleb128 0x49
@@ -2518,7 +2518,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  2357 00d7 00       		.byte	0
  2358 00d8 00       		.byte	0
  2359 00d9 12       		.uleb128 0x12
-ARM GAS  /tmp/ccKPtmp1.s 			page 43
+ARM GAS  /tmp/ccOiGXXl.s 			page 43
 
 
  2360 00da 05       		.uleb128 0x5
@@ -2578,7 +2578,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  2414 0110 19       		.uleb128 0x19
  2415 0111 11       		.uleb128 0x11
  2416 0112 01       		.uleb128 0x1
-ARM GAS  /tmp/ccKPtmp1.s 			page 44
+ARM GAS  /tmp/ccOiGXXl.s 			page 44
 
 
  2417 0113 12       		.uleb128 0x12
@@ -2638,7 +2638,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  2471 014a 00       		.byte	0
  2472 014b 19       		.uleb128 0x19
  2473 014c 0B       		.uleb128 0xb
-ARM GAS  /tmp/ccKPtmp1.s 			page 45
+ARM GAS  /tmp/ccOiGXXl.s 			page 45
 
 
  2474 014d 01       		.byte	0x1
@@ -2698,7 +2698,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  2528 0183 898201   		.uleb128 0x4109
  2529 0186 00       		.byte	0
  2530 0187 11       		.uleb128 0x11
-ARM GAS  /tmp/ccKPtmp1.s 			page 46
+ARM GAS  /tmp/ccOiGXXl.s 			page 46
 
 
  2531 0188 01       		.uleb128 0x1
@@ -2758,7 +2758,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  2585 01c5 03       		.uleb128 0x3
  2586 01c6 0E       		.uleb128 0xe
  2587 01c7 3A       		.uleb128 0x3a
-ARM GAS  /tmp/ccKPtmp1.s 			page 47
+ARM GAS  /tmp/ccOiGXXl.s 			page 47
 
 
  2588 01c8 0B       		.uleb128 0xb
@@ -2818,7 +2818,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  2642 0200 05       		.uleb128 0x5
  2643 0201 49       		.uleb128 0x49
  2644 0202 13       		.uleb128 0x13
-ARM GAS  /tmp/ccKPtmp1.s 			page 48
+ARM GAS  /tmp/ccOiGXXl.s 			page 48
 
 
  2645 0203 02       		.uleb128 0x2
@@ -2878,7 +2878,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  2699 0239 3F       		.uleb128 0x3f
  2700 023a 19       		.uleb128 0x19
  2701 023b 03       		.uleb128 0x3
-ARM GAS  /tmp/ccKPtmp1.s 			page 49
+ARM GAS  /tmp/ccOiGXXl.s 			page 49
 
 
  2702 023c 0E       		.uleb128 0xe
@@ -2938,7 +2938,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  2756 0273 03       		.uleb128 0x3
  2757 0274 0E       		.uleb128 0xe
  2758 0275 3A       		.uleb128 0x3a
-ARM GAS  /tmp/ccKPtmp1.s 			page 50
+ARM GAS  /tmp/ccOiGXXl.s 			page 50
 
 
  2759 0276 0B       		.uleb128 0xb
@@ -2998,7 +2998,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  2813 02ac 00       		.byte	0
  2814 02ad 00       		.byte	0
  2815 02ae 00       		.byte	0
-ARM GAS  /tmp/ccKPtmp1.s 			page 51
+ARM GAS  /tmp/ccOiGXXl.s 			page 51
 
 
  2816              		.section	.debug_loc,"",%progbits
@@ -3058,7 +3058,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  2870 0088 71       		.byte	0x71
  2871 0089 00       		.sleb128 0
  2872 008a 00000000 		.4byte	0
-ARM GAS  /tmp/ccKPtmp1.s 			page 52
+ARM GAS  /tmp/ccOiGXXl.s 			page 52
 
 
  2873 008e 00000000 		.4byte	0
@@ -3118,7 +3118,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  2927 011f 66000000 		.4byte	.LVL12
  2928 0123 0100     		.2byte	0x1
  2929 0125 56       		.byte	0x56
-ARM GAS  /tmp/ccKPtmp1.s 			page 53
+ARM GAS  /tmp/ccOiGXXl.s 			page 53
 
 
  2930 0126 66000000 		.4byte	.LVL12
@@ -3178,7 +3178,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  2984 01b9 00000000 		.4byte	.LVL32
  2985 01bd 07000000 		.4byte	.LVL33-1
  2986 01c1 0100     		.2byte	0x1
-ARM GAS  /tmp/ccKPtmp1.s 			page 54
+ARM GAS  /tmp/ccOiGXXl.s 			page 54
 
 
  2987 01c3 50       		.byte	0x50
@@ -3238,7 +3238,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  3041 024c 53       		.byte	0x53
  3042 024d 00000000 		.4byte	0
  3043 0251 00000000 		.4byte	0
-ARM GAS  /tmp/ccKPtmp1.s 			page 55
+ARM GAS  /tmp/ccOiGXXl.s 			page 55
 
 
  3044              	.LLST21:
@@ -3298,7 +3298,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  3098 02e5 48000000 		.4byte	.LVL65
  3099 02e9 5E000000 		.4byte	.LVL69
  3100 02ed 0100     		.2byte	0x1
-ARM GAS  /tmp/ccKPtmp1.s 			page 56
+ARM GAS  /tmp/ccOiGXXl.s 			page 56
 
 
  3101 02ef 54       		.byte	0x54
@@ -3358,7 +3358,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  3155 0020 00000000 		.4byte	.LFB8
  3156 0024 20000000 		.4byte	.LFE8-.LFB8
  3157 0028 00000000 		.4byte	.LFB11
-ARM GAS  /tmp/ccKPtmp1.s 			page 57
+ARM GAS  /tmp/ccOiGXXl.s 			page 57
 
 
  3158 002c 28000000 		.4byte	.LFE11-.LFB11
@@ -3418,7 +3418,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  3201      2E2F4368 
  3201      6962694F 
  3201      532D5254 
-ARM GAS  /tmp/ccKPtmp1.s 			page 58
+ARM GAS  /tmp/ccOiGXXl.s 			page 58
 
 
  3201      2F6F732F 
@@ -3478,7 +3478,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  3229      784C6F63 
  3229      6B5300
  3230              	.LASF76:
-ARM GAS  /tmp/ccKPtmp1.s 			page 59
+ARM GAS  /tmp/ccOiGXXl.s 			page 59
 
 
  3231 00dd 63684D74 		.ascii	"chMtxTryLockS\000"
@@ -3538,7 +3538,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  3255      6F636B41 
  3255      6C6C00
  3256              	.LASF79:
-ARM GAS  /tmp/ccKPtmp1.s 			page 60
+ARM GAS  /tmp/ccOiGXXl.s 			page 60
 
 
  3257 017a 6E657770 		.ascii	"newprio\000"
@@ -3598,7 +3598,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  3278      74797065 
  3278      00
  3279              	.LASF85:
-ARM GAS  /tmp/ccKPtmp1.s 			page 61
+ARM GAS  /tmp/ccOiGXXl.s 			page 61
 
 
  3280 0298 6462675F 		.ascii	"dbg_check_lock\000"
@@ -3658,7 +3658,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  3307              	.LASF18:
  3308 0340 5F426F6F 		.ascii	"_Bool\000"
  3308      6C00
-ARM GAS  /tmp/ccKPtmp1.s 			page 62
+ARM GAS  /tmp/ccOiGXXl.s 			page 62
 
 
  3309              	.LASF14:
@@ -3718,7 +3718,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  3338      33325F74 
  3338      00
  3339              	.LASF55:
-ARM GAS  /tmp/ccKPtmp1.s 			page 63
+ARM GAS  /tmp/ccOiGXXl.s 			page 63
 
 
  3340 03d5 725F7175 		.ascii	"r_queue\000"
@@ -3778,7 +3778,7 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  3369              	.LASF61:
  3370 0463 52656164 		.ascii	"ReadyList\000"
  3370      794C6973 
-ARM GAS  /tmp/ccKPtmp1.s 			page 64
+ARM GAS  /tmp/ccOiGXXl.s 			page 64
 
 
  3370      7400
@@ -3805,39 +3805,39 @@ ARM GAS  /tmp/ccKPtmp1.s 			page 1
  3384      6974696E 
  3384      6700
  3385              		.ident	"GCC: (Arch Repository) 4.9.2 20150128 (prerelease)"
-ARM GAS  /tmp/ccKPtmp1.s 			page 65
+ARM GAS  /tmp/ccOiGXXl.s 			page 65
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 chmtx.c
-     /tmp/ccKPtmp1.s:19     .text.chMtxInit:0000000000000000 $t
-     /tmp/ccKPtmp1.s:25     .text.chMtxInit:0000000000000000 chMtxInit
-     /tmp/ccKPtmp1.s:45     .text.chMtxLockS:0000000000000000 $t
-     /tmp/ccKPtmp1.s:51     .text.chMtxLockS:0000000000000000 chMtxLockS
-     /tmp/ccKPtmp1.s:290    .text.chMtxLockS:00000000000000e8 $d
-     /tmp/ccKPtmp1.s:297    .text.chMtxLock:0000000000000000 $t
-     /tmp/ccKPtmp1.s:303    .text.chMtxLock:0000000000000000 chMtxLock
-     /tmp/ccKPtmp1.s:344    .text.chMtxTryLockS:0000000000000000 $t
-     /tmp/ccKPtmp1.s:350    .text.chMtxTryLockS:0000000000000000 chMtxTryLockS
-     /tmp/ccKPtmp1.s:392    .text.chMtxTryLockS:0000000000000024 $d
-     /tmp/ccKPtmp1.s:397    .text.chMtxTryLock:0000000000000000 $t
-     /tmp/ccKPtmp1.s:403    .text.chMtxTryLock:0000000000000000 chMtxTryLock
-     /tmp/ccKPtmp1.s:448    .text.chMtxUnlock:0000000000000000 $t
-     /tmp/ccKPtmp1.s:454    .text.chMtxUnlock:0000000000000000 chMtxUnlock
-     /tmp/ccKPtmp1.s:586    .text.chMtxUnlock:0000000000000078 $d
-     /tmp/ccKPtmp1.s:593    .text.chMtxUnlockS:0000000000000000 $t
-     /tmp/ccKPtmp1.s:599    .text.chMtxUnlockS:0000000000000000 chMtxUnlockS
-     /tmp/ccKPtmp1.s:712    .text.chMtxUnlockS:0000000000000068 $d
-     /tmp/ccKPtmp1.s:719    .text.chMtxUnlockAll:0000000000000000 $t
-     /tmp/ccKPtmp1.s:725    .text.chMtxUnlockAll:0000000000000000 chMtxUnlockAll
-     /tmp/ccKPtmp1.s:819    .text.chMtxUnlockAll:0000000000000054 $d
-     /tmp/ccKPtmp1.s:825    .rodata.str1.4:0000000000000000 $d
+     /tmp/ccOiGXXl.s:19     .text.chMtxInit:0000000000000000 $t
+     /tmp/ccOiGXXl.s:25     .text.chMtxInit:0000000000000000 chMtxInit
+     /tmp/ccOiGXXl.s:45     .text.chMtxLockS:0000000000000000 $t
+     /tmp/ccOiGXXl.s:51     .text.chMtxLockS:0000000000000000 chMtxLockS
+     /tmp/ccOiGXXl.s:290    .text.chMtxLockS:00000000000000e8 $d
+     /tmp/ccOiGXXl.s:297    .text.chMtxLock:0000000000000000 $t
+     /tmp/ccOiGXXl.s:303    .text.chMtxLock:0000000000000000 chMtxLock
+     /tmp/ccOiGXXl.s:344    .text.chMtxTryLockS:0000000000000000 $t
+     /tmp/ccOiGXXl.s:350    .text.chMtxTryLockS:0000000000000000 chMtxTryLockS
+     /tmp/ccOiGXXl.s:392    .text.chMtxTryLockS:0000000000000024 $d
+     /tmp/ccOiGXXl.s:397    .text.chMtxTryLock:0000000000000000 $t
+     /tmp/ccOiGXXl.s:403    .text.chMtxTryLock:0000000000000000 chMtxTryLock
+     /tmp/ccOiGXXl.s:448    .text.chMtxUnlock:0000000000000000 $t
+     /tmp/ccOiGXXl.s:454    .text.chMtxUnlock:0000000000000000 chMtxUnlock
+     /tmp/ccOiGXXl.s:586    .text.chMtxUnlock:0000000000000078 $d
+     /tmp/ccOiGXXl.s:593    .text.chMtxUnlockS:0000000000000000 $t
+     /tmp/ccOiGXXl.s:599    .text.chMtxUnlockS:0000000000000000 chMtxUnlockS
+     /tmp/ccOiGXXl.s:712    .text.chMtxUnlockS:0000000000000068 $d
+     /tmp/ccOiGXXl.s:719    .text.chMtxUnlockAll:0000000000000000 $t
+     /tmp/ccOiGXXl.s:725    .text.chMtxUnlockAll:0000000000000000 chMtxUnlockAll
+     /tmp/ccOiGXXl.s:819    .text.chMtxUnlockAll:0000000000000054 $d
+     /tmp/ccOiGXXl.s:825    .rodata.str1.4:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
-     /tmp/ccKPtmp1.s:296    .text.chMtxLockS:00000000000000f4 $t
-     /tmp/ccKPtmp1.s:396    .text.chMtxTryLockS:0000000000000028 $t
-     /tmp/ccKPtmp1.s:592    .text.chMtxUnlock:0000000000000084 $t
-     /tmp/ccKPtmp1.s:718    .text.chMtxUnlockS:0000000000000074 $t
-     /tmp/ccKPtmp1.s:824    .text.chMtxUnlockAll:0000000000000058 $t
+     /tmp/ccOiGXXl.s:296    .text.chMtxLockS:00000000000000f4 $t
+     /tmp/ccOiGXXl.s:396    .text.chMtxTryLockS:0000000000000028 $t
+     /tmp/ccOiGXXl.s:592    .text.chMtxUnlock:0000000000000084 $t
+     /tmp/ccOiGXXl.s:718    .text.chMtxUnlockS:0000000000000074 $t
+     /tmp/ccOiGXXl.s:824    .text.chMtxUnlockAll:0000000000000058 $t
 
 UNDEFINED SYMBOLS
 chDbgCheckClassS

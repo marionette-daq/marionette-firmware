@@ -7,7 +7,7 @@ start address 0x080001d1
 
 Program Header:
     LOAD off    0x00010000 vaddr 0x08000000 paddr 0x08000000 align 2**16
-         filesz 0x00002078 memsz 0x00002078 flags rwx
+         filesz 0x000020d8 memsz 0x000020d8 flags rwx
     LOAD off    0x00020000 vaddr 0x20000000 paddr 0x20000000 align 2**16
          filesz 0x00000000 memsz 0x00000f78 flags rw-
 private flags = 5000202: [Version5 EABI] [soft-float ABI] [has entry point]
@@ -16,40 +16,40 @@ Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
   0 startup       000001ac  08000000  08000000  00010000  2**4
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         00001ec8  080001b0  080001b0  000101b0  2**4
+  1 .text         00001f28  080001b0  080001b0  000101b0  2**4
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .textalign    00000000  08002078  08002078  00012078  2**0
+  2 .textalign    00000000  080020d8  080020d8  000120d8  2**0
                   CONTENTS
   3 .stacks       00000800  20000000  20000000  00020000  2**0
                   ALLOC
-  4 .data         00000000  20000800  20000800  00012078  2**2
+  4 .data         00000000  20000800  20000800  000120d8  2**2
                   CONTENTS, ALLOC, LOAD, DATA
   5 .bss          00000778  20000800  20000800  00020000  2**3
                   ALLOC
-  6 .debug_info   0000bbc0  00000000  00000000  00012078  2**0
+  6 .debug_info   0000bc81  00000000  00000000  000120d8  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00002a48  00000000  00000000  0001dc38  2**0
+  7 .debug_abbrev 00002a35  00000000  00000000  0001dd59  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_loc    000025dd  00000000  00000000  00020680  2**0
+  8 .debug_loc    000025dd  00000000  00000000  0002078e  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_aranges 00000700  00000000  00000000  00022c5d  2**0
+  9 .debug_aranges 00000700  00000000  00000000  00022d6b  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_ranges 00000580  00000000  00000000  0002335d  2**0
+ 10 .debug_ranges 00000580  00000000  00000000  0002346b  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_line   000033c3  00000000  00000000  000238dd  2**0
+ 11 .debug_line   000033cb  00000000  00000000  000239eb  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_str    00001acb  00000000  00000000  00026ca0  2**0
+ 12 .debug_str    00001acb  00000000  00000000  00026db6  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .comment      00000033  00000000  00000000  0002876b  2**0
+ 13 .comment      00000033  00000000  00000000  00028881  2**0
                   CONTENTS, READONLY
- 14 .ARM.attributes 00000031  00000000  00000000  0002879e  2**0
+ 14 .ARM.attributes 00000031  00000000  00000000  000288b4  2**0
                   CONTENTS, READONLY
- 15 .debug_frame  000011f0  00000000  00000000  000287d0  2**2
+ 15 .debug_frame  000011f0  00000000  00000000  000288e8  2**2
                   CONTENTS, READONLY, DEBUGGING
 SYMBOL TABLE:
 08000000 l    d  startup	00000000 startup
 080001b0 l    d  .text	00000000 .text
-08002078 l    d  .textalign	00000000 .textalign
+080020d8 l    d  .textalign	00000000 .textalign
 20000000 l    d  .stacks	00000000 .stacks
 20000800 l    d  .data	00000000 .data
 20000800 l    d  .bss	00000000 .bss
@@ -102,17 +102,17 @@ SYMBOL TABLE:
 08001940 l     F .text	0000001e initgpio
 00000000 l    df *ABS*	00000000 board.c
 00000000 l    df *ABS*	00000000 main.c
-08001ac0 l     F .text	00000088 can_tx
-08001b50 l     F .text	00000074 can_rx
+08001ac0 l     F .text	00000094 can_tx
+08001b60 l     F .text	00000074 can_rx
 20000a08 l     O .bss	000001d0 can_rx2_wa
-08002030 l     O .text	00000008 cancfg
+08002090 l     O .text	00000008 cancfg
 20000bd8 l     O .bss	000001d0 can_tx_wa
-08002040 l     O .text	00000008 can1
-08002070 l     O .text	00000008 can2
+080020a0 l     O .text	00000008 can1
+080020d0 l     O .text	00000008 can2
 20000da8 l     O .bss	000001d0 can_rx1_wa
 00000000 l    df *ABS*	00000000 chregistry.c
 00000000 l    df *ABS*	00000000 
-08002078 l       .stacks	00000000 _etext
+080020d8 l       .stacks	00000000 _etext
 0001c000 l       *ABS*	00000000 __ram_size__
 00000000 l       startup	00000000 _text
 20000000 l       startup	00000000 __ram_start__
@@ -120,7 +120,7 @@ SYMBOL TABLE:
 20000f78 l       .bss	00000000 _end
 00000400 l       *ABS*	00000000 __main_stack_size__
 00000400 l       *ABS*	00000000 __process_stack_size__
-08001f30 g     O .text	000000fc pal_default_config
+08001f90 g     O .text	000000fc pal_default_config
 08000290  w    F .text	00000002 Vector58
 08000290  w    F .text	00000002 VectorE8
 08000290  w    F .text	00000002 Vector9C
@@ -243,13 +243,13 @@ SYMBOL TABLE:
 080015e0 g     F .text	0000001c Vector13C
 08000290  w    F .text	00000002 Vector100
 080006a0 g     F .text	00000038 dbg_check_leave_isr
-08002078 g       .stacks	00000000 _textdata
+080020d8 g       .stacks	00000000 _textdata
 08000290  w    F .text	00000002 VectorE0
 08000290  w    F .text	00000002 VectorF4
 08000290  w    F .text	00000002 MemManageVector
 08000ef0 g     F .text	0000003e canObjectInit
 080001ac g       startup	00000000 __fini_array_start
-08001bd0 g     F .text	000000a8 main
+08001be0 g     F .text	00000100 main
 08000290  w    F .text	00000002 Vector6C
 2000094c g     O .bss	0000001c rlist
 08000290  w    F .text	00000002 VectorA0
@@ -261,7 +261,7 @@ SYMBOL TABLE:
 08000ca0 g     F .text	0000000a chMtxInit
 08000460 g     F .text	00000014 _idle_thread
 08000290  w    F .text	00000002 VectorB0
-08001d90 g     O .text	00000016 ch_debug
+08001df0 g     O .text	00000016 ch_debug
 08001580 g     F .text	0000001c Vector90
 08000d30 g     F .text	00000038 chEvtSignalI
 20000934 g     O .bss	00000004 dbg_lock_cnt

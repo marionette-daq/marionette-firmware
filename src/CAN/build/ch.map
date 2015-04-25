@@ -908,7 +908,7 @@ destructors     0x00000000080001ac        0x0
  *(SORT(.fini_array.*))
                 0x00000000080001ac                PROVIDE (__fini_array_end, .)
 
-.text           0x00000000080001b0     0x1ec8
+.text           0x00000000080001b0     0x1f28
  *(.text.startup.*)
  *(.text)
  *(.text.*)
@@ -1277,84 +1277,84 @@ destructors     0x00000000080001ac        0x0
  .text.boardInit
                 0x0000000008001ab0       0x10 build/obj/board.o
                 0x0000000008001ab0                boardInit
- .text.can_tx   0x0000000008001ac0       0x90 build/obj/main.o
- .text.can_rx   0x0000000008001b50       0x80 build/obj/main.o
- .text.main     0x0000000008001bd0       0xb0 build/obj/main.o
-                0x0000000008001bd0                main
+ .text.can_tx   0x0000000008001ac0       0xa0 build/obj/main.o
+ .text.can_rx   0x0000000008001b60       0x80 build/obj/main.o
+ .text.main     0x0000000008001be0      0x100 build/obj/main.o
+                0x0000000008001be0                main
  *(.rodata)
  *(.rodata.*)
  .rodata.str1.4
-                0x0000000008001c80        0x5 build/obj/chsys.o
+                0x0000000008001ce0        0x5 build/obj/chsys.o
                                           0x8 (size before relaxing)
- *fill*         0x0000000008001c85        0xb 
+ *fill*         0x0000000008001ce5        0xb 
  .rodata.str1.4
-                0x0000000008001c90       0x56 build/obj/chdebug.o
+                0x0000000008001cf0       0x56 build/obj/chdebug.o
                                          0x58 (size before relaxing)
- *fill*         0x0000000008001ce6        0xa 
+ *fill*         0x0000000008001d46        0xa 
  .rodata.str1.4
-                0x0000000008001cf0       0x11 build/obj/chvt.o
+                0x0000000008001d50       0x11 build/obj/chvt.o
                                          0x14 (size before relaxing)
- *fill*         0x0000000008001d01        0xf 
+ *fill*         0x0000000008001d61        0xf 
  .rodata.str1.4
-                0x0000000008001d10       0x23 build/obj/chschd.o
+                0x0000000008001d70       0x23 build/obj/chschd.o
                                          0x24 (size before relaxing)
- *fill*         0x0000000008001d33        0xd 
+ *fill*         0x0000000008001d93        0xd 
  .rodata.str1.4
-                0x0000000008001d40       0x48 build/obj/chthreads.o
- *fill*         0x0000000008001d88        0x8 
+                0x0000000008001da0       0x48 build/obj/chthreads.o
+ *fill*         0x0000000008001de8        0x8 
  .rodata.ch_debug
-                0x0000000008001d90       0x18 build/obj/chregistry.o
-                0x0000000008001d90                ch_debug
- *fill*         0x0000000008001da8        0x8 
+                0x0000000008001df0       0x18 build/obj/chregistry.o
+                0x0000000008001df0                ch_debug
+ *fill*         0x0000000008001e08        0x8 
  .rodata.str1.4
-                0x0000000008001db0       0xae build/obj/chsem.o
+                0x0000000008001e10       0xae build/obj/chsem.o
                                          0xb0 (size before relaxing)
- *fill*         0x0000000008001e5e        0x2 
+ *fill*         0x0000000008001ebe        0x2 
  .rodata.str1.4
-                0x0000000008001e60       0x68 build/obj/can.o
- *fill*         0x0000000008001ec8        0x8 
+                0x0000000008001ec0       0x68 build/obj/can.o
+ *fill*         0x0000000008001f28        0x8 
  .rodata.str1.4
-                0x0000000008001ed0       0x5d build/obj/can_lld.o
+                0x0000000008001f30       0x5d build/obj/can_lld.o
                                          0x60 (size before relaxing)
- *fill*         0x0000000008001f2d        0x3 
+ *fill*         0x0000000008001f8d        0x3 
  .rodata.pal_default_config
-                0x0000000008001f30       0xfc build/obj/board.o
-                0x0000000008001f30                pal_default_config
- *fill*         0x000000000800202c        0x4 
+                0x0000000008001f90       0xfc build/obj/board.o
+                0x0000000008001f90                pal_default_config
+ *fill*         0x000000000800208c        0x4 
  .rodata.cancfg
-                0x0000000008002030        0x8 build/obj/main.o
- *fill*         0x0000000008002038        0x8 
- .rodata.can1   0x0000000008002040        0x8 build/obj/main.o
- *fill*         0x0000000008002048        0x8 
+                0x0000000008002090        0x8 build/obj/main.o
+ *fill*         0x0000000008002098        0x8 
+ .rodata.can1   0x00000000080020a0        0x8 build/obj/main.o
+ *fill*         0x00000000080020a8        0x8 
  .rodata.str1.4
-                0x0000000008002050       0x18 build/obj/main.o
- *fill*         0x0000000008002068        0x8 
- .rodata.can2   0x0000000008002070        0x8 build/obj/main.o
+                0x00000000080020b0       0x18 build/obj/main.o
+ *fill*         0x00000000080020c8        0x8 
+ .rodata.can2   0x00000000080020d0        0x8 build/obj/main.o
  *(.glue_7t)
- .glue_7t       0x0000000008002078        0x0 linker stubs
+ .glue_7t       0x00000000080020d8        0x0 linker stubs
  *(.glue_7)
- .glue_7        0x0000000008002078        0x0 linker stubs
+ .glue_7        0x00000000080020d8        0x0 linker stubs
  *(.gcc*)
 
-.vfp11_veneer   0x0000000008002078        0x0
- .vfp11_veneer  0x0000000008002078        0x0 linker stubs
+.vfp11_veneer   0x00000000080020d8        0x0
+ .vfp11_veneer  0x00000000080020d8        0x0 linker stubs
 
-.v4_bx          0x0000000008002078        0x0
- .v4_bx         0x0000000008002078        0x0 linker stubs
+.v4_bx          0x00000000080020d8        0x0
+ .v4_bx         0x00000000080020d8        0x0 linker stubs
 
-.iplt           0x0000000008002078        0x0
- .iplt          0x0000000008002078        0x0 build/obj/crt0.o
+.iplt           0x00000000080020d8        0x0
+ .iplt          0x00000000080020d8        0x0 build/obj/crt0.o
 
-.rel.dyn        0x0000000008002078        0x0
- .rel.iplt      0x0000000008002078        0x0 build/obj/crt0.o
+.rel.dyn        0x00000000080020d8        0x0
+ .rel.iplt      0x00000000080020d8        0x0 build/obj/crt0.o
 
 .ARM.extab
  *(.ARM.extab* .gnu.linkonce.armextab.*)
 
-.ARM.exidx      0x0000000008002078        0x0
-                0x0000000008002078                PROVIDE (__exidx_start, .)
+.ARM.exidx      0x00000000080020d8        0x0
+                0x00000000080020d8                PROVIDE (__exidx_start, .)
  *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-                0x0000000008002078                PROVIDE (__exidx_end, .)
+                0x00000000080020d8                PROVIDE (__exidx_end, .)
 
 .eh_frame_hdr
  *(.eh_frame_hdr)
@@ -1362,11 +1362,11 @@ destructors     0x00000000080001ac        0x0
 .eh_frame
  *(.eh_frame)
 
-.textalign      0x0000000008002078        0x0
-                0x0000000008002078                . = ALIGN (0x8)
-                0x0000000008002078                . = ALIGN (0x4)
-                0x0000000008002078                _etext = .
-                0x0000000008002078                _textdata = _etext
+.textalign      0x00000000080020d8        0x0
+                0x00000000080020d8                . = ALIGN (0x8)
+                0x00000000080020d8                . = ALIGN (0x4)
+                0x00000000080020d8                _etext = .
+                0x00000000080020d8                _textdata = _etext
 
 .stacks         0x0000000020000000      0x800
                 0x0000000020000000                . = ALIGN (0x8)
@@ -1383,7 +1383,7 @@ destructors     0x00000000080001ac        0x0
                 0x0000000020000800                __process_stack_end__ = .
                 0x0000000020000800                __main_thread_stack_end__ = .
 
-.data           0x0000000020000800        0x0 load address 0x0000000008002078
+.data           0x0000000020000800        0x0 load address 0x00000000080020d8
                 0x0000000020000800                . = ALIGN (0x4)
                 0x0000000020000800                PROVIDE (_data, .)
  *(.data)
@@ -1392,7 +1392,7 @@ destructors     0x00000000080001ac        0x0
                 0x0000000020000800                . = ALIGN (0x4)
                 0x0000000020000800                PROVIDE (_edata, .)
 
-.igot.plt       0x0000000020000800        0x0 load address 0x0000000008002078
+.igot.plt       0x0000000020000800        0x0 load address 0x00000000080020d8
  .igot.plt      0x0000000020000800        0x0 build/obj/crt0.o
 
 .bss            0x0000000020000800      0x778
@@ -1451,7 +1451,7 @@ LOAD /usr/lib/gcc/arm-none-eabi/4.9.2/../../../../arm-none-eabi/lib/armv7e-m/lib
 END GROUP
 OUTPUT(build/ch.elf elf32-littlearm)
 
-.debug_info     0x0000000000000000     0xbbc0
+.debug_info     0x0000000000000000     0xbc81
  .debug_info    0x0000000000000000      0x2bf build/obj/crt0.o
  .debug_info    0x00000000000002bf      0x1cd build/obj/vectors.o
  .debug_info    0x000000000000048c       0x92 build/obj/chcore.o
@@ -1475,9 +1475,9 @@ OUTPUT(build/ch.elf elf32-littlearm)
  .debug_info    0x0000000000008ad4     0x183a build/obj/can_lld.o
  .debug_info    0x000000000000a30e      0x6c0 build/obj/pal_lld.o
  .debug_info    0x000000000000a9ce      0x1f4 build/obj/board.o
- .debug_info    0x000000000000abc2      0xffe build/obj/main.o
+ .debug_info    0x000000000000abc2     0x10bf build/obj/main.o
 
-.debug_abbrev   0x0000000000000000     0x2a48
+.debug_abbrev   0x0000000000000000     0x2a35
  .debug_abbrev  0x0000000000000000       0xf4 build/obj/crt0.o
  .debug_abbrev  0x00000000000000f4       0xaf build/obj/vectors.o
  .debug_abbrev  0x00000000000001a3       0x42 build/obj/chcore.o
@@ -1501,7 +1501,7 @@ OUTPUT(build/ch.elf elf32-littlearm)
  .debug_abbrev  0x00000000000021bf      0x355 build/obj/can_lld.o
  .debug_abbrev  0x0000000000002514      0x198 build/obj/pal_lld.o
  .debug_abbrev  0x00000000000026ac       0xe0 build/obj/board.o
- .debug_abbrev  0x000000000000278c      0x2bc build/obj/main.o
+ .debug_abbrev  0x000000000000278c      0x2a9 build/obj/main.o
 
 .debug_loc      0x0000000000000000     0x25dd
  .debug_loc     0x0000000000000000       0xf6 build/obj/crt0.o
@@ -1601,7 +1601,7 @@ OUTPUT(build/ch.elf elf32-littlearm)
  .debug_ranges  0x0000000000000548       0x18 build/obj/board.o
  .debug_ranges  0x0000000000000560       0x20 build/obj/main.o
 
-.debug_line     0x0000000000000000     0x33c3
+.debug_line     0x0000000000000000     0x33cb
  .debug_line    0x0000000000000000      0x12c build/obj/crt0.o
  .debug_line    0x000000000000012c       0xcc build/obj/vectors.o
  .debug_line    0x00000000000001f8       0x63 build/obj/chcore.o
@@ -1625,7 +1625,7 @@ OUTPUT(build/ch.elf elf32-littlearm)
  .debug_line    0x00000000000028ad      0x4f9 build/obj/can_lld.o
  .debug_line    0x0000000000002da6      0x1a0 build/obj/pal_lld.o
  .debug_line    0x0000000000002f46      0x17c build/obj/board.o
- .debug_line    0x00000000000030c2      0x301 build/obj/main.o
+ .debug_line    0x00000000000030c2      0x309 build/obj/main.o
 
 .debug_str      0x0000000000000000     0x1acb
  .debug_str     0x0000000000000000      0x287 build/obj/crt0.o

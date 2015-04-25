@@ -1,4 +1,4 @@
-ARM GAS  /tmp/ccymjCKA.s 			page 1
+ARM GAS  /tmp/cc46raVX.s 			page 1
 
 
    1              		.syntax unified
@@ -58,7 +58,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
   53              		.p2align 4,,15
   54              		.global	chSchReadyI
   55              		.thumb
-ARM GAS  /tmp/ccymjCKA.s 			page 2
+ARM GAS  /tmp/cc46raVX.s 			page 2
 
 
   56              		.thumb_func
@@ -118,7 +118,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  110 0034 2046     		mov	r0, r4
  111 0036 10BD     		pop	{r4, pc}
  112              	.LVL6:
-ARM GAS  /tmp/ccymjCKA.s 			page 3
+ARM GAS  /tmp/cc46raVX.s 			page 3
 
 
  113              	.L10:
@@ -178,7 +178,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  167 0025 17       		.byte	(.L12-.L14)/2
  168 0026 17       		.byte	(.L12-.L14)/2
  169 0027 11       		.byte	(.L16-.L14)/2
-ARM GAS  /tmp/ccymjCKA.s 			page 4
+ARM GAS  /tmp/cc46raVX.s 			page 4
 
 
  170              		.p2align 1
@@ -238,7 +238,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  224 005e 10BD     		pop	{r4, pc}
  225              	.LBE20:
  226              		.cfi_endproc
-ARM GAS  /tmp/ccymjCKA.s 			page 5
+ARM GAS  /tmp/cc46raVX.s 			page 5
 
 
  227              	.LFE10:
@@ -298,7 +298,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  281              	.LVL21:
  282 002a E369     		ldr	r3, [r4, #28]
  283 002c 9A42     		cmp	r2, r3
-ARM GAS  /tmp/ccymjCKA.s 			page 6
+ARM GAS  /tmp/cc46raVX.s 			page 6
 
 
  284 002e 02D2     		bcs	.L20
@@ -358,7 +358,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  338 0012 01A8     		add	r0, sp, #4
  339 0014 2146     		mov	r1, r4
  340 0016 0B4A     		ldr	r2, .L29
-ARM GAS  /tmp/ccymjCKA.s 			page 7
+ARM GAS  /tmp/cc46raVX.s 			page 7
 
 
  341 0018 0B4B     		ldr	r3, .L29+4
@@ -418,7 +418,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  395              	.LVL32:
  396 0000 38B5     		push	{r3, r4, r5, lr}
  397              		.cfi_def_cfa_offset 16
-ARM GAS  /tmp/ccymjCKA.s 			page 8
+ARM GAS  /tmp/cc46raVX.s 			page 8
 
 
  398              		.cfi_offset 3, -16
@@ -478,7 +478,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  452 0048 38BD     		pop	{r3, r4, r5, pc}
  453              	.LVL41:
  454              	.L37:
-ARM GAS  /tmp/ccymjCKA.s 			page 9
+ARM GAS  /tmp/cc46raVX.s 			page 9
 
 
  455 004a 00BF     		.align	2
@@ -538,7 +538,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  507              	.LVL44:
  508              	.LBB29:
  509              		.loc 1 315 0
-ARM GAS  /tmp/ccymjCKA.s 			page 10
+ARM GAS  /tmp/cc46raVX.s 			page 10
 
 
  510 0022 ADF12402 		sub	r2, sp, #36
@@ -598,7 +598,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  563 0008 1168     		ldr	r1, [r2]
  564 000a 1960     		str	r1, [r3]
  565 000c 4B60     		str	r3, [r1, #4]
-ARM GAS  /tmp/ccymjCKA.s 			page 11
+ARM GAS  /tmp/cc46raVX.s 			page 11
 
 
  566              	.LBE31:
@@ -658,7 +658,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  620 0050 14000000 		.word	.LC1
  621              	.LBE32:
  622              		.cfi_endproc
-ARM GAS  /tmp/ccymjCKA.s 			page 12
+ARM GAS  /tmp/cc46raVX.s 			page 12
 
 
  623              	.LFE15:
@@ -718,7 +718,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  675              		.cfi_startproc
  676              		@ args = 0, pretend = 0, frame = 0
  677              		@ frame_needed = 0, uses_anonymous_args = 0
-ARM GAS  /tmp/ccymjCKA.s 			page 13
+ARM GAS  /tmp/cc46raVX.s 			page 13
 
 
  678 0000 08B5     		push	{r3, lr}
@@ -778,7 +778,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  721              		.file 4 "/usr/arm-none-eabi/include/stdint.h"
  722              		.file 5 "../../ChibiOS-RT/os/ports/GCC/ARMCMx/chtypes.h"
  723              		.file 6 "../../ChibiOS-RT/os/kernel/include/chlists.h"
-ARM GAS  /tmp/ccymjCKA.s 			page 14
+ARM GAS  /tmp/cc46raVX.s 			page 14
 
 
  724              		.file 7 "../../ChibiOS-RT/os/kernel/include/chthreads.h"
@@ -838,7 +838,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  778 0061 65000000 		.4byte	0x65
  779 0065 03       		.uleb128 0x3
  780 0066 04       		.byte	0x4
-ARM GAS  /tmp/ccymjCKA.s 			page 15
+ARM GAS  /tmp/cc46raVX.s 			page 15
 
 
  781 0067 05       		.byte	0x5
@@ -898,7 +898,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  835 00d6 D0000000 		.4byte	.LASF19
  836 00da 05       		.byte	0x5
  837 00db 2D       		.byte	0x2d
-ARM GAS  /tmp/ccymjCKA.s 			page 16
+ARM GAS  /tmp/cc46raVX.s 			page 16
 
 
  838 00dc 97000000 		.4byte	0x97
@@ -958,7 +958,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  892 0151 9B030000 		.4byte	.LASF29
  893 0155 07       		.byte	0x7
  894 0156 61       		.byte	0x61
-ARM GAS  /tmp/ccymjCKA.s 			page 17
+ARM GAS  /tmp/cc46raVX.s 			page 17
 
 
  895 0157 62020000 		.4byte	0x262
@@ -1018,7 +1018,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  949 01c3 E0000000 		.4byte	0xe0
  950 01c7 22       		.byte	0x22
  951 01c8 06       		.uleb128 0x6
-ARM GAS  /tmp/ccymjCKA.s 			page 18
+ARM GAS  /tmp/cc46raVX.s 			page 18
 
 
  952 01c9 EB030000 		.4byte	.LASF39
@@ -1078,7 +1078,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  1006 0235 AD000000 		.4byte	.LASF47
  1007 0239 07       		.byte	0x7
  1008 023a DA       		.byte	0xda
-ARM GAS  /tmp/ccymjCKA.s 			page 19
+ARM GAS  /tmp/cc46raVX.s 			page 19
 
 
  1009 023b 9E020000 		.4byte	0x29e
@@ -1138,7 +1138,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  1063 02a1 E7020000 		.4byte	.LASF51
  1064 02a5 08       		.byte	0x8
  1065 02a6 EB       		.byte	0xeb
-ARM GAS  /tmp/ccymjCKA.s 			page 20
+ARM GAS  /tmp/cc46raVX.s 			page 20
 
 
  1066 02a7 B8000000 		.4byte	0xb8
@@ -1198,7 +1198,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  1120 0319 1C       		.byte	0x1c
  1121 031a 0C       		.uleb128 0xc
  1122 031b 6C7200   		.ascii	"lr\000"
-ARM GAS  /tmp/ccymjCKA.s 			page 21
+ARM GAS  /tmp/cc46raVX.s 			page 21
 
 
  1123 031e 08       		.byte	0x8
@@ -1258,7 +1258,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  1177 038d 00       		.byte	0
  1178 038e 06       		.uleb128 0x6
  1179 038f 36010000 		.4byte	.LASF58
-ARM GAS  /tmp/ccymjCKA.s 			page 22
+ARM GAS  /tmp/cc46raVX.s 			page 22
 
 
  1180 0393 09       		.byte	0x9
@@ -1318,7 +1318,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  1234 03fc 65       		.byte	0x65
  1235 03fd 62020000 		.4byte	0x262
  1236 0401 10       		.byte	0x10
-ARM GAS  /tmp/ccymjCKA.s 			page 23
+ARM GAS  /tmp/cc46raVX.s 			page 23
 
 
  1237 0402 06       		.uleb128 0x6
@@ -1378,7 +1378,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  1291 046e 06       		.uleb128 0x6
  1292 046f 27050000 		.4byte	.LASF74
  1293 0473 0C       		.byte	0xc
-ARM GAS  /tmp/ccymjCKA.s 			page 24
+ARM GAS  /tmp/cc46raVX.s 			page 24
 
 
  1294 0474 2F       		.byte	0x2f
@@ -1438,7 +1438,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  1348 04e0 04       		.byte	0x4
  1349 04e1 A0020000 		.4byte	0x2a0
  1350 04e5 09       		.uleb128 0x9
-ARM GAS  /tmp/ccymjCKA.s 			page 25
+ARM GAS  /tmp/cc46raVX.s 			page 25
 
 
  1351 04e6 04       		.byte	0x4
@@ -1498,7 +1498,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  1405 055c 18       		.uleb128 0x18
  1406 055d 747000   		.ascii	"tp\000"
  1407 0560 01       		.byte	0x1
-ARM GAS  /tmp/ccymjCKA.s 			page 26
+ARM GAS  /tmp/cc46raVX.s 			page 26
 
 
  1408 0561 51       		.byte	0x51
@@ -1558,7 +1558,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  1462 05de 53       		.byte	0x53
  1463 05df 00       		.byte	0
  1464 05e0 1E       		.uleb128 0x1e
-ARM GAS  /tmp/ccymjCKA.s 			page 27
+ARM GAS  /tmp/cc46raVX.s 			page 27
 
 
  1465 05e1 2C000000 		.4byte	.LBB17
@@ -1618,7 +1618,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  1519 0662 00       		.byte	0
  1520 0663 23       		.uleb128 0x23
  1521 0664 24040000 		.4byte	.LASF87
-ARM GAS  /tmp/ccymjCKA.s 			page 28
+ARM GAS  /tmp/cc46raVX.s 			page 28
 
 
  1522 0668 01       		.byte	0x1
@@ -1678,7 +1678,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  1576 06ec FA060000 		.4byte	0x6fa
  1577 06f0 1C       		.uleb128 0x1c
  1578 06f1 01       		.uleb128 0x1
-ARM GAS  /tmp/ccymjCKA.s 			page 29
+ARM GAS  /tmp/cc46raVX.s 			page 29
 
 
  1579 06f2 50       		.byte	0x50
@@ -1738,7 +1738,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  1633 0766 22       		.uleb128 0x22
  1634 0767 20000000 		.4byte	.LVL27
  1635 076b 800A0000 		.4byte	0xa80
-ARM GAS  /tmp/ccymjCKA.s 			page 30
+ARM GAS  /tmp/cc46raVX.s 			page 30
 
 
  1636 076f 89070000 		.4byte	0x789
@@ -1798,7 +1798,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  1690 07c6 00       		.byte	0
  1691 07c7 00       		.byte	0
  1692 07c8 23       		.uleb128 0x23
-ARM GAS  /tmp/ccymjCKA.s 			page 31
+ARM GAS  /tmp/cc46raVX.s 			page 31
 
 
  1693 07c9 C6010000 		.4byte	.LASF88
@@ -1858,7 +1858,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  1747 084d 620A0000 		.4byte	0xa62
  1748 0851 1C       		.uleb128 0x1c
  1749 0852 01       		.uleb128 0x1
-ARM GAS  /tmp/ccymjCKA.s 			page 32
+ARM GAS  /tmp/cc46raVX.s 			page 32
 
 
  1750 0853 51       		.byte	0x51
@@ -1918,7 +1918,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  1804 08c2 06       		.uleb128 0x6
  1805 08c3 03       		.byte	0x3
  1806 08c4 00000000 		.4byte	rlist
-ARM GAS  /tmp/ccymjCKA.s 			page 33
+ARM GAS  /tmp/cc46raVX.s 			page 33
 
 
  1807 08c8 9F       		.byte	0x9f
@@ -1978,7 +1978,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  1861 0932 21000000 		.4byte	.LASF90
  1862 0936 01       		.byte	0x1
  1863 0937 4901     		.2byte	0x149
-ARM GAS  /tmp/ccymjCKA.s 			page 34
+ARM GAS  /tmp/cc46raVX.s 			page 34
 
 
  1864 0939 00000000 		.4byte	.LFB15
@@ -2038,7 +2038,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  1918 09c0 50       		.byte	0x50
  1919 09c1 05       		.uleb128 0x5
  1920 09c2 03       		.byte	0x3
-ARM GAS  /tmp/ccymjCKA.s 			page 35
+ARM GAS  /tmp/cc46raVX.s 			page 35
 
 
  1921 09c3 14000000 		.4byte	.LC1
@@ -2098,7 +2098,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  1975 0a3c 2D       		.uleb128 0x2d
  1976 0a3d E1010000 		.4byte	.LASF93
  1977 0a41 0D       		.byte	0xd
-ARM GAS  /tmp/ccymjCKA.s 			page 36
+ARM GAS  /tmp/cc46raVX.s 			page 36
 
 
  1978 0a42 ED       		.byte	0xed
@@ -2158,7 +2158,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  2032              	.Ldebug_abbrev0:
  2033 0000 01       		.uleb128 0x1
  2034 0001 11       		.uleb128 0x11
-ARM GAS  /tmp/ccymjCKA.s 			page 37
+ARM GAS  /tmp/cc46raVX.s 			page 37
 
 
  2035 0002 01       		.byte	0x1
@@ -2218,7 +2218,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  2089 0038 01       		.byte	0x1
  2090 0039 03       		.uleb128 0x3
  2091 003a 0E       		.uleb128 0xe
-ARM GAS  /tmp/ccymjCKA.s 			page 38
+ARM GAS  /tmp/cc46raVX.s 			page 38
 
 
  2092 003b 0B       		.uleb128 0xb
@@ -2278,7 +2278,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  2146 0071 0F       		.uleb128 0xf
  2147 0072 00       		.byte	0
  2148 0073 0B       		.uleb128 0xb
-ARM GAS  /tmp/ccymjCKA.s 			page 39
+ARM GAS  /tmp/cc46raVX.s 			page 39
 
 
  2149 0074 0B       		.uleb128 0xb
@@ -2338,7 +2338,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  2203 00aa 49       		.uleb128 0x49
  2204 00ab 13       		.uleb128 0x13
  2205 00ac 00       		.byte	0
-ARM GAS  /tmp/ccymjCKA.s 			page 40
+ARM GAS  /tmp/cc46raVX.s 			page 40
 
 
  2206 00ad 00       		.byte	0
@@ -2398,7 +2398,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  2260 00e3 20       		.uleb128 0x20
  2261 00e4 0B       		.uleb128 0xb
  2262 00e5 01       		.uleb128 0x1
-ARM GAS  /tmp/ccymjCKA.s 			page 41
+ARM GAS  /tmp/cc46raVX.s 			page 41
 
 
  2263 00e6 13       		.uleb128 0x13
@@ -2458,7 +2458,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  2317 011d 01       		.byte	0x1
  2318 011e 3F       		.uleb128 0x3f
  2319 011f 19       		.uleb128 0x19
-ARM GAS  /tmp/ccymjCKA.s 			page 42
+ARM GAS  /tmp/cc46raVX.s 			page 42
 
 
  2320 0120 03       		.uleb128 0x3
@@ -2518,7 +2518,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  2374 0159 00       		.byte	0
  2375 015a 11       		.uleb128 0x11
  2376 015b 01       		.uleb128 0x1
-ARM GAS  /tmp/ccymjCKA.s 			page 43
+ARM GAS  /tmp/cc46raVX.s 			page 43
 
 
  2377 015c 31       		.uleb128 0x31
@@ -2578,7 +2578,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  2431 0198 00       		.byte	0
  2432 0199 00       		.byte	0
  2433 019a 1F       		.uleb128 0x1f
-ARM GAS  /tmp/ccymjCKA.s 			page 44
+ARM GAS  /tmp/cc46raVX.s 			page 44
 
 
  2434 019b 34       		.uleb128 0x34
@@ -2638,7 +2638,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  2488 01d3 3F       		.uleb128 0x3f
  2489 01d4 19       		.uleb128 0x19
  2490 01d5 03       		.uleb128 0x3
-ARM GAS  /tmp/ccymjCKA.s 			page 45
+ARM GAS  /tmp/cc46raVX.s 			page 45
 
 
  2491 01d6 0E       		.uleb128 0xe
@@ -2698,7 +2698,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  2545 020d 00       		.byte	0
  2546 020e 31       		.uleb128 0x31
  2547 020f 13       		.uleb128 0x13
-ARM GAS  /tmp/ccymjCKA.s 			page 46
+ARM GAS  /tmp/cc46raVX.s 			page 46
 
 
  2548 0210 02       		.uleb128 0x2
@@ -2758,7 +2758,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  2602 0247 0B       		.uleb128 0xb
  2603 0248 59       		.uleb128 0x59
  2604 0249 05       		.uleb128 0x5
-ARM GAS  /tmp/ccymjCKA.s 			page 47
+ARM GAS  /tmp/cc46raVX.s 			page 47
 
 
  2605 024a 01       		.uleb128 0x1
@@ -2818,7 +2818,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  2659 0280 2E       		.uleb128 0x2e
  2660 0281 01       		.byte	0x1
  2661 0282 3F       		.uleb128 0x3f
-ARM GAS  /tmp/ccymjCKA.s 			page 48
+ARM GAS  /tmp/cc46raVX.s 			page 48
 
 
  2662 0283 19       		.uleb128 0x19
@@ -2878,7 +2878,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  2716              	.LLST0:
  2717 0000 00000000 		.4byte	.LVL0
  2718 0004 07000000 		.4byte	.LVL1-1
-ARM GAS  /tmp/ccymjCKA.s 			page 49
+ARM GAS  /tmp/cc46raVX.s 			page 49
 
 
  2719 0008 0100     		.2byte	0x1
@@ -2938,7 +2938,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  2773              	.LLST5:
  2774 009b 00000000 		.4byte	.LVL16
  2775 009f 07000000 		.4byte	.LVL17-1
-ARM GAS  /tmp/ccymjCKA.s 			page 50
+ARM GAS  /tmp/cc46raVX.s 			page 50
 
 
  2776 00a3 0100     		.2byte	0x1
@@ -2998,7 +2998,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  2830 012c 4C000000 		.4byte	.LFE11
  2831 0130 0400     		.2byte	0x4
  2832 0132 F3       		.byte	0xf3
-ARM GAS  /tmp/ccymjCKA.s 			page 51
+ARM GAS  /tmp/cc46raVX.s 			page 51
 
 
  2833 0133 01       		.uleb128 0x1
@@ -3058,7 +3058,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  2887 01b8 3E000000 		.4byte	.LVL47
  2888 01bc 0100     		.2byte	0x1
  2889 01be 54       		.byte	0x54
-ARM GAS  /tmp/ccymjCKA.s 			page 52
+ARM GAS  /tmp/cc46raVX.s 			page 52
 
 
  2890 01bf 00000000 		.4byte	0
@@ -3118,7 +3118,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  2944 003c 54000000 		.4byte	.LFE12-.LFB12
  2945 0040 00000000 		.4byte	.LFB14
  2946 0044 48000000 		.4byte	.LFE14-.LFB14
-ARM GAS  /tmp/ccymjCKA.s 			page 53
+ARM GAS  /tmp/cc46raVX.s 			page 53
 
 
  2947 0048 00000000 		.4byte	.LFB15
@@ -3178,7 +3178,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  2991 0021 63685363 		.ascii	"chSchDoRescheduleAhead\000"
  2991      68446F52 
  2991      65736368 
-ARM GAS  /tmp/ccymjCKA.s 			page 54
+ARM GAS  /tmp/cc46raVX.s 			page 54
 
 
  2991      6564756C 
@@ -3238,7 +3238,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  3017 00d0 74737461 		.ascii	"tstate_t\000"
  3017      74655F74 
  3017      00
-ARM GAS  /tmp/ccymjCKA.s 			page 55
+ARM GAS  /tmp/cc46raVX.s 			page 55
 
 
  3018              	.LASF101:
@@ -3298,7 +3298,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  3045 017d 5F706F72 		.ascii	"_port_switch\000"
  3045      745F7377 
  3045      69746368 
-ARM GAS  /tmp/ccymjCKA.s 			page 56
+ARM GAS  /tmp/cc46raVX.s 			page 56
 
 
  3045      00
@@ -3358,7 +3358,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  3071 0217 6576656E 		.ascii	"eventmask_t\000"
  3071      746D6173 
  3071      6B5F7400 
-ARM GAS  /tmp/ccymjCKA.s 			page 57
+ARM GAS  /tmp/cc46raVX.s 			page 57
 
 
  3072              	.LASF100:
@@ -3418,7 +3418,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  3095              	.LASF48:
  3096 033a 54687265 		.ascii	"ThreadsQueue\000"
  3096      61647351 
-ARM GAS  /tmp/ccymjCKA.s 			page 58
+ARM GAS  /tmp/cc46raVX.s 			page 58
 
 
  3096      75657565 
@@ -3478,7 +3478,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  3125              	.LASF36:
  3126 03e3 705F7374 		.ascii	"p_state\000"
  3126      61746500 
-ARM GAS  /tmp/ccymjCKA.s 			page 59
+ARM GAS  /tmp/cc46raVX.s 			page 59
 
 
  3127              	.LASF39:
@@ -3538,7 +3538,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  3156      64794900 
  3157              	.LASF75:
  3158 0478 6D5F6E65 		.ascii	"m_next\000"
-ARM GAS  /tmp/ccymjCKA.s 			page 60
+ARM GAS  /tmp/cc46raVX.s 			page 60
 
 
  3158      787400
@@ -3598,7 +3598,7 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  3188      6A7000
  3189              	.LASF34:
  3190 050b 705F6E61 		.ascii	"p_name\000"
-ARM GAS  /tmp/ccymjCKA.s 			page 61
+ARM GAS  /tmp/cc46raVX.s 			page 61
 
 
  3190      6D6500
@@ -3619,53 +3619,53 @@ ARM GAS  /tmp/ccymjCKA.s 			page 1
  3198      6974696E 
  3198      6700
  3199              		.ident	"GCC: (Arch Repository) 4.9.2 20150128 (prerelease)"
-ARM GAS  /tmp/ccymjCKA.s 			page 62
+ARM GAS  /tmp/cc46raVX.s 			page 62
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 chschd.c
-     /tmp/ccymjCKA.s:19     .text._scheduler_init:0000000000000000 $t
-     /tmp/ccymjCKA.s:25     .text._scheduler_init:0000000000000000 _scheduler_init
-     /tmp/ccymjCKA.s:47     .text._scheduler_init:0000000000000010 $d
-     /tmp/ccymjCKA.s:52     .text.chSchReadyI:0000000000000000 $t
-     /tmp/ccymjCKA.s:58     .text.chSchReadyI:0000000000000000 chSchReadyI
-     /tmp/ccymjCKA.s:116    .text.chSchReadyI:0000000000000038 $d
-     /tmp/ccymjCKA.s:122    .text.wakeup:0000000000000000 $t
-     /tmp/ccymjCKA.s:127    .text.wakeup:0000000000000000 wakeup
-     /tmp/ccymjCKA.s:156    .text.wakeup:000000000000001a $d
-     /tmp/ccymjCKA.s:170    .text.wakeup:0000000000000028 $t
-     /tmp/ccymjCKA.s:230    .text.chSchGoSleepS:0000000000000000 $t
-     /tmp/ccymjCKA.s:236    .text.chSchGoSleepS:0000000000000000 chSchGoSleepS
-     /tmp/ccymjCKA.s:301    .text.chSchGoSleepS:0000000000000044 $d
-     /tmp/ccymjCKA.s:308    .text.chSchGoSleepTimeoutS:0000000000000000 $t
-     /tmp/ccymjCKA.s:314    .text.chSchGoSleepTimeoutS:0000000000000000 chSchGoSleepTimeoutS
-     /tmp/ccymjCKA.s:377    .text.chSchGoSleepTimeoutS:0000000000000044 $d
-     /tmp/ccymjCKA.s:383    .text.chSchWakeupS:0000000000000000 $t
-     /tmp/ccymjCKA.s:389    .text.chSchWakeupS:0000000000000000 chSchWakeupS
-     /tmp/ccymjCKA.s:457    .text.chSchWakeupS:000000000000004c $d
-     /tmp/ccymjCKA.s:465    .text.chSchDoRescheduleBehind:0000000000000000 $t
-     /tmp/ccymjCKA.s:471    .text.chSchDoRescheduleBehind:0000000000000000 chSchDoRescheduleBehind
-     /tmp/ccymjCKA.s:530    .text.chSchDoRescheduleBehind:0000000000000040 $d
-     /tmp/ccymjCKA.s:537    .text.chSchDoRescheduleAhead:0000000000000000 $t
-     /tmp/ccymjCKA.s:543    .text.chSchDoRescheduleAhead:0000000000000000 chSchDoRescheduleAhead
-     /tmp/ccymjCKA.s:619    .text.chSchDoRescheduleAhead:000000000000004c $d
-     /tmp/ccymjCKA.s:626    .text.chSchRescheduleS:0000000000000000 $t
-     /tmp/ccymjCKA.s:632    .text.chSchRescheduleS:0000000000000000 chSchRescheduleS
-     /tmp/ccymjCKA.s:661    .text.chSchRescheduleS:000000000000001c $d
-     /tmp/ccymjCKA.s:666    .text.chSchDoReschedule:0000000000000000 $t
-     /tmp/ccymjCKA.s:672    .text.chSchDoReschedule:0000000000000000 chSchDoReschedule
-     /tmp/ccymjCKA.s:699    .text.chSchDoReschedule:0000000000000018 $d
-     /tmp/ccymjCKA.s:716    .bss.rlist:0000000000000000 rlist
-     /tmp/ccymjCKA.s:705    .rodata.str1.4:0000000000000000 $d
-     /tmp/ccymjCKA.s:712    .bss.rlist:0000000000000000 $d
+     /tmp/cc46raVX.s:19     .text._scheduler_init:0000000000000000 $t
+     /tmp/cc46raVX.s:25     .text._scheduler_init:0000000000000000 _scheduler_init
+     /tmp/cc46raVX.s:47     .text._scheduler_init:0000000000000010 $d
+     /tmp/cc46raVX.s:52     .text.chSchReadyI:0000000000000000 $t
+     /tmp/cc46raVX.s:58     .text.chSchReadyI:0000000000000000 chSchReadyI
+     /tmp/cc46raVX.s:116    .text.chSchReadyI:0000000000000038 $d
+     /tmp/cc46raVX.s:122    .text.wakeup:0000000000000000 $t
+     /tmp/cc46raVX.s:127    .text.wakeup:0000000000000000 wakeup
+     /tmp/cc46raVX.s:156    .text.wakeup:000000000000001a $d
+     /tmp/cc46raVX.s:170    .text.wakeup:0000000000000028 $t
+     /tmp/cc46raVX.s:230    .text.chSchGoSleepS:0000000000000000 $t
+     /tmp/cc46raVX.s:236    .text.chSchGoSleepS:0000000000000000 chSchGoSleepS
+     /tmp/cc46raVX.s:301    .text.chSchGoSleepS:0000000000000044 $d
+     /tmp/cc46raVX.s:308    .text.chSchGoSleepTimeoutS:0000000000000000 $t
+     /tmp/cc46raVX.s:314    .text.chSchGoSleepTimeoutS:0000000000000000 chSchGoSleepTimeoutS
+     /tmp/cc46raVX.s:377    .text.chSchGoSleepTimeoutS:0000000000000044 $d
+     /tmp/cc46raVX.s:383    .text.chSchWakeupS:0000000000000000 $t
+     /tmp/cc46raVX.s:389    .text.chSchWakeupS:0000000000000000 chSchWakeupS
+     /tmp/cc46raVX.s:457    .text.chSchWakeupS:000000000000004c $d
+     /tmp/cc46raVX.s:465    .text.chSchDoRescheduleBehind:0000000000000000 $t
+     /tmp/cc46raVX.s:471    .text.chSchDoRescheduleBehind:0000000000000000 chSchDoRescheduleBehind
+     /tmp/cc46raVX.s:530    .text.chSchDoRescheduleBehind:0000000000000040 $d
+     /tmp/cc46raVX.s:537    .text.chSchDoRescheduleAhead:0000000000000000 $t
+     /tmp/cc46raVX.s:543    .text.chSchDoRescheduleAhead:0000000000000000 chSchDoRescheduleAhead
+     /tmp/cc46raVX.s:619    .text.chSchDoRescheduleAhead:000000000000004c $d
+     /tmp/cc46raVX.s:626    .text.chSchRescheduleS:0000000000000000 $t
+     /tmp/cc46raVX.s:632    .text.chSchRescheduleS:0000000000000000 chSchRescheduleS
+     /tmp/cc46raVX.s:661    .text.chSchRescheduleS:000000000000001c $d
+     /tmp/cc46raVX.s:666    .text.chSchDoReschedule:0000000000000000 $t
+     /tmp/cc46raVX.s:672    .text.chSchDoReschedule:0000000000000000 chSchDoReschedule
+     /tmp/cc46raVX.s:699    .text.chSchDoReschedule:0000000000000018 $d
+     /tmp/cc46raVX.s:716    .bss.rlist:0000000000000000 rlist
+     /tmp/cc46raVX.s:705    .rodata.str1.4:0000000000000000 $d
+     /tmp/cc46raVX.s:712    .bss.rlist:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
-     /tmp/ccymjCKA.s:51     .text._scheduler_init:0000000000000014 $t
-     /tmp/ccymjCKA.s:307    .text.chSchGoSleepS:000000000000004c $t
-     /tmp/ccymjCKA.s:382    .text.chSchGoSleepTimeoutS:000000000000004c $t
-     /tmp/ccymjCKA.s:464    .text.chSchWakeupS:0000000000000054 $t
-     /tmp/ccymjCKA.s:536    .text.chSchDoRescheduleBehind:0000000000000048 $t
-     /tmp/ccymjCKA.s:625    .text.chSchDoRescheduleAhead:0000000000000054 $t
-     /tmp/ccymjCKA.s:704    .text.chSchDoReschedule:000000000000001c $t
+     /tmp/cc46raVX.s:51     .text._scheduler_init:0000000000000014 $t
+     /tmp/cc46raVX.s:307    .text.chSchGoSleepS:000000000000004c $t
+     /tmp/cc46raVX.s:382    .text.chSchGoSleepTimeoutS:000000000000004c $t
+     /tmp/cc46raVX.s:464    .text.chSchWakeupS:0000000000000054 $t
+     /tmp/cc46raVX.s:536    .text.chSchDoRescheduleBehind:0000000000000048 $t
+     /tmp/cc46raVX.s:625    .text.chSchDoRescheduleAhead:0000000000000054 $t
+     /tmp/cc46raVX.s:704    .text.chSchDoReschedule:000000000000001c $t
 
 UNDEFINED SYMBOLS
 chDbgCheckClassI

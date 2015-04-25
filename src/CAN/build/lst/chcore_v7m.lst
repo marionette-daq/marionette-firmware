@@ -1,4 +1,4 @@
-ARM GAS  /tmp/ccOGPLEf.s 			page 1
+ARM GAS  /tmp/ccdvURjO.s 			page 1
 
 
    1              		.syntax unified
@@ -58,7 +58,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
   55 000e 00BF     		.section	.text.SVCallVector,"ax",%progbits
   56              		.align	2
   57              		.p2align 4,,15
-ARM GAS  /tmp/ccOGPLEf.s 			page 2
+ARM GAS  /tmp/ccdvURjO.s 			page 2
 
 
   58              		.global	SVCallVector
@@ -118,7 +118,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  109 0000 08B5     		push	{r3, lr}
  110              		.cfi_def_cfa_offset 8
  111              		.cfi_offset 3, -8
-ARM GAS  /tmp/ccOGPLEf.s 			page 3
+ARM GAS  /tmp/ccdvURjO.s 			page 3
 
 
  112              		.cfi_offset 14, -4
@@ -178,7 +178,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  166              		.loc 1 153 0
  167 0006 194B     		ldr	r3, .L13
  168 0008 5B68     		ldr	r3, [r3, #4]
-ARM GAS  /tmp/ccOGPLEf.s 			page 4
+ARM GAS  /tmp/ccdvURjO.s 			page 4
 
 
  169 000a 13F4006F 		tst	r3, #2048
@@ -238,7 +238,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  223              		.loc 1 183 0
  224 005a 074A     		ldr	r2, .L13+12
  225 005c 43F8082C 		str	r2, [r3, #-8]
-ARM GAS  /tmp/ccOGPLEf.s 			page 5
+ARM GAS  /tmp/ccdvURjO.s 			page 5
 
 
  226 0060 7047     		bx	lr
@@ -298,7 +298,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  280 0010 FFF7FEFF 		bl	chSysTimerHandlerI
  281              	.LVL15:
  282              		.loc 1 53 0
-ARM GAS  /tmp/ccOGPLEf.s 			page 6
+ARM GAS  /tmp/ccdvURjO.s 			page 6
 
 
  283 0014 FFF7FEFF 		bl	dbg_check_unlock_from_isr
@@ -358,7 +358,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  336              		.p2align 4,,15
  337              		.global	_port_thread_start
  338              		.thumb
-ARM GAS  /tmp/ccOGPLEf.s 			page 7
+ARM GAS  /tmp/ccdvURjO.s 			page 7
 
 
  339              		.thumb_func
@@ -418,7 +418,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  391 000b 01       		.uleb128 0x1
  392 000c 5E020000 		.4byte	.LASF106
  393 0010 01       		.byte	0x1
-ARM GAS  /tmp/ccOGPLEf.s 			page 8
+ARM GAS  /tmp/ccdvURjO.s 			page 8
 
 
  394 0011 46010000 		.4byte	.LASF107
@@ -478,7 +478,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  448 0080 05       		.byte	0x5
  449 0081 76000000 		.4byte	.LASF10
  450 0085 04       		.uleb128 0x4
-ARM GAS  /tmp/ccOGPLEf.s 			page 9
+ARM GAS  /tmp/ccdvURjO.s 			page 9
 
 
  451 0086 88030000 		.4byte	.LASF11
@@ -538,7 +538,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  505 00fb 04       		.byte	0x4
  506 00fc 30       		.byte	0x30
  507 00fd AD000000 		.4byte	0xad
-ARM GAS  /tmp/ccOGPLEf.s 			page 10
+ARM GAS  /tmp/ccdvURjO.s 			page 10
 
 
  508 0101 04       		.uleb128 0x4
@@ -598,7 +598,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  562 0170 57020000 		.4byte	0x257
  563 0174 10       		.byte	0x10
  564 0175 06       		.uleb128 0x6
-ARM GAS  /tmp/ccOGPLEf.s 			page 11
+ARM GAS  /tmp/ccdvURjO.s 			page 11
 
 
  565 0176 4A030000 		.4byte	.LASF32
@@ -658,7 +658,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  619 01e2 43050000 		.4byte	.LASF40
  620 01e6 06       		.byte	0x6
  621 01e7 B9       		.byte	0xb9
-ARM GAS  /tmp/ccOGPLEf.s 			page 12
+ARM GAS  /tmp/ccdvURjO.s 			page 12
 
 
  622 01e8 7D020000 		.4byte	0x27d
@@ -718,7 +718,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  676 0251 57020000 		.4byte	0x257
  677 0255 04       		.byte	0x4
  678 0256 00       		.byte	0
-ARM GAS  /tmp/ccOGPLEf.s 			page 13
+ARM GAS  /tmp/ccdvURjO.s 			page 13
 
 
  679 0257 09       		.uleb128 0x9
@@ -778,7 +778,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  733 02c1 04       		.byte	0x4
  734 02c2 07       		.uleb128 0x7
  735 02c3 723200   		.ascii	"r2\000"
-ARM GAS  /tmp/ccOGPLEf.s 			page 14
+ARM GAS  /tmp/ccdvURjO.s 			page 14
 
 
  736 02c6 07       		.byte	0x7
@@ -838,7 +838,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  790 032e 723600   		.ascii	"r6\000"
  791 0331 07       		.byte	0x7
  792 0332 2101     		.2byte	0x121
-ARM GAS  /tmp/ccOGPLEf.s 			page 15
+ARM GAS  /tmp/ccdvURjO.s 			page 15
 
 
  793 0334 88020000 		.4byte	0x288
@@ -898,7 +898,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  847 03a1 08030000 		.4byte	0x308
  848 03a5 04       		.uleb128 0x4
  849 03a6 75040000 		.4byte	.LASF56
-ARM GAS  /tmp/ccOGPLEf.s 			page 16
+ARM GAS  /tmp/ccdvURjO.s 			page 16
 
 
  850 03aa 08       		.byte	0x8
@@ -958,7 +958,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  904 0413 D1040000 		.4byte	0x4d1
  905 0417 18       		.byte	0x18
  906 0418 06       		.uleb128 0x6
-ARM GAS  /tmp/ccOGPLEf.s 			page 17
+ARM GAS  /tmp/ccdvURjO.s 			page 17
 
 
  907 0419 F2030000 		.4byte	.LASF63
@@ -1018,7 +1018,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  961 0485 41445200 		.ascii	"ADR\000"
  962 0489 08       		.byte	0x8
  963 048a 9A       		.byte	0x9a
-ARM GAS  /tmp/ccOGPLEf.s 			page 18
+ARM GAS  /tmp/ccdvURjO.s 			page 18
 
 
  964 048b A5030000 		.4byte	0x3a5
@@ -1078,7 +1078,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  1018 0500 0E       		.uleb128 0xe
  1019 0501 A5030000 		.4byte	0x3a5
  1020 0505 10050000 		.4byte	0x510
-ARM GAS  /tmp/ccOGPLEf.s 			page 19
+ARM GAS  /tmp/ccdvURjO.s 			page 19
 
 
  1021 0509 0F       		.uleb128 0xf
@@ -1138,7 +1138,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  1075 0575 57020000 		.4byte	0x257
  1076 0579 18       		.byte	0x18
  1077 057a 00       		.byte	0
-ARM GAS  /tmp/ccOGPLEf.s 			page 20
+ARM GAS  /tmp/ccdvURjO.s 			page 20
 
 
  1078 057b 04       		.uleb128 0x4
@@ -1198,7 +1198,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  1132 05e7 1C050000 		.4byte	.LASF87
  1133 05eb 06       		.byte	0x6
  1134 05ec AB       		.byte	0xab
-ARM GAS  /tmp/ccOGPLEf.s 			page 21
+ARM GAS  /tmp/ccdvURjO.s 			page 21
 
 
  1135 05ed 93020000 		.4byte	0x293
@@ -1258,7 +1258,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  1189 0668 88060000 		.4byte	0x688
  1190 066c 00000000 		.4byte	.LLST0
  1191 0670 16       		.uleb128 0x16
-ARM GAS  /tmp/ccOGPLEf.s 			page 22
+ARM GAS  /tmp/ccdvURjO.s 			page 22
 
 
  1192 0671 0A000000 		.4byte	.LBB2
@@ -1318,7 +1318,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  1246 06d4 1A       		.uleb128 0x1a
  1247 06d5 24000000 		.4byte	.LVL8
  1248 06d9 5B080000 		.4byte	0x85b
-ARM GAS  /tmp/ccOGPLEf.s 			page 23
+ARM GAS  /tmp/ccdvURjO.s 			page 23
 
 
  1249 06dd 19       		.uleb128 0x19
@@ -1378,7 +1378,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  1303 074c 53       		.byte	0x53
  1304 074d 00       		.byte	0
  1305 074e 00       		.byte	0
-ARM GAS  /tmp/ccOGPLEf.s 			page 24
+ARM GAS  /tmp/ccdvURjO.s 			page 24
 
 
  1306 074f 13       		.uleb128 0x13
@@ -1438,7 +1438,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  1360 07d6 01       		.byte	0x1
  1361 07d7 E5       		.byte	0xe5
  1362 07d8 00000000 		.4byte	.LFB12
-ARM GAS  /tmp/ccOGPLEf.s 			page 25
+ARM GAS  /tmp/ccdvURjO.s 			page 25
 
 
  1363 07dc 10000000 		.4byte	.LFE12-.LFB12
@@ -1498,7 +1498,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  1417 084e 34010000 		.4byte	.LASF99
  1418 0852 09       		.byte	0x9
  1419 0853 A8       		.byte	0xa8
-ARM GAS  /tmp/ccOGPLEf.s 			page 26
+ARM GAS  /tmp/ccdvURjO.s 			page 26
 
 
  1420 0854 1E       		.uleb128 0x1e
@@ -1558,7 +1558,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  1474 0011 00       		.byte	0
  1475 0012 00       		.byte	0
  1476 0013 02       		.uleb128 0x2
-ARM GAS  /tmp/ccOGPLEf.s 			page 27
+ARM GAS  /tmp/ccdvURjO.s 			page 27
 
 
  1477 0014 24       		.uleb128 0x24
@@ -1618,7 +1618,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  1531 004a 3A       		.uleb128 0x3a
  1532 004b 0B       		.uleb128 0xb
  1533 004c 3B       		.uleb128 0x3b
-ARM GAS  /tmp/ccOGPLEf.s 			page 28
+ARM GAS  /tmp/ccdvURjO.s 			page 28
 
 
  1534 004d 0B       		.uleb128 0xb
@@ -1678,7 +1678,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  1588 0083 03       		.uleb128 0x3
  1589 0084 0E       		.uleb128 0xe
  1590 0085 0B       		.uleb128 0xb
-ARM GAS  /tmp/ccOGPLEf.s 			page 29
+ARM GAS  /tmp/ccdvURjO.s 			page 29
 
 
  1591 0086 0B       		.uleb128 0xb
@@ -1738,7 +1738,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  1645 00bc 3A       		.uleb128 0x3a
  1646 00bd 0B       		.uleb128 0xb
  1647 00be 3B       		.uleb128 0x3b
-ARM GAS  /tmp/ccOGPLEf.s 			page 30
+ARM GAS  /tmp/ccdvURjO.s 			page 30
 
 
  1648 00bf 0B       		.uleb128 0xb
@@ -1798,7 +1798,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  1702 00f8 01       		.uleb128 0x1
  1703 00f9 31       		.uleb128 0x31
  1704 00fa 13       		.uleb128 0x13
-ARM GAS  /tmp/ccOGPLEf.s 			page 31
+ARM GAS  /tmp/ccdvURjO.s 			page 31
 
 
  1705 00fb 00       		.byte	0
@@ -1858,7 +1858,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  1759 0135 00       		.byte	0
  1760 0136 02       		.uleb128 0x2
  1761 0137 18       		.uleb128 0x18
-ARM GAS  /tmp/ccOGPLEf.s 			page 32
+ARM GAS  /tmp/ccdvURjO.s 			page 32
 
 
  1762 0138 9142     		.uleb128 0x2111
@@ -1918,7 +1918,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  1816 0171 00       		.byte	0
  1817 0172 00       		.byte	0
  1818 0173 1E       		.uleb128 0x1e
-ARM GAS  /tmp/ccOGPLEf.s 			page 33
+ARM GAS  /tmp/ccdvURjO.s 			page 33
 
 
  1819 0174 2E       		.uleb128 0x2e
@@ -1978,7 +1978,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  1873 0017 18000000 		.4byte	.LVL10
  1874 001b 0100     		.2byte	0x1
  1875 001d 53       		.byte	0x53
-ARM GAS  /tmp/ccOGPLEf.s 			page 34
+ARM GAS  /tmp/ccdvURjO.s 			page 34
 
 
  1876 001e 18000000 		.4byte	.LVL10
@@ -2038,7 +2038,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  1930              		.section	.debug_line,"",%progbits
  1931              	.Ldebug_line0:
  1932 0000 14020000 		.section	.debug_str,"MS",%progbits,1
-ARM GAS  /tmp/ccOGPLEf.s 			page 35
+ARM GAS  /tmp/ccdvURjO.s 			page 35
 
 
  1932      02006301 
@@ -2098,7 +2098,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  1958 0084 7369676E 		.ascii	"signed char\000"
  1958      65642063 
  1958      68617200 
-ARM GAS  /tmp/ccOGPLEf.s 			page 36
+ARM GAS  /tmp/ccdvURjO.s 			page 36
 
 
  1959              	.LASF104:
@@ -2158,7 +2158,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  1984      00
  1985              	.LASF99:
  1986 0134 63685363 		.ascii	"chSchDoReschedule\000"
-ARM GAS  /tmp/ccOGPLEf.s 			page 37
+ARM GAS  /tmp/ccdvURjO.s 			page 37
 
 
  1986      68446F52 
@@ -2218,7 +2218,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  2009              	.LASF4:
  2010 01f4 73686F72 		.ascii	"short unsigned int\000"
  2010      7420756E 
-ARM GAS  /tmp/ccOGPLEf.s 			page 38
+ARM GAS  /tmp/ccdvURjO.s 			page 38
 
 
  2010      7369676E 
@@ -2278,7 +2278,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  2035 02f7 73656374 		.ascii	"sections -fdata-sections -fno-common\000"
  2035      696F6E73 
  2035      202D6664 
-ARM GAS  /tmp/ccOGPLEf.s 			page 39
+ARM GAS  /tmp/ccdvURjO.s 			page 39
 
 
  2035      6174612D 
@@ -2338,7 +2338,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  2063      652F7365 
  2063      74682F6D 
  2063      6172696F 
-ARM GAS  /tmp/ccOGPLEf.s 			page 40
+ARM GAS  /tmp/ccdvURjO.s 			page 40
 
 
  2063      6E657474 
@@ -2398,7 +2398,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  2096              	.LASF26:
  2097 0440 54687265 		.ascii	"Thread\000"
  2097      616400
-ARM GAS  /tmp/ccOGPLEf.s 			page 41
+ARM GAS  /tmp/ccdvURjO.s 			page 41
 
 
  2098              	.LASF43:
@@ -2458,7 +2458,7 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  2129 04ca 705F6D73 		.ascii	"p_msgqueue\000"
  2129      67717565 
  2129      756500
-ARM GAS  /tmp/ccOGPLEf.s 			page 42
+ARM GAS  /tmp/ccdvURjO.s 			page 42
 
 
  2130              	.LASF37:
@@ -2510,30 +2510,30 @@ ARM GAS  /tmp/ccOGPLEf.s 			page 1
  2157      6974696E 
  2157      6700
  2158              		.ident	"GCC: (Arch Repository) 4.9.2 20150128 (prerelease)"
-ARM GAS  /tmp/ccOGPLEf.s 			page 43
+ARM GAS  /tmp/ccdvURjO.s 			page 43
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 chcore_v7m.c
-     /tmp/ccOGPLEf.s:19     .text._port_switch_from_isr:0000000000000000 $t
-     /tmp/ccOGPLEf.s:25     .text._port_switch_from_isr:0000000000000000 _port_switch_from_isr
-     /tmp/ccOGPLEf.s:44     .text._port_switch_from_isr:000000000000000c _port_exit_from_isr
-     /tmp/ccOGPLEf.s:56     .text.SVCallVector:0000000000000000 $t
-     /tmp/ccOGPLEf.s:62     .text.SVCallVector:0000000000000000 SVCallVector
-     /tmp/ccOGPLEf.s:97     .text._port_init:0000000000000000 $t
-     /tmp/ccOGPLEf.s:103    .text._port_init:0000000000000000 _port_init
-     /tmp/ccOGPLEf.s:139    .text._port_init:0000000000000028 $d
-     /tmp/ccOGPLEf.s:145    .text._port_irq_epilogue:0000000000000000 $t
-     /tmp/ccOGPLEf.s:151    .text._port_irq_epilogue:0000000000000000 _port_irq_epilogue
-     /tmp/ccOGPLEf.s:241    .text._port_irq_epilogue:000000000000006c $d
-     /tmp/ccOGPLEf.s:250    .text.SysTickVector:0000000000000000 $t
-     /tmp/ccOGPLEf.s:256    .text.SysTickVector:0000000000000000 SysTickVector
-     /tmp/ccOGPLEf.s:302    .text._port_switch:0000000000000000 $t
-     /tmp/ccOGPLEf.s:308    .text._port_switch:0000000000000000 _port_switch
-     /tmp/ccOGPLEf.s:335    .text._port_thread_start:0000000000000000 $t
-     /tmp/ccOGPLEf.s:341    .text._port_thread_start:0000000000000000 _port_thread_start
+     /tmp/ccdvURjO.s:19     .text._port_switch_from_isr:0000000000000000 $t
+     /tmp/ccdvURjO.s:25     .text._port_switch_from_isr:0000000000000000 _port_switch_from_isr
+     /tmp/ccdvURjO.s:44     .text._port_switch_from_isr:000000000000000c _port_exit_from_isr
+     /tmp/ccdvURjO.s:56     .text.SVCallVector:0000000000000000 $t
+     /tmp/ccdvURjO.s:62     .text.SVCallVector:0000000000000000 SVCallVector
+     /tmp/ccdvURjO.s:97     .text._port_init:0000000000000000 $t
+     /tmp/ccdvURjO.s:103    .text._port_init:0000000000000000 _port_init
+     /tmp/ccdvURjO.s:139    .text._port_init:0000000000000028 $d
+     /tmp/ccdvURjO.s:145    .text._port_irq_epilogue:0000000000000000 $t
+     /tmp/ccdvURjO.s:151    .text._port_irq_epilogue:0000000000000000 _port_irq_epilogue
+     /tmp/ccdvURjO.s:241    .text._port_irq_epilogue:000000000000006c $d
+     /tmp/ccdvURjO.s:250    .text.SysTickVector:0000000000000000 $t
+     /tmp/ccdvURjO.s:256    .text.SysTickVector:0000000000000000 SysTickVector
+     /tmp/ccdvURjO.s:302    .text._port_switch:0000000000000000 $t
+     /tmp/ccdvURjO.s:308    .text._port_switch:0000000000000000 _port_switch
+     /tmp/ccdvURjO.s:335    .text._port_thread_start:0000000000000000 $t
+     /tmp/ccdvURjO.s:341    .text._port_thread_start:0000000000000000 _port_thread_start
                      .debug_frame:0000000000000010 $d
-     /tmp/ccOGPLEf.s:249    .text._port_irq_epilogue:000000000000007c $t
+     /tmp/ccdvURjO.s:249    .text._port_irq_epilogue:000000000000007c $t
 
 UNDEFINED SYMBOLS
 dbg_check_lock

@@ -1,4 +1,4 @@
-ARM GAS  /tmp/cc604mzS.s 			page 1
+ARM GAS  /tmp/ccruVO3b.s 			page 1
 
 
    1              		.syntax unified
@@ -58,7 +58,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
   55 001a FFF7FEFF 		bl	dbg_check_unlock
   56              	.LVL2:
   57              	.LBB3:
-ARM GAS  /tmp/cc604mzS.s 			page 2
+ARM GAS  /tmp/ccruVO3b.s 			page 2
 
 
   58 001e 0023     		movs	r3, #0
@@ -118,7 +118,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  112 0014 0CD0     		beq	.L8
  113              		.loc 1 149 0
  114 0016 94F82230 		ldrb	r3, [r4, #34]	@ zero_extendqisi2
-ARM GAS  /tmp/cc604mzS.s 			page 3
+ARM GAS  /tmp/ccruVO3b.s 			page 3
 
 
  115 001a FF2B     		cmp	r3, #255
@@ -178,7 +178,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  169 0009 04       		.byte	4
  170 000a 4C       		.byte	76
  171 000b 08       		.byte	8
-ARM GAS  /tmp/cc604mzS.s 			page 4
+ARM GAS  /tmp/ccruVO3b.s 			page 4
 
 
  172 000c 0C       		.byte	12
@@ -238,7 +238,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  222 0033 37000000 		.4byte	0x37
  223 0037 04       		.uleb128 0x4
  224 0038 04       		.byte	0x4
-ARM GAS  /tmp/cc604mzS.s 			page 5
+ARM GAS  /tmp/ccruVO3b.s 			page 5
 
 
  225 0039 07       		.byte	0x7
@@ -298,7 +298,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  279 00a2 A6000000 		.4byte	0xa6
  280 00a6 04       		.uleb128 0x4
  281 00a7 08       		.byte	0x8
-ARM GAS  /tmp/cc604mzS.s 			page 6
+ARM GAS  /tmp/ccruVO3b.s 			page 6
 
 
  282 00a8 07       		.byte	0x7
@@ -358,7 +358,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  336 011d 30       		.byte	0x30
  337 011e CE000000 		.4byte	0xce
  338 0122 03       		.uleb128 0x3
-ARM GAS  /tmp/cc604mzS.s 			page 7
+ARM GAS  /tmp/ccruVO3b.s 			page 7
 
 
  339 0123 80010000 		.4byte	.LASF26
@@ -418,7 +418,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  393 0195 10       		.byte	0x10
  394 0196 06       		.uleb128 0x6
  395 0197 ED020000 		.4byte	.LASF35
-ARM GAS  /tmp/cc604mzS.s 			page 8
+ARM GAS  /tmp/ccruVO3b.s 			page 8
 
 
  396 019b 07       		.byte	0x7
@@ -478,7 +478,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  450 0207 07       		.byte	0x7
  451 0208 B9       		.byte	0xb9
  452 0209 9E020000 		.4byte	0x29e
-ARM GAS  /tmp/cc604mzS.s 			page 9
+ARM GAS  /tmp/ccruVO3b.s 			page 9
 
 
  453 020d 2C       		.byte	0x2c
@@ -538,7 +538,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  507 0276 04       		.byte	0x4
  508 0277 00       		.byte	0
  509 0278 09       		.uleb128 0x9
-ARM GAS  /tmp/cc604mzS.s 			page 10
+ARM GAS  /tmp/ccruVO3b.s 			page 10
 
 
  510 0279 04       		.byte	0x4
@@ -598,7 +598,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  564 02e6 0C       		.uleb128 0xc
  565 02e7 723600   		.ascii	"r6\000"
  566 02ea 08       		.byte	0x8
-ARM GAS  /tmp/cc604mzS.s 			page 11
+ARM GAS  /tmp/ccruVO3b.s 			page 11
 
 
  567 02eb 2101     		.2byte	0x121
@@ -658,7 +658,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  621 0359 04       		.byte	0x4
  622 035a C1020000 		.4byte	0x2c1
  623 035e 04       		.uleb128 0x4
-ARM GAS  /tmp/cc604mzS.s 			page 12
+ARM GAS  /tmp/ccruVO3b.s 			page 12
 
 
  624 035f 04       		.byte	0x4
@@ -718,7 +718,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  678 03cb 10       		.byte	0x10
  679 03cc 0A       		.byte	0xa
  680 03cd 2C       		.byte	0x2c
-ARM GAS  /tmp/cc604mzS.s 			page 13
+ARM GAS  /tmp/ccruVO3b.s 			page 13
 
 
  681 03ce F7030000 		.4byte	0x3f7
@@ -778,7 +778,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  735 043d 09       		.uleb128 0x9
  736 043e 04       		.byte	0x4
  737 043f 43040000 		.4byte	0x443
-ARM GAS  /tmp/cc604mzS.s 			page 14
+ARM GAS  /tmp/ccruVO3b.s 			page 14
 
 
  738 0443 10       		.uleb128 0x10
@@ -838,7 +838,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  792 04ac 4B000000 		.4byte	.LASF79
  793 04b0 0B       		.byte	0xb
  794 04b1 33       		.byte	0x33
-ARM GAS  /tmp/cc604mzS.s 			page 15
+ARM GAS  /tmp/ccruVO3b.s 			page 15
 
 
  795 04b2 AD000000 		.4byte	0xad
@@ -898,7 +898,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  849 051e AD000000 		.4byte	0xad
  850 0522 13       		.byte	0x13
  851 0523 06       		.uleb128 0x6
-ARM GAS  /tmp/cc604mzS.s 			page 16
+ARM GAS  /tmp/ccruVO3b.s 			page 16
 
 
  852 0524 EA030000 		.4byte	.LASF89
@@ -958,7 +958,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  906 059e 06000000 		.4byte	.LBE3-.LBB3
  907 05a2 B4050000 		.4byte	0x5b4
  908 05a6 16       		.uleb128 0x16
-ARM GAS  /tmp/cc604mzS.s 			page 17
+ARM GAS  /tmp/ccruVO3b.s 			page 17
 
 
  909 05a7 746D7000 		.ascii	"tmp\000"
@@ -1018,7 +1018,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  963 062a 01       		.byte	0x1
  964 062b 9A       		.byte	0x9a
  965 062c CE000000 		.4byte	0xce
-ARM GAS  /tmp/cc604mzS.s 			page 18
+ARM GAS  /tmp/ccruVO3b.s 			page 18
 
 
  966 0630 01       		.uleb128 0x1
@@ -1078,7 +1078,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  1020 069c 1F       		.uleb128 0x1f
  1021 069d 62000000 		.4byte	.LASF101
  1022 06a1 0C       		.byte	0xc
-ARM GAS  /tmp/cc604mzS.s 			page 19
+ARM GAS  /tmp/ccruVO3b.s 			page 19
 
 
  1023 06a2 F6       		.byte	0xf6
@@ -1138,7 +1138,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  1077 0027 49       		.uleb128 0x49
  1078 0028 13       		.uleb128 0x13
  1079 0029 00       		.byte	0
-ARM GAS  /tmp/cc604mzS.s 			page 20
+ARM GAS  /tmp/ccruVO3b.s 			page 20
 
 
  1080 002a 00       		.byte	0
@@ -1198,7 +1198,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  1134 0060 0B       		.uleb128 0xb
  1135 0061 00       		.byte	0
  1136 0062 00       		.byte	0
-ARM GAS  /tmp/cc604mzS.s 			page 21
+ARM GAS  /tmp/ccruVO3b.s 			page 21
 
 
  1137 0063 08       		.uleb128 0x8
@@ -1258,7 +1258,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  1191 0099 13       		.uleb128 0x13
  1192 009a 38       		.uleb128 0x38
  1193 009b 0B       		.uleb128 0xb
-ARM GAS  /tmp/cc604mzS.s 			page 22
+ARM GAS  /tmp/ccruVO3b.s 			page 22
 
 
  1194 009c 00       		.byte	0
@@ -1318,7 +1318,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  1248 00d2 49       		.uleb128 0x49
  1249 00d3 13       		.uleb128 0x13
  1250 00d4 2F       		.uleb128 0x2f
-ARM GAS  /tmp/cc604mzS.s 			page 23
+ARM GAS  /tmp/ccruVO3b.s 			page 23
 
 
  1251 00d5 0B       		.uleb128 0xb
@@ -1378,7 +1378,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  1305 010c 00       		.byte	0
  1306 010d 00       		.byte	0
  1307 010e 16       		.uleb128 0x16
-ARM GAS  /tmp/cc604mzS.s 			page 24
+ARM GAS  /tmp/ccruVO3b.s 			page 24
 
 
  1308 010f 34       		.uleb128 0x34
@@ -1438,7 +1438,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  1362 014b 9142     		.uleb128 0x2111
  1363 014d 18       		.uleb128 0x18
  1364 014e 00       		.byte	0
-ARM GAS  /tmp/cc604mzS.s 			page 25
+ARM GAS  /tmp/ccruVO3b.s 			page 25
 
 
  1365 014f 00       		.byte	0
@@ -1498,7 +1498,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  1419 0187 0B       		.uleb128 0xb
  1420 0188 27       		.uleb128 0x27
  1421 0189 19       		.uleb128 0x19
-ARM GAS  /tmp/cc604mzS.s 			page 26
+ARM GAS  /tmp/ccruVO3b.s 			page 26
 
 
  1422 018a 3C       		.uleb128 0x3c
@@ -1558,7 +1558,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  1476 000a 54       		.byte	0x54
  1477 000b 28000000 		.4byte	.LVL3
  1478 000f 2C000000 		.4byte	.LFE7
-ARM GAS  /tmp/cc604mzS.s 			page 27
+ARM GAS  /tmp/ccruVO3b.s 			page 27
 
 
  1479 0013 0100     		.2byte	0x1
@@ -1618,7 +1618,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  1533 0014 00000000 		.4byte	0
  1534              		.section	.debug_line,"",%progbits
  1535              	.Ldebug_line0:
-ARM GAS  /tmp/cc604mzS.s 			page 28
+ARM GAS  /tmp/ccruVO3b.s 			page 28
 
 
  1536 0000 D4010000 		.section	.debug_str,"MS",%progbits,1
@@ -1678,7 +1678,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  1560      696F00
  1561              	.LASF86:
  1562 0085 63665F6F 		.ascii	"cf_off_state\000"
-ARM GAS  /tmp/cc604mzS.s 			page 29
+ARM GAS  /tmp/ccruVO3b.s 			page 29
 
 
  1562      66665F73 
@@ -1738,7 +1738,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  1588      5F7400
  1589              	.LASF52:
  1590 011b 72656761 		.ascii	"regarm_t\000"
-ARM GAS  /tmp/cc604mzS.s 			page 30
+ARM GAS  /tmp/ccruVO3b.s 			page 30
 
 
  1590      726D5F74 
@@ -1798,7 +1798,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  1616      4320342E 
  1616      392E3220 
  1616      32303135 
-ARM GAS  /tmp/cc604mzS.s 			page 31
+ARM GAS  /tmp/ccruVO3b.s 			page 31
 
 
  1616      30313238 
@@ -1858,7 +1858,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  1639 02ed 705F6F6C 		.ascii	"p_older\000"
  1639      64657200 
  1640              	.LASF59:
-ARM GAS  /tmp/cc604mzS.s 			page 32
+ARM GAS  /tmp/ccruVO3b.s 			page 32
 
 
  1641 02f5 725F6374 		.ascii	"r_ctx\000"
@@ -1918,7 +1918,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  1669      676E6564 
  1669      20636861 
  1669      7200
-ARM GAS  /tmp/cc604mzS.s 			page 33
+ARM GAS  /tmp/ccruVO3b.s 			page 33
 
 
  1670              	.LASF47:
@@ -1978,7 +1978,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  1699 042d 75696E74 		.ascii	"uint32_t\000"
  1699      33325F74 
  1699      00
-ARM GAS  /tmp/cc604mzS.s 			page 34
+ARM GAS  /tmp/ccruVO3b.s 			page 34
 
 
  1700              	.LASF80:
@@ -2038,7 +2038,7 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  1729      7400
  1730              	.LASF94:
  1731 04c5 726C6973 		.ascii	"rlist\000"
-ARM GAS  /tmp/cc604mzS.s 			page 35
+ARM GAS  /tmp/ccruVO3b.s 			page 35
 
 
  1731      7400
@@ -2066,22 +2066,22 @@ ARM GAS  /tmp/cc604mzS.s 			page 1
  1745      6974696E 
  1745      6700
  1746              		.ident	"GCC: (Arch Repository) 4.9.2 20150128 (prerelease)"
-ARM GAS  /tmp/cc604mzS.s 			page 36
+ARM GAS  /tmp/ccruVO3b.s 			page 36
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 chregistry.c
-     /tmp/cc604mzS.s:19     .text.chRegFirstThread:0000000000000000 $t
-     /tmp/cc604mzS.s:25     .text.chRegFirstThread:0000000000000000 chRegFirstThread
-     /tmp/cc604mzS.s:71     .text.chRegFirstThread:0000000000000028 $d
-     /tmp/cc604mzS.s:76     .text.chRegNextThread:0000000000000000 $t
-     /tmp/cc604mzS.s:82     .text.chRegNextThread:0000000000000000 chRegNextThread
-     /tmp/cc604mzS.s:153    .text.chRegNextThread:0000000000000048 $d
-     /tmp/cc604mzS.s:163    .rodata.ch_debug:0000000000000000 ch_debug
-     /tmp/cc604mzS.s:160    .rodata.ch_debug:0000000000000000 $d
-     /tmp/cc604mzS.s:183    .rodata.str1.4:0000000000000000 $d
+     /tmp/ccruVO3b.s:19     .text.chRegFirstThread:0000000000000000 $t
+     /tmp/ccruVO3b.s:25     .text.chRegFirstThread:0000000000000000 chRegFirstThread
+     /tmp/ccruVO3b.s:71     .text.chRegFirstThread:0000000000000028 $d
+     /tmp/ccruVO3b.s:76     .text.chRegNextThread:0000000000000000 $t
+     /tmp/ccruVO3b.s:82     .text.chRegNextThread:0000000000000000 chRegNextThread
+     /tmp/ccruVO3b.s:153    .text.chRegNextThread:0000000000000048 $d
+     /tmp/ccruVO3b.s:163    .rodata.ch_debug:0000000000000000 ch_debug
+     /tmp/ccruVO3b.s:160    .rodata.ch_debug:0000000000000000 $d
+     /tmp/ccruVO3b.s:183    .rodata.str1.4:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
-     /tmp/cc604mzS.s:75     .text.chRegFirstThread:000000000000002c $t
+     /tmp/ccruVO3b.s:75     .text.chRegFirstThread:000000000000002c $t
 
 UNDEFINED SYMBOLS
 dbg_check_lock

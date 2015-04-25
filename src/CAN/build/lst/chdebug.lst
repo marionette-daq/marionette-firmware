@@ -1,4 +1,4 @@
-ARM GAS  /tmp/cc9rwOcq.s 			page 1
+ARM GAS  /tmp/cctRBcYQ.s 			page 1
 
 
    1              		.syntax unified
@@ -58,7 +58,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
   55              		.thumb
   56              		.thumb_func
   57              		.type	dbg_check_disable, %function
-ARM GAS  /tmp/cc9rwOcq.s 			page 2
+ARM GAS  /tmp/cctRBcYQ.s 			page 2
 
 
   58              	dbg_check_disable:
@@ -118,7 +118,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  110 0002 054B     		ldr	r3, .L15
  111 0004 1B68     		ldr	r3, [r3]
  112 0006 13B9     		cbnz	r3, .L12
-ARM GAS  /tmp/cc9rwOcq.s 			page 3
+ARM GAS  /tmp/cctRBcYQ.s 			page 3
 
 
  113              		.loc 1 94 0 is_stmt 0 discriminator 1
@@ -178,7 +178,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  165              	.L22:
  166 0016 00BF     		.align	2
  167              	.L21:
-ARM GAS  /tmp/cc9rwOcq.s 			page 4
+ARM GAS  /tmp/cctRBcYQ.s 			page 4
 
 
  168 0018 00000000 		.word	.LANCHOR1
@@ -238,7 +238,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  219      AFF30080 
  220              		.align	2
  221              		.p2align 4,,15
-ARM GAS  /tmp/cc9rwOcq.s 			page 5
+ARM GAS  /tmp/cctRBcYQ.s 			page 5
 
 
  222              		.global	dbg_check_unlock
@@ -298,7 +298,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  276              		@ args = 0, pretend = 0, frame = 0
  277              		@ frame_needed = 0, uses_anonymous_args = 0
  278 0000 08B5     		push	{r3, lr}
-ARM GAS  /tmp/cc9rwOcq.s 			page 6
+ARM GAS  /tmp/cctRBcYQ.s 			page 6
 
 
  279              		.cfi_def_cfa_offset 8
@@ -358,7 +358,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  333              		.loc 1 152 0 is_stmt 0 discriminator 1
  334 000a 064B     		ldr	r3, .L45+4
  335 000c 1B68     		ldr	r3, [r3]
-ARM GAS  /tmp/cc9rwOcq.s 			page 7
+ARM GAS  /tmp/cctRBcYQ.s 			page 7
 
 
  336 000e 002B     		cmp	r3, #0
@@ -418,7 +418,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  390 0012 1B68     		ldr	r3, [r3]
  391 0014 13B1     		cbz	r3, .L49
  392              	.L48:
-ARM GAS  /tmp/cc9rwOcq.s 			page 8
+ARM GAS  /tmp/cctRBcYQ.s 			page 8
 
 
  393              		.loc 1 166 0 is_stmt 1
@@ -478,7 +478,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  446              		.loc 1 179 0
  447 0008 084B     		ldr	r3, .L57
  448 000a 1B68     		ldr	r3, [r3]
-ARM GAS  /tmp/cc9rwOcq.s 			page 9
+ARM GAS  /tmp/cctRBcYQ.s 			page 9
 
 
  449 000c 002B     		cmp	r3, #0
@@ -538,7 +538,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  502 0002 064B     		ldr	r3, .L63
  503 0004 1B68     		ldr	r3, [r3]
  504 0006 002B     		cmp	r3, #0
-ARM GAS  /tmp/cc9rwOcq.s 			page 10
+ARM GAS  /tmp/cctRBcYQ.s 			page 10
 
 
  505 0008 03DB     		blt	.L60
@@ -598,7 +598,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  558              	.L65:
  559 0016 08BD     		pop	{r3, pc}
  560              	.L70:
-ARM GAS  /tmp/cc9rwOcq.s 			page 11
+ARM GAS  /tmp/cctRBcYQ.s 			page 11
 
 
  561              		.align	2
@@ -658,7 +658,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  605              	.LC8:
  606 0040 53562339 		.ascii	"SV#9\000"
  606      00
-ARM GAS  /tmp/cc9rwOcq.s 			page 12
+ARM GAS  /tmp/cctRBcYQ.s 			page 12
 
 
  607 0045 000000   		.space	3
@@ -718,7 +718,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  659 003a 03       		.uleb128 0x3
  660 003b 01       		.byte	0x1
  661 003c 08       		.byte	0x8
-ARM GAS  /tmp/cc9rwOcq.s 			page 13
+ARM GAS  /tmp/cctRBcYQ.s 			page 13
 
 
  662 003d AD000000 		.4byte	.LASF2
@@ -778,7 +778,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  716 00a9 03       		.uleb128 0x3
  717 00aa 04       		.byte	0x4
  718 00ab 07       		.byte	0x7
-ARM GAS  /tmp/cc9rwOcq.s 			page 14
+ARM GAS  /tmp/cctRBcYQ.s 			page 14
 
 
  719 00ac 58020000 		.4byte	.LASF15
@@ -838,7 +838,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  773 0126 24000000 		.4byte	.LFE8-.LFB8
  774 012a 01       		.uleb128 0x1
  775 012b 9C       		.byte	0x9c
-ARM GAS  /tmp/cc9rwOcq.s 			page 15
+ARM GAS  /tmp/cctRBcYQ.s 			page 15
 
 
  776 012c 44010000 		.4byte	0x144
@@ -898,7 +898,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  830 019b 01       		.byte	0x1
  831 019c 7E       		.byte	0x7e
  832 019d 00000000 		.4byte	.LFB11
-ARM GAS  /tmp/cc9rwOcq.s 			page 16
+ARM GAS  /tmp/cctRBcYQ.s 			page 16
 
 
  833 01a1 2C000000 		.4byte	.LFE11-.LFB11
@@ -958,7 +958,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  887 0210 00       		.byte	0
  888 0211 0A       		.uleb128 0xa
  889 0212 4D000000 		.4byte	.LASF25
-ARM GAS  /tmp/cc9rwOcq.s 			page 17
+ARM GAS  /tmp/cctRBcYQ.s 			page 17
 
 
  890 0216 01       		.byte	0x1
@@ -1018,7 +1018,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  944 028e A0020000 		.4byte	0x2a0
  945 0292 0E       		.uleb128 0xe
  946 0293 746D7000 		.ascii	"tmp\000"
-ARM GAS  /tmp/cc9rwOcq.s 			page 18
+ARM GAS  /tmp/cctRBcYQ.s 			page 18
 
 
  947 0297 01       		.byte	0x1
@@ -1078,7 +1078,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  1001 0303 24000000 		.4byte	.LFE17-.LFB17
  1002 0307 01       		.uleb128 0x1
  1003 0308 9C       		.byte	0x9c
-ARM GAS  /tmp/cc9rwOcq.s 			page 19
+ARM GAS  /tmp/cctRBcYQ.s 			page 19
 
 
  1004 0309 21030000 		.4byte	0x321
@@ -1138,7 +1138,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  1058 000b 55       		.uleb128 0x55
  1059 000c 17       		.uleb128 0x17
  1060 000d 11       		.uleb128 0x11
-ARM GAS  /tmp/cc9rwOcq.s 			page 20
+ARM GAS  /tmp/cctRBcYQ.s 			page 20
 
 
  1061 000e 01       		.uleb128 0x1
@@ -1198,7 +1198,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  1115 0044 00       		.byte	0
  1116 0045 00       		.byte	0
  1117 0046 07       		.uleb128 0x7
-ARM GAS  /tmp/cc9rwOcq.s 			page 21
+ARM GAS  /tmp/cctRBcYQ.s 			page 21
 
 
  1118 0047 2E       		.uleb128 0x2e
@@ -1258,7 +1258,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  1172 0080 0E       		.uleb128 0xe
  1173 0081 3A       		.uleb128 0x3a
  1174 0082 0B       		.uleb128 0xb
-ARM GAS  /tmp/cc9rwOcq.s 			page 22
+ARM GAS  /tmp/cctRBcYQ.s 			page 22
 
 
  1175 0083 3B       		.uleb128 0x3b
@@ -1318,7 +1318,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  1229 00bf 49       		.uleb128 0x49
  1230 00c0 13       		.uleb128 0x13
  1231 00c1 02       		.uleb128 0x2
-ARM GAS  /tmp/cc9rwOcq.s 			page 23
+ARM GAS  /tmp/cctRBcYQ.s 			page 23
 
 
  1232 00c2 18       		.uleb128 0x18
@@ -1378,7 +1378,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  1286 00f8 00       		.byte	0
  1287              		.section	.debug_loc,"",%progbits
  1288              	.Ldebug_loc0:
-ARM GAS  /tmp/cc9rwOcq.s 			page 24
+ARM GAS  /tmp/cctRBcYQ.s 			page 24
 
 
  1289              	.LLST0:
@@ -1438,7 +1438,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  1343 0010 00000000 		.4byte	.LFB8
  1344 0014 24000000 		.4byte	.LFE8
  1345 0018 00000000 		.4byte	.LFB9
-ARM GAS  /tmp/cc9rwOcq.s 			page 25
+ARM GAS  /tmp/cctRBcYQ.s 			page 25
 
 
  1346 001c 24000000 		.4byte	.LFE9
@@ -1498,7 +1498,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  1379 004d 6462675F 		.ascii	"dbg_check_enter_isr\000"
  1379      63686563 
  1379      6B5F656E 
-ARM GAS  /tmp/cc9rwOcq.s 			page 26
+ARM GAS  /tmp/cctRBcYQ.s 			page 26
 
 
  1379      7465725F 
@@ -1558,7 +1558,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  1398 0148 6D6E6F2D 		.ascii	"mno-thumb-interwork -mthumb -ggdb -Og -std=gnu99 -f"
  1398      7468756D 
  1398      622D696E 
-ARM GAS  /tmp/cc9rwOcq.s 			page 27
+ARM GAS  /tmp/cctRBcYQ.s 			page 27
 
 
  1398      74657277 
@@ -1618,7 +1618,7 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  1420 0258 73697A65 		.ascii	"sizetype\000"
  1420      74797065 
  1420      00
-ARM GAS  /tmp/cc9rwOcq.s 			page 28
+ARM GAS  /tmp/cctRBcYQ.s 			page 28
 
 
  1421              	.LASF9:
@@ -1670,67 +1670,67 @@ ARM GAS  /tmp/cc9rwOcq.s 			page 1
  1442 02d9 5F426F6F 		.ascii	"_Bool\000"
  1442      6C00
  1443              		.ident	"GCC: (Arch Repository) 4.9.2 20150128 (prerelease)"
-ARM GAS  /tmp/cc9rwOcq.s 			page 29
+ARM GAS  /tmp/cctRBcYQ.s 			page 29
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 chdebug.c
-     /tmp/cc9rwOcq.s:19     .text.chDbgPanic:0000000000000000 $t
-     /tmp/cc9rwOcq.s:25     .text.chDbgPanic:0000000000000000 chDbgPanic
-     /tmp/cc9rwOcq.s:47     .text.chDbgPanic:000000000000000c $d
-     /tmp/cc9rwOcq.s:52     .text.dbg_check_disable:0000000000000000 $t
-     /tmp/cc9rwOcq.s:58     .text.dbg_check_disable:0000000000000000 dbg_check_disable
-     /tmp/cc9rwOcq.s:86     .text.dbg_check_disable:0000000000000018 $d
-     /tmp/cc9rwOcq.s:93     .text.dbg_check_suspend:0000000000000000 $t
-     /tmp/cc9rwOcq.s:99     .text.dbg_check_suspend:0000000000000000 dbg_check_suspend
-     /tmp/cc9rwOcq.s:127    .text.dbg_check_suspend:0000000000000018 $d
-     /tmp/cc9rwOcq.s:134    .text.dbg_check_enable:0000000000000000 $t
-     /tmp/cc9rwOcq.s:140    .text.dbg_check_enable:0000000000000000 dbg_check_enable
-     /tmp/cc9rwOcq.s:168    .text.dbg_check_enable:0000000000000018 $d
-     /tmp/cc9rwOcq.s:175    .text.dbg_check_lock:0000000000000000 $t
-     /tmp/cc9rwOcq.s:181    .text.dbg_check_lock:0000000000000000 dbg_check_lock
-     /tmp/cc9rwOcq.s:213    .text.dbg_check_lock:000000000000001c $d
-     /tmp/cc9rwOcq.s:220    .text.dbg_check_unlock:0000000000000000 $t
-     /tmp/cc9rwOcq.s:226    .text.dbg_check_unlock:0000000000000000 dbg_check_unlock
-     /tmp/cc9rwOcq.s:259    .text.dbg_check_unlock:0000000000000020 $d
-     /tmp/cc9rwOcq.s:266    .text.dbg_check_lock_from_isr:0000000000000000 $t
-     /tmp/cc9rwOcq.s:272    .text.dbg_check_lock_from_isr:0000000000000000 dbg_check_lock_from_isr
-     /tmp/cc9rwOcq.s:305    .text.dbg_check_lock_from_isr:0000000000000020 $d
-     /tmp/cc9rwOcq.s:312    .text.dbg_check_unlock_from_isr:0000000000000000 $t
-     /tmp/cc9rwOcq.s:318    .text.dbg_check_unlock_from_isr:0000000000000000 dbg_check_unlock_from_isr
-     /tmp/cc9rwOcq.s:352    .text.dbg_check_unlock_from_isr:0000000000000020 $d
-     /tmp/cc9rwOcq.s:359    .text.dbg_check_enter_isr:0000000000000000 $t
-     /tmp/cc9rwOcq.s:365    .text.dbg_check_enter_isr:0000000000000000 dbg_check_enter_isr
-     /tmp/cc9rwOcq.s:414    .text.dbg_check_enter_isr:000000000000002c $d
-     /tmp/cc9rwOcq.s:422    .text.dbg_check_leave_isr:0000000000000000 $t
-     /tmp/cc9rwOcq.s:428    .text.dbg_check_leave_isr:0000000000000000 dbg_check_leave_isr
-     /tmp/cc9rwOcq.s:477    .text.dbg_check_leave_isr:000000000000002c $d
-     /tmp/cc9rwOcq.s:485    .text.chDbgCheckClassI:0000000000000000 $t
-     /tmp/cc9rwOcq.s:491    .text.chDbgCheckClassI:0000000000000000 chDbgCheckClassI
-     /tmp/cc9rwOcq.s:521    .text.chDbgCheckClassI:000000000000001c $d
-     /tmp/cc9rwOcq.s:528    .text.chDbgCheckClassS:0000000000000000 $t
-     /tmp/cc9rwOcq.s:534    .text.chDbgCheckClassS:0000000000000000 chDbgCheckClassS
-     /tmp/cc9rwOcq.s:563    .text.chDbgCheckClassS:0000000000000018 $d
-     /tmp/cc9rwOcq.s:625    .bss.dbg_panic_msg:0000000000000000 dbg_panic_msg
-     /tmp/cc9rwOcq.s:618    .bss.dbg_lock_cnt:0000000000000000 dbg_lock_cnt
-     /tmp/cc9rwOcq.s:577    .bss.dbg_isr_cnt:0000000000000000 dbg_isr_cnt
-     /tmp/cc9rwOcq.s:573    .bss.dbg_isr_cnt:0000000000000000 $d
-     /tmp/cc9rwOcq.s:580    .rodata.str1.4:0000000000000000 $d
-     /tmp/cc9rwOcq.s:614    .bss.dbg_lock_cnt:0000000000000000 $d
-     /tmp/cc9rwOcq.s:621    .bss.dbg_panic_msg:0000000000000000 $d
+     /tmp/cctRBcYQ.s:19     .text.chDbgPanic:0000000000000000 $t
+     /tmp/cctRBcYQ.s:25     .text.chDbgPanic:0000000000000000 chDbgPanic
+     /tmp/cctRBcYQ.s:47     .text.chDbgPanic:000000000000000c $d
+     /tmp/cctRBcYQ.s:52     .text.dbg_check_disable:0000000000000000 $t
+     /tmp/cctRBcYQ.s:58     .text.dbg_check_disable:0000000000000000 dbg_check_disable
+     /tmp/cctRBcYQ.s:86     .text.dbg_check_disable:0000000000000018 $d
+     /tmp/cctRBcYQ.s:93     .text.dbg_check_suspend:0000000000000000 $t
+     /tmp/cctRBcYQ.s:99     .text.dbg_check_suspend:0000000000000000 dbg_check_suspend
+     /tmp/cctRBcYQ.s:127    .text.dbg_check_suspend:0000000000000018 $d
+     /tmp/cctRBcYQ.s:134    .text.dbg_check_enable:0000000000000000 $t
+     /tmp/cctRBcYQ.s:140    .text.dbg_check_enable:0000000000000000 dbg_check_enable
+     /tmp/cctRBcYQ.s:168    .text.dbg_check_enable:0000000000000018 $d
+     /tmp/cctRBcYQ.s:175    .text.dbg_check_lock:0000000000000000 $t
+     /tmp/cctRBcYQ.s:181    .text.dbg_check_lock:0000000000000000 dbg_check_lock
+     /tmp/cctRBcYQ.s:213    .text.dbg_check_lock:000000000000001c $d
+     /tmp/cctRBcYQ.s:220    .text.dbg_check_unlock:0000000000000000 $t
+     /tmp/cctRBcYQ.s:226    .text.dbg_check_unlock:0000000000000000 dbg_check_unlock
+     /tmp/cctRBcYQ.s:259    .text.dbg_check_unlock:0000000000000020 $d
+     /tmp/cctRBcYQ.s:266    .text.dbg_check_lock_from_isr:0000000000000000 $t
+     /tmp/cctRBcYQ.s:272    .text.dbg_check_lock_from_isr:0000000000000000 dbg_check_lock_from_isr
+     /tmp/cctRBcYQ.s:305    .text.dbg_check_lock_from_isr:0000000000000020 $d
+     /tmp/cctRBcYQ.s:312    .text.dbg_check_unlock_from_isr:0000000000000000 $t
+     /tmp/cctRBcYQ.s:318    .text.dbg_check_unlock_from_isr:0000000000000000 dbg_check_unlock_from_isr
+     /tmp/cctRBcYQ.s:352    .text.dbg_check_unlock_from_isr:0000000000000020 $d
+     /tmp/cctRBcYQ.s:359    .text.dbg_check_enter_isr:0000000000000000 $t
+     /tmp/cctRBcYQ.s:365    .text.dbg_check_enter_isr:0000000000000000 dbg_check_enter_isr
+     /tmp/cctRBcYQ.s:414    .text.dbg_check_enter_isr:000000000000002c $d
+     /tmp/cctRBcYQ.s:422    .text.dbg_check_leave_isr:0000000000000000 $t
+     /tmp/cctRBcYQ.s:428    .text.dbg_check_leave_isr:0000000000000000 dbg_check_leave_isr
+     /tmp/cctRBcYQ.s:477    .text.dbg_check_leave_isr:000000000000002c $d
+     /tmp/cctRBcYQ.s:485    .text.chDbgCheckClassI:0000000000000000 $t
+     /tmp/cctRBcYQ.s:491    .text.chDbgCheckClassI:0000000000000000 chDbgCheckClassI
+     /tmp/cctRBcYQ.s:521    .text.chDbgCheckClassI:000000000000001c $d
+     /tmp/cctRBcYQ.s:528    .text.chDbgCheckClassS:0000000000000000 $t
+     /tmp/cctRBcYQ.s:534    .text.chDbgCheckClassS:0000000000000000 chDbgCheckClassS
+     /tmp/cctRBcYQ.s:563    .text.chDbgCheckClassS:0000000000000018 $d
+     /tmp/cctRBcYQ.s:625    .bss.dbg_panic_msg:0000000000000000 dbg_panic_msg
+     /tmp/cctRBcYQ.s:618    .bss.dbg_lock_cnt:0000000000000000 dbg_lock_cnt
+     /tmp/cctRBcYQ.s:577    .bss.dbg_isr_cnt:0000000000000000 dbg_isr_cnt
+     /tmp/cctRBcYQ.s:573    .bss.dbg_isr_cnt:0000000000000000 $d
+     /tmp/cctRBcYQ.s:580    .rodata.str1.4:0000000000000000 $d
+     /tmp/cctRBcYQ.s:614    .bss.dbg_lock_cnt:0000000000000000 $d
+     /tmp/cctRBcYQ.s:621    .bss.dbg_panic_msg:0000000000000000 $d
                      .debug_frame:0000000000000010 $d
-     /tmp/cc9rwOcq.s:92     .text.dbg_check_disable:0000000000000024 $t
-     /tmp/cc9rwOcq.s:133    .text.dbg_check_suspend:0000000000000024 $t
-     /tmp/cc9rwOcq.s:174    .text.dbg_check_enable:0000000000000024 $t
-     /tmp/cc9rwOcq.s:219    .text.dbg_check_lock:0000000000000028 $t
-     /tmp/cc9rwOcq.s:265    .text.dbg_check_unlock:000000000000002c $t
-     /tmp/cc9rwOcq.s:311    .text.dbg_check_lock_from_isr:000000000000002c $t
-     /tmp/cc9rwOcq.s:358    .text.dbg_check_unlock_from_isr:000000000000002c $t
-     /tmp/cc9rwOcq.s:421    .text.dbg_check_enter_isr:0000000000000038 $t
-     /tmp/cc9rwOcq.s:484    .text.dbg_check_leave_isr:0000000000000038 $t
-     /tmp/cc9rwOcq.s:527    .text.chDbgCheckClassI:0000000000000028 $t
-     /tmp/cc9rwOcq.s:572    .text.chDbgCheckClassS:0000000000000024 $t
-ARM GAS  /tmp/cc9rwOcq.s 			page 30
+     /tmp/cctRBcYQ.s:92     .text.dbg_check_disable:0000000000000024 $t
+     /tmp/cctRBcYQ.s:133    .text.dbg_check_suspend:0000000000000024 $t
+     /tmp/cctRBcYQ.s:174    .text.dbg_check_enable:0000000000000024 $t
+     /tmp/cctRBcYQ.s:219    .text.dbg_check_lock:0000000000000028 $t
+     /tmp/cctRBcYQ.s:265    .text.dbg_check_unlock:000000000000002c $t
+     /tmp/cctRBcYQ.s:311    .text.dbg_check_lock_from_isr:000000000000002c $t
+     /tmp/cctRBcYQ.s:358    .text.dbg_check_unlock_from_isr:000000000000002c $t
+     /tmp/cctRBcYQ.s:421    .text.dbg_check_enter_isr:0000000000000038 $t
+     /tmp/cctRBcYQ.s:484    .text.dbg_check_leave_isr:0000000000000038 $t
+     /tmp/cctRBcYQ.s:527    .text.chDbgCheckClassI:0000000000000028 $t
+     /tmp/cctRBcYQ.s:572    .text.chDbgCheckClassS:0000000000000024 $t
+ARM GAS  /tmp/cctRBcYQ.s 			page 30
 
 
 
