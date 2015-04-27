@@ -32,7 +32,7 @@ static const struct can_instance can2 = {&CAND2, GPIOH_PIN3};
  */
 static const CANConfig cancfg = {
   CAN_MCR_ABOM | CAN_MCR_AWUM | CAN_MCR_TXFP,
-  CAN_BTR_LBKM | CAN_BTR_SJW(0) | CAN_BTR_TS2(1) |
+  CAN_BTR_SJW(0) | CAN_BTR_TS2(1) |
   CAN_BTR_TS1(8) | CAN_BTR_BRP(6)
 };
 
@@ -71,10 +71,10 @@ static msg_t can_tx(void * p) {
 
   (void)p;
   chRegSetThreadName("transmitter");
-  txmsg.IDE = CAN_IDE_EXT;
-  txmsg.EID = 0x01234567;
-  txmsg.RTR = CAN_RTR_DATA;
-  txmsg.DLC = 8;
+  txmsg.IDE = CAN_IDE_EXT; //Set bit for extended frame format
+  txmsg.EID = 0x01234567; //Extended identifier 
+  txmsg.RTR = CAN_RTR_DATA; //Remote transmission Request
+  txmsg.DLC = 8; //Data length code, can be 0-8
   txmsg.data32[0] = 0x55AA55AA;
   txmsg.data32[1] = 0x00FF00FF;
 
@@ -121,7 +121,7 @@ int main(void) {
                     can_rx, (void *)&can1);
   chThdCreateStatic(can_rx2_wa, sizeof(can_rx2_wa), NORMALPRIO + 7,
                     can_rx, (void *)&can2);
-  chThdCreateStatic(can_tx_wa, sizeof(can_tx_wa), NORMALPRIO + 7,
+ chThdCreateStatic(can_tx_wa, sizeof(can_tx_wa), NORMALPRIO + 7,
                     can_tx, NULL);
 
   /*
