@@ -173,10 +173,14 @@ static port_pin_t i2c2_pins[]   = { { GPIOB, PIN10 },   // I2C_SCL
 static port_pin_t i2c3_pins[]   = { { GPIOH, PIN7 },    // I2C_SCL
                                     { GPIOH, PIN8 } };  // I2C_SDA
 
-static port_pin_t can1_pins[]   = { { GPIOD, PIN1 },    // CAN_TX
+static port_pin_t can1_pins[]   = { { GPIOH, PIN13 },    // CAN_TX  Default for Open C breakout board, need to change for marionette
+	                            { GPIOI, PIN9 },     // CAN_RX
+       			            { GPIOD, PIN1 },    // CAN_TX
                                     { GPIOD, PIN0 } };  // CAN_RX
 
-static port_pin_t can2_pins[]   = { { GPIOB, PIN13 },   // CAN_TX
+static port_pin_t can2_pins[]   = { { GPIOB, PIN5 },   // CAN_TX Default for Open C breakout board
+	                            { GPIOB, PIN6 },  // CAN_RX
+			            { GPIOB, PIN13 },   // CAN_TX
                                     { GPIOB, PIN12 } }; // CAN_RX
 
 // Port/Pin configuration matrix
