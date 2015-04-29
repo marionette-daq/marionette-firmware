@@ -21,6 +21,18 @@
 #include "fetch_defs.h"
 #include "fetch_can.h"
 
+
+
+static CANConfig can_configs[2] ={ {0,0}, {0,0}};
+
+//Subject to change when the Config, Tx, and Rx parameters get sorted
+enum {
+  CAN_CONFIG_DEV,
+  CAN_CONFIG_BTR,
+  CAN_CONFIG_DLC,
+  CAN_CONFIG_RTR
+};
+
 static bool can_init_flag = true;
 static bool fetch_can_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_can_transmit_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
@@ -36,7 +48,8 @@ static fetch_command_t fetch_can_commands[] = {
 
    
     { fetch_can_config_cmd,    "config",    "Configure CAN driver\n" \
-                                            "Usage: config(<dev>,<DLC>,<data32[2]>)" },
+                                            "Usage: config(<dev>,[<bitrate>])\n" \
+   					    "\tBitrate {In progress defaults to 500k}\n" },
     { fetch_can_reset_cmd,     "reset",     "Reset CAN driver\n" \
                                             "Usage: reset(<dev>)" },
     { fetch_can_help_cmd,      "help",      "CAN command help" },
@@ -76,11 +89,12 @@ static CANDriver * parse_can_dev(char * str, int32_t * dev)
  * from abort mode.
  * See section 22.7.7 on the STM32 reference manual.
  */
-static const CANConfig can_cfg = {
+/*static const CANConfig can_cfg = {
   CAN_MCR_ABOM | CAN_MCR_AWUM | CAN_MCR_TXFP,
   CAN_BTR_SJW(0) | CAN_BTR_TS2(1) |
   CAN_BTR_TS1(8) | CAN_BTR_BRP(6)
-};
+};*/
+
 
 void fetch_can_init(BaseSequentialStream * chp)
 {
@@ -113,8 +127,10 @@ static bool fetch_can_config_cmd(BaseSequentialStream * chp, char * cmd_list[],c
 {
  int32_t can_dev; /*Can Device */
  CANDriver * can_drv; /*Can driver */
+ CANConfig * can_cfg;
  
- if(!fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 3)) //max data field is temporary till I figure this out
+
+ if(!fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2)) //max data field may change depending on feedback
  {
   return false;
  }
@@ -123,11 +139,21 @@ static bool fetch_can_config_cmd(BaseSequentialStream * chp, char * cmd_list[],c
     util_message_error(chp, "invalid device identifier");
     return false;
  }
+
+ /*TODO Set up checks for baud rate (Dependent on TS2, TS1, and BRP.
+  * BAUD = APB1/((BRP+1)*(3+TS1+TS2)) 
+  * Current setup is for 500k. BRP =6, TS1 = TS2 = 2 yields 1M. */
+ can_cfg = &can_configs[can_dev -1];
+ can_cfg->mcr = CAN_MCR_ABOM | CAN_MCR_AWUM | CAN_MCR_TXFP;
+ can_cfg->btr = CAN_BTR_SJW(0) | CAN_BTR_TS2(1) | CAN_BTR_TS1(8) | CAN_BTR_BRP(6);
+
+
+
  switch( can_dev )
  {
     case 1:
-      if( !io_manage_set_mode( can1_pins[0].port, can1_pins[0].pin, PAL_MODE_ALTERNATE(9) | PAL_STM32_OTYPE_OPENDRAIN, IO_CAN) ||
-          !io_manage_set_mode( can1_pins[1].port, can1_pins[1].pin, PAL_MODE_ALTERNATE(9) | PAL_STM32_OTYPE_OPENDRAIN, IO_CAN) )
+      if( !io_manage_set_mode( can1_pins[0].port, can1_pins[0].pin, PAL_MODE_ALTERNATE(9), IO_CAN) ||
+          !io_manage_set_mode( can1_pins[1].port, can1_pins[1].pin, PAL_MODE_ALTERNATE(9), IO_CAN) )
       {
         util_message_error(chp, "unable to allocate pins");
         io_manage_set_default_mode( can1_pins[0].port, can1_pins[0].pin, IO_CAN );
@@ -136,8 +162,8 @@ static bool fetch_can_config_cmd(BaseSequentialStream * chp, char * cmd_list[],c
       }
       break;
     case 2:
-      if( !io_manage_set_mode( can2_pins[0].port, can2_pins[0].pin, PAL_MODE_ALTERNATE(9) | PAL_STM32_OTYPE_OPENDRAIN, IO_CAN) ||
-          !io_manage_set_mode( can2_pins[1].port, can2_pins[1].pin, PAL_MODE_ALTERNATE(9) | PAL_STM32_OTYPE_OPENDRAIN, IO_CAN) )
+      if( !io_manage_set_mode( can2_pins[0].port, can2_pins[0].pin, PAL_MODE_ALTERNATE(9), IO_CAN) ||
+          !io_manage_set_mode( can2_pins[1].port, can2_pins[1].pin, PAL_MODE_ALTERNATE(9), IO_CAN) )
       {        util_message_error(chp, "unable to allocate pins");
         io_manage_set_default_mode( can2_pins[0].port, can2_pins[0].pin, IO_CAN );
         io_manage_set_default_mode( can2_pins[1].port, can2_pins[1].pin, IO_CAN );
@@ -146,12 +172,13 @@ static bool fetch_can_config_cmd(BaseSequentialStream * chp, char * cmd_list[],c
       break;
  }
 
- #if STM32_CAN_USE_CAN1
+/* #if STM32_CAN_USE_CAN1
   canStart(&CAND1, &can_cfg);
  #endif
  #if STM32_CAN_USE_CAN2
   canStart(&CAND2, &can_cfg);
- #endif
+ #endif*/
+ canStart(can_drv,can_cfg);
  return true;
 }
 
@@ -166,8 +193,41 @@ static bool fetch_can_receive_cmd(BaseSequentialStream * chp,char * cmd_list[],c
 
 static bool fetch_can_reset_cmd(BaseSequentialStream * chp,char * cmd_list[],char *  data_list[])
 {
+  int32_t can_dev;
+  CANDriver * can_drv;
+
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 1) )
+  {
+    return false;
+  }
+  
+  if( (can_drv = parse_can_dev(data_list[0], &can_dev)) == NULL )
+  {
+    util_message_error(chp, "invalid device identifier");
+    return false;
+  }
+
+  switch( can_dev )
+  {
+#if STM32_CAN_USE_CAN1
+    case 1:
+      io_manage_set_default_mode( can1_pins[0].port, can1_pins[0].pin, IO_CAN );
+      io_manage_set_default_mode( can1_pins[1].port, can1_pins[1].pin, IO_CAN );
+      canStop(&CAND1);
+      break;
+#endif
+#if STM32_CAN_USE_CAN2
+    case 2:
+      io_manage_set_default_mode( can2_pins[0].port, can2_pins[0].pin, IO_CAN );
+      io_manage_set_default_mode( can2_pins[1].port, can2_pins[1].pin, IO_CAN );
+      canStop(&CAND2);
+      break;
+#endif
+  }
+
   return true;
 }
+
 static bool fetch_can_help_cmd(BaseSequentialStream * chp,char * cmd_list[],char *  data_list[])
 {
   util_message_info(chp, "Usage legend: <> required, [] optional, | or,");

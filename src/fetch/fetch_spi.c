@@ -378,7 +378,7 @@ static bool fetch_spi_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
       spiStop(&SPID1);
       break;
 #endif
-#if STM32_SPI_USE_SPI1
+#if STM32_SPI_USE_SPI2
     case 2:
       if( spi_configs[1].ssport != NULL )
       {
@@ -390,7 +390,7 @@ static bool fetch_spi_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
       spiStop(&SPID2);
       break;
 #endif
-#if STM32_SPI_USE_SPI1
+#if STM32_SPI_USE_SPI3
     case 3:
       if( spi_configs[2].ssport != NULL )
       {
