@@ -56,7 +56,7 @@ static fetch_command_t fetch_can_commands[] = {
    
     { fetch_can_config_cmd,    "config",    "Configure CAN driver\n" \
                                             "Usage: config(<dev>,[<bitrate>])\n" \
-   					    "\tBitrate {In progress defaults to 500k}\n" },
+   					    "\tBitrate {Defaults to 500k}\n" },
     { fetch_can_reset_cmd,     "reset",     "Reset CAN driver\n" \
                                             "Usage: reset(<dev>)" },
     { fetch_can_help_cmd,      "help",      "CAN command help" },
@@ -170,11 +170,13 @@ bool fetch_can_reset(BaseSequentialStream * chp)
 
 static bool fetch_can_config_cmd(BaseSequentialStream * chp, char * cmd_list[],char * data_list[])
 {
-	
+ char *endptr;	
  int32_t can_dev; 
  CANDriver * can_drv; 
  CANConfig * can_cfg;
-
+ int BRP = 6;
+ int TS1 = 8;
+ int TS2 = 1;
 
  if(!fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2)) //max data field may change depending on feedback
  {
@@ -185,13 +187,72 @@ static bool fetch_can_config_cmd(BaseSequentialStream * chp, char * cmd_list[],c
     util_message_error(chp, "invalid device identifier");
     return false;
  }
+ 
+ int32_t baud_rate = strtol(data_list[2],&endptr,0); //Need to set up a data_list variable or enum
+if( *endptr != '\0') 
+ {
+  switch (baud_rate)
+  {
+   case 10:
+     BRP = 199;
+     TS1 = 12;
+     TS2 = 6;
+     break;
+   case 20:
+     BRP = 99;
+     TS1 = 12;
+     TS2 = 6;
+     break;
+
+   case 50:
+     BRP = 34;
+     TS1 = 14;
+     TS2 = 7;
+     break;
+
+   case 100:
+     BRP = 19;
+     TS1 = 12;
+     TS2 = 6;
+     break;
+
+   case 125:
+     BRP = 19;
+     TS1 = 12;
+     TS2 = 6;
+     break;
+     
+   case 250:
+     BRP = 12;
+     TS1 = 5;
+     TS2 = 4;
+     break;
+
+   case 500:
+     BRP = 6;
+     TS1 = 8;
+     TS2 = 1;
+     break;
+
+   case 1000:
+     BRP = 6;
+     TS1 = 2;
+     TS2 = 1;
+     break;
+   default:
+     util_message_error(chp, "Invalid baud rate");
+     break;
+
+  }
+
+ }
 
  /*TODO Set up checks for baud rate (Dependent on TS2, TS1, and BRP.
   * BAUD = APB1(42MHz)/((BRP+1)*(3+TS1+TS2)) 
   * Current setup is for 500k. BRP =6, TS1 = TS2 = 2 yields 1M. */
  can_cfg = &can_configs[can_dev -1];
  can_cfg->mcr = CAN_MCR_ABOM | CAN_MCR_AWUM | CAN_MCR_TXFP;
- can_cfg->btr = CAN_BTR_SJW(0) | CAN_BTR_TS2(1) | CAN_BTR_TS1(8) | CAN_BTR_BRP(6);
+ can_cfg->btr = CAN_BTR_SJW(0) | CAN_BTR_TS2(TS2) | CAN_BTR_TS1(TS1) | CAN_BTR_BRP(BRP);
 
 
 
@@ -307,17 +368,17 @@ static bool fetch_can_reset_cmd(BaseSequentialStream * chp,char * cmd_list[],cha
   {
 #if STM32_CAN_USE_CAN1
     case 1:
+      canStop(&CAND1);
       io_manage_set_default_mode( can1_pins[0].port, can1_pins[0].pin, IO_GPIO );
       io_manage_set_default_mode( can1_pins[1].port, can1_pins[1].pin, IO_GPIO );
-      canStop(&CAND1);
-      break;
+            break;
 #endif
 #if STM32_CAN_USE_CAN2
     case 2:
+      canStop(&CAND2);      
       io_manage_set_default_mode( can2_pins[0].port, can2_pins[0].pin, IO_GPIO );
       io_manage_set_default_mode( can2_pins[1].port, can2_pins[1].pin, IO_GPIO );
-      canStop(&CAND2);
-      break;
+            break;
 #endif
   }
   chThdShouldTerminate();
