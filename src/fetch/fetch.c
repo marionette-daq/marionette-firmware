@@ -37,7 +37,7 @@ static bool fetch_adc(BaseSequentialStream  * chp, char * cmd_list[], char * dat
 static bool fetch_dac(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_test_cmd(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
 /* Testing can bus */
-/*static bool fetch_can(BaseSequentialStream *chp, char * cmd_list[], char * data_list[]);*/
+static bool fetch_can(BaseSequentialStream *chp, char * cmd_list[], char * data_list[]);
 
 /*! \brief Function command array for fetch_dispatch() callbacks
  *  Commands with NULL function return as not implemented.
