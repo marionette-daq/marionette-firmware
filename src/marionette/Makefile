@@ -74,7 +74,7 @@ CONF      = conf
 TOOLCHAIN = ../../toolchain
 include $(TOOLCHAIN)/marionette.mk
 CHIBIOS   = ../../ChibiOS-RT
-BOARD     = WAVESHARE_CORE407I
+BOARD     = MARIONETTE
 #BOARD      = ST_STM32F4_DISCOVERY
 BOARDDIR  = ../boards/$(BOARD)
 include $(BOARDDIR)/board.mk

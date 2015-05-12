@@ -94,7 +94,7 @@ typedef struct io_table
 /** Pin Mappings for each target board **/
 /****************************************/
 
-#if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
+#if defined(BOARD_MARIONETTE) || defined(__DOXYGEN__)
 
 // Peripheral specific port assignments
 
@@ -200,7 +200,7 @@ static io_table_t io_porta =
 		{.pin = GPIOA_PIN7,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_ADC | IO_SPI } ,
 		{.pin = GPIOA_PIN8,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
 		{.pin = GPIOA_OTG_FS_VBUS, .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_USB,  .current_alloc = IO_USB,   .available_alloc = IO_NONE } ,
-		{.pin = GPIOA_OTG_FS_ID,   .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_USB,  .current_alloc = IO_USB,   .available_alloc = IO_NONE } ,
+		{.pin = GPIOA_PIN10,   .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_USB,  .current_alloc = IO_USB,   .available_alloc = IO_NONE } ,
 		{.pin = GPIOA_OTG_FS_DM,   .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_USB,  .current_alloc = IO_USB,   .available_alloc = IO_NONE } ,
 		{.pin = GPIOA_OTG_FS_DP,   .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_USB,  .current_alloc = IO_USB,   .available_alloc = IO_NONE } ,
 		{.pin = GPIOA_SWDIO,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_NONE } ,
@@ -214,20 +214,20 @@ static io_table_t io_portb =
 	.port = GPIOB,
 	.pins =
 	{
-		{ .pin = GPIOB_PIN0,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_ADC } ,
-		{ .pin = GPIOB_PIN1,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_ADC } ,
+		{ .pin = GPIOB_OTG_HS_ULPI_D1,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_ADC } ,
+		{ .pin = GPIOB_OTG_HS_ULPI_D2,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_ADC } ,
 		{ .pin = GPIOB_PIN2,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_NONE } ,
 		{ .pin = GPIOB_SWO,         .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_NONE } ,
 		{ .pin = GPIOB_NJTRST,      .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_NONE } ,
-		{ .pin = GPIOB_PIN5,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_CAN } ,
+		{ .pin = GPIOB_OTG_HS_ULPI_D7,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_CAN } ,
 		{ .pin = GPIOB_PIN6,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_I2C | IO_CAN} ,
 		{ .pin = GPIOB_PIN7,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_I2C } ,
 		{ .pin = GPIOB_PIN8,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_CAN } ,
 		{ .pin = GPIOB_PIN9,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_CAN } ,
-		{ .pin = GPIOB_PIN10,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_I2C } ,
-		{ .pin = GPIOB_PIN11,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_I2C } ,
-		{ .pin = GPIOB_PIN12,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_CAN } ,
-		{ .pin = GPIOB_PIN13,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_CAN } ,
+		{ .pin = GPIOB_OTG_HS_ULPI_D3,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_I2C } ,
+		{ .pin = GPIOB_OTG_HS_ULPI_D4,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_I2C } ,
+		{ .pin = GPIOB_OTG_HS_ULPI_D5,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_CAN } ,
+		{ .pin = GPIOB_OTG_HS_ULPI_D6,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_CAN } ,
 		{ .pin = GPIOB_PIN14,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
 		{ .pin = GPIOB_PIN15,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO }
 	}
@@ -238,9 +238,9 @@ static io_table_t io_portc =
 	.port = GPIOC,
 	.pins =
 	{
-		{ .pin = GPIOC_PIN0,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_ADC } ,
+		{ .pin = GPIOC_OTG_HS_ULPI_STP,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_ADC } ,
 		{ .pin = GPIOC_OTG_PWR_OUT, .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_USB,   .available_alloc = IO_GPIO | IO_ADC | IO_USB } , // REMOVE JUMPER TO USE
-		{ .pin = GPIOC_OTG_FLG,     .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_USB,   .available_alloc = IO_GPIO | IO_ADC | IO_USB } , // REMOVE JUMPER TO USE
+		{ .pin = GPIOC_OTG_HS_ULPI_DIR,     .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_USB,   .available_alloc = IO_GPIO | IO_ADC | IO_USB } , // REMOVE JUMPER TO USE
 		{ .pin = GPIOC_PIN3,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_ADC } ,
 		{ .pin = GPIOC_PIN4,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_ADC } ,
 		{ .pin = GPIOC_PIN5,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_ADC } ,
@@ -269,15 +269,15 @@ static io_table_t io_portd =
 		{ .pin = GPIOD_PIN4,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
 		{ .pin = GPIOD_PIN5,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
 		{ .pin = GPIOD_PIN6,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
-		{ .pin = GPIOD_PIN7,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
+		{ .pin = GPIOD_LED2,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
 		{ .pin = GPIOD_PIN8,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
 		{ .pin = GPIOD_PIN9,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
 		{ .pin = GPIOD_PIN10,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
 		{ .pin = GPIOD_PIN11,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
 		{ .pin = GPIOD_PIN12,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
-		{ .pin = GPIOD_PIN13,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
-		{ .pin = GPIOD_PIN14,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
-		{ .pin = GPIOD_PIN15,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO }
+		{ .pin = GPIOD_LED1_RED,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
+		{ .pin = GPIOD_LED1_GREEN,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
+		{ .pin = GPIOD_LED1_BLUE,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO }
 	}
 };
 
@@ -344,13 +344,13 @@ static io_table_t io_portg =
 		{ .pin = GPIOG_PIN6,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
 		{ .pin = GPIOG_PIN7,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
 		{ .pin = GPIOG_PIN8,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
-		{ .pin = GPIOG_PIN9,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
-		{ .pin = GPIOG_PIN10,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
-		{ .pin = GPIOG_PIN11,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
-		{ .pin = GPIOG_PIN12,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
-		{ .pin = GPIOG_PIN13,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
-		{ .pin = GPIOG_PIN14,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
-		{ .pin = GPIOG_PIN15,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO }
+		{ .pin = GPIOG_LED3,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
+		{ .pin = GPIOG_LED4,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
+		{ .pin = GPIOG_LED5,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
+		{ .pin = GPIOG_LED6,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
+		{ .pin = GPIOG_LED7,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
+		{ .pin = GPIOG_LED8,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
+		{ .pin = GPIOG_LED9,       .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO }
 	}
 };
 
@@ -363,7 +363,7 @@ static io_table_t io_porth =
 		{ .pin = GPIOH_OSC_OUT,     .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_NONE } ,
 		{ .pin = GPIOH_PIN2,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
 		{ .pin = GPIOH_PIN3,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
-		{ .pin = GPIOH_PIN4,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
+		{ .pin = GPIOH_OTG_HS_ULPI_NXT,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
 		{ .pin = GPIOH_PIN5,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
 		{ .pin = GPIOH_PIN6,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO } ,
 		{ .pin = GPIOH_PIN7,        .default_mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .current_mode = PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING, .default_alloc = IO_NONE, .current_alloc = IO_NONE,  .available_alloc = IO_GPIO | IO_I2C } ,
