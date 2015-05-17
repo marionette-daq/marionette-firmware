@@ -34,10 +34,9 @@
 #include "io_manage_defs.h"
 #include "fetch_defs.h"
 #include "fetch.h"
-
 #include "dac.h"
 #include "fetch_dac.h"
-
+#include "fetch_dac124s085.h"
 /* Reference STF4 Reference
  *   Once the DAC channelx is enabled, the corresponding GPIO pin (PA4 or PA5) is
  *   automatically connected to the analog converter output (DAC_OUTx). In order to avoid
@@ -103,9 +102,7 @@ static bool fetch_dac_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
 
 	DACD1.dac->DHR12R1 = 0;
 	DACD1.dac->DHR12R2 = 0;
-
   dacStart(&DACD1, &fetch_dac_config);
-
   return true;
 }
 
