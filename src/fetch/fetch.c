@@ -24,7 +24,6 @@
 #include "fetch_spi.h"
 #include "fetch_i2c.h"
 #include "fetch_can.h"
-#include "fetch_dac124s085.h"
 #include "fetch_defs.h"
 #include "fetch.h"
 
