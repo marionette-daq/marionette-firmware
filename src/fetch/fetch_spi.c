@@ -25,9 +25,7 @@
 #define MAX_SPI_BYTES   256
 #endif
 
-static SPIConfig  spi_configs[3] =  { {NULL, NULL, 0, 0},
-                                      {NULL, NULL, 0, 0},
-                                      {NULL, NULL, 0, 0} };
+static SPIConfig  spi_configs[1] =  { {NULL, NULL, 0, 0} };
 
 static bool spi_init_flag = true;
 
@@ -104,6 +102,7 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
   char * endptr;
   int32_t spi_dev;
   SPIDriver * spi_drv;
+  //SPIDriver * spi_drv = &SPID2;
   SPIConfig * spi_cfg;
 
   if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 7) )

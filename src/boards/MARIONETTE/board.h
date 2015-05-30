@@ -34,7 +34,7 @@
 #endif
 
 #if !defined(STM32_HSECLK)
-#define STM32_HSECLK               8000000
+#define STM32_HSECLK               16000000  //8000000
 #endif
 
 /*
