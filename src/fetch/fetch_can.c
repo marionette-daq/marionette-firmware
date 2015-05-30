@@ -277,6 +277,8 @@ if (*endptr != '\0')
       util_message_info(chp, "Can 1 is configured");
      canStart(&CAND1, can_cfg);
       break;
+ #if STM32_CAN_USE_CAN2
+
     case 2:
       if( !io_manage_set_mode( can2_pins[0].port, can2_pins[0].pin, PAL_MODE_ALTERNATE(9), IO_CAN) ||
           !io_manage_set_mode( can2_pins[1].port, can2_pins[1].pin, PAL_MODE_ALTERNATE(9), IO_CAN) )
@@ -288,6 +290,7 @@ if (*endptr != '\0')
       util_message_error(chp, "Can 2 is configured");
       canStart(&CAND2, can_cfg);
       break;
+#endif
  }
 
  return true;
@@ -333,10 +336,13 @@ static bool fetch_can_transmit_cmd(BaseSequentialStream * chp,char * cmd_list[],
    canTransmit(&CAND1, CAN_ANY_MAILBOX, &txmsg, MS2ST(100));
    palTogglePad(GPIOH,GPIOH_PIN3);
    break;
+ #if STM32_CAN_USE_CAN2
+
   case 2:
    canTransmit(&CAND2, CAN_ANY_MAILBOX, &txmsg, MS2ST(100));
    palTogglePad(GPIOH,GPIOH_PIN3);
    break;
+#endif
  }
  return true;
 }
