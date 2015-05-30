@@ -274,7 +274,7 @@ static bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, char * cmd_list[]
 {
   static uint8_t tx_buffer[MAX_SPI_BYTES];
   static uint8_t rx_buffer[MAX_SPI_BYTES];
-  uint32_t byte_count = 0;
+  uint32_t byte_count = 2;
   int number_base = 0;
   char * endptr;
   int byte_value;
