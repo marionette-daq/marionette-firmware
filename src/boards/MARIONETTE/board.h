@@ -363,20 +363,20 @@
  * PB14 - PIN14                     (input floating).
  * PB15 - PIN15                     (input floating).
  */
-#define VAL_GPIOB_MODER             (PIN_MODE_INPUT(GPIOB_OTG_HS_ULPI_D1) |           \
-                                     PIN_MODE_INPUT(GPIOB_OTG_HS_ULPI_D2 ) |           \
+#define VAL_GPIOB_MODER             (PIN_MODE_ALTERNATE(GPIOB_OTG_HS_ULPI_D1) |           \
+                                     PIN_MODE_ALTERNATE(GPIOB_OTG_HS_ULPI_D2 ) |           \
                                      PIN_MODE_INPUT(GPIOB_BOOT1) |           \
                                      PIN_MODE_ALTERNATE(GPIOB_SWO)    |     \
                                      PIN_MODE_INPUT(GPIOB_PIN4) |     \
-                                     PIN_MODE_INPUT(GPIOB_OTG_HS_ULPI_D7 ) |           \
+                                     PIN_MODE_ALTERNATE(GPIOB_OTG_HS_ULPI_D7 ) |           \
                                      PIN_MODE_INPUT(GPIOB_PIN6) |           \
                                      PIN_MODE_INPUT(GPIOB_PIN7) |           \
                                      PIN_MODE_INPUT(GPIOB_PIN8) |           \
                                      PIN_MODE_INPUT(GPIOB_PIN9) |           \
-                                     PIN_MODE_INPUT(GPIOB_OTG_HS_ULPI_D3) |          \
-                                     PIN_MODE_INPUT(GPIOB_OTG_HS_ULPI_D4 ) |          \
-                                     PIN_MODE_INPUT(GPIOB_OTG_HS_ULPI_D5 ) |          \
-                                     PIN_MODE_INPUT(GPIOB_OTG_HS_ULPI_D6 ) |          \
+                                     PIN_MODE_ALTERNATE(GPIOB_OTG_HS_ULPI_D3) |          \
+                                     PIN_MODE_ALTERNATE(GPIOB_OTG_HS_ULPI_D4 ) |          \
+                                     PIN_MODE_ALTERNATE(GPIOB_OTG_HS_ULPI_D5 ) |          \
+                                     PIN_MODE_ALTERNATE(GPIOB_OTG_HS_ULPI_D6 ) |          \
                                      PIN_MODE_INPUT(GPIOB_PIN14) |          \
                                      PIN_MODE_INPUT(GPIOB_PIN15))
 #define VAL_GPIOB_OTYPER            (PIN_OTYPE_PUSHPULL(GPIOB_OTG_HS_ULPI_D1) |       \
@@ -480,9 +480,9 @@
  * PC14 - OSC32_IN                  (input floating).
  * PC15 - OSC32_OUT                 (input floating).
  */
-#define VAL_GPIOC_MODER             (PIN_MODE_INPUT(GPIOC_OTG_HS_ULPI_STP) |          \
+#define VAL_GPIOC_MODER             (PIN_MODE_ALTERNATE(GPIOC_OTG_HS_ULPI_STP) |          \
                                      PIN_MODE_INPUT(GPIOC_PIN1) |    \
-                                     PIN_MODE_INPUT(GPIOC_OTG_HS_ULPI_DIR) |        \
+                                     PIN_MODE_ALTERNATE(GPIOC_OTG_HS_ULPI_DIR) |        \
                                      PIN_MODE_INPUT(GPIOC_PIN3) |        \
                                      PIN_MODE_INPUT(GPIOC_PIN4) |           \
                                      PIN_MODE_INPUT(GPIOC_PIN5) |           \
@@ -1069,7 +1069,7 @@
                                      PIN_MODE_INPUT(GPIOH_OSC_OUT) |        \
                                      PIN_MODE_INPUT(GPIOH_PIN2) |           \
                                      PIN_MODE_INPUT(GPIOH_PIN3) |           \
-                                     PIN_MODE_INPUT(GPIOH_OTG_HS_ULPI_NXT) |           \
+                                     PIN_MODE_ALTERNATE(GPIOH_OTG_HS_ULPI_NXT) |           \
                                      PIN_MODE_INPUT(GPIOH_PIN5) |           \
                                      PIN_MODE_INPUT(GPIOH_PIN6) |           \
                                      PIN_MODE_INPUT(GPIOH_PIN7) |           \

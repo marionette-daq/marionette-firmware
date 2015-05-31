@@ -41,7 +41,7 @@
 #include "main.h"
 
 /*! Virtual serial port over USB.*/
-SerialUSBDriver SDU1;
+SerialUSBDriver SDU2;
 
 extern const struct led        LED1 ;
 extern const struct led        LED2 ;
@@ -54,7 +54,8 @@ extern       struct led_config led_cfg ;
  */
 Util_status      M_Status = { .status=GEN_OK };
 
-#define SHELL_WA_SIZE   THD_WA_SIZE(16384)
+//#define SHELL_WA_SIZE   THD_WA_SIZE(16384)
+#define SHELL_WA_SIZE   THD_WA_SIZE(2048)
 
 /*! \brief Show memory usage
  */
@@ -122,25 +123,43 @@ static const mshell_command_t commands[] =
  */
 static const MShellConfig shell_cfg1 =
 {
-	(BaseSequentialStream *) & SDU1,
+	(BaseSequentialStream *) &SDU2,
 	commands
 };
-
+/*! \brief PWM configuration for ULPI clock
+ */
+static PWMConfig pwmcfg = {
+	168000000,
+	14,
+	NULL,
+	{
+	 {PWM_COMPLEMENTARY_OUTPUT_DISABLED, NULL},
+	 {PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL},
+	 {PWM_COMPLEMENTARY_OUTPUT_DISABLED, NULL},
+	 {PWM_COMPLEMENTARY_OUTPUT_DISABLED, NULL}
+	},
+	0,
+	0,
+	0
+};
 /*! \brief main application loop
  */
 static void main_app(void)
 {
 	Thread             *            mshelltp = NULL;
-
+	//Start 12 MHz PWM for ULPI
+	pwmStart(&PWMD8, &pwmcfg);
+	palSetPadMode(GPIOB, GPIOB_PIN14, PAL_MODE_ALTERNATE(3));
+	pwmEnableChannel(&PWMD8, 1, PWM_PERCENTAGE_TO_WIDTH(&PWMD8,5000));
 	mshellInit();
 
   
-	usb_set_serial_strings( *(uint32_t*)STM32F4_UNIQUE_ID_LOW,
+/*	usb_set_serial_strings( *(uint32_t*)STM32F4_UNIQUE_ID_LOW,
                           *(uint32_t*)STM32F4_UNIQUE_ID_CENTER,
                           *(uint32_t*)STM32F4_UNIQUE_ID_HIGH);
-
-	sduObjectInit(&SDU1);
-	sduStart(&SDU1, &serusbcfg);
+*/
+	sduObjectInit(&SDU2);
+	sduStart(&SDU2, &serusbcfg);
 
 	usbDisconnectBus(serusbcfg.usbp);
 	chThdSleepMilliseconds(1000);
@@ -151,7 +170,7 @@ static void main_app(void)
 	{
 		if (!mshelltp)
 		{
-			if (SDU1.config->usbp->state == USB_ACTIVE)
+			if (SDU2.config->usbp->state == USB_ACTIVE)
 			{
 				mshelltp = mshellCreate(&shell_cfg1, SHELL_WA_SIZE, HIGHPRIO);
 			}
@@ -164,7 +183,7 @@ static void main_app(void)
 				mshelltp = NULL;
 			}
 		}
-		chThdSleepMilliseconds(250);
+		chThdSleepMilliseconds(500);
 	}
 }
 
@@ -174,10 +193,10 @@ int main(void)
 	chSysInit();
 
 	//Set up to toggle leds 
-	palSetPadMode(GPIOD, GPIOD_LED1_RED,PAL_MODE_OUTPUT_PUSHPULL);
+	/*palSetPadMode(GPIOD, GPIOD_LED1_RED,PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GPIOD, GPIOD_LED1_GREEN,PAL_MODE_OUTPUT_PUSHPULL);
-	palSetPadMode(GPIOD, GPIOD_LED1_BLUE,PAL_MODE_OUTPUT_PUSHPULL);
-	palSetPadMode(GPIOD, GPIOD_LED2,PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOD, GPIOD_LED1_BLUE,PAL_MODE_OUTPUT_PUSHPULL);*/
+        palSetPadMode(GPIOD, GPIOD_LED2,PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GPIOG, GPIOG_LED3,PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GPIOG, GPIOG_LED4,PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GPIOG, GPIOG_LED5,PAL_MODE_OUTPUT_PUSHPULL);
@@ -186,18 +205,33 @@ int main(void)
 	palSetPadMode(GPIOG, GPIOG_LED8,PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GPIOG, GPIOG_LED9,PAL_MODE_OUTPUT_PUSHPULL);
 	//Toggle leds and test	
-	palTogglePad(GPIOD,GPIOD_LED1_RED);
+	/*palTogglePad(GPIOD,GPIOD_LED1_RED);
 	palTogglePad(GPIOD,GPIOD_LED1_GREEN);
-	palTogglePad(GPIOD,GPIOD_LED1_BLUE);
+	palTogglePad(GPIOD,GPIOD_LED1_BLUE);*/
+	//while(1)
+	//{
 	palTogglePad(GPIOD,GPIOD_LED2);
-	palTogglePad(GPIOG,GPIOG_LED3);
-	palTogglePad(GPIOG,GPIOG_LED4);
-	palTogglePad(GPIOG,GPIOG_LED5);
-	palTogglePad(GPIOG,GPIOG_LED6);
-	palTogglePad(GPIOG,GPIOG_LED7);
-	palTogglePad(GPIOG,GPIOG_LED8);
-	palTogglePad(GPIOG,GPIOG_LED9);
+	chThdSleepMilliseconds(500);
 
+	palTogglePad(GPIOG,GPIOG_LED3);
+	chThdSleepMilliseconds(500);
+
+	palTogglePad(GPIOG,GPIOG_LED4);
+	chThdSleepMilliseconds(500);
+	palTogglePad(GPIOG,GPIOG_LED5);
+	chThdSleepMilliseconds(500);
+	palTogglePad(GPIOG,GPIOG_LED6);
+	chThdSleepMilliseconds(500);
+
+	palTogglePad(GPIOG,GPIOG_LED7);
+	chThdSleepMilliseconds(500);
+
+	palTogglePad(GPIOG,GPIOG_LED8);
+	chThdSleepMilliseconds(500);
+
+	palTogglePad(GPIOG,GPIOG_LED9);
+	chThdSleepMilliseconds(500);
+//	}
 	main_app();
 	return(0);
 }
