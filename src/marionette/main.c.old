@@ -28,8 +28,7 @@
 
 #include "chprintf.h"
 
-
-
+#include "mshell.h"
 #include "board.h"
 
 #include "fetch.h"
@@ -38,26 +37,24 @@
 #include "util_version.h"
 #include "util_messages.h"
 #include "usbcfg.h"
-#include "mshell.h"
+
 #include "main.h"
 
 /*! Virtual serial port over USB.*/
-SerialUSBDriver SDU2;
+SerialUSBDriver SDU1;
 
-//extern const struct led        LED1 ;
-//extern const struct led        LED2 ;
-//extern const struct led        LED3 ;
-//extern const struct led        LED4 ;
+extern const struct led        LED1 ;
+extern const struct led        LED2 ;
+extern const struct led        LED3 ;
+extern const struct led        LED4 ;
 
-//extern       struct led_config led_cfg ;
+extern       struct led_config led_cfg ;
 
 /*! status
  */
-static WORKING_AREA(pwm_wa, 128);
 Util_status      M_Status = { .status=GEN_OK };
 
-//#define SHELL_WA_SIZE   THD_WA_SIZE(16384)
-#define SHELL_WA_SIZE   THD_WA_SIZE(2048)
+#define SHELL_WA_SIZE   THD_WA_SIZE(16384)
 
 /*! \brief Show memory usage
  */
@@ -125,7 +122,7 @@ static const mshell_command_t commands[] =
  */
 static const MShellConfig shell_cfg1 =
 {
-	(BaseSequentialStream *) &SDU2,
+	(BaseSequentialStream *) & SDU1,
 	commands
 };
 /*! \brief PWM configuration for ULPI clock
@@ -144,28 +141,15 @@ static PWMConfig pwmcfg = {
 	0,
 	0
 };
-static msg_t pwm_thd(void *arg) {
-	pwmEnableChannel(&PWMD1, 1, PWM_PERCENTAGE_TO_WIDTH(&PWMD1,5000));	
-//	while(TRUE) {
-//	pwmEnableChannel(&PWMD8, 1, PWM_PERCENTAGE_TO_WIDTH(&PWMD8,5000));	
-//	chThdSleepMilliseconds(1500);	
-//Do nothing
-//	}
-	//chSysLock();
-	return(0);
-}
 /*! \brief main application loop
  */
 static void main_app(void)
 {
 	Thread             *            mshelltp = NULL;
-	Thread *pwmtp = NULL;
 	//Start 12 MHz PWM for ULPI
-	pwmStart(&PWMD1, &pwmcfg);
-//	palSetPadMode(GPIOB, GPIOB_PIN14, PAL_MODE_ALTERNATE(1));
-	palSetPadMode(GPIOE, GPIOE_PIN10, PAL_MODE_ALTERNATE(1));
-//	pwmEnableChannel(&PWMD8, 1, PWM_PERCENTAGE_TO_WIDTH(&PWMD8,5000));
-	pwmtp = chThdCreateStatic(pwm_wa,sizeof(pwm_wa),NORMALPRIO, pwm_thd, NULL);
+	pwmStart(&PWMD8, &pwmcfg);
+	palSetPadMode(GPIOB, GPIOB_PIN14, PAL_MODE_ALTERNATE(3));
+	pwmEnableChannel(&PWMD8, 1, PWM_PERCENTAGE_TO_WIDTH(&PWMD8,5000));
 	mshellInit();
 
   
@@ -173,29 +157,19 @@ static void main_app(void)
                           *(uint32_t*)STM32F4_UNIQUE_ID_CENTER,
                           *(uint32_t*)STM32F4_UNIQUE_ID_HIGH);
 
-	sduObjectInit(&SDU2);
-	sduStart(&SDU2, &serusbcfg);
+	sduObjectInit(&SDU1);
+	sduStart(&SDU1, &serusbcfg);
 
 	usbDisconnectBus(serusbcfg.usbp);
-	chThdSleepMilliseconds(1500);
+	chThdSleepMilliseconds(1000);
 	usbStart(serusbcfg.usbp, &usbcfg);
 	usbConnectBus(serusbcfg.usbp);
-	#if STM32_SERIAL_USE_USART2
-  	sdStart(&SD2, NULL);
-  /*Note: do not use GPIOA_PIN3 as it conflicts with ULPI pins.*/
-	#endif
-
-	#if STM32_SERIAL_USE_USART3
-	  sdStart(&SD3, NULL);
-	#endif
-
-	//pwmtp = chThdCreateStatic(pwm_wa,sizeof(pwm_wa),NORMALPRIO, pwm_thd, NULL);
 
 	while (true)
 	{
 		if (!mshelltp)
 		{
-			if (SDU2.config->usbp->state == USB_ACTIVE)
+			if (SDU1.config->usbp->state == USB_ACTIVE)
 			{
 				mshelltp = mshellCreate(&shell_cfg1, SHELL_WA_SIZE, HIGHPRIO);
 			}
@@ -208,8 +182,7 @@ static void main_app(void)
 				mshelltp = NULL;
 			}
 		}
-		chThdSleepMilliseconds(500);
-		palTogglePad(GPIOD, GPIOD_LED1_GREEN);
+		chThdSleepMilliseconds(250);
 	}
 }
 
@@ -219,9 +192,9 @@ int main(void)
 	chSysInit();
 
 	//Set up to toggle leds 
-        palSetPadMode(GPIOD, GPIOD_LED1_RED,PAL_MODE_OUTPUT_PUSHPULL);
+	/*palSetPadMode(GPIOD, GPIOD_LED1_RED,PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GPIOD, GPIOD_LED1_GREEN,PAL_MODE_OUTPUT_PUSHPULL);
-	palSetPadMode(GPIOD, GPIOD_LED1_BLUE,PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOD, GPIOD_LED1_BLUE,PAL_MODE_OUTPUT_PUSHPULL);*/
         palSetPadMode(GPIOD, GPIOD_LED2,PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GPIOG, GPIOG_LED3,PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GPIOG, GPIOG_LED4,PAL_MODE_OUTPUT_PUSHPULL);
@@ -230,7 +203,6 @@ int main(void)
 	palSetPadMode(GPIOG, GPIOG_LED7,PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GPIOG, GPIOG_LED8,PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GPIOG, GPIOG_LED9,PAL_MODE_OUTPUT_PUSHPULL);
-	palSetPadMode(GPIOB, GPIOB_PIN4,PAL_MODE_OUTPUT_PUSHPULL);
 	//Toggle leds and test	
 	/*palTogglePad(GPIOD,GPIOD_LED1_RED);
 	palTogglePad(GPIOD,GPIOD_LED1_GREEN);
@@ -258,7 +230,6 @@ int main(void)
 
 	palTogglePad(GPIOG,GPIOG_LED9);
 	chThdSleepMilliseconds(500);
-	palSetPad(GPIOB, GPIOB_PIN4);
 //	}
 	main_app();
 	return(0);

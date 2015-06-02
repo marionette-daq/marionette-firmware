@@ -28,7 +28,6 @@
  * Board oscillators-related settings.
  * NOTE: LSE not fitted.
  */
-/* Note to Seth, need to look into this*/
 #if !defined(STM32_LSECLK)
 #define STM32_LSECLK                32768
 #endif
@@ -56,7 +55,7 @@
 #define GPIOA_PIN2                  2 
 #define GPIOA_HS_ULPI_D0            3 
 #define GPIOA_PIN4                  4 
-#define GPIOA_HS_ULPI_CK                  5 
+#define GPIOA_HS_ULPI_CK            5 
 #define GPIOA_PIN6                  6 
 #define GPIOA_PIN7                  7 
 #define GPIOA_PIN8                  8 
@@ -367,7 +366,7 @@
                                      PIN_MODE_ALTERNATE(GPIOB_OTG_HS_ULPI_D2 ) |           \
                                      PIN_MODE_INPUT(GPIOB_BOOT1) |           \
                                      PIN_MODE_ALTERNATE(GPIOB_SWO)    |     \
-                                     PIN_MODE_INPUT(GPIOB_PIN4) |     \
+                                     PIN_MODE_OUTPUT(GPIOB_PIN4) |     \
                                      PIN_MODE_ALTERNATE(GPIOB_OTG_HS_ULPI_D7 ) |           \
                                      PIN_MODE_INPUT(GPIOB_PIN6) |           \
                                      PIN_MODE_INPUT(GPIOB_PIN7) |           \
@@ -424,7 +423,7 @@
                                      PIN_PUPDR_FLOATING(GPIOB_OTG_HS_ULPI_D3) |       \
                                      PIN_PUPDR_FLOATING(GPIOB_OTG_HS_ULPI_D4) |        \
                                      PIN_PUPDR_FLOATING(GPIOB_OTG_HS_ULPI_D5) |        \
-                                     PIN_PUPDR_FLOATING(GPIOB_OTG_HS_ULPI_D7) |        \
+                                     PIN_PUPDR_FLOATING(GPIOB_OTG_HS_ULPI_D6) |        \
                                      PIN_PUPDR_FLOATING(GPIOB_PIN14) |        \
                                      PIN_PUPDR_FLOATING(GPIOB_PIN15))
 #define VAL_GPIOB_ODR               (PIN_ODR_HIGH(GPIOB_OTG_HS_ULPI_D1) |             \
