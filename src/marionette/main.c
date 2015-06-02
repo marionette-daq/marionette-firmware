@@ -173,8 +173,9 @@ int main(void)
 	halInit();
 	chSysInit();
 
+	palSetPadMode(GPIOD, GPIOD_LED1_BLUE, PAL_MODE_OUTPUT_PUSHPULL);
+	palTogglePad(GPIOD, GPIOD_LED1_BLUE);
 	main_app();
-
 	return(0);
 }
 
