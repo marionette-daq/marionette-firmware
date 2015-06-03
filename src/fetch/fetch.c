@@ -24,9 +24,9 @@
 #include "fetch_spi.h"
 #include "fetch_i2c.h"
 #include "fetch_can.h"
+#include "fetch_pwm.h"
 #include "fetch_defs.h"
 #include "fetch.h"
-
 static bool fetch_help_cmd(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_reset_cmd(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_version_cmd(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
@@ -37,6 +37,7 @@ static bool fetch_dac(BaseSequentialStream  * chp, char * cmd_list[], char * dat
 static bool fetch_test_cmd(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
 /* Testing can bus */
 static bool fetch_can(BaseSequentialStream *chp, char * cmd_list[], char * data_list[]);
+static bool fetch_pwm(BaseSequentialStream *chp, char * cmd_list[], char * data_list[]);
 /*! \brief Function command array for fetch_dispatch() callbacks
  *  Commands with NULL function return as not implemented.
  *  Commands with NULL help are not displayed with the help command.
@@ -57,6 +58,7 @@ static fetch_command_t fetch_commands[] = {
     { fetch_spi_dispatch,       "spi",              "SPI command set\n(see spi.help)" },
     { fetch_i2c_dispatch,       "i2c",              "I2C command set\n(see i2c.help)" },
     { fetch_can_dispatch,	"can",		    "CAN command set\n(see can.help)"},
+    { fetch_pwm_dispatch,	"pwm",		    "PWM command set\n(see pwm.help)"},
     { fetch_test_cmd,           "test",             NULL },
     { NULL, NULL, NULL }
   };
@@ -146,7 +148,8 @@ static bool fetch_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char 
   fetch_spi_reset(chp);
   fetch_i2c_reset(chp);
   fetch_gpio_reset(chp);
-  fetch_can_reset(chp); 
+  fetch_can_reset(chp);
+  fetch_pwm_reset(chp); 
   // make sure all pin assignments are set to defaults
 	palInit(&pal_default_config);
 	io_manage_set_all_to_defaults();
@@ -166,6 +169,7 @@ void fetch_init(BaseSequentialStream * chp)
   fetch_spi_init(chp);
   fetch_i2c_init(chp);
   fetch_can_init(chp);
+  fetch_pwm_init(chp);
 }
 
 /*! \brief parse the Fetch Statement
