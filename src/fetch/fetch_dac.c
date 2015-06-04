@@ -102,12 +102,11 @@ static bool fetch_dac_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
       	    return false;
     	  }
 
-	    if( !io_manage_set_mode( dac_pins[0].port, dac_pins[0].pin, PAL_STM32_MODE_ANALOG, IO_DAC) ||
-	      !io_manage_set_mode( dac_pins[1].port, dac_pins[1].pin, PAL_STM32_MODE_ANALOG, IO_DAC) )
+	    if( !io_manage_set_mode( dac_pins[0].port, dac_pins[0].pin, PAL_STM32_MODE_ANALOG, IO_DAC) )
 	    {
 	      util_message_error(chp, "unable to allocate dac pins");
 	      io_manage_set_default_mode( dac_pins[0].port, dac_pins[0].pin, IO_DAC );
-	      io_manage_set_default_mode( dac_pins[1].port, dac_pins[1].pin, IO_DAC );
+	     
 	      return false;
 	    }
   
