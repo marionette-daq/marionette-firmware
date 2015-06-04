@@ -266,7 +266,7 @@ bool fetch_dac_reset(BaseSequentialStream * chp)
 
 	// reset dac pins
   io_manage_set_default_mode( dac_pins[0].port, dac_pins[0].pin, IO_DAC );
-  io_manage_set_default_mode( dac_pins[1].port, dac_pins[1].pin, IO_DAC );
+ // io_manage_set_default_mode( dac_pins[1].port, dac_pins[1].pin, IO_DAC );
   
   return true;
 }
