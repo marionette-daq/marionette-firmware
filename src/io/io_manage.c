@@ -92,7 +92,7 @@ const str_port_map_t fetch_port_map[] =
 	{"i", GPIOI}
 };
 
-#if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
+#if defined(BOARD_MARIONETTE) || defined(__DOXYGEN__)
 static io_table_t * io_manage_tables[] = { &io_porta, &io_portb, &io_portc, &io_portd, &io_porte, 
                                            &io_portf, &io_portg, &io_porth, &io_porti };
 #endif

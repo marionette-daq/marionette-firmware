@@ -94,7 +94,7 @@ typedef struct io_table
 /** Pin Mappings for each target board **/
 /****************************************/
 
-#if defined(BOARD_WAVESHARE_CORE407I) || defined(__DOXYGEN__)
+#if defined(BOARD_MARIONETTE) || defined(__DOXYGEN__)
 
 // Peripheral specific port assignments
 
