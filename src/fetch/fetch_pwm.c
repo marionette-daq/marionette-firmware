@@ -105,9 +105,30 @@ int32_t  pwm_dev = strtol(data_list[0],&endptr,0);
   else if(pwm_dev == 1)  {
    switch(pwm_freq)
    {
+	   case 1:
+		   pwmcfg1.frequency = 100000;
+		   pwmcfg1.frequency -100000;
+		   break;
+	   case 2:
+		   pwmcfg1.frequency = 20000;
+		   pwmcfg1.period = 10000;
+		   break;
+	   case 3:
+		   pwmcfg1.frequency = 60000;
+		   pwmcfg1.period = 20000;
+		   break;
+	   case 4:
+		   pwmcfg1.frequency = 32000;
+		   pwmcfg1.period = 8000;
+		   break;
+	   case 5:
+		   pwmcfg1.frequency = 200000;
+		   pwmcfg1.period = 40000;
+		   break;
 	   case 10:
 		   pwmcfg1.frequency = 100000;
 		   pwmcfg1.frequency -10000;
+		   break;
 	   case 100:
 		   pwmcfg1.frequency = 100000;
 		   pwmcfg1.period = 1000;
@@ -138,9 +159,32 @@ int32_t  pwm_dev = strtol(data_list[0],&endptr,0);
 
    switch(pwm_freq)
    {
+	   case 1:
+		   pwmcfg2.frequency = 10000;
+		   pwmcfg2.period = 10000;
+		   palSetPadMode(GPIOG, GPIOG_LED9, PAL_MODE_OUTPUT_PUSHPULL);
+		   palTogglePad(GPIOG, GPIOG_LED9);
+		   break;
+	   case 2:
+		   pwmcfg2.frequency = 20000;
+		   pwmcfg2.period = 10000;
+		   break;
+	   case 3:
+		   pwmcfg2.frequency = 60000;
+		   pwmcfg2.period = 20000;
+		   break;
+	   case 4:
+		   pwmcfg2.frequency = 32000;
+		   pwmcfg2.period = 8000;
+		   break;
+	   case 5:
+		   pwmcfg2.frequency = 200000;
+		   pwmcfg2.period = 40000;
+		   break;
 	   case 10:
 		   pwmcfg2.frequency = 100000;
 		   pwmcfg2.period = 10000;
+		   break;
 	   case 100:
 		   pwmcfg2.frequency = 100000;
 		   pwmcfg2.period = 1000;
@@ -279,21 +323,26 @@ static bool fetch_pwm_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
     util_message_error(chp, "invalid device identifier");
     return false;
   }
+  
   else
   {
     switch(pwm_dev)
     {
       case 1:
+       pwmDisableChannel(&PWMD1, pwm_dev);
        io_manage_set_default_mode(port, 13, IO_GPIO);
+       pwmStop(&PWMD1);
        break;
       case 2:
+       pwmDisableChannel(&PWMD9, pwm_dev);
        io_manage_set_default_mode(port, 5, IO_GPIO);
+       pwmStop(&PWMD9);
        break;
       default:
       break;
     }
  
-
+     
    return true;
   }
 }

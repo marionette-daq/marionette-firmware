@@ -55,8 +55,8 @@ bool dac124_config_cmd(void)
   spi_cfg->cr1 |= SPI_CR1_CPHA;
 
   spi_cfg->cr1 |= SPI_CR1_BR_2; //Maximum clock speed needs to tested
-  spi_cfg->ssport = GPIOB; //Hard coded for now
-  spi_cfg->sspad = GPIOB_PIN12;
+  spi_cfg->ssport = GPIOI; //Hard coded for now
+  spi_cfg->sspad = GPIOI_PIN0;
   //Verify that this is correct
   if(spi_cfg->ssport !=NULL && !io_manage_set_mode(spi_cfg->ssport, spi_cfg->sspad, PAL_MODE_OUTPUT_PUSHPULL,IO_GPIO))
   {
@@ -145,7 +145,7 @@ if( spi_cfg->ssport != NULL )
   }
 
 
-#if STM32_SPI_USE_SPI2
+#if STM32_SPI_USE_SPI3
 if( spi_configs[1].ssport != NULL )
 {
   io_manage_set_default_mode( spi_configs[1].ssport, spi_configs[1].sspad, IO_GPIO );
