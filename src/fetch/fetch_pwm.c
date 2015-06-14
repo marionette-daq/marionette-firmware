@@ -107,7 +107,7 @@ int32_t  pwm_dev = strtol(data_list[0],&endptr,0);
    {
 	   case 1:
 		   pwmcfg1.frequency = 100000;
-		   pwmcfg1.frequency -100000;
+		   pwmcfg1.frequency = 100000;
 		   break;
 	   case 2:
 		   pwmcfg1.frequency = 20000;
@@ -127,7 +127,7 @@ int32_t  pwm_dev = strtol(data_list[0],&endptr,0);
 		   break;
 	   case 10:
 		   pwmcfg1.frequency = 100000;
-		   pwmcfg1.frequency -10000;
+		   pwmcfg1.frequency = 10000;
 		   break;
 	   case 100:
 		   pwmcfg1.frequency = 100000;

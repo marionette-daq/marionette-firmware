@@ -42,7 +42,7 @@ enum {
 
 bool dac124_config_cmd(void)
 {
-  SPIDriver * spi_drv = &SPID2;
+  SPIDriver * spi_drv = &SPID3;
   SPIConfig * spi_cfg;
   
   spi_cfg = &spi_configs[0];
@@ -55,8 +55,8 @@ bool dac124_config_cmd(void)
   spi_cfg->cr1 |= SPI_CR1_CPHA;
 
   spi_cfg->cr1 |= SPI_CR1_BR_2; //Maximum clock speed needs to tested
-  spi_cfg->ssport = GPIOI; //Hard coded for now
-  spi_cfg->sspad = GPIOI_PIN0;
+  spi_cfg->ssport = GPIOH; //Hard coded for now
+  spi_cfg->sspad = GPIOH_PIN3;
   //Verify that this is correct
   if(spi_cfg->ssport !=NULL && !io_manage_set_mode(spi_cfg->ssport, spi_cfg->sspad, PAL_MODE_OUTPUT_PUSHPULL,IO_GPIO))
   {
@@ -96,7 +96,7 @@ bool dac124_write_cmd(int dac_channel,int dac_output_type, uint32_t tx_data)
   palSetPadMode(GPIOD, GPIOD_PIN11, PAL_MODE_OUTPUT_PUSHPULL);
  
  tx_buffer[0] = dac_channel << 14 | dac_output_type << 12 | tx_data;
-  spi_drv = &SPID2;
+  spi_drv = &SPID3;
   spi_cfg = &spi_configs[0];
 
   if( spi_drv->state != SPI_READY )
@@ -126,7 +126,7 @@ bool dac124_reset_cmd(void)
 static uint16_t tx_buffer[MAX_SPI_BYTES];
 uint32_t byte_count = 3;
 SPIConfig * spi_cfg = &spi_configs[0];
-SPIDriver * spi_drv = &SPID2;
+SPIDriver * spi_drv = &SPID3;
 spiStart(spi_drv, spi_cfg);
 tx_buffer[0] = 0x3FFF;
 if( spi_cfg->ssport != NULL )
@@ -153,7 +153,7 @@ if( spi_configs[1].ssport != NULL )
 io_manage_set_default_mode( spi2_pins[0].port, spi2_pins[0].pin, IO_SPI );
 io_manage_set_default_mode( spi2_pins[1].port, spi2_pins[1].pin, IO_SPI );
 io_manage_set_default_mode( spi2_pins[2].port, spi2_pins[2].pin, IO_SPI );
-spiStop(&SPID2);
+spiStop(&SPID3);
 #endif
 
   return true;
