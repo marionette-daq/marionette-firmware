@@ -3,11 +3,14 @@
 # NOTE: Can be overridden externally.
 #
 
+USE_VERBOSE_COMPILE=yes
+
 # Compiler options here.
 ifeq ($(USE_OPT),)
   #USE_OPT = -Og -ggdb -fomit-frame-pointer -falign-functions=16 -Wno-main -std=gnu99
   #USE_OPT = -O2 -ggdb -fomit-frame-pointer -falign-functions=16 -Wno-main -Wno-unused  -std=gnu99
   USE_OPT = -Og -ggdb -fomit-frame-pointer -falign-functions=16 -Wno-main -Wno-unused  -std=gnu99
+  USE_OPT += -DARM_MATH_CM4 -D__FPU_PRESENT
 endif
 
 # C specific options here (added to USE_OPT).
@@ -55,7 +58,7 @@ endif
 
 # Enables the use of FPU on Cortex-M4 (no, softfp, hard).
 ifeq ($(USE_FPU),)
-  USE_FPU = no
+  USE_FPU = yes
 endif
 
 #
@@ -73,7 +76,9 @@ PROJECT = ch
 CONF      = conf
 TOOLCHAIN = ../../toolchain
 include $(TOOLCHAIN)/marionette.mk
-CHIBIOS   = ../../ChibiOS-RT
+CHIBIOS   = ../../ChibiOS-dsigma
+#CHIBIOS   = ../../ChibiOS-RT
+#BOARD     = Marionette_PCB
 BOARD     = WAVESHARE_CORE407I
 #BOARD      = ST_STM32F4_DISCOVERY
 BOARDDIR  = ../boards/$(BOARD)
@@ -173,7 +178,7 @@ BIN  = $(CP) -O binary
 AOPT =
 
 # THUMB-specific options here
-TOPT = -mthumb -DTHUMB
+TOPT = -mthumb -DTHUMB 
 
 # Define C warning options here
 #CWARN = -Wall -Wextra -Wstrict-prototypes  -Wdisabled-optimization \
@@ -194,15 +199,16 @@ CPPWARN = -Wall -Wextra
 # Compiler settings
 ##############################################################################
 
+
 ##############################################################################
 # Start of default section
 #
 
 # List all default C defines here, like -D_DEBUG=1
-DDEFS =
+DDEFS = 
 
 # List all default ASM defines here, like -D_DEBUG=1
-DADEFS =
+DADEFS = 
 
 # List all default directories to look for include files here
 DINCDIR =
@@ -216,6 +222,14 @@ DLIBS =
 #
 # End of default section
 ##############################################################################
+
+ifeq ($(USE_FPU),yes)
+  USE_OPT += -mfloat-abi=softfp -mfpu=fpv4-sp-d16 -fsingle-precision-constant
+  DDEFS += -DCORTEX_USE_FPU=TRUE
+else
+  DDEFS += -DCORTEX_USE_FPU=FALSE
+endif
+
 
 ##############################################################################
 # Start of user section
@@ -246,4 +260,5 @@ ULIBS = -lm
 RULESPATH = $(CHIBIOS)/os/ports/GCC/ARMCMx
 include $(RULESPATH)/rules.mk
 include $(MARIONETTE_RULES)
+
 

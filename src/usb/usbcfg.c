@@ -23,6 +23,14 @@
 #include "hal.h"
 
 #include <string.h>
+
+#if STM32_USB_USE_OTG1
+#  define USBD_PERIPHERIAL   USBD1
+#else
+#  define USBD_PERIPHERIAL   USBD2
+#endif
+
+
 /*
  * Endpoints to be used for USBD1.
  */
@@ -34,7 +42,7 @@
  * USB Device Descriptor.
  */
 static const uint8_t vcom_device_descriptor_data[18] = {
-  USB_DESC_DEVICE       (0x0110,        /* bcdUSB (1.1).                    */
+  USB_DESC_DEVICE       (0x0200,        /* bcdUSB (1.1).                    */
                          0x02,          /* bDeviceClass (CDC).              */
                          0x00,          /* bDeviceSubClass.                 */
                          0x00,          /* bDeviceProtocol.                 */
@@ -346,11 +354,14 @@ const USBConfig usbcfg = {
 /*!
  * Serial over USB driver configuration.
  */
+
 const SerialUSBConfig serusbcfg = {
-  &USBD1,
+  &USBD_PERIPHERIAL,
   USBD1_DATA_REQUEST_EP,
   USBD1_DATA_AVAILABLE_EP,
   USBD1_INTERRUPT_REQUEST_EP
 };
+
+
 
 //! @}

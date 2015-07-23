@@ -130,6 +130,9 @@ static bool cmd_info(BaseSequentialStream * chp, int argc, char * argv[])
 	util_message_string(chp, "firmware_version", GIT_COMMIT_VERSION);
 	util_message_hex_uint32(chp, "chip_id", chip_id, 3);
 	util_message_string(chp, "kernel", CH_KERNEL_VERSION);
+
+
+
 #ifdef CH_COMPILER_NAME
 	util_message_string(chp, "compiler", CH_COMPILER_NAME);
 #endif

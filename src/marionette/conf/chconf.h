@@ -35,6 +35,8 @@
  */
 /*===========================================================================*/
 
+#define CORTEX_USE_FPU                  TRUE
+
 /**
  * @brief   System tick frequency.
  * @details Frequency of the system timer that drives the system ticks. This
