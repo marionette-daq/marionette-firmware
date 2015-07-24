@@ -128,26 +128,6 @@ static const MShellConfig shell_cfg1 =
 
 //Configure the clock output for the USB phy
  /*
-  * PWM configuration structure.
-  * Cyclic callback enabled, channels 1 and 4 enabled without callbacks,
-  * the active state is a logic one.
-  */
- const PWMConfig pwmcfg_usb_phy = {
-   24000000,                               /* 12mhz PWM clock frequency.  */
-   2,                                      /* PWM period is ??? cycles.    */
-   NULL,
-   {
-    {PWM_OUTPUT_ACTIVE_HIGH, NULL},
-    {PWM_OUTPUT_DISABLED, NULL},
-    {PWM_OUTPUT_DISABLED, NULL},
-    {PWM_OUTPUT_DISABLED, NULL}
-   },
-   /* HW dependent part.*/
-   0,
-   0
- };
-
- /*
    * PWM configuration structure.
    * Cyclic callback enabled, channels 1 and 4 enabled without callbacks,
    * the active state is a logic one.
@@ -177,16 +157,12 @@ static void main_app(void)
 	mshellInit();
 
 
-
 #if defined(BOARD_MARIONETTE_PCB)
 	palClearPad(GPIOG, GPIOG_PIN9);
 
 	pwmStart(&PWMD8, &pwmcfg_usb_phy_tim8);
 	pwmEnableChannel(&PWMD8, 0, 1);
 #endif
-
-	//pwmStart(&PWMD12, &pwmcfg_usb_phy);
-    //pwmEnableChannel(&PWMD12, 0, 1);
 
 #if defined(BOARD_MARIONETTE_PCB)
 #if STM32_USB_USE_OTG2
