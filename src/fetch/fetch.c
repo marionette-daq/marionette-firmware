@@ -107,8 +107,22 @@ static bool fetch_version_cmd(BaseSequentialStream * chp, char * cmd_list[], cha
   }
 
 	util_message_string(chp, "firmware_version", GIT_COMMIT_VERSION);
+
 	return true;
 }
+
+/*
+    FIXME add some kind of command for figuring out various system calculated settings.
+	chprintf(chp, "\r\nPSC: %u\r\n", PWMD8.tim->PSC);
+	chprintf(chp, "ARR: %u\r\n", PWMD8.tim->ARR);
+	chprintf(chp, "CR2: 0x%X\r\n", PWMD8.tim->CR2);
+
+	chprintf(chp, "Sys Clock: %uMhz\r\n", (STM32_SYSCLK / 1000000));
+	chprintf(chp, "VCO: %uMhz\r\n", (STM32_PLLVCO / 1000000));
+	chprintf(chp, "P Clk 1/2: %uMhz/%uMhz\r\n", (STM32_PCLK1 / 1000000), (STM32_PCLK2 / 1000000));
+	chprintf(chp, "Tim CLK 1/2: %uMhz/%uMhz\r\n", (STM32_TIMCLK1 / 1000000), (STM32_TIMCLK2 / 1000000));
+	chprintf(chp, "H Clock: %uMhz\r\n", (STM32_HCLK / 1000000));
+ */
 
 /*! \brief CHIPID command callback for fetch language
  */
