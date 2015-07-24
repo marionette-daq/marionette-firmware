@@ -78,8 +78,8 @@ TOOLCHAIN = ../../toolchain
 include $(TOOLCHAIN)/marionette.mk
 CHIBIOS   = ../../ChibiOS-dsigma
 #CHIBIOS   = ../../ChibiOS-RT
-#BOARD     = Marionette_PCB
-BOARD     = WAVESHARE_CORE407I
+BOARD     = Marionette_PCB
+#BOARD     = WAVESHARE_CORE407I
 #BOARD      = ST_STM32F4_DISCOVERY
 BOARDDIR  = ../boards/$(BOARD)
 include $(BOARDDIR)/board.mk
