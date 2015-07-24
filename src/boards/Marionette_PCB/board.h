@@ -40,7 +40,7 @@
  * Board voltages.
  * Required for performance limits calculation.
  */
-#define STM32_VDD                   300
+#define STM32_VDD                   325
 
 /*
  * MCU type as defined in the ST header.
@@ -456,7 +456,7 @@
                                      PIN_AFIO_AF(GPIOB_PIN11_ULPI_D4, 10) |          \
                                      PIN_AFIO_AF(GPIOB_PIN12_ULPI_D5, 10) |          \
                                      PIN_AFIO_AF(GPIOB_PIN13_ULPI_D6, 10) |          \
-                                     PIN_AFIO_AF(GPIOB_PIN14_USB_PHY_REFCLK_12MHZ, 9) |          \
+                                     PIN_AFIO_AF(GPIOB_PIN14_USB_PHY_REFCLK_12MHZ, 0) |          \
                                      PIN_AFIO_AF(GPIOB_PIN15, 0))
 
 /*
@@ -479,7 +479,7 @@
  * PC14 - PIN14                     (input pullup).
  * PC15 - PIN15                     (input pullup).
  */
-#define VAL_GPIOC_MODER             (PIN_MODE_OUTPUT(GPIOC_PIN0_ULPI_STP) |          \
+#define VAL_GPIOC_MODER             (PIN_MODE_ALTERNATE(GPIOC_PIN0_ULPI_STP) |          \
                                      PIN_MODE_INPUT(GPIOC_OTG_PWR_OUT) |    \
                                      PIN_MODE_ALTERNATE(GPIOC_PIN2_ULPI_DIR) |        \
                                      PIN_MODE_INPUT(GPIOC_PIN3) |        \
