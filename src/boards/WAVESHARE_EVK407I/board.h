@@ -21,7 +21,7 @@
  * Board identifier.
  */
 #define BOARD_WAVESHARE_CORE407I
-#define BOARD_NAME                  "WAVESHARE CORE407I"
+#define BOARD_NAME                  "WAVESHARE EVK407I"
 
 
 /*
