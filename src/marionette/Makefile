@@ -78,9 +78,7 @@ TOOLCHAIN = ../../toolchain
 include $(TOOLCHAIN)/marionette.mk
 CHIBIOS   = ../../ChibiOS-dsigma
 #CHIBIOS   = ../../ChibiOS-RT
-BOARD     = Marionette_PCB
-#BOARD     = WAVESHARE_CORE407I
-#BOARD      = ST_STM32F4_DISCOVERY
+BOARD     = Marionette_PCB_rev2
 BOARDDIR  = ../boards/$(BOARD)
 include $(BOARDDIR)/board.mk
 include $(CHIBIOS)/os/hal/platforms/STM32F4xx/platform.mk
@@ -92,6 +90,12 @@ include $(CHIBIOS)/os/kernel/kernel.mk
 LDSCRIPT= $(PORTLD)/STM32F407xG.ld
 #LDSCRIPT= $(PORTLD)/STM32F407xG_CCM.ld
 
+FATFS_DIR=../ext/fatfs
+FATFSSRC = ${CHIBIOS}/os/various/fatfs_bindings/fatfs_diskio.c \
+           ${CHIBIOS}/os/various/fatfs_bindings/fatfs_syscall.c \
+           $(FATFS_DIR)/src/ff.c \
+           $(FATFS_DIR)/src/option/ccsbcs.c 
+
 #       $(CHIBIOS)/os/various/shell.c \
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -99,7 +103,6 @@ MSRC = $(wildcard $(MARIONETTE_UTIL)/*.c)
 MSRC += $(wildcard $(MARIONETTE_USB)/*.c)
 MSRC += $(wildcard $(MARIONETTE_PERIPHERALS)/*.c)
 MSRC += $(wildcard $(MARIONETTE_FETCH)/*.c)
-MSRC += $(wildcard $(MARIONETTE_IO)/*.c)
 MSRC += $(wildcard $(MARIONETTE_MSHELL)/*.c)
 CSRC = $(PORTSRC) \
        $(KERNSRC) \
@@ -109,6 +112,7 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/various/chprintf.c \
        $(CHIBIOS)/os/various/memstreams.c \
        $(MSRC) \
+			 $(FATFSSRC) \
        main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
@@ -141,12 +145,14 @@ ASMSRC = $(PORTASM)
 INCDIR = $(PORTINC) $(KERNINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) \
          $(CHIBIOS)/os/various \
-	 $(MARIONETTE_PERIPHERALS)/include $(MARIONETTE_UTIL)/include \
-	 $(MARIONETTE_USB)/include $(MARIONETTE_FETCH)/include \
-	 $(MARIONETTE_IO)/include \
-	 $(MARIONETTE_MSHELL)/include \
-	 ./include \
-	 $(CONF)
+         $(MARIONETTE_PERIPHERALS)/include \
+         $(MARIONETTE_UTIL)/include \
+	       $(MARIONETTE_USB)/include \
+         $(MARIONETTE_FETCH)/include \
+	       $(MARIONETTE_MSHELL)/include \
+	       ./include \
+	       $(FATFS_DIR)/src \
+	       $(CONF)
 
 #
 # Project, sources and paths

@@ -20,11 +20,8 @@
 #include "util_general.h"
 #include "util_strings.h"
 #include "util_messages.h"
+#include "util_io.h"
 
-#include "mshell_state.h"
-
-#include "io_manage.h"
-#include "io_manage_defs.h"
 #include "fetch_defs.h"
 #include "fetch.h"
 
@@ -108,8 +105,6 @@ static uint32_t adc_vref_mv = FETCH_DEFAULT_VREF_MV;
 static ADCDriver * adc_drv = NULL;
 
 static BinarySemaphore adc_data_ready_sem;
-
-static bool adc_init_flag = true;
 
 static systime_t adc_start_timestamp = 0;
 static volatile systime_t adc_end_timestamp = 0;
@@ -579,69 +574,6 @@ static bool fetch_adc_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
     return false;
   }
 
-
-  // claim pins for adc use
-#if STM32_ADC_USE_ADC1
-  if( adc_drv == &ADCD1 )
-  {
-    for( int i = 0; i < FETCH_ADC_MAX_CHANNELS; i++ )
-    {
-      if( (adc_enabled_channels & ADC_ENABLE_CH(i)) &&
-          !io_manage_set_mode( adc1_pins[i].port, adc1_pins[i].pin, PAL_MODE_INPUT_ANALOG, IO_ADC) )
-      {
-        util_message_error(chp, "unable to allocate %s:%d", port_to_string(adc1_pins[i].port), adc1_pins[i].pin);
-        // loop backwards unrolling what we have done, starting with i-1
-        for( i--; i >= 0; i-- )
-        {
-          io_manage_set_default_mode( adc1_pins[i].port, adc1_pins[i].pin, IO_ADC );
-        }
-        adc_drv = NULL;
-        return false;
-      }
-    }
-  }
-#endif
-#if STM32_ADC_USE_ADC2
-  if( adc_drv == &ADCD2 )
-  {
-    for( int i = 0; i < FETCH_ADC_MAX_CHANNELS; i++ )
-    {
-      if( (adc_enabled_channels & ADC_ENABLE_CH(i)) &&
-          !io_manage_set_mode( adc2_pins[i].port, adc2_pins[i].pin, PAL_MODE_INPUT_ANALOG, IO_ADC) )
-      {
-        util_message_error(chp, "unable to allocate %s:%d", port_to_string(adc2_pins[i].port), adc2_pins[i].pin);
-        // loop backwards unrolling what we have done, starting with i-1
-        for( i--; i >= 0; i-- )
-        {
-          io_manage_set_default_mode( adc2_pins[i].port, adc2_pins[i].pin, IO_ADC);
-        }
-        adc_drv = NULL;
-        return false;
-      }
-    }
-  }
-#endif
-#if STM32_ADC_USE_ADC3
-  if( adc_drv == &ADCD3 )
-  {
-    for( int i = 0; i < FETCH_ADC_MAX_CHANNELS; i++ )
-    {
-      if( (adc_enabled_channels & ADC_ENABLE_CH(i)) &&
-          !io_manage_set_mode( adc3_pins[i].port, adc3_pins[i].pin, PAL_MODE_INPUT_ANALOG, IO_ADC) )
-      {
-        util_message_error(chp, "unable to allocate %s:%d", port_to_string(adc3_pins[i].port), adc3_pins[i].pin);
-        // loop backwards unrolling what we have done, starting with i-1
-        for( i--; i >= 0; i-- )
-        {
-          io_manage_set_default_mode( adc3_pins[i].port, adc3_pins[i].pin, IO_ADC );
-        }
-        adc_drv = NULL;
-        return false;
-      }
-    }
-  }
-#endif
-
   chBSemReset(&adc_data_ready_sem, 0);
 
   return true;
@@ -661,6 +593,11 @@ static bool fetch_adc_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
 
 void fetch_adc_init(BaseSequentialStream * chp)
 {
+  static bool adc_init_flag = false;
+
+  if( adc_init_flag )
+    return;
+
 #if STM32_ADC_USE_ADC1
   adcStart(&ADCD1,NULL);
 #endif
@@ -677,18 +614,13 @@ void fetch_adc_init(BaseSequentialStream * chp)
 
   chBSemInit(&adc_data_ready_sem, 0);
 
-  adc_init_flag = false;
+  adc_init_flag = true;
 }
 
 /*! \brief dispatch an ADC command
  */
 bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-  if( adc_init_flag )
-  {
-    fetch_adc_init(chp);
-  }
-
   return fetch_dispatch(chp, fetch_adc_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);
 }
 
@@ -698,43 +630,6 @@ bool fetch_adc_reset(BaseSequentialStream * chp)
   {
     return true;
   }
-
-#if STM32_ADC_USE_ADC1
-  if( adc_drv == &ADCD1 )
-  {
-    for( uint32_t i = 0; i < NELEMS(adc1_pins); i++ )
-    {
-      if( io_manage_get_current_alloc( adc1_pins[i].port, adc1_pins[i].pin ) == IO_ADC )
-      {
-        io_manage_set_default_mode( adc1_pins[i].port, adc1_pins[i].pin, IO_ADC );
-      }
-    }
-  }
-#endif
-#if STM32_ADC_USE_ADC2
-  if( adc_drv == &ADCD2 )
-  {
-    for( uint32_t i = 0; i < NELEMS(adc2_pins); i++ )
-    {
-      if( io_manage_get_current_alloc( adc2_pins[i].port, adc2_pins[i].pin ) == IO_ADC )
-      {
-        io_manage_set_default_mode( adc2_pins[i].port, adc2_pins[i].pin, IO_ADC );
-      }
-    }
-  }
-#endif
-#if STM32_ADC_USE_ADC3
-  if( adc_drv == &ADCD3 )
-  {
-    for( uint32_t i = 0; i < NELEMS(adc3_pins); i++ )
-    {
-      if( io_manage_get_current_alloc( adc3_pins[i].port, adc3_pins[i].pin ) == IO_ADC )
-      {
-        io_manage_set_default_mode( adc3_pins[i].port, adc3_pins[i].pin, IO_ADC );
-      }
-    }
-  }
-#endif
 
   adc_drv = NULL;
 

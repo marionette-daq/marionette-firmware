@@ -16,8 +16,7 @@
 #include "util_strings.h"
 #include "util_messages.h"
 #include "util_version.h"
-#include "io_manage.h"
-#include "io_manage_defs.h"
+#include "util_io.h"
 #include "fetch_gpio.h"
 #include "fetch_adc.h"
 #include "fetch_dac.h"
@@ -35,6 +34,7 @@ static bool fetch_gpio(BaseSequentialStream  * chp, char * cmd_list[], char * da
 static bool fetch_adc(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_dac(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_test_cmd(BaseSequentialStream  * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_test_sdio_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 
 /*! \brief Function command array for fetch_dispatch() callbacks
  *  Commands with NULL function return as not implemented.
@@ -56,6 +56,7 @@ static fetch_command_t fetch_commands[] = {
     { fetch_spi_dispatch,       "spi",              "SPI command set\n(see spi.help)" },
     { fetch_i2c_dispatch,       "i2c",              "I2C command set\n(see i2c.help)" },
     { fetch_test_cmd,           "test",             NULL },
+    { fetch_test_sdio_cmd,      "testsdio",         "test sdio" },
     { NULL, NULL, NULL }
   };
 
@@ -82,6 +83,42 @@ static bool fetch_test_cmd(BaseSequentialStream * chp, char * cmd_list[], char *
 
 	return true;
 }
+
+/*! test sdio
+ */
+static bool fetch_test_sdio_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  util_message_info(chp, "SDIO");
+
+  sdcStart(&SDCD1,0);
+
+  sdcDisconnect(&SDCD1);
+
+   // power cycle card
+  palSetPad(GPIOA, GPIOA_SDIO_PWR); // off
+  chThdSleepMilliseconds(100);
+  palClearPad(GPIOA, GPIOA_SDIO_PWR); // on
+  chThdSleepMilliseconds(100);
+
+  util_message_info(chp, "TEST");
+  return false;
+
+
+  if (sdcConnect(&SDCD1) == CH_FAILED) {
+    chprintf(chp, "sdcConnect FAILED\r\n");
+    return false;
+  } else {
+    chprintf(chp, "sdcConnect OK\r\n");
+  }
+
+  chprintf(chp, "SDCD1->capacity = %d blocks, %d GB\r\n", SDCD1.capacity,
+           SDCD1.capacity / (2 * 1024 * 1024));
+
+  sdcDisconnect(&SDCD1);
+
+	return true;
+}
+
 
 /*! Help command callback for fetch language
  */
@@ -160,8 +197,7 @@ static bool fetch_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char 
   fetch_gpio_reset(chp);
 
   // make sure all pin assignments are set to defaults
-	palInit(&pal_default_config);
-	io_manage_set_all_to_defaults();
+	//palInit(&pal_default_config);
 
 	return true;
 }

@@ -32,8 +32,6 @@
 #if HAL_USE_DAC || defined(__DOXYGEN__)
 
 #include "dac.h"
-#include "util_messages.h"
-#include "mshell_state.h"
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
@@ -49,14 +47,7 @@
 /*===========================================================================*/
 
 /** @brief CHN1 driver identifier.*/
-#if STM32_DAC_USE_CHN1 || defined(__DOXYGEN__)
 DACDriver DACD1;
-#endif
-
-/** @brief CHN2 driver identifier.*/
-#if STM32_DAC_USE_CHN2 || defined(__DOXYGEN__)
-DACDriver DACD2;
-#endif
 
 /*===========================================================================*/
 /* Driver local variables.                                                   */
@@ -99,7 +90,7 @@ void dac_lld_start(DACDriver * dacp)
 	/* If in stopped state then enables the DAC and DMA clocks.*/
 	if (dacp->state == DAC_STOP)
 	{
-#if STM32_DAC_USE_CHN1
+#if STM32_DAC_USE_CH1
 		if (&DACD1 == dacp)
 		{
 			rccEnableDAC1(FALSE);
@@ -107,7 +98,7 @@ void dac_lld_start(DACDriver * dacp)
 			dacp->dac->CR |= (STM32_DAC_CR_EN | dacp->config->cr_flags);
 		}
 #endif
-#if STM32_DAC_USE_CHN2
+#if STM32_DAC_USE_CH2
 		if (&DACD1 == dacp)
 		{
 			rccEnableDAC1(FALSE);
@@ -131,14 +122,14 @@ void dac_lld_stop(DACDriver * dacp)
 	if (dacp->state == DAC_READY)
 	{
 
-#if STM32_DAC_USE_CHN1
+#if STM32_DAC_USE_CH1
 		if (&DACD1 == dacp)
 		{
 			dacp->dac->CR &= ~STM32_DAC_CR_EN; /* DAC1 disable.*/
 		}
 #endif
-#if STM32_DAC_USE_CHN2
-		if (&DACD2 == dacp)
+#if STM32_DAC_USE_CH2
+		if (&DACD1 == dacp)
 		{
 			dacp->dac->CR &= ~STM32_DAC_CR_EN << 16; /* DAC1 disable.*/
 		}

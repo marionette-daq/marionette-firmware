@@ -31,8 +31,8 @@
 
 #if HAL_USE_DAC || defined(__DOXYGEN__)
 
-#define STM32_HAS_DAC_CHN1 TRUE
-#define STM32_HAS_DAC_CHN2 TRUE
+#define STM32_HAS_DAC_CH1 TRUE
+#define STM32_HAS_DAC_CH2 TRUE
 
 /**
  * @name    DAC peripheral specific RCC operations
@@ -113,36 +113,36 @@
  * @{
  */
 /**
- * @brief   DAC CHN1 driver enable switch.
- * @details If set to @p TRUE the support for DAC CHN1 is included.
+ * @brief   DAC CH1 driver enable switch.
+ * @details If set to @p TRUE the support for DAC CH1 is included.
  * @note    The default is @p TRUE.
  */
-#if !defined(STM32_DAC_USE_CHN1) || defined(__DOXYGEN__)
-#define STM32_DAC_USE_CHN1       TRUE
+#if !defined(STM32_DAC_USE_CH1) || defined(__DOXYGEN__)
+#define STM32_DAC_USE_CH1       TRUE
 #endif
 
 /**
- * @brief   DAC CHN2 driver enable switch.
- * @details If set to @p TRUE the support for DAC CHN2 is included.
+ * @brief   DAC CH2 driver enable switch.
+ * @details If set to @p TRUE the support for DAC CH2 is included.
  * @note    The default is @p TRUE.
  */
-#if !defined(STM32_DAC_USE_CHN2) || defined(__DOXYGEN__)
-#define STM32_DAC_USE_CHN2       TRUE
+#if !defined(STM32_DAC_USE_CH2) || defined(__DOXYGEN__)
+#define STM32_DAC_USE_CH2       TRUE
 #endif
 
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
-#if STM32_DAC_USE_CHN1 && !STM32_HAS_DAC_CHN1
-#error "DAC CHN1 not present in the selected device"
+#if STM32_DAC_USE_CH1 && !STM32_HAS_DAC_CH1
+#error "DAC CH1 not present in the selected device"
 #endif
 
-#if STM32_DAC_USE_CHN2 && !STM32_HAS_DAC_CHN2
-#error "DAC CHN2 not present in the selected device"
+#if STM32_DAC_USE_CH2 && !STM32_HAS_DAC_CH2
+#error "DAC CH2 not present in the selected device"
 #endif
 
-#if !STM32_DAC_USE_CHN1  && !STM32_DAC_USE_CHN2
-#error "DAC driver activated but no DAC peripheral assigned"
+#if !STM32_DAC_USE_CH1  && !STM32_DAC_USE_CH2
+#error "DAC driver activated but no DAC channels assigned"
 #endif
 
 /*===========================================================================*/
@@ -205,12 +205,8 @@ struct DACDriver
 	DAC_TypeDef    *   dac;
 };
 
-#if STM32_DAC_USE_CHN1 && !defined(__DOXYGEN__)
+#if !defined(__DOXYGEN__)
 extern DACDriver DACD1;
-#endif
-
-#if STM32_DAC_USE_CHN2 && !defined(__DOXYGEN__)
-extern DACDriver DACD2;
 #endif
 
 #ifdef __cplusplus
@@ -219,8 +215,8 @@ extern "C" {
 void dac_lld_init(void);
 void dac_lld_start(DACDriver * dacp);
 void dac_lld_stop(DACDriver * dacp);
-void dac_lld_start_conversion(DACDriver * dacp);
-void dac_lld_stop_conversion(DACDriver * dacp);
+//void dac_lld_start_conversion(DACDriver * dacp);
+//void dac_lld_stop_conversion(DACDriver * dacp);
 #ifdef __cplusplus
 }
 #endif

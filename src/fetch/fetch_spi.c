@@ -14,9 +14,8 @@
 #include "util_messages.h"
 #include "util_strings.h"
 #include "util_general.h"
+#include "util_io.h"
 
-#include "io_manage.h"
-#include "io_manage_defs.h"
 #include "fetch.h"
 #include "fetch_defs.h"
 #include "fetch_spi.h"
@@ -25,11 +24,12 @@
 #define MAX_SPI_BYTES   256
 #endif
 
-static SPIConfig  spi_configs[3] =  { {NULL, NULL, 0, 0},
+static SPIConfig  spi_configs[6] =  { {NULL, NULL, 0, 0},
+                                      {NULL, NULL, 0, 0},
+                                      {NULL, NULL, 0, 0},
+                                      {NULL, NULL, 0, 0},
                                       {NULL, NULL, 0, 0},
                                       {NULL, NULL, 0, 0} };
-
-static bool spi_init_flag = true;
 
 enum {
   SPI_CONFIG_DEV = 0,
@@ -82,18 +82,10 @@ static SPIDriver * parse_spi_dev( char * str, int32_t * dev )
 
   switch( num )
   {
-#if STM32_SPI_USE_SPI1
-    case 1:
-      return &SPID1;
-#endif
-#if STM32_SPI_USE_SPI2
     case 2:
       return &SPID2;
-#endif
-#if STM32_SPI_USE_SPI3
-    case 3:
-      return &SPID3;
-#endif
+    case 6:
+      return &SPID6;
     default:
       return NULL;
   }
@@ -198,72 +190,6 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
     }
   }
 
-  // setup io pins
-  if( spi_cfg->ssport != NULL &&
-      !io_manage_set_mode( spi_cfg->ssport, spi_cfg->sspad, PAL_MODE_OUTPUT_PUSHPULL, IO_GPIO ) )
-  {
-    util_message_error(chp, "unable to allocate cs pin");
-    return false;
-  }
-
-  switch(spi_dev)
-  {
-#if STM32_SPI_USE_SPI1
-    case 1:
-      if( !io_manage_set_mode( spi1_pins[0].port, spi1_pins[0].pin, PAL_MODE_ALTERNATE(5), IO_SPI) ||
-          !io_manage_set_mode( spi1_pins[1].port, spi1_pins[1].pin, PAL_MODE_ALTERNATE(5), IO_SPI) ||
-          !io_manage_set_mode( spi1_pins[2].port, spi1_pins[2].pin, PAL_MODE_ALTERNATE(5), IO_SPI) )
-      {
-        util_message_error(chp, "unable to allocate pins");
-        if( spi_cfg->ssport != NULL )
-        {
-          io_manage_set_default_mode( spi_cfg->ssport, spi_cfg->sspad, IO_GPIO );
-        }
-        io_manage_set_default_mode( spi1_pins[0].port, spi1_pins[0].pin, IO_SPI );
-        io_manage_set_default_mode( spi1_pins[1].port, spi1_pins[1].pin, IO_SPI );
-        io_manage_set_default_mode( spi1_pins[2].port, spi1_pins[2].pin, IO_SPI );
-        return false;
-      }
-      break;
-#endif
-#if STM32_SPI_USE_SPI2
-    case 2:
-      if( !io_manage_set_mode( spi2_pins[0].port, spi2_pins[0].pin, PAL_MODE_ALTERNATE(5), IO_SPI) ||
-          !io_manage_set_mode( spi2_pins[1].port, spi2_pins[1].pin, PAL_MODE_ALTERNATE(5), IO_SPI) ||
-          !io_manage_set_mode( spi2_pins[2].port, spi2_pins[2].pin, PAL_MODE_ALTERNATE(5), IO_SPI) )
-      {
-        util_message_error(chp, "unable to allocate pins");
-        if( spi_cfg->ssport != NULL )
-        {
-          io_manage_set_default_mode( spi_cfg->ssport, spi_cfg->sspad, IO_GPIO );
-        }
-        io_manage_set_default_mode( spi2_pins[0].port, spi2_pins[0].pin, IO_SPI );
-        io_manage_set_default_mode( spi2_pins[1].port, spi2_pins[1].pin, IO_SPI );
-        io_manage_set_default_mode( spi2_pins[2].port, spi2_pins[2].pin, IO_SPI );
-        return false;
-      }
-      break;
-#endif
-#if STM32_SPI_USE_SPI3
-    case 3:
-      if( !io_manage_set_mode( spi3_pins[0].port, spi3_pins[0].pin, PAL_MODE_ALTERNATE(6), IO_SPI) ||
-          !io_manage_set_mode( spi3_pins[1].port, spi3_pins[1].pin, PAL_MODE_ALTERNATE(6), IO_SPI) ||
-          !io_manage_set_mode( spi3_pins[2].port, spi3_pins[2].pin, PAL_MODE_ALTERNATE(6), IO_SPI) )
-      {
-        util_message_error(chp, "unable to allocate pins");
-        if( spi_cfg->ssport != NULL )
-        {
-          io_manage_set_default_mode( spi_cfg->ssport, spi_cfg->sspad, IO_GPIO );
-        }
-        io_manage_set_default_mode( spi3_pins[0].port, spi3_pins[0].pin, IO_SPI );
-        io_manage_set_default_mode( spi3_pins[1].port, spi3_pins[1].pin, IO_SPI );
-        io_manage_set_default_mode( spi3_pins[2].port, spi3_pins[2].pin, IO_SPI );
-        return false;
-      }
-      break;
-#endif
-  }
-  
   // apply configuration
   spiStart(spi_drv, spi_cfg);
 
@@ -364,45 +290,7 @@ static bool fetch_spi_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
     return false;
   }
 
-  switch( spi_dev )
-  {
-#if STM32_SPI_USE_SPI1
-    case 1:
-      if( spi_configs[0].ssport != NULL )
-      {
-        io_manage_set_default_mode( spi_configs[0].ssport, spi_configs[0].sspad, IO_GPIO );
-      }
-      io_manage_set_default_mode( spi1_pins[0].port, spi1_pins[0].pin, IO_SPI );
-      io_manage_set_default_mode( spi1_pins[1].port, spi1_pins[1].pin, IO_SPI );
-      io_manage_set_default_mode( spi1_pins[2].port, spi1_pins[2].pin, IO_SPI );
-      spiStop(&SPID1);
-      break;
-#endif
-#if STM32_SPI_USE_SPI1
-    case 2:
-      if( spi_configs[1].ssport != NULL )
-      {
-        io_manage_set_default_mode( spi_configs[1].ssport, spi_configs[1].sspad, IO_GPIO );
-      }
-      io_manage_set_default_mode( spi2_pins[0].port, spi2_pins[0].pin, IO_SPI );
-      io_manage_set_default_mode( spi2_pins[1].port, spi2_pins[1].pin, IO_SPI );
-      io_manage_set_default_mode( spi2_pins[2].port, spi2_pins[2].pin, IO_SPI );
-      spiStop(&SPID2);
-      break;
-#endif
-#if STM32_SPI_USE_SPI1
-    case 3:
-      if( spi_configs[2].ssport != NULL )
-      {
-        io_manage_set_default_mode( spi_configs[2].ssport, spi_configs[2].sspad, IO_GPIO );
-      }
-      io_manage_set_default_mode( spi3_pins[0].port, spi3_pins[0].pin, IO_SPI );
-      io_manage_set_default_mode( spi3_pins[1].port, spi3_pins[1].pin, IO_SPI );
-      io_manage_set_default_mode( spi3_pins[2].port, spi3_pins[2].pin, IO_SPI );
-      spiStop(&SPID3);
-      break;
-#endif
-  }
+  spiStop(spi_drv);
 
   return true;
 }
@@ -412,17 +300,7 @@ static bool fetch_spi_help_cmd(BaseSequentialStream * chp, char * cmd_list[], ch
   util_message_info(chp, "Usage legend: <> required, [] optional, | or,");
   util_message_info(chp, "              ... continuation, {} comment");
   
-  util_message_info(chp, "dev = "
-#if STM32_SPI_USE_SPI1
-  "1 "
-#endif
-#if STM32_SPI_USE_SPI2
-  "2 "
-#endif
-#if STM32_SPI_USE_SPI3
-  "3 "
-#endif
-  );
+  util_message_info(chp, "dev = 2 | 6");
   util_message_info(chp, "base = (reference strtol c function)");
 
   fetch_display_help(chp, fetch_spi_commands);
@@ -431,56 +309,29 @@ static bool fetch_spi_help_cmd(BaseSequentialStream * chp, char * cmd_list[], ch
 
 void fetch_spi_init(BaseSequentialStream * chp)
 {
-  // TODO do we need anything here?
-  
-  spi_init_flag = false;
+  static bool spi_init_flag = false;
+
+  if( spi_init_flag )
+    return;
+
+  // put spi initialization stuff here
+  // ...
+
+  spi_init_flag = true;
 }
 
 /*! \brief dispatch a specific spi command
  */
 bool fetch_spi_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-  if( spi_init_flag )
-  {
-    fetch_spi_init(chp);
-  }
   return fetch_dispatch(chp, fetch_spi_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);
 }
 
 
 bool fetch_spi_reset(BaseSequentialStream * chp)
 {
-#if STM32_SPI_USE_SPI1
-  if( spi_configs[0].ssport != NULL )
-  {
-    io_manage_set_default_mode( spi_configs[0].ssport, spi_configs[0].sspad, IO_GPIO );
-  }
-  io_manage_set_default_mode( spi1_pins[0].port, spi1_pins[0].pin, IO_SPI );
-  io_manage_set_default_mode( spi1_pins[1].port, spi1_pins[1].pin, IO_SPI );
-  io_manage_set_default_mode( spi1_pins[2].port, spi1_pins[2].pin, IO_SPI );
-  spiStop(&SPID1);
-#endif
-#if STM32_SPI_USE_SPI2
-  if( spi_configs[1].ssport != NULL )
-  {
-    io_manage_set_default_mode( spi_configs[1].ssport, spi_configs[1].sspad, IO_GPIO );
-  }
-  io_manage_set_default_mode( spi2_pins[0].port, spi2_pins[0].pin, IO_SPI );
-  io_manage_set_default_mode( spi2_pins[1].port, spi2_pins[1].pin, IO_SPI );
-  io_manage_set_default_mode( spi2_pins[2].port, spi2_pins[2].pin, IO_SPI );
   spiStop(&SPID2);
-#endif
-#if STM32_SPI_USE_SPI3
-  if( spi_configs[2].ssport != NULL )
-  {
-    io_manage_set_default_mode( spi_configs[2].ssport, spi_configs[2].sspad, IO_GPIO );
-  }
-  io_manage_set_default_mode( spi3_pins[0].port, spi3_pins[0].pin, IO_SPI );
-  io_manage_set_default_mode( spi3_pins[1].port, spi3_pins[1].pin, IO_SPI );
-  io_manage_set_default_mode( spi3_pins[2].port, spi3_pins[2].pin, IO_SPI );
-  spiStop(&SPID3);
-#endif
-  
+  spiStop(&SPID6);
   return true;
 }
 

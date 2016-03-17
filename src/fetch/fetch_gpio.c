@@ -14,16 +14,79 @@
 #include "util_messages.h"
 #include "util_strings.h"
 #include "util_general.h"
+#include "util_io.h"
 
-#include "io_manage.h"
-#include "io_manage_defs.h"
 #include "fetch_defs.h"
 #include "fetch_gpio.h"
 #include "fetch.h"
 
-#ifndef GPIO_HEARTBEAT_PERIOD_MS
-#define GPIO_HEARTBEAT_PERIOD_MS 1000
-#endif
+
+static port_pin_t gpio_pins[] = {
+    {GPIOA, GPIOA_PIN15}, // TIM2_CH1
+    {GPIOB, GPIOB_PIN8},  // TIM4_CH3, TIM10_CH1
+    {GPIOB, GPIOB_PIN9},  // TIM4_CH4, TIM11_CH1
+    {GPIOB, GPIOB_PIN14}, // TIM1_CH2N, TIM8_CH2N
+    {GPIOB, GPIOB_PIN15}, // TIM1_CH3N, TIM8_CH3N
+    {GPIOC, GPIOC_PIN6},  // TIM3_CH1, TIM8_CH1
+    {GPIOC, GPIOC_PIN13}, // 
+    {GPIOD, GPIOD_PIN0},  // 
+    {GPIOD, GPIOD_PIN1},  //
+    {GPIOD, GPIOD_PIN3},  //
+    {GPIOD, GPIOD_PIN4},  //
+    {GPIOD, GPIOD_PIN5},  //
+    {GPIOD, GPIOD_PIN6},  //
+    {GPIOD, GPIOD_PIN7},  //
+    {GPIOD, GPIOD_PIN8},  //
+    {GPIOD, GPIOD_PIN9},  //
+    {GPIOD, GPIOD_PIN10}, //
+    {GPIOD, GPIOD_PIN11}, //
+    {GPIOD, GPIOD_PIN12}, // TIM4_CH1
+    {GPIOE, GPIOE_PIN0},  // 
+    {GPIOE, GPIOE_PIN1},  //
+    {GPIOE, GPIOE_PIN2},  //
+    {GPIOE, GPIOE_PIN3},  //
+    {GPIOE, GPIOE_PIN4},  //
+    {GPIOE, GPIOE_PIN5},  // TIM9_CH1
+    {GPIOE, GPIOE_PIN6},  // TIM9_CH2
+    {GPIOE, GPIOE_PIN7},  //
+    {GPIOE, GPIOE_PIN8},  // TIM1_CH1N
+    {GPIOE, GPIOE_PIN9},  // TIM1_CH1
+    {GPIOE, GPIOE_PIN10}, // TIM1_CH2N
+    {GPIOE, GPIOE_PIN15}, //
+    {GPIOF, GPIOF_PIN11}, //
+    {GPIOF, GPIOF_PIN12}, //
+    {GPIOF, GPIOF_PIN13}, //
+    {GPIOF, GPIOF_PIN14}, //
+    {GPIOF, GPIOF_PIN15}, //
+    {GPIOG, GPIOG_PIN0},  //
+    {GPIOG, GPIOG_PIN1},  //
+    {GPIOG, GPIOG_PIN2},  //
+    {GPIOG, GPIOG_PIN3},  //
+    {GPIOG, GPIOG_PIN4},  //
+    {GPIOG, GPIOG_PIN5},  //
+    {GPIOG, GPIOG_PIN6},  //
+    {GPIOG, GPIOG_PIN7},  //
+    {GPIOG, GPIOG_PIN8},  //
+    {GPIOH, GPIOH_PIN2},  //
+    {GPIOH, GPIOH_PIN3},  //
+    {GPIOH, GPIOH_PIN5},  //
+    {GPIOH, GPIOH_PIN6},  //
+    {GPIOH, GPIOH_PIN9},  //
+    {GPIOH, GPIOH_PIN10}, // TIM5_CH1
+    {GPIOH, GPIOH_PIN11}, // TIM5_CH2
+    {GPIOH, GPIOH_PIN12}, // TIM5_CH3
+    {GPIOH, GPIOH_PIN14}, // TIM8_CH2N
+    {GPIOH, GPIOH_PIN15}, // TIM8_CH3N
+    {GPIOI, GPIOI_PIN0},  // TIM5_CH4
+    {GPIOI, GPIOI_PIN4},  //
+    {GPIOI, GPIOI_PIN8},  //
+    {GPIOI, GPIOI_PIN10}, //
+    {GPIOI, GPIOI_PIN11}, //
+    {GPIOI, GPIOI_PIN12}, //
+    {GPIOI, GPIOI_PIN13}, //
+    {GPIOI, GPIOI_PIN14}, //
+    {GPIOI, GPIOI_PIN15}  //
+  };
 
 typedef enum {
   WAIT_EVENT_HIGH = 0,
@@ -42,8 +105,7 @@ static bool fetch_gpio_set_cmd(BaseSequentialStream * chp, char * cmd_list[], ch
 static bool fetch_gpio_clear_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_gpio_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_gpio_info_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_gpio_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_gpio_force_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_gpio_reset_all_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_gpio_wait_cmd(BaseSequentialStream * chp, char *cmd_list[], char * data_list[]);
 static bool fetch_gpio_heartbeat_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 
@@ -67,76 +129,25 @@ static fetch_command_t fetch_gpio_commands[] = {
     { fetch_gpio_wait_cmd,        "wait",       gpio_wait_help_string },
     { fetch_gpio_config_cmd,      "config",     gpio_config_help_string },
     { fetch_gpio_info_cmd,        "info",       "Get pin info\nUsage: info(<port>,<pin>)" },
-    { fetch_gpio_reset_cmd,       "reset",      "Reset GPIO pin to defaults\nUsage: reset(<port>,<pin>)" },
-    { fetch_gpio_heartbeat_config_cmd, "heartbeatconfig", "Configure port/pin for heartbeat led\nUsage: heartbeatconfig(<port>,<pin>)" },
-    { fetch_gpio_force_reset_cmd, "forcereset", NULL },
+    { fetch_gpio_reset_all_cmd,   "resetall",   "Reset all GPIO pins to defaults" },
     { NULL, NULL, NULL } // null terminate list
   };
 
-static const char * pin_state_tok[] = {"true","false","1","0"};
+static const char * pin_state_tok[] = {"true","false","1","0","high","low","set","clear"};
 static const char * pin_mode_tok[] = {"INPUT_FLOATING","INPUT_PULLUP","INPUT_PULLDOWN",
                                       "OUTPUT_PUSHPULL","OUTPUT_OPENDRAIN"};
 static const char * wait_event_tok[] = {"HIGH","1","LOW","0","RISING","FALLING"};
 
-static volatile ioportid_t  heartbeat_port = NULL;
-static volatile uint32_t    heartbeat_pin = INVALID_PIN;
-
-static bool gpio_init_flag = true;
-
-static WORKING_AREA(wa_gpio_heartbeat_thread, 512);
-
-static Thread * gpio_heartbeat_thread = NULL;
-
-NORETURN static void gpio_heartbeat_tfunc( void * arg UNUSED )
+static bool valid_gpio_port_pin( ioportid_t port, uint32_t pin )
 {
-	chRegSetThreadName("Heartbeat");
-
-	while (true)
-	{
-		if(chThdShouldTerminate() )
-		{
-			chThdExit(THD_TERMINATE);
-		}
-    if( heartbeat_port != NULL && heartbeat_pin != INVALID_PIN )
+  for(uint32_t i = 0; i < NELEMS(gpio_pins); i++ )
+  {
+    if( gpio_pins[i].port == port && gpio_pins[i].pin == pin )
     {
-      palSetPad(heartbeat_port, heartbeat_pin);
+      return true;
     }
-		chThdSleepMilliseconds(GPIO_HEARTBEAT_PERIOD_MS / 2);
-    if( heartbeat_port != NULL && heartbeat_pin != INVALID_PIN )
-    {
-      palClearPad(heartbeat_port, heartbeat_pin);
-    }
-		chThdSleepMilliseconds(GPIO_HEARTBEAT_PERIOD_MS / 2);
-	}
-}
-
-static bool fetch_gpio_heartbeat_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-  ioportid_t port = string_to_port(data_list[0]);
-  uint32_t pin = string_to_pin(data_list[1]);
-  iomode_t mode = PAL_STM32_MODE_OUTPUT | PAL_STM32_OTYPE_PUSHPULL;
-
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2) )
-  {
-    return false;
   }
-
-  if( port == NULL || pin == INVALID_PIN )
-  {
-    util_message_error(chp, "invalid port/pin");
-    return false;
-  }
-
-  if( !io_manage_set_mode( port, pin, mode, IO_GPIO) )
-  {
-    util_message_error(chp, "unable to allocate pin as GPIO");
-    return false;
-  }
-
-  heartbeat_port = port;
-  heartbeat_pin = pin;
-
-  return true;
+  return false;
 }
 
 static bool fetch_gpio_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
@@ -240,10 +251,14 @@ static bool fetch_gpio_write_cmd(BaseSequentialStream * chp, char * cmd_list[], 
   {
     case 0: // true
     case 2: // 1
+    case 4: // high
+    case 6: // set
       palSetPad(port,pin);
       break;
     case 1: // false
     case 3: // 0
+    case 5: // low
+    case 7: // clear
       palClearPad(port,pin);
       break;
     default:
@@ -404,6 +419,12 @@ static bool fetch_gpio_config_cmd(BaseSequentialStream * chp, char * cmd_list[],
     return false;
   }
 
+  if( !valid_gpio_port_pin(port, pin) )
+  {
+    util_message_error(chp, "port/pin not available as gpio");
+    return false;
+  }
+
   switch( token_match( data_list[2], FETCH_MAX_DATA_STRLEN, pin_mode_tok, NELEMS(pin_mode_tok)) )
   {
     case 0: // input floating
@@ -426,11 +447,7 @@ static bool fetch_gpio_config_cmd(BaseSequentialStream * chp, char * cmd_list[],
       return false;
   }
 
-  if( !io_manage_set_mode( port, pin, mode, IO_GPIO) )
-  {
-    util_message_error(chp, "unable to allocate pin as GPIO");
-    return false;
-  }
+  palSetPadMode(port, pin, mode);
 
   return true;
 }
@@ -439,12 +456,7 @@ static bool fetch_gpio_info_cmd(BaseSequentialStream * chp, char * cmd_list[], c
 {
   ioportid_t port = string_to_port(data_list[0]);
   uint32_t pin = string_to_pin(data_list[1]);
-  io_alloc_t current_alloc;
-  char * alloc_name;
-  iomode_t current_mode;
-  uint32_t available_alloc;
-  char * alloc_name_array[32];
-  uint32_t array_count;
+  uint32_t alt_func;
 
   if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2) )
   {
@@ -457,152 +469,95 @@ static bool fetch_gpio_info_cmd(BaseSequentialStream * chp, char * cmd_list[], c
     return false;
   }
 
-  current_alloc = io_manage_get_current_alloc(port, pin);
-  current_mode = io_manage_get_current_mode(port, pin);
-  available_alloc = io_manage_get_available_alloc(port, pin);
-
-  alloc_name = (char*)io_manage_get_alloc_name(current_alloc);
-  util_message_string(chp, "current", alloc_name);
-
-  array_count = 0;
-  for( int i = 0; i < 32; i++ )
+  switch((port->MODER >> (pin*2)) & 3)
   {
-    if( available_alloc & (1<<i) )
-    {
-      alloc_name_array[array_count++] = (char*)io_manage_get_alloc_name(available_alloc & (1<<i));
-    }
-  }
-
-  util_message_string_array(chp, "available", alloc_name_array, array_count );
-
-  switch( current_mode & PAL_STM32_MODE_MASK )
-  {
-    case PAL_STM32_MODE_INPUT:
-      switch( current_mode & PAL_STM32_PUDR_MASK )
+    case 0:
+      util_message_string(chp, "mode", "INPUT");
+      break;
+    case 1:
+      if( port->OTYPER & (1<<pin) )
       {
-        case PAL_STM32_PUDR_FLOATING:
-          util_message_string(chp, "mode", "INPUT_FLOATING");
-          break;
-        case PAL_STM32_PUDR_PULLUP:
-          util_message_string(chp, "mode", "INPUT_PULLUP");
-          break;
-        case PAL_STM32_PUDR_PULLDOWN:
-          util_message_string(chp, "mode", "INPUT_PULLDOWN");
-          break;
+        util_message_string(chp, "mode", "OUTPUT_OPENDRAIN");
+      }
+      else
+      {
+        util_message_string(chp, "mode", "OUTPUT_PUSHPULL");
       }
       break;
-    case PAL_STM32_MODE_OUTPUT:
-      switch( current_mode & PAL_STM32_OTYPE_MASK )
-      {
-        case PAL_STM32_OTYPE_PUSHPULL:
-          util_message_string(chp, "mode", "OUTPUT_PUSHPULL");
-          break;
-        case PAL_STM32_OTYPE_OPENDRAIN:
-          util_message_string(chp, "mode", "OUTPUT_OPENDRAIN");
-          break;
-      }
-      break;
-    case PAL_STM32_MODE_ALTERNATE:
+    case 2:
       util_message_string(chp, "mode", "ALTERNATE");
-      uint32_t alt_mode = (current_mode & PAL_STM32_ALTERNATE_MASK) >> 7;
-      util_message_uint32(chp, "alt_func", &alt_mode, 1);
+      if( pin >= 8 )
+      {
+        alt_func = (port->AFRL >> (pin*4)) & 0xf;
+      }
+      else
+      {
+        alt_func = (port->AFRH >> ((pin-8)*4)) & 0xf;
+      }
+      util_message_uint32(chp, "alt_func", &alt_func, 1);
       break;
-    case PAL_STM32_MODE_ANALOG:
+    case 3:
       util_message_string(chp, "mode", "ANALOG");
       break;
   }
 
-  return true;
-}
-
-static bool fetch_gpio_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-  ioportid_t port = string_to_port(data_list[0]);
-  uint32_t pin = string_to_pin(data_list[1]);
-  io_alloc_t current_alloc;
-
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2) )
+  switch( (port->PUPDR >> (pin*2)) & 3)
   {
-    return false;
-  }
-
-  if( port == NULL || pin == INVALID_PIN )
-  {
-    util_message_error(chp, "invalid port/pin");
-    return false;
-  }
-
-  current_alloc = io_manage_get_current_alloc(port, pin);
-
-  if( current_alloc != IO_GPIO )
-  {
-    util_message_error(chp, "pin is not allocated as a GPIO");
-    return false;
-  }
-
-  io_manage_set_default_mode(port, pin, IO_GPIO );
-
-  if( heartbeat_port == port && heartbeat_pin == pin )
-  {
-    heartbeat_port = NULL;
-    heartbeat_pin = INVALID_PIN;
+    case 0:
+      util_message_string(chp, "pull", "NONE");
+      break;
+    case 1:
+      util_message_string(chp, "pull", "UP");
+      break;
+    case 2:
+      util_message_string(chp, "pull", "DOWN");
+      break;
+    case 3:
+      util_message_string(chp, "pull", "RESERVED");
+      break;
   }
 
   return true;
 }
 
-static bool fetch_gpio_force_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+static bool fetch_gpio_reset_all_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-  ioportid_t port = string_to_port(data_list[0]);
-  uint32_t pin = string_to_pin(data_list[1]);
-  io_alloc_t current_alloc;
-
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2) )
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 0) )
   {
     return false;
   }
 
-  if( port == NULL || pin == INVALID_PIN )
-  {
-    util_message_error(chp, "invalid port/pin");
-    return false;
-  }
-
-  io_manage_set_default_mode(port, pin, IO_NONE );
-  
-  if( heartbeat_port == port && heartbeat_pin == pin )
-  {
-    heartbeat_port = NULL;
-    heartbeat_pin = INVALID_PIN;
-  }
-
-  return true;
+  return fetch_gpio_reset(chp);
 }
 
 void fetch_gpio_init(BaseSequentialStream * chp)
 {
-  gpio_heartbeat_thread = chThdCreateStatic(wa_gpio_heartbeat_thread, sizeof(wa_gpio_heartbeat_thread), NORMALPRIO, (tfunc_t)gpio_heartbeat_tfunc, NULL);
-  
-  gpio_init_flag = false;
+  static bool gpio_init_flag = false;
+
+  if( gpio_init_flag )
+    return;
+
+  // Init stuff goes here
+  // ...
+
+  gpio_init_flag = true;
 }
 
 /*! \brief dispatch a specific gpio command
  */
 bool fetch_gpio_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-  if( gpio_init_flag )
-  {
-    fetch_gpio_init(chp);
-  }
-
   return fetch_dispatch(chp, fetch_gpio_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);
 }
 
 bool fetch_gpio_reset(BaseSequentialStream * chp)
 {
-  // TODO iterate through pins resetting any assigned to GPIO
-  // this may not be needed since the fetch_reset_cmd function resets all pins anyways
-  
+  // reset all gpio pins
+  for(uint32_t i = 0; i < NELEMS(gpio_pins); i++ )
+  {
+    palSetPadMode(gpio_pins[i].port, gpio_pins[i].pin, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING);
+  }
+
   return true;
 }
 

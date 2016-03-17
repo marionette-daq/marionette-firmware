@@ -126,79 +126,34 @@ static const MShellConfig shell_cfg1 =
 	commands
 };
 
-//Configure the clock output for the USB phy
- /*
-   * PWM configuration structure.
-   * Cyclic callback enabled, channels 1 and 4 enabled without callbacks,
-   * the active state is a logic one.
-   */
-  const PWMConfig pwmcfg_usb_phy_tim8 = {
-    24000000,                               /* 12mhz PWM clock frequency.  */
-    2,                                     /* PWM period is ??? cycles.    */
-    NULL,
-    {
-     {PWM_OUTPUT_ACTIVE_HIGH, NULL},
-     {PWM_OUTPUT_DISABLED, NULL},
-     {PWM_OUTPUT_DISABLED, NULL},
-     {PWM_OUTPUT_DISABLED, NULL}
-    },
-    /* HW dependent part.*/
-    0,
-    0
-  };
-
 
 /*! \brief main application loop
  */
 static void main_app(void)
 {
-	Thread             *            mshelltp = NULL;
+	Thread *mshelltp = NULL;
 
 	mshellInit();
 
-
-#if defined(BOARD_MARIONETTE_PCB)
-	palClearPad(GPIOG, GPIOG_PIN9);
-
-	pwmStart(&PWMD8, &pwmcfg_usb_phy_tim8);
-	pwmEnableChannel(&PWMD8, 0, 1);
-#endif
-
-#if defined(BOARD_MARIONETTE_PCB)
 #if STM32_USB_USE_OTG2
-	palSetPad(GPIOB, GPIOB_PIN_ULPI_N_RST);//Take ulpi out of reset
+	palSetPad(GPIOB, GPIOB_ULPI_NRST);//Take ulpi out of reset
 	chThdSleepMilliseconds(200);
 #else
-	palClearPad(GPIOB, GPIOB_PIN_ULPI_N_RST);//Hold ulpi in of reset
+	palClearPad(GPIOB, GPIOB_ULPI_NRST);//Hold ulpi in of reset
 #endif
-#endif
-  
 
 	usb_set_serial_strings( *(uint32_t*)STM32F4_UNIQUE_ID_LOW,
                           *(uint32_t*)STM32F4_UNIQUE_ID_CENTER,
                           *(uint32_t*)STM32F4_UNIQUE_ID_HIGH);
 
-#if defined(BOARD_MARIONETTE_PCB)
-	palClearPad(GPIOG, GPIOG_PIN10);
-#endif
-
 	sduObjectInit(&SDU1);
 	sduStart(&SDU1, &serusbcfg);
 
-
-
 	usbDisconnectBus(serusbcfg.usbp);
-#if defined(BOARD_MARIONETTE_PCB)
-	palClearPad(GPIOG, GPIOG_PIN11);
-#endif
 	chThdSleepMilliseconds(1000);
 	usbStart(serusbcfg.usbp, &usbcfg);
 	chThdSleepMilliseconds(200);
 	usbConnectBus(serusbcfg.usbp);
-
-#if defined(BOARD_MARIONETTE_PCB)
-	palClearPad(GPIOG, GPIOG_PIN12);
-#endif
 
 	while (true)
 	{
@@ -218,7 +173,6 @@ static void main_app(void)
 			}
 		}
 		chThdSleepMilliseconds(250);
-		palTogglePad(GPIOG, GPIOG_PIN15);
 	}
 }
 
@@ -227,9 +181,6 @@ int main(void)
 	halInit();
 	chSysInit();
 
-#if defined(BOARD_MARIONETTE_PCB)
-	palClearPad(GPIOG, GPIOG_PIN8);
-#endif
 	main_app();
 
 	return(0);

@@ -29,9 +29,8 @@
 #include "util_general.h"
 #include "util_strings.h"
 #include "util_messages.h"
+#include "util_io.h"
 
-#include "io_manage.h"
-#include "io_manage_defs.h"
 #include "fetch_defs.h"
 #include "fetch.h"
 
@@ -44,7 +43,6 @@
  *   parasitic consumption, the PA4 or PA5 pin should first be configured to analog (AIN).
  */
 
-
 static bool fetch_dac_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_dac_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_dac_write_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
@@ -53,7 +51,7 @@ static bool fetch_dac_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
 static fetch_command_t fetch_dac_commands[] = {
     { fetch_dac_help_cmd,   "help",   "DAC command help" },
     { fetch_dac_config_cmd, "config", "Configure DAC driver and pins" },
-    { fetch_dac_write_cmd,  "write",  "Write values to DAC\nUsage: write(<ch1>,<ch2>)" },
+    { fetch_dac_write_cmd,  "write",  "Write values to DAC\nUsage: write(<ch1>)" },
     { fetch_dac_reset_cmd,  "reset",  "Reset DAC driver and pins" },
     { NULL, NULL, NULL }
   };
@@ -63,8 +61,6 @@ static DACConfig  fetch_dac_config =
 	.dhrm     = DAC_DHRM_12BIT_RIGHT,
 	.cr_flags = STM32_DAC_CR_EN
 };
-
-static bool dac_init_flag = true;
 
 
 static bool fetch_dac_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
@@ -92,15 +88,6 @@ static bool fetch_dac_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
     return false;
   }
 
-  if( !io_manage_set_mode( dac_pins[0].port, dac_pins[0].pin, PAL_STM32_MODE_ANALOG, IO_DAC) ||
-      !io_manage_set_mode( dac_pins[1].port, dac_pins[1].pin, PAL_STM32_MODE_ANALOG, IO_DAC) )
-  {
-    util_message_error(chp, "unable to allocate dac pins");
-    io_manage_set_default_mode( dac_pins[0].port, dac_pins[0].pin, IO_DAC );
-    io_manage_set_default_mode( dac_pins[1].port, dac_pins[1].pin, IO_DAC );
-    return false;
-  }
-
 	DACD1.dac->DHR12R1 = 0;
 	DACD1.dac->DHR12R2 = 0;
 
@@ -113,7 +100,7 @@ static bool fetch_dac_write_cmd(BaseSequentialStream * chp, char * cmd_list[], c
 {
   char * endptr;
 
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2) )
+  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 1) )
   {
     return false;
   }
@@ -127,7 +114,7 @@ static bool fetch_dac_write_cmd(BaseSequentialStream * chp, char * cmd_list[], c
   // FIXME add error handling on input values
 
 	DACD1.dac->DHR12R1 = strtol(data_list[0], &endptr, 0);
-	DACD1.dac->DHR12R2 = strtol(data_list[1], &endptr, 0);
+	//DACD1.dac->DHR12R2 = strtol(data_list[1], &endptr, 0);
 
   return true;
 }
@@ -145,19 +132,19 @@ static bool fetch_dac_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
 
 void fetch_dac_init(BaseSequentialStream * chp)
 {
+  static bool dac_init_flag = false;
+  if( dac_init_flag )
+    return;
+
 	dacInit();
-  dac_init_flag = false;
+
+  dac_init_flag = true;
 }
 
 /*! \brief dispatch an DAC command
  */
 bool fetch_dac_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-	if( dac_init_flag )
-	{
-		fetch_dac_init(chp);
-	}
-
   return fetch_dispatch(chp, fetch_dac_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);
 }
 
@@ -165,10 +152,6 @@ bool fetch_dac_reset(BaseSequentialStream * chp)
 {
 	dacStop(&DACD1);
 
-	// reset dac pins
-  io_manage_set_default_mode( dac_pins[0].port, dac_pins[0].pin, IO_DAC );
-  io_manage_set_default_mode( dac_pins[1].port, dac_pins[1].pin, IO_DAC );
-  
   return true;
 }
 

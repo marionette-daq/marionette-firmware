@@ -330,7 +330,7 @@ static msg_t mshell_thread(void * p)
 
     util_message_begin(chp);
 
-		if(input_line[0] == '+')    // use escape to process mshell commands
+		if(input_line[0] == '+' || input_line[0] == '.')    // use escape to process mshell commands
 		{
       util_message_end(chp, mshell_parse(chp, scp, &input_line[1]) );
 		}
