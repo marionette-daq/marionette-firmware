@@ -42,13 +42,7 @@
 
 /*! Virtual serial port over USB.*/
 SerialUSBDriver SDU1;
-
-extern const struct led        LED1 ;
-extern const struct led        LED2 ;
-extern const struct led        LED3 ;
-extern const struct led        LED4 ;
-
-extern       struct led_config led_cfg ;
+SerialUSBDriver SDU2;
 
 /*! status
  */
@@ -148,6 +142,8 @@ static void main_app(void)
 
 	sduObjectInit(&SDU1);
 	sduStart(&SDU1, &serusbcfg);
+	sduObjectInit(&SDU2);
+	sduStart(&SDU2, &serusbcfg2);
 
 	usbDisconnectBus(serusbcfg.usbp);
 	chThdSleepMilliseconds(1000);
