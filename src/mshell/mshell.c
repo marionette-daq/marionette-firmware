@@ -42,9 +42,9 @@
 #include "mshell_sync.h"
 #include "mshell_state.h"
 
-static          bool                            mshell_echo_chars = MSHELL_ECHO_INPUT_CHARS;
+static bool mshell_echo_chars = MSHELL_ECHO_INPUT_CHARS;
 
-EventSource     mshell_terminated;
+event_source_t mshell_terminated;
 
 static void list_commands(BaseSequentialStream * chp, const mshell_command_t * scp)
 {
@@ -133,28 +133,14 @@ static bool cmd_info(BaseSequentialStream * chp, int argc, char * argv[])
 
 
 
-#ifdef CH_COMPILER_NAME
-	util_message_string(chp, "compiler", CH_COMPILER_NAME);
-#endif
-	util_message_string(chp, "architecture", CH_ARCHITECTURE_NAME);
-#ifdef CH_CORE_VARIANT_NAME
-	util_message_string(chp, "core_variant", CH_CORE_VARIANT_NAME);
-#endif
-#ifdef CH_PORT_INFO
-	util_message_string(chp, "port_info", CH_PORT_INFO);
-#endif
-#ifdef PLATFORM_NAME
+	util_message_string(chp, "compiler", PORT_COMPILER_NAME);
+	util_message_string(chp, "architecture", PORT_ARCHITECTURE_NAME);
+	util_message_string(chp, "core_variant", PORT_CORE_VARIANT_NAME);
+	util_message_string(chp, "port_info", PORT_INFO);
 	util_message_string(chp, "platform", PLATFORM_NAME);
-#endif
-#ifdef BOARD_NAME
 	util_message_string(chp, "board", BOARD_NAME);
-#endif
-#ifdef __DATE__
-#ifdef __TIME__
 	util_message_string(chp, "build_date", __DATE__);
 	util_message_string(chp, "build_time", __TIME__);
-#endif
-#endif
   return true;
 }
 
@@ -168,7 +154,7 @@ static bool cmd_systime(BaseSequentialStream * chp, int argc, char * argv[] UNUS
 		return false;
 	}
 
-  uint32_t time_value = chTimeNow();
+  uint32_t time_value = chVTGetSystemTime();
 	util_message_uint32(chp, "systime", &time_value, 1);
   return true;
 }
@@ -288,11 +274,11 @@ static bool mshell_parse(BaseSequentialStream* chp, const mshell_command_t * scp
  *
  * @param[in] p         pointer to a @p BaseSequentialStream object
  * @return              Termination reason.
- * @retval RDY_OK       terminated by command.
- * @retval RDY_RESET    terminated by reset condition on the I/O channel.
+ * @retval MSG_OK       terminated by command.
+ * @retval MSG_RESET    terminated by reset condition on the I/O channel.
  *
  */
-static msg_t mshell_thread(void * p)
+static void mshell_thread(void * p)
 {
 	bool  ret; 
 	BaseSequentialStream * chp   = ((MShellConfig *)p)->sc_channel;
@@ -340,8 +326,7 @@ static msg_t mshell_thread(void * p)
 		}
 	}
 
-	mshellExit(RDY_OK);
-	return 0;
+	mshellExit(MSG_OK);
 }
 
 
@@ -352,7 +337,7 @@ static msg_t mshell_thread(void * p)
  */
 void mshellInit()
 {
-	chEvtInit(&mshell_terminated);
+	chEvtObjectInit(&mshell_terminated);
 	mshell_io_sem_init();
 }
 
@@ -386,8 +371,8 @@ void mshellExit(msg_t msg)
  *
  * @api
  */
-#if CH_USE_HEAP && CH_USE_DYNAMIC
-Thread * mshellCreate(const MShellConfig * scp, size_t size, tprio_t prio)
+#if CH_CFG_USE_HEAP && CH_CFG_USE_DYNAMIC
+thread_t * mshellCreate(const MShellConfig * scp, size_t size, tprio_t prio)
 {
 	return chThdCreateFromHeap(NULL, size, prio, mshell_thread, (void *)scp);
 }
@@ -403,7 +388,7 @@ Thread * mshellCreate(const MShellConfig * scp, size_t size, tprio_t prio)
  * \return              A pointer to the shell thread.
  *
  */
-Thread * shellCreateStatic(const MShellConfig * scp, void * wsp,
+thread_t * shellCreateStatic(const MShellConfig * scp, void * wsp,
                            size_t size, tprio_t prio)
 {
 	return chThdCreateStatic(wsp, size, prio, mshell_thread, (void *)scp);

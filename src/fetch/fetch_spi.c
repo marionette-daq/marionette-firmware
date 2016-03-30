@@ -82,10 +82,14 @@ static SPIDriver * parse_spi_dev( char * str, int32_t * dev )
 
   switch( num )
   {
+#if STM32_SPI_USE_SPI2
     case 2:
       return &SPID2;
+#endif
+#if STM32_SPI_USE_SPI6
     case 6:
       return &SPID6;
+#endif
     default:
       return NULL;
   }
@@ -330,8 +334,12 @@ bool fetch_spi_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * da
 
 bool fetch_spi_reset(BaseSequentialStream * chp)
 {
+#if STM32_SPI_USE_SPI2
   spiStop(&SPID2);
+#endif
+#if STM32_SPI_USE_SPI6
   spiStop(&SPID6);
+#endif
   return true;
 }
 

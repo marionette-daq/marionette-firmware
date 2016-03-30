@@ -36,25 +36,18 @@
 #include "util_general.h"
 #include "util_version.h"
 #include "util_messages.h"
+#include "util_io.h"
 #include "usbcfg.h"
 
 #include "main.h"
 
-/*! Virtual serial port over USB.*/
-SerialUSBDriver SDU1;
-SerialUSBDriver SDU2;
-
-/*! status
- */
-Util_status      M_Status = { .status=GEN_OK };
-
-#define SHELL_WA_SIZE   THD_WA_SIZE(16384)
+#define SHELL_WA_SIZE  16384
 
 /*! \brief Show memory usage
  */
 static bool cmd_mem(BaseSequentialStream * chp, int argc, char * argv[])
 {
-    extern uint8_t __ram_size__[];
+    extern uint8_t __ram0_size__[];
 
 	size_t n, size;
 	(void)argv;
@@ -64,8 +57,8 @@ static bool cmd_mem(BaseSequentialStream * chp, int argc, char * argv[])
 		return false;
 	}
 	n = chHeapStatus(NULL, &size);
-	util_message_info(chp, "core total memory :\t%u bytes", __ram_size__ );
-	util_message_info(chp, "core free memory  :\t%u bytes", chCoreStatus());
+	util_message_info(chp, "core total memory :\t%u bytes", __ram0_size__ );
+	util_message_info(chp, "core free memory  :\t%u bytes", chCoreGetStatusX());
 	util_message_info(chp, "heap fragments    :\t%u", n);
 	util_message_info(chp, "heap free total   :\t%u bytes", size);
 
@@ -77,8 +70,8 @@ static bool cmd_mem(BaseSequentialStream * chp, int argc, char * argv[])
 static bool cmd_threads(BaseSequentialStream * chp, int argc, char * argv[])
 {
 	(void)chp;
-	static const char * states[] = {THD_STATE_NAMES};
-	Thread * tp;
+	static const char * states[] = {CH_STATE_NAMES};
+	thread_t * tp;
 
 	(void)argv;
 	if (argc > 0)
@@ -116,7 +109,7 @@ static const mshell_command_t commands[] =
  */
 static const MShellConfig shell_cfg1 =
 {
-	(BaseSequentialStream *) & SDU1,
+	(BaseSequentialStream *) &SDU1,
 	commands
 };
 
@@ -125,15 +118,24 @@ static const MShellConfig shell_cfg1 =
  */
 static void main_app(void)
 {
-	Thread *mshelltp = NULL;
+	thread_t *mshelltp = NULL;
+  int32_t c;
+
+  set_status_led(1,0,0);
+
+#if STM32_SERIAL_USE_UART4
+  sdStart(&SD4, NULL); // use default config
+
+  chprintf((BaseSequentialStream*)&SD4, "Marionette Main\r\n");
+#endif
 
 	mshellInit();
 
 #if STM32_USB_USE_OTG2
-	palSetPad(GPIOB, GPIOB_ULPI_NRST);//Take ulpi out of reset
+	palSetPad(GPIOB, GPIOB_ULPI_NRST); //Take ulpi out of reset
 	chThdSleepMilliseconds(200);
 #else
-	palClearPad(GPIOB, GPIOB_ULPI_NRST);//Hold ulpi in of reset
+	palClearPad(GPIOB, GPIOB_ULPI_NRST); //Hold ulpi in of reset
 #endif
 
 	usb_set_serial_strings( *(uint32_t*)STM32F4_UNIQUE_ID_LOW,
@@ -150,6 +152,8 @@ static void main_app(void)
 	usbStart(serusbcfg.usbp, &usbcfg);
 	chThdSleepMilliseconds(200);
 	usbConnectBus(serusbcfg.usbp);
+  
+  uint8_t led_blank_count = 0;
 
 	while (true)
 	{
@@ -162,13 +166,30 @@ static void main_app(void)
 		}
 		else
 		{
-			if (chThdTerminated(mshelltp))
+			if (chThdTerminatedX(mshelltp))
 			{
 				chThdRelease(mshelltp);
 				mshelltp = NULL;
 			}
 		}
-		chThdSleepMilliseconds(250);
+    if( (++led_blank_count) >= 5 )
+    {
+      set_status_led(0,0,0);
+
+      if(led_blank_count >= 10)
+      {
+        led_blank_count = 0;
+      }
+    }
+    else if( USBD2.state == USB_ACTIVE )
+    {
+      set_status_led(0,1,0);
+    }
+    else
+    {
+      set_status_led(1,1,0);
+    }
+		chThdSleepMilliseconds(100);
 	}
 }
 

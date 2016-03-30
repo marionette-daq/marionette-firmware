@@ -175,14 +175,14 @@ static bool fetch_i2c_transmit_cmd(BaseSequentialStream * chp, char * cmd_list[]
 
   switch( i2cMasterTransmitTimeout(i2c_drv, address, tx_buffer, byte_count, NULL, 0, I2C_TIMEOUT) )
   {
-    case RDY_TIMEOUT:
+    case MSG_TIMEOUT:
       util_message_error(chp, "i2c timeout");
       i2cStart(i2c_drv, &i2c_cfg);
       return false;
-    case RDY_RESET:
+    case MSG_RESET:
       util_message_error(chp, "i2c error");
       return false;
-    case RDY_OK:
+    case MSG_OK:
     default:
       return true;
   }
@@ -231,14 +231,14 @@ static bool fetch_i2c_receive_cmd(BaseSequentialStream * chp, char * cmd_list[],
 
   switch( i2cMasterReceiveTimeout(i2c_drv, address, rx_buffer, byte_count, I2C_TIMEOUT) )
   {
-    case RDY_TIMEOUT:
+    case MSG_TIMEOUT:
       util_message_error(chp, "i2c timeout");
       i2cStart(i2c_drv, &i2c_cfg);
       return false;
-    case RDY_RESET:
+    case MSG_RESET:
       util_message_error(chp, "i2c error");
       return false;
-    case RDY_OK:
+    case MSG_OK:
     default:
       break;
   }

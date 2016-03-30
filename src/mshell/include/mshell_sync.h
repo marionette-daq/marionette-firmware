@@ -14,7 +14,7 @@ extern "C" {
 
 #include "chbsem.h"
 
-extern 		BinarySemaphore    		mshell_io_sem;
+extern 		binary_semaphore_t    		mshell_io_sem;
 
 void mshell_io_sem_init(void) ;
 

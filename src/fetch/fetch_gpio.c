@@ -359,10 +359,10 @@ static bool fetch_gpio_wait_cmd(BaseSequentialStream * chp, char *cmd_list[], ch
     return false;
   }
 
-  start_time = chTimeNow();
+  start_time = chVTGetSystemTime();
   state_next = palReadPad(port,pin);
 
-  while( chTimeElapsedSince(start_time) < MS2ST(timeout) )
+  while( chVTTimeElapsedSinceX(start_time) < MS2ST(timeout) )
   {
     state_prev = state_next;
     state_next = palReadPad(port,pin);
@@ -406,7 +406,7 @@ static bool fetch_gpio_config_cmd(BaseSequentialStream * chp, char * cmd_list[],
 {
   ioportid_t port = string_to_port(data_list[0]);
   uint32_t pin = string_to_pin(data_list[1]);
-  iomode_t mode = PAL_STM32_PUDR_FLOATING | PAL_STM32_MODE_INPUT;
+  iomode_t mode = PAL_STM32_PUPDR_FLOATING | PAL_STM32_MODE_INPUT;
 
   if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 3) )
   {
@@ -428,13 +428,13 @@ static bool fetch_gpio_config_cmd(BaseSequentialStream * chp, char * cmd_list[],
   switch( token_match( data_list[2], FETCH_MAX_DATA_STRLEN, pin_mode_tok, NELEMS(pin_mode_tok)) )
   {
     case 0: // input floating
-      mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING;
+      mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_FLOATING;
       break;
     case 1: // input pullup
-      mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_PULLUP;
+      mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_PULLUP;
       break;
     case 2: // input pulldown
-      mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_PULLDOWN;
+      mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_PULLDOWN;
       break;
     case 3: // output pushpull
       mode = PAL_STM32_MODE_OUTPUT | PAL_STM32_OTYPE_PUSHPULL;
@@ -555,7 +555,7 @@ bool fetch_gpio_reset(BaseSequentialStream * chp)
   // reset all gpio pins
   for(uint32_t i = 0; i < NELEMS(gpio_pins); i++ )
   {
-    palSetPadMode(gpio_pins[i].port, gpio_pins[i].pin, PAL_STM32_MODE_INPUT | PAL_STM32_PUDR_FLOATING);
+    palSetPadMode(gpio_pins[i].port, gpio_pins[i].pin, PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_FLOATING);
   }
 
   return true;

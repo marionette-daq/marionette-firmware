@@ -104,7 +104,7 @@ static uint32_t adc_vref_mv = FETCH_DEFAULT_VREF_MV;
 
 static ADCDriver * adc_drv = NULL;
 
-static BinarySemaphore adc_data_ready_sem;
+static binary_semaphore_t adc_data_ready_sem;
 
 static systime_t adc_start_timestamp = 0;
 static volatile systime_t adc_end_timestamp = 0;
@@ -146,11 +146,11 @@ static void fetch_adc_end_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n)
 	   intermediate callback when the buffer is half full.*/
 	if (adcp->state == ADC_COMPLETE)
 	{
-    adc_end_timestamp = chTimeNow();
+    adc_end_timestamp = chVTGetSystemTime();
 
-		chSysLockFromIsr();
+		chSysLockFromISR();
     chBSemSignalI(&adc_data_ready_sem);
-		chSysUnlockFromIsr();
+		chSysUnlockFromISR();
 	}
 }
 
@@ -220,14 +220,14 @@ static bool fetch_adc_start_cmd(BaseSequentialStream * chp, char * cmd_list[], c
     return false;
   }
 
-  if( chBSemWaitTimeout(&adc_data_ready_sem, TIME_IMMEDIATE) == RDY_TIMEOUT )
+  if( chBSemWaitTimeout(&adc_data_ready_sem, TIME_IMMEDIATE) == MSG_TIMEOUT )
   {
     util_message_error(chp, "ADC not ready");
     return false;
   }
 
 	adcStartConversion( adc_drv, &adc_conv_grp, adc_sample_buffer, adc_sample_depth);
-  adc_start_timestamp = chTimeNow();
+  adc_start_timestamp = chVTGetSystemTime();
 
 	return true;
 }
@@ -249,7 +249,7 @@ static bool fetch_adc_stop_cmd(BaseSequentialStream * chp, char * cmd_list[], ch
 
 	adcStopConversion(adc_drv);
   
-  adc_end_timestamp = chTimeNow();
+  adc_end_timestamp = chVTGetSystemTime();
 
   chBSemReset(&adc_data_ready_sem, 0);
 
@@ -282,7 +282,7 @@ static bool fetch_adc_wait_cmd(BaseSequentialStream * chp, char * cmd_list[], ch
     return false;
   }
 
-  if( chBSemWaitTimeout(&adc_data_ready_sem, MS2ST(timeout)) == RDY_OK )
+  if( chBSemWaitTimeout(&adc_data_ready_sem, MS2ST(timeout)) == MSG_OK )
   {
     chBSemReset(&adc_data_ready_sem, 0);
   }
@@ -612,7 +612,7 @@ void fetch_adc_init(BaseSequentialStream * chp)
   adcSTM32EnableTSVREFE();
   adcSTM32EnableVBATE();
 
-  chBSemInit(&adc_data_ready_sem, 0);
+  chBSemObjectInit(&adc_data_ready_sem, 0);
 
   adc_init_flag = true;
 }

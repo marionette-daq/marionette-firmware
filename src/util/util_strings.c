@@ -49,7 +49,7 @@ size_t get_longest_str_length(const char * s1, const char * s2, int max_length)
 	size_t lens1  = strnlen(s1, max_length);
 	size_t lens2  = strnlen(s2, max_length);
 
-	chDbgAssert(((s1 != NULL) && (s2 != NULL)), "get_longest_str_length() #1", "NULL pointer");
+	chDbgAssert(((s1 != NULL) && (s2 != NULL)), "get_longest_str_length() #1, NULL pointer");
 
 	return (max(lens1, lens2));
 }

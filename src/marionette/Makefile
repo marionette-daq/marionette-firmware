@@ -3,8 +3,6 @@
 # NOTE: Can be overridden externally.
 #
 
-USE_VERBOSE_COMPILE=yes
-
 # Compiler options here.
 ifeq ($(USE_OPT),)
   #USE_OPT = -Og -ggdb -fomit-frame-pointer -falign-functions=16 -Wno-main -std=gnu99
@@ -48,6 +46,13 @@ ifeq ($(USE_VERBOSE_COMPILE),)
   USE_VERBOSE_COMPILE = no
 endif
 
+# If enabled, this option makes the build process faster by not compiling
+# modules not used in the current configuration.
+ifeq ($(USE_SMART_BUILD),)
+  USE_SMART_BUILD = no
+	# disabled because this throws errors since it can't find the conf files
+endif
+
 #
 # Build global options
 ##############################################################################
@@ -56,9 +61,21 @@ endif
 # Architecture or project specific options
 #
 
+# Stack size to be allocated to the Cortex-M process stack. This stack is
+# the stack used by the main() thread.
+ifeq ($(USE_PROCESS_STACKSIZE),)
+  USE_PROCESS_STACKSIZE = 0x400
+endif
+
+# Stack size to the allocated to the Cortex-M main/exceptions stack. This
+# stack is used for processing interrupts and exceptions.
+ifeq ($(USE_EXCEPTIONS_STACKSIZE),)
+  USE_EXCEPTIONS_STACKSIZE = 0x400
+endif
+
 # Enables the use of FPU on Cortex-M4 (no, softfp, hard).
 ifeq ($(USE_FPU),)
-  USE_FPU = yes
+  USE_FPU = softfp
 endif
 
 #
@@ -73,22 +90,30 @@ endif
 PROJECT = ch
 
 # Imported source files and paths
-CONF      = conf
+CONF_DIR  = conf
 TOOLCHAIN = ../../toolchain
-include $(TOOLCHAIN)/marionette.mk
-CHIBIOS   = ../../ChibiOS-dsigma
-#CHIBIOS   = ../../ChibiOS-RT
+CHIBIOS   = ../../ChibiOS-RT
 BOARD     = Marionette_PCB_rev2
 BOARDDIR  = ../boards/$(BOARD)
-include $(BOARDDIR)/board.mk
-include $(CHIBIOS)/os/hal/platforms/STM32F4xx/platform.mk
+
+# Marionette specific files
+include $(TOOLCHAIN)/marionette.mk
+
+# Startup files
+include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/startup_stm32f4xx.mk
+
+# HAL-OSAL files
 include $(CHIBIOS)/os/hal/hal.mk
-include $(CHIBIOS)/os/ports/GCC/ARMCMx/STM32F4xx/port.mk
-include $(CHIBIOS)/os/kernel/kernel.mk
+include $(CHIBIOS)/os/hal/ports/STM32/STM32F4xx/platform.mk
+include $(BOARDDIR)/board.mk
+include $(CHIBIOS)/os/hal/osal/rt/osal.mk
+
+# RTOS files
+include $(CHIBIOS)/os/rt/rt.mk
+include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 
 # Define linker script file here
-LDSCRIPT= $(PORTLD)/STM32F407xG.ld
-#LDSCRIPT= $(PORTLD)/STM32F407xG_CCM.ld
+LDSCRIPT= $(STARTUPLD)/STM32F429xI.ld
 
 FATFS_DIR=../ext/fatfs
 FATFSSRC = ${CHIBIOS}/os/various/fatfs_bindings/fatfs_diskio.c \
@@ -96,21 +121,23 @@ FATFSSRC = ${CHIBIOS}/os/various/fatfs_bindings/fatfs_diskio.c \
            $(FATFS_DIR)/src/ff.c \
            $(FATFS_DIR)/src/option/ccsbcs.c 
 
-#       $(CHIBIOS)/os/various/shell.c \
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
 MSRC = $(wildcard $(MARIONETTE_UTIL)/*.c)
 MSRC += $(wildcard $(MARIONETTE_USB)/*.c)
-MSRC += $(wildcard $(MARIONETTE_PERIPHERALS)/*.c)
+#MSRC += $(wildcard $(MARIONETTE_PERIPHERALS)/*.c)
 MSRC += $(wildcard $(MARIONETTE_FETCH)/*.c)
 MSRC += $(wildcard $(MARIONETTE_MSHELL)/*.c)
-CSRC = $(PORTSRC) \
-       $(KERNSRC) \
+
+CSRC = $(STARTUPSRC) \
+			 $(KERNSRC) \
+			 $(PORTSRC) \
+       $(OSALSRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
-       $(CHIBIOS)/os/various/chprintf.c \
-       $(CHIBIOS)/os/various/memstreams.c \
+       $(CHIBIOS)/os/hal/lib/streams/memstreams.c \
+       $(CHIBIOS)/os/hal/lib/streams/chprintf.c \
        $(MSRC) \
 			 $(FATFSSRC) \
        main.c
@@ -140,19 +167,18 @@ TCSRC =
 TCPPSRC =
 
 # List ASM source files here
-ASMSRC = $(PORTASM)
+ASMSRC = $(STARTUPASM) $(PORTASM) $(OSALASM)
 
-INCDIR = $(PORTINC) $(KERNINC) \
+INCDIR = $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) \
-         $(CHIBIOS)/os/various \
-         $(MARIONETTE_PERIPHERALS)/include \
+         $(CHIBIOS)/os/hal/lib/streams $(CHIBIOS)/os/various \
          $(MARIONETTE_UTIL)/include \
 	       $(MARIONETTE_USB)/include \
          $(MARIONETTE_FETCH)/include \
 	       $(MARIONETTE_MSHELL)/include \
-	       ./include \
+	       include \
 	       $(FATFS_DIR)/src \
-	       $(CONF)
+	       $(CONF_DIR)
 
 #
 # Project, sources and paths
@@ -175,6 +201,7 @@ LD   = $(TRGT)gcc
 #LD   = $(TRGT)g++
 CP   = $(TRGT)objcopy
 AS   = $(TRGT)gcc -x assembler-with-cpp
+AR   = $(TRGT)ar
 OD   = $(TRGT)objdump
 SZ   = $(TRGT)size
 HEX  = $(CP) -O ihex
@@ -196,45 +223,12 @@ TOPT = -mthumb -DTHUMB
 CWARN = -Wall -Wextra -Wstrict-prototypes  -Wdisabled-optimization \
 	-Wdouble-promotion -Wformat=2 -Wfloat-equal \
 	-Waggressive-loop-optimizations \
-	-Waggregate-return -Wlogical-op -Wmissing-include-dirs \
+	-Waggregate-return -Wlogical-op
+
+#-Wmissing-include-dirs
 	
 # Define C++ warning options here
-CPPWARN = -Wall -Wextra
-
-#
-# Compiler settings
-##############################################################################
-
-
-##############################################################################
-# Start of default section
-#
-
-# List all default C defines here, like -D_DEBUG=1
-DDEFS = 
-
-# List all default ASM defines here, like -D_DEBUG=1
-DADEFS = 
-
-# List all default directories to look for include files here
-DINCDIR =
-
-# List the default directory to look for the libraries here
-DLIBDIR =
-
-# List all default libraries here
-DLIBS =
-
-#
-# End of default section
-##############################################################################
-
-ifeq ($(USE_FPU),yes)
-  USE_OPT += -mfloat-abi=softfp -mfpu=fpv4-sp-d16 -fsingle-precision-constant
-  DDEFS += -DCORTEX_USE_FPU=TRUE
-else
-  DDEFS += -DCORTEX_USE_FPU=FALSE
-endif
+CPPWARN = -Wall -Wextra -Wundef
 
 
 ##############################################################################
@@ -242,10 +236,8 @@ endif
 #
 
 # List all user C define here, like -D_DEBUG=1
-#UDEFS =
 UDEFS = -DGIT_COMMIT_VERSION=$(MARIONETTE_VERSION)
 UDEFS += -DDBG_MSG_ENABLE=1
-#UDEFS += -DMSHELL_ECHO_INPUT_CHARS=1
 
 # Define ASM defines here
 UADEFS =
@@ -263,7 +255,7 @@ ULIBS = -lm
 # End of user defines
 ##############################################################################
 
-RULESPATH = $(CHIBIOS)/os/ports/GCC/ARMCMx
+RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC
 include $(RULESPATH)/rules.mk
 include $(MARIONETTE_RULES)
 

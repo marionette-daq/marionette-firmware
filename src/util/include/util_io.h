@@ -63,6 +63,7 @@ typedef struct port_pin
 ioportid_t string_to_port( char * str);
 iopin_t string_to_pin( char * str);
 const char * port_to_string( ioportid_t port );
+void set_status_led(bool r, bool g, bool b);
 
 #ifdef __cplusplus
 }

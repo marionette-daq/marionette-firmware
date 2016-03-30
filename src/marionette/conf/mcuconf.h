@@ -12,7 +12,7 @@
 
 
 /*
-    ChibiOS/RT - Copyright (C) 2006-2013 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2015 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -26,6 +26,9 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+
+#ifndef _MCUCONF_H_
+#define _MCUCONF_H_
 
 /*
  * STM32F4xx drivers configuration.
@@ -57,7 +60,7 @@
 #define STM32_SW                            STM32_SW_PLL
 #define STM32_PLLSRC                        STM32_PLLSRC_HSE
 
-#define STM32_RCC_DCKCFGR_TIMPRE_FLAG        FALSE
+//#define STM32_RCC_DCKCFGR_TIMPRE_FLAG        FALSE
 
 #if STM32_HSECLK == 26000000
 #define STM32_PLLM_VALUE                    26
@@ -113,25 +116,25 @@
 #define STM32_ADC_ADC3_DMA_IRQ_PRIORITY     6
 
 /*
- * DAC driver system settings.
- */
-#define STM32_DAC_USE_CH1                   TRUE
-#define STM32_DAC_USE_CH2                   FALSE
-#define STM32_DAC_CH1_IRQ_PRIORITY          10
-#define STM32_DAC_CH2_IRQ_PRIORITY          10
-#define STM32_DAC_CH1_DMA_PRIORITY          2
-#define STM32_DAC_CH2_DMA_PRIORITY          2
-#define STM32_DAC_DMA_ERROR_HOOK(dacp)      chSysHalt()
-#define STM32_DAC_CH1_DMA_STREAM            STM32_DMA_STREAM_ID(1, 5)
-#define STM32_DAC_CH2_DMA_STREAM            STM32_DMA_STREAM_ID(1, 6)
-
-/*
  * CAN driver system settings.
  */
-#define STM32_CAN_USE_CAN1                  FALSE
+#define STM32_CAN_USE_CAN1                  TRUE
 #define STM32_CAN_USE_CAN2                  FALSE
 #define STM32_CAN_CAN1_IRQ_PRIORITY         11
 #define STM32_CAN_CAN2_IRQ_PRIORITY         11
+
+/*
+ * DAC driver system settings.
+ */
+#define STM32_DAC_DUAL_MODE                 FALSE
+#define STM32_DAC_USE_DAC1_CH1              TRUE
+#define STM32_DAC_USE_DAC1_CH2              FALSE
+#define STM32_DAC_DAC1_CH1_IRQ_PRIORITY     10
+#define STM32_DAC_DAC1_CH2_IRQ_PRIORITY     10
+#define STM32_DAC_DAC1_CH1_DMA_PRIORITY     2
+#define STM32_DAC_DAC1_CH2_DMA_PRIORITY     2
+#define STM32_DAC_DAC1_CH1_DMA_STREAM       STM32_DMA_STREAM_ID(1, 5)
+#define STM32_DAC_DAC1_CH2_DMA_STREAM       STM32_DMA_STREAM_ID(1, 6)
 
 /*
  * EXT driver system settings.
@@ -252,6 +255,16 @@
 #define STM32_PWM_TIM9_IRQ_PRIORITY         7
 #define STM32_PWM_TIM12_IRQ_PRIORITY        7
 
+/*
+ * SDC driver system settings.
+ */
+#define STM32_SDC_SDIO_DMA_PRIORITY         3
+#define STM32_SDC_SDIO_IRQ_PRIORITY         9
+#define STM32_SDC_WRITE_TIMEOUT_MS          250
+#define STM32_SDC_READ_TIMEOUT_MS           25
+#define STM32_SDC_CLOCK_ACTIVATION_DELAY    10
+#define STM32_SDC_SDIO_UNALIGNED_SUPPORT    TRUE
+#define STM32_SDC_SDIO_DMA_STREAM           STM32_DMA_STREAM_ID(2, 3)
 
 /*
  * SERIAL driver system settings.
@@ -259,7 +272,7 @@
 #define STM32_SERIAL_USE_USART1             FALSE
 #define STM32_SERIAL_USE_USART2             FALSE
 #define STM32_SERIAL_USE_USART3             FALSE
-#define STM32_SERIAL_USE_UART4              FALSE
+#define STM32_SERIAL_USE_UART4              TRUE
 #define STM32_SERIAL_USE_UART5              FALSE
 #define STM32_SERIAL_USE_USART6             FALSE
 #define STM32_SERIAL_USART1_PRIORITY        12
@@ -302,7 +315,13 @@
 #define STM32_SPI_SPI4_IRQ_PRIORITY         10
 #define STM32_SPI_SPI5_IRQ_PRIORITY         10
 #define STM32_SPI_SPI6_IRQ_PRIORITY         10
-#define STM32_SPI_DMA_ERROR_HOOK(spip)      chSysHalt()
+#define STM32_SPI_DMA_ERROR_HOOK(spip)      osalSysHalt("DMA failure")
+
+/*
+ * ST driver system settings.
+ */
+#define STM32_ST_IRQ_PRIORITY               8
+#define STM32_ST_USE_TIMER                  2
 
 /*
  * UART driver system settings.
@@ -337,23 +356,14 @@
 #define STM32_UART_UART4_DMA_PRIORITY       0
 #define STM32_UART_UART5_DMA_PRIORITY       0
 #define STM32_UART_USART6_DMA_PRIORITY      0
-#define STM32_UART_DMA_ERROR_HOOK(uartp)    chSysHalt()
+#define STM32_UART_DMA_ERROR_HOOK(uartp)    osalSysHalt("DMA failure")
 
 /*
  * USB driver system settings.
  */
-#if 0
-#define STM32_USB_USE_OTG1                  TRUE
-#define STM32_USB_USE_OTG2                  FALSE
-#else
 #define STM32_USB_USE_OTG1                  FALSE
-//#define BOARD_OTG_NOVBUSSENS                TRUE
 #define STM32_USB_USE_OTG2                  TRUE
-#define STM32_USE_USB_OTG2_ULPI             TRUE
 #define STM32_USE_USB_OTG2_HS               TRUE
-#define STM32_USE_USB_OTG2_HS_FS            FALSE
-#endif
-
 
 #define STM32_USB_OTG1_IRQ_PRIORITY         14
 #define STM32_USB_OTG2_IRQ_PRIORITY         14
@@ -363,3 +373,5 @@
 #define STM32_USB_OTG_THREAD_STACK_SIZE     128
 #define STM32_USB_OTGFIFO_FILL_BASEPRI      0
 /** @} */
+
+#endif /* _MCUCONF_H_ */

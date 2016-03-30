@@ -78,12 +78,12 @@ typedef struct {
 extern "C" {
 #endif
 
-  extern EventSource shell_terminated;
+  extern event_source_t shell_terminated;
 
   void mshellInit(void);
   void mshellExit(msg_t msg);
-  Thread *mshellCreate(const MShellConfig *scp, size_t size, tprio_t prio);
-  Thread *mshellCreateStatic(const MShellConfig *scp, void *wsp,
+  thread_t *mshellCreate(const MShellConfig *scp, size_t size, tprio_t prio);
+  thread_t *mshellCreateStatic(const MShellConfig *scp, void *wsp,
                             size_t size, tprio_t prio);
   bool mshellGetLine(BaseSequentialStream *chp, char *line, unsigned size);
 #ifdef __cplusplus

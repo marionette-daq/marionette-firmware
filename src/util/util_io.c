@@ -140,6 +140,24 @@ const char * port_to_string( ioportid_t port )
   return NULL;
 }
 
+void set_status_led(bool r, bool g, bool b)
+{
+  if(r) {
+    palClearPad(GPIOD, GPIOD_LED_STATUS_R);
+  } else {
+    palSetPad(GPIOD, GPIOD_LED_STATUS_R);
+  }
+  if(g) {
+    palClearPad(GPIOD, GPIOD_LED_STATUS_G);
+  } else {
+    palSetPad(GPIOD, GPIOD_LED_STATUS_G);
+  }
+  if(b) {
+    palClearPad(GPIOD, GPIOD_LED_STATUS_B);
+  } else {
+    palSetPad(GPIOD, GPIOD_LED_STATUS_B);
+  }
+}
 
 //! @}
 

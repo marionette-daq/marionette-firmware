@@ -27,10 +27,13 @@
  */
 #define STM32_VDD                   330
 
+/* Board uses ULPI phy */
+#define BOARD_OTG2_USES_ULPI
+
 /*
  * MCU type as defined in the ST header.
  */
-//#define STM32F40_41xxx
+#define STM32F427xx
 #define STM32F427_437xx
 
 /*
@@ -140,7 +143,7 @@
 #define GPIOE_PIN10                    10 
 #define GPIOE_SPI4_NSS                 11 // EXT DAC !SYNC
 #define GPIOE_SPI4_SCK                 12 // EXT DAC
-#define GPIOE_SPI4_MISO                13 // NC
+#define GPIOE_PIN13                13 // NC
 #define GPIOE_SPI4_MOSI                14 // EXT DAC
 #define GPIOE_PIN15                    15 
 
@@ -627,9 +630,9 @@
                              PIN_MODE_INPUT(GPIOE_PIN8) | \
                              PIN_MODE_INPUT(GPIOE_PIN9) | \
                              PIN_MODE_INPUT(GPIOE_PIN10) | \
-                             PIN_MODE_INPUT(GPIOE_SPI4_NSS) | \
+                             PIN_MODE_OUTPUT(GPIOE_SPI4_NSS) | \
                              PIN_MODE_ALTERNATE(GPIOE_SPI4_SCK) | \
-                             PIN_MODE_ALTERNATE(GPIOE_SPI4_MISO) | \
+                             PIN_MODE_INPUT(GPIOE_PIN13) | \
                              PIN_MODE_ALTERNATE(GPIOE_SPI4_MOSI) | \
                              PIN_MODE_OUTPUT(GPIOE_PIN15))
 #define VAL_GPIOE_OTYPER    (PIN_OTYPE_PUSHPULL(GPIOE_PIN0) | \
@@ -645,7 +648,7 @@
                              PIN_OTYPE_PUSHPULL(GPIOE_PIN10) | \
                              PIN_OTYPE_PUSHPULL(GPIOE_SPI4_NSS) | \
                              PIN_OTYPE_PUSHPULL(GPIOE_SPI4_SCK) | \
-                             PIN_OTYPE_PUSHPULL(GPIOE_SPI4_MISO) | \
+                             PIN_OTYPE_PUSHPULL(GPIOE_PIN13) | \
                              PIN_OTYPE_PUSHPULL(GPIOE_SPI4_MOSI) | \
                              PIN_OTYPE_PUSHPULL(GPIOE_PIN15))
 #define VAL_GPIOE_OSPEEDR   (PIN_OSPEED_100M(GPIOE_PIN0) | \
@@ -661,7 +664,7 @@
                              PIN_OSPEED_100M(GPIOE_PIN10) | \
                              PIN_OSPEED_100M(GPIOE_SPI4_NSS) | \
                              PIN_OSPEED_100M(GPIOE_SPI4_SCK) | \
-                             PIN_OSPEED_100M(GPIOE_SPI4_MISO) | \
+                             PIN_OSPEED_100M(GPIOE_PIN13) | \
                              PIN_OSPEED_100M(GPIOE_SPI4_MOSI) | \
                              PIN_OSPEED_100M(GPIOE_PIN15))
 #define VAL_GPIOE_PUPDR     (PIN_PUPDR_FLOATING(GPIOE_PIN0) | \
@@ -677,7 +680,7 @@
                              PIN_PUPDR_FLOATING(GPIOE_PIN10) | \
                              PIN_PUPDR_FLOATING(GPIOE_SPI4_NSS) | \
                              PIN_PUPDR_FLOATING(GPIOE_SPI4_SCK) | \
-                             PIN_PUPDR_FLOATING(GPIOE_SPI4_MISO) | \
+                             PIN_PUPDR_FLOATING(GPIOE_PIN13) | \
                              PIN_PUPDR_FLOATING(GPIOE_SPI4_MOSI) | \
                              PIN_PUPDR_FLOATING(GPIOE_PIN15))
 #define VAL_GPIOE_ODR       (PIN_ODR_HIGH(GPIOE_PIN0) | \
@@ -693,7 +696,7 @@
                              PIN_ODR_HIGH(GPIOE_PIN10) | \
                              PIN_ODR_HIGH(GPIOE_SPI4_NSS) | \
                              PIN_ODR_HIGH(GPIOE_SPI4_SCK) | \
-                             PIN_ODR_HIGH(GPIOE_SPI4_MISO) | \
+                             PIN_ODR_HIGH(GPIOE_PIN13) | \
                              PIN_ODR_HIGH(GPIOE_SPI4_MOSI) | \
                              PIN_ODR_HIGH(GPIOE_PIN15))
 #define VAL_GPIOE_AFRL      (PIN_AFIO_AF(GPIOE_PIN0, 0) | \
@@ -709,7 +712,7 @@
                              PIN_AFIO_AF(GPIOE_PIN10, 0) | \
                              PIN_AFIO_AF(GPIOE_SPI4_NSS, 0) | \
                              PIN_AFIO_AF(GPIOE_SPI4_SCK, 5) | \
-                             PIN_AFIO_AF(GPIOE_SPI4_MISO, 5) | \
+                             PIN_AFIO_AF(GPIOE_PIN13, 5) | \
                              PIN_AFIO_AF(GPIOE_SPI4_MOSI, 5) | \
                              PIN_AFIO_AF(GPIOE_PIN15, 0))
 /*

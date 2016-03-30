@@ -104,7 +104,7 @@ static bool fetch_test_sdio_cmd(BaseSequentialStream * chp, char * cmd_list[], c
   return false;
 
 
-  if (sdcConnect(&SDCD1) == CH_FAILED) {
+  if( !sdcConnect(&SDCD1) ) {
     chprintf(chp, "sdcConnect FAILED\r\n");
     return false;
   } else {
