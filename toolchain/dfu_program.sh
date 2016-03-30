@@ -1,5 +1,5 @@
 #!/bin/bash -x
-export FIRMWARE_IMAGE=src/marionette/build/ch.bin
+export FIRMWARE_IMAGE=$1
 
 if [ ! -e $FIRMWARE_IMAGE ]
 then
