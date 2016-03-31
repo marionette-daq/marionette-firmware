@@ -1,0 +1,59 @@
+
+Thu 31 March 2016 10:51:44 (PDT)
+Gavin, K chatting about software stuff
+
+
+Structure:
+'M_PIPE' thread for streaming
+	interrupts on ADC/DAC buffers set flag in mainline that M_PIPE reads
+control can directly set values
+text control and data streams (not binary until needed)
+	unicode? utf-8?
+
+Requests:
+Frequency Counter using a Timer
+	Not using ChibiOS event capture
+	two timers
+		counter
+		reliable time base period counter
+
+Triggers
+	start / stop data stream, enable outputs, alarms/events
+
+APDM:
+	First 3 things
+		ADC
+			gaving working on this
+		M_PIPE
+		DAQ
+			Setpoints only so ok right now
+		ETR
+			external trigger pins   (Tim request)
+				for capturing
+TOVA:
+	First 3 things
+		pulse width modulator to control servos
+			Gpio locations unconsidered
+				Timer channels on which gpio
+				Could cause board revision to move pins around
+					Try to move PWM capable pins on GPIO connector - Andrew
+				Hardwire PWM timers
+		CAN Bus
+			Listen to a bus (snoop) and stream data without dropping messages  (1MB/s)
+			Sending a message not critical
+			Blue sky
+				Replace CAN to USB drivers
+					Open ttyACMx and read and write through M to CAN
+TODO:
+	Next meeting: April 14 @ Tova
+	2 weeks: Have hardware
+	Move meeting notes to wiki
+	Move Timer pins to GPIO Connector appropriately before board submit
+	ADC develop
+	M_PIPE start	
+
+
+
+
+
+
