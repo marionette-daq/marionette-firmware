@@ -46,6 +46,7 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
 static bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_spi_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_spi_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_spi_clocks_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 
 
 static fetch_command_t fetch_spi_commands[] = {
@@ -62,6 +63,7 @@ static fetch_command_t fetch_spi_commands[] = {
     { fetch_spi_reset_cmd,     "reset",     "Reset SPI driver\n" \
                                             "Usage: reset(<dev>)" },
     { fetch_spi_help_cmd,      "help",      "SPI command help" },
+    { fetch_spi_clocks_cmd,    "clocks",    "SPI clock divider values" },
     { NULL, NULL, NULL } // null terminate list
   };
 
@@ -82,35 +84,70 @@ static SPIDriver * parse_spi_dev( char * str, int32_t * dev )
 
   switch( num )
   {
-#if STM32_SPI_USE_SPI2
     case 2:
       return &SPID2;
-#endif
-#if STM32_SPI_USE_SPI6
     case 6:
       return &SPID6;
-#endif
     default:
       return NULL;
   }
 }
 
+static bool fetch_spi_clocks_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0); 
+  
+  util_message_uint32(chp, "SPI2_PCLK", STM32_PCLK1);
+  util_message_uint32(chp, "SPI2_DIV_0", STM32_PCLK1 / 2);
+  util_message_uint32(chp, "SPI2_DIV_1", STM32_PCLK1 / 4);
+  util_message_uint32(chp, "SPI2_DIV_2", STM32_PCLK1 / 8);
+  util_message_uint32(chp, "SPI2_DIV_3", STM32_PCLK1 / 16);
+  util_message_uint32(chp, "SPI2_DIV_4", STM32_PCLK1 / 32);
+  util_message_uint32(chp, "SPI2_DIV_5", STM32_PCLK1 / 64);
+  util_message_uint32(chp, "SPI2_DIV_6", STM32_PCLK1 / 128);
+  util_message_uint32(chp, "SPI2_DIV_7", STM32_PCLK1 / 256);
+
+  util_message_uint32(chp, "SPI6_PCLK", STM32_PCLK2);
+  util_message_uint32(chp, "SPI6_DIV_0", STM32_PCLK2 / 2);
+  util_message_uint32(chp, "SPI6_DIV_1", STM32_PCLK2 / 4);
+  util_message_uint32(chp, "SPI6_DIV_2", STM32_PCLK2 / 8);
+  util_message_uint32(chp, "SPI6_DIV_3", STM32_PCLK2 / 16);
+  util_message_uint32(chp, "SPI6_DIV_4", STM32_PCLK2 / 32);
+  util_message_uint32(chp, "SPI6_DIV_5", STM32_PCLK2 / 64);
+  util_message_uint32(chp, "SPI6_DIV_6", STM32_PCLK2 / 128);
+  util_message_uint32(chp, "SPI6_DIV_7", STM32_PCLK2 / 256);
+
+  return true;
+}
+
 static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
+  FETCH_PARAM_CHECK(chp, cmd_list, 7, 7); 
+
   char * endptr;
   int32_t spi_dev;
   SPIDriver * spi_drv;
   SPIConfig * spi_cfg;
 
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 7) )
-  {
-    return false;
-  }
 
   if( (spi_drv = parse_spi_dev(data_list[0], &spi_dev)) == NULL )
   {
     util_message_error(chp, "invalid device identifier");
     return false;
+  }
+
+  switch(spi_dev)
+  {
+    case 2:
+      palSetPadMode(GPIOI, GPIOI_PI1_SPI2_SCK, PAL_MODE_ALTERNATE(5));
+      palSetPadMode(GPIOI, GPIOI_PI2_SPI2_MISO, PAL_MODE_ALTERNATE(5));
+      palSetPadMode(GPIOI, GPIOI_PI3_SPI2_MOSI, PAL_MODE_ALTERNATE(5));
+      break;
+    case 6:
+      palSetPadMode(GPIOG, GPIOG_PG13_SPI6_SCK, PAL_MODE_ALTERNATE(5));
+      palSetPadMode(GPIOG, GPIOG_PG12_SPI6_MISO, PAL_MODE_ALTERNATE(5));
+      palSetPadMode(GPIOG, GPIOG_PG14_SPI6_MOSI, PAL_MODE_ALTERNATE(5));
+      break;
   }
 
   spi_cfg = &spi_configs[spi_dev-1];
@@ -202,6 +239,8 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
 
 static bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
+  FETCH_PARAM_CHECK(chp, cmd_list, 2, MAX_SPI_BYTES + 2);
+
   static uint8_t tx_buffer[MAX_SPI_BYTES];
   static uint8_t rx_buffer[MAX_SPI_BYTES];
   uint32_t byte_count = 0;
@@ -212,11 +251,6 @@ static bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, char * cmd_list[]
   SPIDriver * spi_drv;
   SPIConfig * spi_cfg;
 
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, MAX_SPI_BYTES + 1) )
-  {
-    return false;
-  }
-  
   if( (spi_drv = parse_spi_dev(data_list[0], &spi_dev)) == NULL )
   {
     util_message_error(chp, "invalid device identifier");
@@ -272,21 +306,18 @@ static bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, char * cmd_list[]
     spiUnselect(spi_drv);
   }
 
-  util_message_uint32(chp, "count", &byte_count, 1);
-  util_message_hex_uint8( chp, "rx", rx_buffer, byte_count);
+  util_message_uint32(chp, "count", byte_count);
+  util_message_hex_uint8_array( chp, "rx", rx_buffer, byte_count);
 
   return true;
 }
 
 static bool fetch_spi_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
+  FETCH_PARAM_CHECK(chp, cmd_list, 1, 1);
+
   int32_t spi_dev;
   SPIDriver * spi_drv;
-
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 1) )
-  {
-    return false;
-  }
   
   if( (spi_drv = parse_spi_dev(data_list[0], &spi_dev)) == NULL )
   {
@@ -301,12 +332,9 @@ static bool fetch_spi_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
 
 static bool fetch_spi_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-  util_message_info(chp, "Usage legend: <> required, [] optional, | or,");
-  util_message_info(chp, "              ... continuation, {} comment");
-  
-  util_message_info(chp, "dev = 2 | 6");
-  util_message_info(chp, "base = (reference strtol c function)");
+  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
 
+  fetch_display_help_legend(chp);
   fetch_display_help(chp, fetch_spi_commands);
 	return true;
 }
@@ -328,18 +356,20 @@ void fetch_spi_init(BaseSequentialStream * chp)
  */
 bool fetch_spi_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-  return fetch_dispatch(chp, fetch_spi_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);
+  return fetch_dispatch(chp, fetch_spi_commands, cmd_list, data_list);
 }
 
 
 bool fetch_spi_reset(BaseSequentialStream * chp)
 {
-#if STM32_SPI_USE_SPI2
   spiStop(&SPID2);
-#endif
-#if STM32_SPI_USE_SPI6
   spiStop(&SPID6);
-#endif
+  palSetPadMode(GPIOI, GPIOI_PI1_SPI2_SCK,   PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_FLOATING);
+  palSetPadMode(GPIOI, GPIOI_PI2_SPI2_MISO,  PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_FLOATING);
+  palSetPadMode(GPIOI, GPIOI_PI3_SPI2_MOSI,  PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_FLOATING);
+  palSetPadMode(GPIOG, GPIOG_PG13_SPI6_SCK,  PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_FLOATING);
+  palSetPadMode(GPIOG, GPIOG_PG12_SPI6_MISO, PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_FLOATING);
+  palSetPadMode(GPIOG, GPIOG_PG14_SPI6_MOSI, PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_FLOATING);
   return true;
 }
 

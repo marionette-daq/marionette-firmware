@@ -93,7 +93,7 @@ PROJECT = ch
 CONF_DIR  = conf
 TOOLCHAIN = ../../toolchain
 CHIBIOS   = ../../ChibiOS-RT
-BOARD     = Marionette_PCB_rev2
+BOARD     = Marionette_PCB_rev2_1
 BOARDDIR  = ../boards/$(BOARD)
 
 # Marionette specific files
@@ -125,9 +125,9 @@ FATFSSRC = ${CHIBIOS}/os/various/fatfs_bindings/fatfs_diskio.c \
 # setting.
 MSRC = $(wildcard $(MARIONETTE_UTIL)/*.c)
 MSRC += $(wildcard $(MARIONETTE_USB)/*.c)
-#MSRC += $(wildcard $(MARIONETTE_PERIPHERALS)/*.c)
 MSRC += $(wildcard $(MARIONETTE_FETCH)/*.c)
 MSRC += $(wildcard $(MARIONETTE_MSHELL)/*.c)
+MSRC += $(wildcard $(MARIONETTE_MPIPE)/*.c)
 
 CSRC = $(STARTUPSRC) \
 			 $(KERNSRC) \
@@ -176,6 +176,7 @@ INCDIR = $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
 	       $(MARIONETTE_USB)/include \
          $(MARIONETTE_FETCH)/include \
 	       $(MARIONETTE_MSHELL)/include \
+	       $(MARIONETTE_MPIPE)/include \
 	       include \
 	       $(FATFS_DIR)/src \
 	       $(CONF_DIR)

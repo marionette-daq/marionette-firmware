@@ -1,0 +1,62 @@
+#include "ch.h"
+#include "hal.h"
+
+#include <string.h>
+#include <stdbool.h>
+#include <stdlib.h>
+
+#include "util_messages.h"
+#include "util_strings.h"
+#include "util_general.h"
+#include "util_io.h"
+
+#include "fetch_defs.h"
+#include "fetch_<template>.h"
+#include "fetch.h"
+
+
+// list all command function prototypes here 
+static bool fetch_<template>_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+
+static fetch_command_t fetch_<template>_commands[] = {
+    { fetch_<template>_help_cmd,        "help",       "Display command info"},
+    { NULL, NULL, NULL } // null terminate list
+  };
+
+static bool fetch_<template>_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+
+  fetch_display_help_legend(chp);
+  fetch_display_help(chp, fetch_<template>_commands);
+	return true;
+}
+
+void fetch_<template>_init(BaseSequentialStream * chp)
+{
+  static bool <template>_init_flag = false;
+
+  if( <template>_init_flag )
+    return;
+
+  // Init stuff goes here
+  // ...
+
+  <template>_init_flag = true;
+}
+
+/*! \brief dispatch a specific command
+ */
+bool fetch_<template>_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+{
+  return fetch_dispatch(chp, fetch_<template>_commands, cmd_list, data_list);
+}
+
+bool fetch_<template>_reset(BaseSequentialStream * chp)
+{
+  // TODO
+  return true;
+}
+
+/*! @} */
+

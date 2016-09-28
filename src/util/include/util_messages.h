@@ -28,23 +28,38 @@ extern "C" {
 
 void util_message_begin( BaseSequentialStream * chp);
 void util_message_end( BaseSequentialStream * chp, bool success);
+
 void util_message_debug( BaseSequentialStream * chp, char * file, int line, const char * func, char * fmt, ...);
 void util_message_info( BaseSequentialStream * chp, char * fmt, ...);
 void util_message_warning( BaseSequentialStream * chp, char * fmt, ...);
 void util_message_error( BaseSequentialStream * chp, char * fmt, ...);
+
 void util_message_string( BaseSequentialStream * chp, char * name, char * fmt, ...);
 void util_message_string_array( BaseSequentialStream * chp, char * name, char * str_list[], uint32_t count );
+
 void util_message_bool( BaseSequentialStream * chp, char * name, bool data);
-void util_message_double( BaseSequentialStream * chp, char * name, double * data, uint32_t count);
-void util_message_int8( BaseSequentialStream * chp, char * name, int8_t * data, uint32_t count);
-void util_message_uint8( BaseSequentialStream * chp, char * name, uint8_t * data, uint32_t count);
-void util_message_int16( BaseSequentialStream * chp, char * name, int16_t * data, uint32_t count);
-void util_message_uint16( BaseSequentialStream * chp, char * name, uint16_t * data, uint32_t count);
-void util_message_int32( BaseSequentialStream * chp, char * name, int32_t * data, uint32_t count);
-void util_message_uint32( BaseSequentialStream * chp, char * name, uint32_t * data, uint32_t count);
-void util_message_hex_uint8( BaseSequentialStream * chp, char * name, uint8_t * data, uint32_t count);
-void util_message_hex_uint16( BaseSequentialStream * chp, char * name, uint16_t * data, uint32_t count);
-void util_message_hex_uint32( BaseSequentialStream * chp, char * name, uint32_t * data, uint32_t count);
+
+void util_message_double( BaseSequentialStream * chp, char * name, double data);
+void util_message_int8( BaseSequentialStream * chp, char * name, int8_t data);
+void util_message_uint8( BaseSequentialStream * chp, char * name, uint8_t data);
+void util_message_int16( BaseSequentialStream * chp, char * name, int16_t data);
+void util_message_uint16( BaseSequentialStream * chp, char * name, uint16_t data);
+void util_message_int32( BaseSequentialStream * chp, char * name, int32_t data);
+void util_message_uint32( BaseSequentialStream * chp, char * name, uint32_t data);
+void util_message_hex_uint8( BaseSequentialStream * chp, char * name, uint8_t data);
+void util_message_hex_uint16( BaseSequentialStream * chp, char * name, uint16_t data);
+void util_message_hex_uint32( BaseSequentialStream * chp, char * name, uint32_t data);
+
+void util_message_double_array( BaseSequentialStream * chp, char * name, double * data, uint32_t count);
+void util_message_int8_array( BaseSequentialStream * chp, char * name, int8_t * data, uint32_t count);
+void util_message_uint8_array( BaseSequentialStream * chp, char * name, uint8_t * data, uint32_t count);
+void util_message_int16_array( BaseSequentialStream * chp, char * name, int16_t * data, uint32_t count);
+void util_message_uint16_array( BaseSequentialStream * chp, char * name, uint16_t * data, uint32_t count);
+void util_message_int32_array( BaseSequentialStream * chp, char * name, int32_t * data, uint32_t count);
+void util_message_uint32_array( BaseSequentialStream * chp, char * name, uint32_t * data, uint32_t count);
+void util_message_hex_uint8_array( BaseSequentialStream * chp, char * name, uint8_t * data, uint32_t count);
+void util_message_hex_uint16_array( BaseSequentialStream * chp, char * name, uint16_t * data, uint32_t count);
+void util_message_hex_uint32_array( BaseSequentialStream * chp, char * name, uint32_t * data, uint32_t count);
 
 #ifdef __cplusplus
 }

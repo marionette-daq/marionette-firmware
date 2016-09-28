@@ -85,6 +85,17 @@ const str_port_map_t fetch_port_map[] =
 	{"i", GPIOI}
 };
 
+const alt_pin_mode_t fetch_alt_map[] =
+{
+  // TODO
+};
+
+
+bool set_alt_pin_mode( ioportid_t port, uint32_t pin )
+{
+  // TODO
+  return false;
+}
 
 /*! \brief convert string to port pointer
  */
@@ -143,19 +154,19 @@ const char * port_to_string( ioportid_t port )
 void set_status_led(bool r, bool g, bool b)
 {
   if(r) {
-    palClearPad(GPIOD, GPIOD_LED_STATUS_R);
+    palClearPad(GPIOD, GPIOD_PD13_LED_STATUS_R);
   } else {
-    palSetPad(GPIOD, GPIOD_LED_STATUS_R);
+    palSetPad(GPIOD, GPIOD_PD13_LED_STATUS_R);
   }
   if(g) {
-    palClearPad(GPIOD, GPIOD_LED_STATUS_G);
+    palClearPad(GPIOD, GPIOD_PD14_LED_STATUS_G);
   } else {
-    palSetPad(GPIOD, GPIOD_LED_STATUS_G);
+    palSetPad(GPIOD, GPIOD_PD14_LED_STATUS_G);
   }
   if(b) {
-    palClearPad(GPIOD, GPIOD_LED_STATUS_B);
+    palClearPad(GPIOD, GPIOD_PD15_LED_STATUS_B);
   } else {
-    palSetPad(GPIOD, GPIOD_LED_STATUS_B);
+    palSetPad(GPIOD, GPIOD_PD15_LED_STATUS_B);
   }
 }
 

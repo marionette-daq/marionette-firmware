@@ -42,9 +42,19 @@
 #include "mshell_sync.h"
 #include "mshell_state.h"
 
-static bool mshell_echo_chars = MSHELL_ECHO_INPUT_CHARS;
+#ifndef MSHELL_WA_SIZE
+#define MSHELL_WA_SIZE 16384
+#endif
 
-event_source_t mshell_terminated;
+#ifndef MSHELL_PRIO
+#define MSHELL_PRIO HIGHPRIO
+#endif
+
+static THD_WORKING_AREA(mshell_wa, MSHELL_WA_SIZE);
+
+thread_t * mshell_tp = NULL;
+
+static bool mshell_echo_chars = MSHELL_ECHO_INPUT_CHARS;
 
 static void list_commands(BaseSequentialStream * chp, const mshell_command_t * scp)
 {
@@ -128,7 +138,7 @@ static bool cmd_info(BaseSequentialStream * chp, int argc, char * argv[])
 	}
 
 	util_message_string(chp, "firmware_version", GIT_COMMIT_VERSION);
-	util_message_hex_uint32(chp, "chip_id", chip_id, 3);
+	util_message_hex_uint32_array(chp, "chip_id", chip_id, 3);
 	util_message_string(chp, "kernel", CH_KERNEL_VERSION);
 
 
@@ -155,7 +165,7 @@ static bool cmd_systime(BaseSequentialStream * chp, int argc, char * argv[] UNUS
 	}
 
   uint32_t time_value = chVTGetSystemTime();
-	util_message_uint32(chp, "systime", &time_value, 1);
+	util_message_uint32(chp, "systime", time_value);
   return true;
 }
 
@@ -179,13 +189,15 @@ static bool cmd_reset(BaseSequentialStream * chp, int argc, char * argv[] UNUSED
  */
 static mshell_command_t local_commands[] =
 {
-	{cmd_info,      "info",     "Query system info"},
-	{cmd_systime,   "systime",  "Query system time"},
-	{cmd_prompt,    "prompt",   "Enable shell prompt"},
-	{cmd_noprompt,  "noprompt", "Disable shell prompt"},
-	{cmd_echo,      "echo",     "Enable shell echo"},
-	{cmd_noecho,    "noecho",   "Disable shell echo"},
-  {cmd_reset,     "reset",    "Reset shell to defaults"},
+	{cmd_info,      "info",       "Query system info"},
+	{cmd_systime,   "systime",    "Query system time"},
+	{cmd_prompt,    "prompt",     "Enable shell prompt"},
+	{cmd_noprompt,  "noprompt",   "Disable shell prompt"},
+	{cmd_noprompt,  "no_prompt",  NULL},
+	{cmd_echo,      "echo",       "Enable shell echo"},
+	{cmd_noecho,    "noecho",     "Disable shell echo"},
+	{cmd_noecho,    "no_echo",    NULL},
+  {cmd_reset,     "reset",      "Reset shell to defaults"},
 	{NULL, NULL, NULL}
 };
 
@@ -296,12 +308,12 @@ static void mshell_thread(void * p)
 	util_message_info(getMShellStreamPtr(), "Marionette Shell (\"help\" or \"+help\" for commands)");
 
 	//! initialize parser.
-	fetch_init(chp) ;
+	fetch_init(chp);
 
-	while (true)
+  while(!chThdShouldTerminateX())
 	{
 		mshell_putprompt();
-		ret = mshellGetLine(chp, input_line, sizeof(input_line));
+		ret = mshellGetLine(chp, input_line, sizeof(input_line)); // FIXME add tiemout
 		if (ret)
 		{
       chprintf(chp, "\r\n");
@@ -326,7 +338,7 @@ static void mshell_thread(void * p)
 		}
 	}
 
-	mshellExit(MSG_OK);
+  chThdExit(MSG_OK);
 }
 
 
@@ -337,61 +349,27 @@ static void mshell_thread(void * p)
  */
 void mshellInit()
 {
-	chEvtObjectInit(&mshell_terminated);
 	mshell_io_sem_init();
 }
 
-/**
- * @brief   Terminates the shell.
- * @note    Must be invoked from the command handlers.
- * @note    Does not return.
- *
- * @param[in] msg       shell exit code
- *
- * @api
- */
-void mshellExit(msg_t msg)
+
+void mshellStart(const MShellConfig * cfg)
 {
-	/* Atomically broadcasting the event source and terminating the thread,
-	   there is not a chSysUnlock() because the thread terminates upon return.*/
-	chSysLock();
-	chEvtBroadcastI(&mshell_terminated);
-	chThdExitS(msg);
+  // start/restart mshell thread
+  if( mshell_tp == NULL || chThdTerminatedX(mshell_tp) )
+  {
+	  mshell_tp = chThdCreateStatic(mshell_wa, sizeof(mshell_wa), MSHELL_PRIO, mshell_thread, (void *)cfg);
+  }
 }
 
-/**
- * @brief   Spawns a new shell.
- * @pre     @p CH_USE_HEAP and @p CH_USE_DYNAMIC must be enabled.
- *
- * @param[in] scp       pointer to a @p MShellConfig object
- * @param[in] size      size of the shell working area to be allocated
- * @param[in] prio      priority level for the new shell
- * @return              A pointer to the shell thread.
- * @retval NULL         thread creation failed because memory allocation.
- *
- * @api
- */
-#if CH_CFG_USE_HEAP && CH_CFG_USE_DYNAMIC
-thread_t * mshellCreate(const MShellConfig * scp, size_t size, tprio_t prio)
+void mshellStop(void)
 {
-	return chThdCreateFromHeap(NULL, size, prio, mshell_thread, (void *)scp);
-}
-#endif
-
-/*!
- * \brief   Create statically allocated shell thread.
- *
- * \param[in] scp       pointer to a \p MShellConfig object
- * \param[in] wsp       pointer to a working area dedicated to the shell thread stack
- * \param[in] size      size of the shell working area
- * \param[in] prio      priority level for the new shell
- * \return              A pointer to the shell thread.
- *
- */
-thread_t * shellCreateStatic(const MShellConfig * scp, void * wsp,
-                           size_t size, tprio_t prio)
-{
-	return chThdCreateStatic(wsp, size, prio, mshell_thread, (void *)scp);
+  if( mshell_tp )
+  {
+    chThdTerminate(mshell_tp);
+    chThdWait(mshell_tp);
+    mshell_tp = NULL;
+  }
 }
 
 /*!
@@ -417,7 +395,7 @@ bool mshellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
 	while (true)
 	{
 		char c;
-		if (chSequentialStreamRead(chp, (uint8_t *)&c, 1) == 0)
+		if (chSequentialStreamRead(chp, (uint8_t *)&c, 1) == 0) // FIXME add timeout so that we do not stall the calling thread forever
 		{
 			return true;
 		}

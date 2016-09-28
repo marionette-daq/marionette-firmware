@@ -154,11 +154,11 @@ void util_message_bool( BaseSequentialStream * chp, char * name, bool data)
 	chBSemWait( &mshell_io_sem );
   if( data )
   {
-	  chprintf(chp, "B:%s:true\r\n", name);
+	  chprintf(chp, "B:%s:1\r\n", name);
   }
   else
   {
-    chprintf(chp, "B:%s:false\r\n", name);
+    chprintf(chp, "B:%s:0\r\n", name);
   }
 	chBSemSignal( &mshell_io_sem );
 }
@@ -211,7 +211,21 @@ void util_message_string_array( BaseSequentialStream * chp, char * name, char * 
   chBSemSignal( &mshell_io_sem );
 }
 
-void util_message_double( BaseSequentialStream * chp, char * name, double * data, uint32_t count)
+void util_message_double( BaseSequentialStream * chp, char * name, double data)
+{
+	if(chp == NULL)
+	{
+		return;
+	}
+
+	chBSemWait( &mshell_io_sem );
+
+	chprintf(chp, "F:%s:%f\r\n", name, data);
+
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_double_array( BaseSequentialStream * chp, char * name, double * data, uint32_t count)
 {
 	if(chp == NULL)
 	{
@@ -236,7 +250,21 @@ void util_message_double( BaseSequentialStream * chp, char * name, double * data
 	chBSemSignal( &mshell_io_sem );
 }
 
-void util_message_int8( BaseSequentialStream * chp, char * name, int8_t * data, uint32_t count)
+void util_message_int8( BaseSequentialStream * chp, char * name, int8_t data)
+{
+	if(chp == NULL)
+	{
+		return;
+	}
+
+	chBSemWait( &mshell_io_sem );
+
+	chprintf(chp, "S8:%s:%d\r\n", name, data);
+
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_int8_array( BaseSequentialStream * chp, char * name, int8_t * data, uint32_t count)
 {
 	if(chp == NULL)
 	{
@@ -261,7 +289,21 @@ void util_message_int8( BaseSequentialStream * chp, char * name, int8_t * data, 
 	chBSemSignal( &mshell_io_sem );
 }
 
-void util_message_uint8( BaseSequentialStream * chp, char * name, uint8_t * data, uint32_t count)
+void util_message_uint8( BaseSequentialStream * chp, char * name, uint8_t data)
+{
+	if(chp == NULL)
+	{
+		return;
+	}
+
+	chBSemWait( &mshell_io_sem );
+
+	chprintf(chp, "U8:%s:%u\r\n", name, data);
+
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_uint8_array( BaseSequentialStream * chp, char * name, uint8_t * data, uint32_t count)
 {
 	if(chp == NULL)
 	{
@@ -285,7 +327,21 @@ void util_message_uint8( BaseSequentialStream * chp, char * name, uint8_t * data
 	chBSemSignal( &mshell_io_sem );
 }
 
-void util_message_int16( BaseSequentialStream * chp, char * name, int16_t * data, uint32_t count)
+void util_message_int16( BaseSequentialStream * chp, char * name, int16_t data)
+{
+	if(chp == NULL)
+	{
+		return;
+	}
+
+	chBSemWait( &mshell_io_sem );
+
+	chprintf(chp, "S16:%s:%d\r\n", name, data);
+
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_int16_array( BaseSequentialStream * chp, char * name, int16_t * data, uint32_t count)
 {
 	if(chp == NULL)
 	{
@@ -309,7 +365,20 @@ void util_message_int16( BaseSequentialStream * chp, char * name, int16_t * data
 	chBSemSignal( &mshell_io_sem );
 }
 
-void util_message_uint16( BaseSequentialStream * chp, char * name, uint16_t * data, uint32_t count)
+void util_message_uint16( BaseSequentialStream * chp, char * name, uint16_t data)
+{
+	if(chp == NULL)
+	{
+		return;
+	}
+	chBSemWait( &mshell_io_sem );
+
+	chprintf(chp, "U16:%s:%u\r\n", name, data);
+
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_uint16_array( BaseSequentialStream * chp, char * name, uint16_t * data, uint32_t count)
 {
 	if(chp == NULL)
 	{
@@ -332,7 +401,21 @@ void util_message_uint16( BaseSequentialStream * chp, char * name, uint16_t * da
 	chBSemSignal( &mshell_io_sem );
 }
 
-void util_message_int32( BaseSequentialStream * chp, char * name, int32_t * data, uint32_t count)
+void util_message_int32( BaseSequentialStream * chp, char * name, int32_t data)
+{
+	if(chp == NULL)
+	{
+		return;
+	}
+
+	chBSemWait( &mshell_io_sem );
+
+	chprintf(chp, "S32:%s:%d\r\n", name, data);
+
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_int32_array( BaseSequentialStream * chp, char * name, int32_t * data, uint32_t count)
 {
 	if(chp == NULL)
 	{
@@ -356,7 +439,21 @@ void util_message_int32( BaseSequentialStream * chp, char * name, int32_t * data
 	chBSemSignal( &mshell_io_sem );
 }
 
-void util_message_uint32( BaseSequentialStream * chp, char * name, uint32_t * data, uint32_t count)
+void util_message_uint32( BaseSequentialStream * chp, char * name, uint32_t data)
+{
+	if(chp == NULL)
+	{
+		return;
+	}
+
+	chBSemWait( &mshell_io_sem );
+
+	chprintf(chp, "U32:%s:%d\r\n", name, data);
+
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_uint32_array( BaseSequentialStream * chp, char * name, uint32_t * data, uint32_t count)
 {
 	if(chp == NULL)
 	{
@@ -380,7 +477,21 @@ void util_message_uint32( BaseSequentialStream * chp, char * name, uint32_t * da
 	chBSemSignal( &mshell_io_sem );
 }
 
-void util_message_hex_uint8( BaseSequentialStream * chp, char * name, uint8_t * data, uint32_t count)
+void util_message_hex_uint8( BaseSequentialStream * chp, char * name, uint8_t data)
+{
+	if(chp == NULL)
+	{
+		return;
+	}
+
+	chBSemWait( &mshell_io_sem );
+
+	chprintf(chp, "H8:%s:%02X\r\n", name, data);
+
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_hex_uint8_array( BaseSequentialStream * chp, char * name, uint8_t * data, uint32_t count)
 {
 	if(chp == NULL)
 	{
@@ -404,7 +515,21 @@ void util_message_hex_uint8( BaseSequentialStream * chp, char * name, uint8_t * 
 	chBSemSignal( &mshell_io_sem );
 }
 
-void util_message_hex_uint16( BaseSequentialStream * chp, char * name, uint16_t * data, uint32_t count)
+void util_message_hex_uint16( BaseSequentialStream * chp, char * name, uint16_t data)
+{
+	if(chp == NULL)
+	{
+		return;
+	}
+
+	chBSemWait( &mshell_io_sem );
+
+	chprintf(chp, "H16:%s:%04X\r\n", name, data);
+
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_hex_uint16_array( BaseSequentialStream * chp, char * name, uint16_t * data, uint32_t count)
 {
 	if(chp == NULL)
 	{
@@ -428,7 +553,21 @@ void util_message_hex_uint16( BaseSequentialStream * chp, char * name, uint16_t 
 	chBSemSignal( &mshell_io_sem );
 }
 
-void util_message_hex_uint32( BaseSequentialStream * chp, char * name, uint32_t * data, uint32_t count)
+void util_message_hex_uint32( BaseSequentialStream * chp, char * name, uint32_t data)
+{
+	if(chp == NULL)
+	{
+		return;
+	}
+
+	chBSemWait( &mshell_io_sem );
+
+	chprintf(chp, "H32:%s:%08X\r\n", name, data);
+
+	chBSemSignal( &mshell_io_sem );
+}
+
+void util_message_hex_uint32_array( BaseSequentialStream * chp, char * name, uint32_t * data, uint32_t count)
 {
 	if(chp == NULL)
 	{

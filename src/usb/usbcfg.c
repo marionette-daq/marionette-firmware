@@ -27,12 +27,13 @@
 #if STM32_USB_USE_OTG2
 # define USBD_PERIPHERIAL   USBD2
 #else
-# error "USB needs to be configured for OTG2/ULPI HS"
+# warning "USB needs to be configured for OTG2/ULPI HS"
+# define USBD_PERIPHERIAL   USBD1
 #endif
 
 #define USB_MAX_PACKET_SIZE                    512
 #define USB_CDC_DESCRIPTOR_MAX_PACKET_SIZE     SERIAL_USB_BUFFERS_SIZE
-#define USB_CDC_INTERUPT_INTERVAL              0x10
+#define USB_CDC_INTERUPT_INTERVAL              0x07 // 2**(x-1) * 125e-6 = 8ms
 
 /*see www.usb.org/developers/whitepapers/iadclasscode_r10.pdf*/
 #define MULTI_FUNCTION_DEVICE_CLASS       0xEF
@@ -44,15 +45,15 @@
 #define MARIONETTE_APDM_USB_PID           0xff00
 
 /*
- * Endpoints to be used for USBD1.
+ * Endpoints to be used for USBD.
  */
-#define USBD1_DATA_REQUEST_SDU1_EP1           1
-#define USBD1_DATA_AVAILABLE_SDU1_EP1         1
-#define USBD1_INTERRUPT_REQUEST_SDU1_EP2      2
+#define USBD_DATA_REQUEST_SDU1_EP1           1
+#define USBD_DATA_AVAILABLE_SDU1_EP1         1
+#define USBD_INTERRUPT_REQUEST_SDU1_EP2      2
 
-#define USBD1_DATA_REQUEST_SDU2_EP3           3
-#define USBD1_DATA_AVAILABLE_SDU2_EP3         3
-#define USBD1_INTERRUPT_REQUEST_SDU2_EP4      4
+#define USBD_DATA_REQUEST_SDU2_EP3           3
+#define USBD_DATA_AVAILABLE_SDU2_EP3         3
+#define USBD_INTERRUPT_REQUEST_SDU2_EP4      4
 
 SerialUSBDriver SDU1;
 SerialUSBDriver SDU2;
@@ -137,7 +138,7 @@ static const uint8_t vcom_configuration_descriptor_data[141] = {
   USB_DESC_BYTE         (0x01),         /* bSlaveInterface0 (Data Class
                                            Interface).                      */
   /* Endpoint 2 Descriptor.*/
-  USB_DESC_ENDPOINT     (USBD1_INTERRUPT_REQUEST_SDU1_EP2|0x80,
+  USB_DESC_ENDPOINT     (USBD_INTERRUPT_REQUEST_SDU1_EP2|0x80,
                          0x03,          /* bmAttributes (Interrupt).        */
                          0x0008,        /* wMaxPacketSize.                  */
                          USB_CDC_INTERUPT_INTERVAL),         /* bInterval.                       */
@@ -153,12 +154,12 @@ static const uint8_t vcom_configuration_descriptor_data[141] = {
                                            4.7).                            */
                          0x00),         /* iInterface.                      */
   /* Endpoint 3 Descriptor.*/
-  USB_DESC_ENDPOINT     (USBD1_DATA_AVAILABLE_SDU1_EP1,       /* bEndpointAddress.*/
+  USB_DESC_ENDPOINT     (USBD_DATA_AVAILABLE_SDU1_EP1,       /* bEndpointAddress.*/
                          0x02,          /* bmAttributes (Bulk).             */
                          USB_CDC_DESCRIPTOR_MAX_PACKET_SIZE,        /* wMaxPacketSize.                  */
                          0x00),         /* bInterval.                       */
   /* Endpoint 1 Descriptor.*/
-  USB_DESC_ENDPOINT     (USBD1_DATA_REQUEST_SDU1_EP1|0x80,    /* bEndpointAddress.*/
+  USB_DESC_ENDPOINT     (USBD_DATA_REQUEST_SDU1_EP1|0x80,    /* bEndpointAddress.*/
                          0x02,          /* bmAttributes (Bulk).             */
                          USB_CDC_DESCRIPTOR_MAX_PACKET_SIZE,        /* wMaxPacketSize.                  */
                          0x00),         /* bInterval.                       */
@@ -214,7 +215,7 @@ static const uint8_t vcom_configuration_descriptor_data[141] = {
   USB_DESC_BYTE         (0x03),         /* bSlaveInterface0 (Data Class
                                            Interface).                      */
   /* Endpoint 2 Descriptor.*/
-  USB_DESC_ENDPOINT     (USBD1_INTERRUPT_REQUEST_SDU2_EP4|0x80,
+  USB_DESC_ENDPOINT     (USBD_INTERRUPT_REQUEST_SDU2_EP4|0x80,
                          0x03,          /* bmAttributes (Interrupt).        */
                          0x0008,        /* wMaxPacketSize.                  */
                          USB_CDC_INTERUPT_INTERVAL),         /* bInterval.                       */
@@ -230,12 +231,12 @@ static const uint8_t vcom_configuration_descriptor_data[141] = {
                                            4.7).                            */
                          0x00),         /* iInterface.                      */
   /* Endpoint 3 Descriptor.*/
-  USB_DESC_ENDPOINT     (USBD1_DATA_AVAILABLE_SDU2_EP3,       /* bEndpointAddress.*/
+  USB_DESC_ENDPOINT     (USBD_DATA_AVAILABLE_SDU2_EP3,       /* bEndpointAddress.*/
                          0x02,          /* bmAttributes (Bulk).             */
                          USB_CDC_DESCRIPTOR_MAX_PACKET_SIZE,        /* wMaxPacketSize.                  */
                          0x00),         /* bInterval.                       */
   /* Endpoint 1 Descriptor.*/
-  USB_DESC_ENDPOINT     (USBD1_DATA_REQUEST_SDU2_EP3|0x80,    /* bEndpointAddress.*/
+  USB_DESC_ENDPOINT     (USBD_DATA_REQUEST_SDU2_EP3|0x80,    /* bEndpointAddress.*/
                          0x02,          /* bmAttributes (Bulk).             */
                          USB_CDC_DESCRIPTOR_MAX_PACKET_SIZE,        /* wMaxPacketSize.                  */
                          0x00)          /* bInterval.                       */
@@ -457,11 +458,11 @@ static void usb_event(USBDriver *usbp, usbevent_t event) {
       /* Enables the endpoints specified into the configuration.
          Note, this callback is invoked from an ISR so I-Class functions
          must be used.*/
-      usbInitEndpointI(usbp, USBD1_DATA_REQUEST_SDU1_EP1, &ep1config);
-      usbInitEndpointI(usbp, USBD1_INTERRUPT_REQUEST_SDU1_EP2, &ep2config);
+      usbInitEndpointI(usbp, USBD_DATA_REQUEST_SDU1_EP1, &ep1config);
+      usbInitEndpointI(usbp, USBD_INTERRUPT_REQUEST_SDU1_EP2, &ep2config);
 
-      usbInitEndpointI(usbp, USBD1_DATA_REQUEST_SDU2_EP3, &ep3config);
-      usbInitEndpointI(usbp, USBD1_INTERRUPT_REQUEST_SDU2_EP4, &ep4config);
+      usbInitEndpointI(usbp, USBD_DATA_REQUEST_SDU2_EP3, &ep3config);
+      usbInitEndpointI(usbp, USBD_INTERRUPT_REQUEST_SDU2_EP4, &ep4config);
 
       /* Resetting the state of the CDC subsystem.*/
       sduConfigureHookI(&SDU1);
@@ -559,9 +560,9 @@ const USBConfig usbcfg = {
 
 const SerialUSBConfig serusbcfg  = {
   &USBD_PERIPHERIAL,
-  USBD1_DATA_REQUEST_SDU1_EP1,
-  USBD1_DATA_AVAILABLE_SDU1_EP1,
-  USBD1_INTERRUPT_REQUEST_SDU1_EP2
+  USBD_DATA_REQUEST_SDU1_EP1,
+  USBD_DATA_AVAILABLE_SDU1_EP1,
+  USBD_INTERRUPT_REQUEST_SDU1_EP2
 };
 
 /*!
@@ -570,9 +571,9 @@ const SerialUSBConfig serusbcfg  = {
 
 const SerialUSBConfig serusbcfg2 = {
   &USBD_PERIPHERIAL,
-  USBD1_DATA_REQUEST_SDU2_EP3,
-  USBD1_DATA_AVAILABLE_SDU2_EP3,
-  USBD1_INTERRUPT_REQUEST_SDU2_EP4
+  USBD_DATA_REQUEST_SDU2_EP3,
+  USBD_DATA_AVAILABLE_SDU2_EP3,
+  USBD_INTERRUPT_REQUEST_SDU2_EP4
 };
 
 

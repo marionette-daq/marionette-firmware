@@ -29,6 +29,7 @@
 #define _CHCONF_H_
 
 #define CORTEX_USE_FPU                  TRUE
+#define CHPRINTF_USE_FLOAT              TRUE
 
 /*===========================================================================*/
 /**
@@ -48,7 +49,7 @@
  * @details Frequency of the system timer that drives the system ticks. This
  *          setting also defines the system tick time unit.
  */
-#define CH_CFG_ST_FREQUENCY                 1000
+#define CH_CFG_ST_FREQUENCY                 10000
 
 /**
  * @brief   Time delta constant for the tick-less mode.
@@ -488,6 +489,8 @@
  */
 #define CH_CFG_SYSTEM_HALT_HOOK(reason) {                                   \
   /* System halt code here.*/                                               \
+  extern void set_status_led(bool,bool,bool);                               \
+  set_status_led(1,1,1);                                                    \
 }
 
 /** @} */

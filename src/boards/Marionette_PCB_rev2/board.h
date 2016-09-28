@@ -203,9 +203,9 @@
 #define GPIOI_SPI2_MISO                2 
 #define GPIOI_SPI2_MOSI                3 
 #define GPIOI_PIN4                     4 
-#define GPIOI_ANALOG_BUS_ID            5 //active low
-#define GPIOI_SERIAL_BUS_ID            6 //active low
-#define GPIOI_GPIO_BUS_ID              7 //active low
+#define GPIOI_MBUS_ANALOG_SELECT            5 //active low
+#define GPIOI_MBUS_SERIAL_SELECT            6 //active low
+#define GPIOI_MBUS_GPIO_SELECT              7 //active low
 #define GPIOI_PIN8                     8 
 #define GPIOI_CAN1_RX                  9 
 #define GPIOI_PIN10                    10 
@@ -341,8 +341,8 @@
                              PIN_OTYPE_PUSHPULL(GPIOB_SWO) | \
                              PIN_OTYPE_PUSHPULL(GPIOB_ULPI_NRST) | \
                              PIN_OTYPE_PUSHPULL(GPIOB_ULPI_D7) | \
-                             PIN_OTYPE_PUSHPULL(GPIOB_I2C1_SCL_MBUS) | \
-                             PIN_OTYPE_PUSHPULL(GPIOB_I2C1_SDA_MBUS) | \
+                             PIN_OTYPE_OPENDRAIN(GPIOB_I2C1_SCL_MBUS) | \
+                             PIN_OTYPE_OPENDRAIN(GPIOB_I2C1_SDA_MBUS) | \
                              PIN_OTYPE_PUSHPULL(GPIOB_PIN8) | \
                              PIN_OTYPE_PUSHPULL(GPIOB_PIN9) | \
                              PIN_OTYPE_PUSHPULL(GPIOB_ULPI_D3) | \
@@ -459,11 +459,11 @@
                              PIN_OSPEED_100M(GPIOC_ADC12_CH15) | \
                              PIN_OSPEED_100M(GPIOC_PIN6) | \
                              PIN_OSPEED_100M(GPIOC_SD_DETECT) | \
-                             PIN_OSPEED_100M(GPIOC_SDIO_D0) | \
-                             PIN_OSPEED_100M(GPIOC_SDIO_D1) | \
-                             PIN_OSPEED_100M(GPIOC_SDIO_D2) | \
-                             PIN_OSPEED_100M(GPIOC_SDIO_D3) | \
-                             PIN_OSPEED_100M(GPIOC_SDIO_CLK) | \
+                             PIN_OSPEED_50M(GPIOC_SDIO_D0) | \
+                             PIN_OSPEED_50M(GPIOC_SDIO_D1) | \
+                             PIN_OSPEED_50M(GPIOC_SDIO_D2) | \
+                             PIN_OSPEED_50M(GPIOC_SDIO_D3) | \
+                             PIN_OSPEED_50M(GPIOC_SDIO_CLK) | \
                              PIN_OSPEED_100M(GPIOC_PIN13) | \
                              PIN_OSPEED_100M(GPIOC_OSC32_IN) | \
                              PIN_OSPEED_100M(GPIOC_OSC32_OUT))
@@ -553,7 +553,7 @@
                              PIN_OTYPE_PUSHPULL(GPIOD_LED_STATUS_B))
 #define VAL_GPIOD_OSPEEDR   (PIN_OSPEED_100M(GPIOD_PIN0) | \
                              PIN_OSPEED_100M(GPIOD_PIN1) | \
-                             PIN_OSPEED_100M(GPIOD_SDIO_CMD) | \
+                             PIN_OSPEED_50M(GPIOD_SDIO_CMD) | \
                              PIN_OSPEED_100M(GPIOD_PIN3) | \
                              PIN_OSPEED_100M(GPIOD_PIN4) | \
                              PIN_OSPEED_100M(GPIOD_PIN5) | \
@@ -735,8 +735,8 @@
                              PIN_MODE_INPUT(GPIOF_PIN13) | \
                              PIN_MODE_INPUT(GPIOF_PIN14) | \
                              PIN_MODE_INPUT(GPIOF_PIN15))
-#define VAL_GPIOF_OTYPER    (PIN_OTYPE_PUSHPULL(GPIOF_I2C2_SDA) | \
-                             PIN_OTYPE_PUSHPULL(GPIOF_I2C2_SCL) | \
+#define VAL_GPIOF_OTYPER    (PIN_OTYPE_OPENDRAIN(GPIOF_I2C2_SDA) | \
+                             PIN_OTYPE_OPENDRAIN(GPIOF_I2C2_SCL) | \
                              PIN_OTYPE_PUSHPULL(GPIOF_CAN_SHDN) | \
                              PIN_OTYPE_PUSHPULL(GPIOF_ADC3_CH9) | \
                              PIN_OTYPE_PUSHPULL(GPIOF_ADC3_CH14) | \
@@ -767,8 +767,8 @@
                              PIN_OSPEED_100M(GPIOF_PIN13) | \
                              PIN_OSPEED_100M(GPIOF_PIN14) | \
                              PIN_OSPEED_100M(GPIOF_PIN15))
-#define VAL_GPIOF_PUPDR     (PIN_PUPDR_FLOATING(GPIOF_I2C2_SDA) | \
-                             PIN_PUPDR_FLOATING(GPIOF_I2C2_SCL) | \
+#define VAL_GPIOF_PUPDR     (PIN_PUPDR_PULLUP(GPIOF_I2C2_SDA) | \
+                             PIN_PUPDR_PULLUP(GPIOF_I2C2_SCL) | \
                              PIN_PUPDR_FLOATING(GPIOF_CAN_SHDN) | \
                              PIN_PUPDR_FLOATING(GPIOF_ADC3_CH9) | \
                              PIN_PUPDR_FLOATING(GPIOF_ADC3_CH14) | \
@@ -1024,9 +1024,9 @@
                              PIN_MODE_ALTERNATE(GPIOI_SPI2_MISO) | \
                              PIN_MODE_ALTERNATE(GPIOI_SPI2_MOSI) | \
                              PIN_MODE_OUTPUT(GPIOI_PIN4) | \
-                             PIN_MODE_OUTPUT(GPIOI_ANALOG_BUS_ID) | \
-                             PIN_MODE_OUTPUT(GPIOI_SERIAL_BUS_ID) | \
-                             PIN_MODE_OUTPUT(GPIOI_GPIO_BUS_ID) | \
+                             PIN_MODE_OUTPUT(GPIOI_MBUS_ANALOG_SELECT) | \
+                             PIN_MODE_OUTPUT(GPIOI_MBUS_SERIAL_SELECT) | \
+                             PIN_MODE_OUTPUT(GPIOI_MBUS_GPIO_SELECT) | \
                              PIN_MODE_INPUT(GPIOI_PIN8) | \
                              PIN_MODE_ALTERNATE(GPIOI_CAN1_RX) | \
                              PIN_MODE_INPUT(GPIOI_PIN10) | \
@@ -1040,9 +1040,9 @@
                              PIN_OTYPE_PUSHPULL(GPIOI_SPI2_MISO) | \
                              PIN_OTYPE_PUSHPULL(GPIOI_SPI2_MOSI) | \
                              PIN_OTYPE_PUSHPULL(GPIOI_PIN4) | \
-                             PIN_OTYPE_PUSHPULL(GPIOI_ANALOG_BUS_ID) | \
-                             PIN_OTYPE_PUSHPULL(GPIOI_SERIAL_BUS_ID) | \
-                             PIN_OTYPE_PUSHPULL(GPIOI_GPIO_BUS_ID) | \
+                             PIN_OTYPE_PUSHPULL(GPIOI_MBUS_ANALOG_SELECT) | \
+                             PIN_OTYPE_PUSHPULL(GPIOI_MBUS_SERIAL_SELECT) | \
+                             PIN_OTYPE_PUSHPULL(GPIOI_MBUS_GPIO_SELECT) | \
                              PIN_OTYPE_PUSHPULL(GPIOI_PIN8) | \
                              PIN_OTYPE_PUSHPULL(GPIOI_CAN1_RX) | \
                              PIN_OTYPE_PUSHPULL(GPIOI_PIN10) | \
@@ -1056,9 +1056,9 @@
                              PIN_OSPEED_100M(GPIOI_SPI2_MISO) | \
                              PIN_OSPEED_100M(GPIOI_SPI2_MOSI) | \
                              PIN_OSPEED_100M(GPIOI_PIN4) | \
-                             PIN_OSPEED_100M(GPIOI_ANALOG_BUS_ID) | \
-                             PIN_OSPEED_100M(GPIOI_SERIAL_BUS_ID) | \
-                             PIN_OSPEED_100M(GPIOI_GPIO_BUS_ID) | \
+                             PIN_OSPEED_100M(GPIOI_MBUS_ANALOG_SELECT) | \
+                             PIN_OSPEED_100M(GPIOI_MBUS_SERIAL_SELECT) | \
+                             PIN_OSPEED_100M(GPIOI_MBUS_GPIO_SELECT) | \
                              PIN_OSPEED_100M(GPIOI_PIN8) | \
                              PIN_OSPEED_100M(GPIOI_CAN1_RX) | \
                              PIN_OSPEED_100M(GPIOI_PIN10) | \
@@ -1072,9 +1072,9 @@
                              PIN_PUPDR_FLOATING(GPIOI_SPI2_MISO) | \
                              PIN_PUPDR_FLOATING(GPIOI_SPI2_MOSI) | \
                              PIN_PUPDR_FLOATING(GPIOI_PIN4) | \
-                             PIN_PUPDR_FLOATING(GPIOI_ANALOG_BUS_ID) | \
-                             PIN_PUPDR_FLOATING(GPIOI_SERIAL_BUS_ID) | \
-                             PIN_PUPDR_FLOATING(GPIOI_GPIO_BUS_ID) | \
+                             PIN_PUPDR_FLOATING(GPIOI_MBUS_ANALOG_SELECT) | \
+                             PIN_PUPDR_FLOATING(GPIOI_MBUS_SERIAL_SELECT) | \
+                             PIN_PUPDR_FLOATING(GPIOI_MBUS_GPIO_SELECT) | \
                              PIN_PUPDR_FLOATING(GPIOI_PIN8) | \
                              PIN_PUPDR_FLOATING(GPIOI_CAN1_RX) | \
                              PIN_PUPDR_FLOATING(GPIOI_PIN10) | \
@@ -1088,9 +1088,9 @@
                              PIN_ODR_HIGH(GPIOI_SPI2_MISO) | \
                              PIN_ODR_HIGH(GPIOI_SPI2_MOSI) | \
                              PIN_ODR_HIGH(GPIOI_PIN4) | \
-                             PIN_ODR_HIGH(GPIOI_ANALOG_BUS_ID) | \
-                             PIN_ODR_HIGH(GPIOI_SERIAL_BUS_ID) | \
-                             PIN_ODR_HIGH(GPIOI_GPIO_BUS_ID) | \
+                             PIN_ODR_HIGH(GPIOI_MBUS_ANALOG_SELECT) | \
+                             PIN_ODR_HIGH(GPIOI_MBUS_SERIAL_SELECT) | \
+                             PIN_ODR_HIGH(GPIOI_MBUS_GPIO_SELECT) | \
                              PIN_ODR_HIGH(GPIOI_PIN8) | \
                              PIN_ODR_HIGH(GPIOI_CAN1_RX) | \
                              PIN_ODR_HIGH(GPIOI_PIN10) | \
@@ -1104,9 +1104,9 @@
                              PIN_AFIO_AF(GPIOI_SPI2_MISO, 5) | \
                              PIN_AFIO_AF(GPIOI_SPI2_MOSI, 5) | \
                              PIN_AFIO_AF(GPIOI_PIN4, 0) | \
-                             PIN_AFIO_AF(GPIOI_ANALOG_BUS_ID, 0) | \
-                             PIN_AFIO_AF(GPIOI_SERIAL_BUS_ID, 0) | \
-                             PIN_AFIO_AF(GPIOI_GPIO_BUS_ID, 0))
+                             PIN_AFIO_AF(GPIOI_MBUS_ANALOG_SELECT, 0) | \
+                             PIN_AFIO_AF(GPIOI_MBUS_SERIAL_SELECT, 0) | \
+                             PIN_AFIO_AF(GPIOI_MBUS_GPIO_SELECT, 0))
 #define VAL_GPIOI_AFRH      (PIN_AFIO_AF(GPIOI_PIN8, 0) | \
                              PIN_AFIO_AF(GPIOI_CAN1_RX, 9) | \
                              PIN_AFIO_AF(GPIOI_PIN10, 0) | \

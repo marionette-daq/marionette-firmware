@@ -29,6 +29,7 @@
 #include "chprintf.h"
 
 #include "mshell.h"
+#include "mpipe.h"
 #include "board.h"
 
 #include "fetch.h"
@@ -39,9 +40,6 @@
 #include "util_io.h"
 #include "usbcfg.h"
 
-#include "main.h"
-
-#define SHELL_WA_SIZE  16384
 
 /*! \brief Show memory usage
  */
@@ -107,10 +105,15 @@ static const mshell_command_t commands[] =
 /*! \brief MShell configuration
  * \sa MSHELL
  */
-static const MShellConfig shell_cfg1 =
+static const MShellConfig mshell_cfg =
 {
 	(BaseSequentialStream *) &SDU1,
 	commands
+};
+
+static const MPipeConfig mpipe_cfg = 
+{
+  (BaseSequentialStream *) &SDU2
 };
 
 
@@ -118,24 +121,17 @@ static const MShellConfig shell_cfg1 =
  */
 static void main_app(void)
 {
-	thread_t *mshelltp = NULL;
-  int32_t c;
-
+  chprintf(DBG_OUT, "MAIN\r\n");
   set_status_led(1,0,0);
 
-#if STM32_SERIAL_USE_UART4
-  sdStart(&SD4, NULL); // use default config
-
-  chprintf((BaseSequentialStream*)&SD4, "Marionette Main\r\n");
-#endif
-
 	mshellInit();
+  mpipeInit();
 
 #if STM32_USB_USE_OTG2
-	palSetPad(GPIOB, GPIOB_ULPI_NRST); //Take ulpi out of reset
+	palSetPad(GPIOB, GPIOB_ULPI_RST_B); //Take ulpi out of reset
 	chThdSleepMilliseconds(200);
 #else
-	palClearPad(GPIOB, GPIOB_ULPI_NRST); //Hold ulpi in of reset
+	palClearPad(GPIOB, GPIOB_ULPI_RST_B); //Hold ulpi in of reset
 #endif
 
 	usb_set_serial_strings( *(uint32_t*)STM32F4_UNIQUE_ID_LOW,
@@ -157,21 +153,17 @@ static void main_app(void)
 
 	while (true)
 	{
-		if (!mshelltp)
-		{
-			if (SDU1.config->usbp->state == USB_ACTIVE)
-			{
-				mshelltp = mshellCreate(&shell_cfg1, SHELL_WA_SIZE, HIGHPRIO);
-			}
-		}
-		else
-		{
-			if (chThdTerminatedX(mshelltp))
-			{
-				chThdRelease(mshelltp);
-				mshelltp = NULL;
-			}
-		}
+    if( serusbcfg.usbp->state == USB_ACTIVE )
+    {
+      mshellStart(&mshell_cfg);
+      mpipeStart(&mpipe_cfg);
+    }
+    else
+    {
+      mshellStop();
+      mpipeStop();
+    }
+    
     if( (++led_blank_count) >= 5 )
     {
       set_status_led(0,0,0);
@@ -181,7 +173,7 @@ static void main_app(void)
         led_blank_count = 0;
       }
     }
-    else if( USBD2.state == USB_ACTIVE )
+    else if( serusbcfg.usbp->state == USB_ACTIVE )
     {
       set_status_led(0,1,0);
     }
@@ -197,6 +189,9 @@ int main(void)
 {
 	halInit();
 	chSysInit();
+
+  // start up deboug output, chprintf(DBG_OUT,...)
+  sdStart(&DBG_SERIAL, NULL);
 
 	main_app();
 

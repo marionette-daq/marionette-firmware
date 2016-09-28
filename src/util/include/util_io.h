@@ -18,6 +18,9 @@ extern "C" {
 extern "C" {
 #endif
 
+#define DBG_SERIAL  SD6
+#define DBG_OUT     ((BaseSequentialStream *) &DBG_SERIAL)
+
 #define MAX_PIN_STRLEN  8
 #define MAX_PORT_STRLEN 8
 
@@ -59,6 +62,15 @@ typedef struct port_pin
   const uint32_t    pin;
 } port_pin_t;
 
+typedef struct alt_pin_mode
+{
+  const ioportid_t  port;
+  const uint32_t    pin;
+  const uint32_t    mode;
+  const bool        state;
+} alt_pin_mode_t;
+
+bool set_alt_pin_mode( ioportid_t port, uint32_t pin );
 
 ioportid_t string_to_port( char * str);
 iopin_t string_to_pin( char * str);

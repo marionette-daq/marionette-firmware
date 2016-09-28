@@ -15,10 +15,10 @@
 #include "util_strings.h"
 
 
-/*! \brief Remove all space types including '\t' and '_'
+/*! \brief Remove all white space
  *   \sa isspace() in cytpe.h
  */
-char * fetch_remove_spaces(char * spstr)
+char * fetch_remove_whitespace(char * spstr)
 {
 	if(spstr == NULL)
 	{
@@ -29,7 +29,7 @@ char * fetch_remove_spaces(char * spstr)
 
 	for (i = 0, j = 0; i < strlen(spstr); i++, j++)
 	{
-		if(!isspace((unsigned char)spstr[i]) && spstr[i] != '_')
+		if(!isspace((unsigned char)spstr[i]))
 		{
 			newstr[j] = spstr[i];
 		}

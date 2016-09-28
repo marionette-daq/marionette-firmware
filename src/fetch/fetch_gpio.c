@@ -22,70 +22,81 @@
 
 
 static port_pin_t gpio_pins[] = {
-    {GPIOA, GPIOA_PIN15}, // TIM2_CH1
-    {GPIOB, GPIOB_PIN8},  // TIM4_CH3, TIM10_CH1
-    {GPIOB, GPIOB_PIN9},  // TIM4_CH4, TIM11_CH1
-    {GPIOB, GPIOB_PIN14}, // TIM1_CH2N, TIM8_CH2N
-    {GPIOB, GPIOB_PIN15}, // TIM1_CH3N, TIM8_CH3N
-    {GPIOC, GPIOC_PIN6},  // TIM3_CH1, TIM8_CH1
-    {GPIOC, GPIOC_PIN13}, // 
-    {GPIOD, GPIOD_PIN0},  // 
-    {GPIOD, GPIOD_PIN1},  //
-    {GPIOD, GPIOD_PIN3},  //
-    {GPIOD, GPIOD_PIN4},  //
-    {GPIOD, GPIOD_PIN5},  //
-    {GPIOD, GPIOD_PIN6},  //
-    {GPIOD, GPIOD_PIN7},  //
-    {GPIOD, GPIOD_PIN8},  //
-    {GPIOD, GPIOD_PIN9},  //
-    {GPIOD, GPIOD_PIN10}, //
-    {GPIOD, GPIOD_PIN11}, //
-    {GPIOD, GPIOD_PIN12}, // TIM4_CH1
-    {GPIOE, GPIOE_PIN0},  // 
-    {GPIOE, GPIOE_PIN1},  //
-    {GPIOE, GPIOE_PIN2},  //
-    {GPIOE, GPIOE_PIN3},  //
-    {GPIOE, GPIOE_PIN4},  //
-    {GPIOE, GPIOE_PIN5},  // TIM9_CH1
-    {GPIOE, GPIOE_PIN6},  // TIM9_CH2
-    {GPIOE, GPIOE_PIN7},  //
-    {GPIOE, GPIOE_PIN8},  // TIM1_CH1N
-    {GPIOE, GPIOE_PIN9},  // TIM1_CH1
-    {GPIOE, GPIOE_PIN10}, // TIM1_CH2N
-    {GPIOE, GPIOE_PIN15}, //
-    {GPIOF, GPIOF_PIN11}, //
-    {GPIOF, GPIOF_PIN12}, //
-    {GPIOF, GPIOF_PIN13}, //
-    {GPIOF, GPIOF_PIN14}, //
-    {GPIOF, GPIOF_PIN15}, //
-    {GPIOG, GPIOG_PIN0},  //
-    {GPIOG, GPIOG_PIN1},  //
-    {GPIOG, GPIOG_PIN2},  //
-    {GPIOG, GPIOG_PIN3},  //
-    {GPIOG, GPIOG_PIN4},  //
-    {GPIOG, GPIOG_PIN5},  //
-    {GPIOG, GPIOG_PIN6},  //
-    {GPIOG, GPIOG_PIN7},  //
-    {GPIOG, GPIOG_PIN8},  //
-    {GPIOH, GPIOH_PIN2},  //
-    {GPIOH, GPIOH_PIN3},  //
-    {GPIOH, GPIOH_PIN5},  //
-    {GPIOH, GPIOH_PIN6},  //
-    {GPIOH, GPIOH_PIN9},  //
-    {GPIOH, GPIOH_PIN10}, // TIM5_CH1
-    {GPIOH, GPIOH_PIN11}, // TIM5_CH2
-    {GPIOH, GPIOH_PIN12}, // TIM5_CH3
-    {GPIOH, GPIOH_PIN14}, // TIM8_CH2N
-    {GPIOH, GPIOH_PIN15}, // TIM8_CH3N
-    {GPIOI, GPIOI_PIN0},  // TIM5_CH4
-    {GPIOI, GPIOI_PIN4},  //
-    {GPIOI, GPIOI_PIN8},  //
-    {GPIOI, GPIOI_PIN10}, //
-    {GPIOI, GPIOI_PIN11}, //
-    {GPIOI, GPIOI_PIN12}, //
-    {GPIOI, GPIOI_PIN13}, //
-    {GPIOI, GPIOI_PIN14}, //
-    {GPIOI, GPIOI_PIN15}  //
+    // GPIO
+    {GPIOG, GPIOG_PG0},               // D0
+    {GPIOG, GPIOG_PG1},               // D1
+    {GPIOG, GPIOG_PG2},               // D2
+    {GPIOG, GPIOG_PG3},               // D3
+    {GPIOG, GPIOG_PG4},               // D4
+    {GPIOG, GPIOG_PG5},               // D5
+    {GPIOG, GPIOG_PG6},               // D6
+    {GPIOG, GPIOG_PG7},               // D7
+    {GPIOE, GPIOE_PE0_TIM4_ETR},      // D8
+    {GPIOE, GPIOE_PE7_TIM1_ETR},      // D9
+    {GPIOE, GPIOE_PE8},               // D10
+    {GPIOF, GPIOF_PF11},              // D11
+    {GPIOF, GPIOF_PF12},              // D12
+    {GPIOF, GPIOF_PF13},              // D13
+    {GPIOF, GPIOF_PF14},              // D14
+    {GPIOF, GPIOF_PF15},              // D15
+    {GPIOH, GPIOH_PH2},               // D16
+    {GPIOH, GPIOH_PH3},               // D17
+    {GPIOH, GPIOH_PH5},               // D18
+    {GPIOH, GPIOH_PH6},               // D19
+    {GPIOH, GPIOH_PH9},               // D20
+    {GPIOH, GPIOH_PH14},              // D21
+    {GPIOB, GPIOB_PB8_TIM4_CH3},      // D22
+    {GPIOB, GPIOB_PB9_TIM4_CH4},      // D23
+    {GPIOE, GPIOE_PE5_TIM9_CH1},      // D24
+    {GPIOE, GPIOE_PE6_TIM9_CH2},      // D25
+    {GPIOE, GPIOE_PE9_TIM1_CH1},      // D26
+    {GPIOE, GPIOE_PE13_TIM1_CH3},     // D27
+    {GPIOH, GPIOH_PH10_TIM5_CH1},     // D28
+    {GPIOH, GPIOH_PH11_TIM5_CH2},     // D29
+    {GPIOH, GPIOH_PH12_TIM5_CH3},     // D30
+    {GPIOA, GPIOA_PA15_TIM2_CH1_ETR}, // D31
+
+    // SERIAL
+    {GPIOI, GPIOI_PI1_SPI2_SCK},      // D32
+    {GPIOI, GPIOI_PI0_SPI2_NSS},      // D33
+    {GPIOI, GPIOI_PI2_SPI2_MISO},     // D34
+    {GPIOI, GPIOI_PI3_SPI2_MOSI},     // D35
+    {GPIOH, GPIOH_PH15},              // D36
+    {GPIOD, GPIOD_PD7},               // D37
+    {GPIOG, GPIOG_PG13_SPI6_SCK},     // D38
+    {GPIOG, GPIOG_PG8_SPI6_NSS},      // D39
+    {GPIOG, GPIOG_PG12_SPI6_MISO},    // D40
+    {GPIOG, GPIOG_PG14_SPI6_MOSI},    // D41
+    {GPIOG, GPIOG_PG9},               // D42
+    {GPIOG, GPIOG_PG11},              // D43
+    {GPIOF, GPIOF_PF0_I2C2_SDA},      // D44
+    {GPIOF, GPIOF_PF1_I2C2_SCL},      // D45
+    {GPIOE, GPIOE_PE1},               // D46
+    {GPIOG, GPIOG_PG15},              // D47
+    {GPIOA, GPIOA_PA0_UART4_TX},      // D48
+    {GPIOA, GPIOA_PA1_UART4_RX},      // D49
+    {GPIOE, GPIOE_PE2},               // D50
+    {GPIOE, GPIOE_PE3},               // D51
+    {GPIOD, GPIOD_PD8_USART3_TX},     // D52
+    {GPIOD, GPIOD_PD9_USART3_RX},     // D53
+    {GPIOD, GPIOD_PD11_USART3_CTS},   // D54
+    {GPIOD, GPIOD_PD12_USART3_RTS},   // D55
+    {GPIOD, GPIOD_PD5_USART2_TX},     // D56
+    {GPIOD, GPIOD_PD6_USART2_RX},     // D57
+    {GPIOD, GPIOD_PD3_USART2_CTS},    // D58
+    {GPIOD, GPIOD_PD4_USART2_RTS},    // D59
+    {GPIOI, GPIOI_PI8},               // D60
+    {GPIOI, GPIOI_PI11},              // D61
+
+    // ANALOG
+    {GPIOD, GPIOD_PD1},               // D62
+    {GPIOG, GPIOG_PG10},              // D63
+    {GPIOB, GPIOB_PB15},              // D64
+    {GPIOI, GPIOI_PI4},               // D65
+    {GPIOD, GPIOD_PD0},               // D66
+    {GPIOC, GPIOC_PC13},              // D67
+    {GPIOI, GPIOI_PI10},              // D68
+    {GPIOB, GPIOB_PB14}               // D69
   };
 
 typedef enum {
@@ -105,7 +116,7 @@ static bool fetch_gpio_set_cmd(BaseSequentialStream * chp, char * cmd_list[], ch
 static bool fetch_gpio_clear_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_gpio_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_gpio_info_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_gpio_reset_all_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_gpio_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_gpio_wait_cmd(BaseSequentialStream * chp, char *cmd_list[], char * data_list[]);
 static bool fetch_gpio_heartbeat_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 
@@ -113,10 +124,10 @@ static const char gpio_config_help_string[] = "Configure pin as GPIO\n" \
                                               "Usage: config(<port>,<pin>,<mode>)\n" \
                                               "\tmode = INPUT_FLOATING, INPUT_PULLUP, INPUT_PULLDOWN,\n" \
                                               "\t       OUTPUT_PUSHPULL, OUTPUT_OPENDRAIN";
-static const char gpio_wait_help_string[] = "Wait for the given event on a gpio pin\n" \
-                                            "Usage: wait(<port>,<pin>,<event>,<timeout>)\n" \
-                                            "\tevent = HIGH, LOW, RISING, FALLING\n" \
-                                            "\ttimeout = <milliseconds>\n";
+static const char gpio_wait_help_string[]   = "Wait for the given event on a gpio pin\n" \
+                                              "Usage: wait(<port>,<pin>,<event>,<timeout>)\n" \
+                                              "\tevent = HIGH, LOW, RISING, FALLING\n" \
+                                              "\ttimeout = <milliseconds>\n";
 
 static fetch_command_t fetch_gpio_commands[] = {
     { fetch_gpio_help_cmd,        "help",       "Display GPIO help"},
@@ -129,14 +140,18 @@ static fetch_command_t fetch_gpio_commands[] = {
     { fetch_gpio_wait_cmd,        "wait",       gpio_wait_help_string },
     { fetch_gpio_config_cmd,      "config",     gpio_config_help_string },
     { fetch_gpio_info_cmd,        "info",       "Get pin info\nUsage: info(<port>,<pin>)" },
-    { fetch_gpio_reset_all_cmd,   "resetall",   "Reset all GPIO pins to defaults" },
+    { fetch_gpio_reset_cmd,       "reset",      "Reset all GPIO pins to defaults" },
     { NULL, NULL, NULL } // null terminate list
   };
 
-static const char * pin_state_tok[] = {"true","false","1","0","high","low","set","clear"};
-static const char * pin_mode_tok[] = {"INPUT_FLOATING","INPUT_PULLUP","INPUT_PULLDOWN",
-                                      "OUTPUT_PUSHPULL","OUTPUT_OPENDRAIN"};
-static const char * wait_event_tok[] = {"HIGH","1","LOW","0","RISING","FALLING"};
+static const char * pin_state_tok[]   = {"true","false","1","0","high","low","set","clear"};
+static const char * pin_mode_tok[]    = {"INPUT_FLOATING","INPUT_PULLUP","INPUT_PULLDOWN",
+                                         "OUTPUT_PUSHPULL","OUTPUT_OPENDRAIN", "ALTERNATE",
+                                         "ALT_0", "ALT_1", "ALT_2", "ALT_3",
+                                         "ALT_4", "ALT_5", "ALT_6", "ALT_7",
+                                         "ALT_8", "ALT_9", "ALT_10", "ALT_11",
+                                         "ALT_12", "ALT_13", "ALT_14", "ALT_15"};
+static const char * wait_event_tok[]  = {"HIGH","1","LOW","0","RISING","FALLING"};
 
 static bool valid_gpio_port_pin( ioportid_t port, uint32_t pin )
 {
@@ -152,6 +167,8 @@ static bool valid_gpio_port_pin( ioportid_t port, uint32_t pin )
 
 static bool fetch_gpio_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
+  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+
   util_message_info(chp, "Fetch GPIO Help:");
   fetch_display_help(chp, fetch_gpio_commands);
 	return true;
@@ -159,14 +176,11 @@ static bool fetch_gpio_help_cmd(BaseSequentialStream * chp, char * cmd_list[], c
 
 static bool fetch_gpio_read_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
+  FETCH_PARAM_CHECK(chp, cmd_list, 2, 2);
+
   ioportid_t port = string_to_port(data_list[0]);
   uint32_t pin = string_to_pin(data_list[1]);
   bool pin_state;
-
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2) )
-  {
-    return false;
-  }
 
   if( port == NULL || pin == INVALID_PIN )
   {
@@ -181,13 +195,10 @@ static bool fetch_gpio_read_cmd(BaseSequentialStream * chp, char * cmd_list[], c
 
 static bool fetch_gpio_read_port_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
+  FETCH_PARAM_CHECK(chp, cmd_list, 1, 1);
+
   ioportid_t port = string_to_port(data_list[0]);
   uint16_t port_state;
-
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 1) )
-  {
-    return false;
-  }
 
   if( port == NULL )
   {
@@ -196,7 +207,7 @@ static bool fetch_gpio_read_port_cmd(BaseSequentialStream * chp, char * cmd_list
   }
 
   port_state = palReadPort(port);
-  util_message_uint16(chp, "state", &port_state, 1);
+  util_message_uint16(chp, "state", port_state);
   return true;
 }
 
@@ -204,29 +215,26 @@ static bool fetch_gpio_read_all_cmd(BaseSequentialStream * chp, char * cmd_list[
 {
   uint16_t port_state;
 
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 0) )
-  {
-    return false;
-  }
+  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
 
   port_state = palReadPort(GPIOA);
-  util_message_uint16(chp, "a", &port_state, 1);
+  util_message_uint16(chp, "a", port_state);
   port_state = palReadPort(GPIOB);
-  util_message_uint16(chp, "b", &port_state, 1);
+  util_message_uint16(chp, "b", port_state);
   port_state = palReadPort(GPIOC);
-  util_message_uint16(chp, "c", &port_state, 1);
+  util_message_uint16(chp, "c", port_state);
   port_state = palReadPort(GPIOD);
-  util_message_uint16(chp, "d", &port_state, 1);
+  util_message_uint16(chp, "d", port_state);
   port_state = palReadPort(GPIOE);
-  util_message_uint16(chp, "e", &port_state, 1);
+  util_message_uint16(chp, "e", port_state);
   port_state = palReadPort(GPIOF);
-  util_message_uint16(chp, "f", &port_state, 1);
+  util_message_uint16(chp, "f", port_state);
   port_state = palReadPort(GPIOG);
-  util_message_uint16(chp, "g", &port_state, 1);
+  util_message_uint16(chp, "g", port_state);
   port_state = palReadPort(GPIOH);
-  util_message_uint16(chp, "h", &port_state, 1);
+  util_message_uint16(chp, "h", port_state);
   port_state = palReadPort(GPIOI);
-  util_message_uint16(chp, "i", &port_state, 1);
+  util_message_uint16(chp, "i", port_state);
 
   return true;
 }
@@ -236,10 +244,7 @@ static bool fetch_gpio_write_cmd(BaseSequentialStream * chp, char * cmd_list[], 
   ioportid_t port = string_to_port(data_list[0]);
   uint32_t pin = string_to_pin(data_list[1]);
 
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 3) )
-  {
-    return false;
-  }
+  FETCH_PARAM_CHECK(chp, cmd_list, 3, 3);
 
   if( port == NULL || pin == INVALID_PIN )
   {
@@ -270,13 +275,10 @@ static bool fetch_gpio_write_cmd(BaseSequentialStream * chp, char * cmd_list[], 
 
 static bool fetch_gpio_set_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
+  FETCH_PARAM_CHECK(chp, cmd_list, 2, 2);
+
   ioportid_t port = string_to_port(data_list[0]);
   uint32_t pin = string_to_pin(data_list[1]);
-
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2) )
-  {
-    return false;
-  }
 
   if( port == NULL || pin == INVALID_PIN )
   {
@@ -291,13 +293,10 @@ static bool fetch_gpio_set_cmd(BaseSequentialStream * chp, char * cmd_list[], ch
 
 static bool fetch_gpio_clear_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
+  FETCH_PARAM_CHECK(chp, cmd_list, 2, 2);
+
   ioportid_t port = string_to_port(data_list[0]);
   uint32_t pin = string_to_pin(data_list[1]);
-
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2) )
-  {
-    return false;
-  }
 
   if( port == NULL || pin == INVALID_PIN )
   {
@@ -312,6 +311,8 @@ static bool fetch_gpio_clear_cmd(BaseSequentialStream * chp, char * cmd_list[], 
 
 static bool fetch_gpio_wait_cmd(BaseSequentialStream * chp, char *cmd_list[], char * data_list[])
 {
+  FETCH_PARAM_CHECK(chp, cmd_list, 4, 4);
+
   ioportid_t port = string_to_port(data_list[0]);
   uint32_t pin = string_to_pin(data_list[1]);
   char * endptr;
@@ -319,11 +320,6 @@ static bool fetch_gpio_wait_cmd(BaseSequentialStream * chp, char *cmd_list[], ch
   wait_event_t event;
   systime_t start_time;
   bool state_next, state_prev;
-
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 4) )
-  {
-    return false;
-  }
 
   if( port == NULL || pin == INVALID_PIN )
   {
@@ -404,14 +400,12 @@ static bool fetch_gpio_wait_cmd(BaseSequentialStream * chp, char *cmd_list[], ch
 
 static bool fetch_gpio_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
+  FETCH_PARAM_CHECK(chp, cmd_list, 3, 3);
+
   ioportid_t port = string_to_port(data_list[0]);
   uint32_t pin = string_to_pin(data_list[1]);
   iomode_t mode = PAL_STM32_PUPDR_FLOATING | PAL_STM32_MODE_INPUT;
 
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 3) )
-  {
-    return false;
-  }
 
   if( port == NULL || pin == INVALID_PIN )
   {
@@ -425,7 +419,8 @@ static bool fetch_gpio_config_cmd(BaseSequentialStream * chp, char * cmd_list[],
     return false;
   }
 
-  switch( token_match( data_list[2], FETCH_MAX_DATA_STRLEN, pin_mode_tok, NELEMS(pin_mode_tok)) )
+  uint32_t mode_sel = token_match( data_list[2], FETCH_MAX_DATA_STRLEN, pin_mode_tok, NELEMS(pin_mode_tok));
+  switch( mode_sel )
   {
     case 0: // input floating
       mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_FLOATING;
@@ -442,11 +437,23 @@ static bool fetch_gpio_config_cmd(BaseSequentialStream * chp, char * cmd_list[],
     case 4: // output opendrian
       mode = PAL_STM32_MODE_OUTPUT | PAL_STM32_OTYPE_OPENDRAIN;
       break;
+    case 5: // alternate
+      mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_FLOATING; // FIXME TODO
+      break;
     default:
-      util_message_error(chp, "invalid pin mode");
-      return false;
+      if( mode_sel > 5 && mode_sel < (5+15))
+      {
+        util_message_info(chp, "alt=%U", mode_sel-6);
+        mode = PAL_MODE_ALTERNATE(mode_sel-6);
+      }
+      else
+      {
+        util_message_error(chp, "invalid pin mode");
+        return false;
+      }
   }
 
+  util_message_info(chp, "mode=%x (%U)", mode, mode);
   palSetPadMode(port, pin, mode);
 
   return true;
@@ -454,14 +461,12 @@ static bool fetch_gpio_config_cmd(BaseSequentialStream * chp, char * cmd_list[],
 
 static bool fetch_gpio_info_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
+  FETCH_PARAM_CHECK(chp, cmd_list, 2, 2);
+
   ioportid_t port = string_to_port(data_list[0]);
   uint32_t pin = string_to_pin(data_list[1]);
   uint32_t alt_func;
 
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2) )
-  {
-    return false;
-  }
 
   if( port == NULL || pin == INVALID_PIN )
   {
@@ -494,7 +499,7 @@ static bool fetch_gpio_info_cmd(BaseSequentialStream * chp, char * cmd_list[], c
       {
         alt_func = (port->AFRH >> ((pin-8)*4)) & 0xf;
       }
-      util_message_uint32(chp, "alt_func", &alt_func, 1);
+      util_message_uint32(chp, "alt_func", alt_func);
       break;
     case 3:
       util_message_string(chp, "mode", "ANALOG");
@@ -520,12 +525,9 @@ static bool fetch_gpio_info_cmd(BaseSequentialStream * chp, char * cmd_list[], c
   return true;
 }
 
-static bool fetch_gpio_reset_all_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+static bool fetch_gpio_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 0) )
-  {
-    return false;
-  }
+  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
 
   return fetch_gpio_reset(chp);
 }
@@ -547,7 +549,7 @@ void fetch_gpio_init(BaseSequentialStream * chp)
  */
 bool fetch_gpio_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-  return fetch_dispatch(chp, fetch_gpio_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);
+  return fetch_dispatch(chp, fetch_gpio_commands, cmd_list, data_list);
 }
 
 bool fetch_gpio_reset(BaseSequentialStream * chp)

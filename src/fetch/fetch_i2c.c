@@ -15,146 +15,145 @@
 #include "util_strings.h"
 #include "util_general.h"
 #include "util_io.h"
+#include "util_arg_parse.h"
 
 #include "fetch.h"
 #include "fetch_defs.h"
 #include "fetch_i2c.h"
 
 #ifndef MAX_I2C_BYTES
-#define MAX_I2C_BYTES   256
+#define MAX_I2C_BYTES 256
 #endif
 
 #ifndef I2C_TIMEOUT
-#define I2C_TIMEOUT MS2ST(100)
+#define I2C_TIMEOUT   MS2ST(100)
 #endif
 
-static I2CConfig   i2c_cfg = {OPMODE_I2C, 100000, STD_DUTY_CYCLE};
-static bool i2c_init_flag = true;
+#ifndef I2C_DRV
+#define I2C_DRV       I2CD2
+#endif
+
+#ifndef I2C_SDA_PORT
+#define I2C_SDA_PORT  GPIOF
+#endif
+
+#ifndef I2C_SDA_PIN
+#define I2C_SDA_PIN   GPIOF_PF0_I2C2_SDA
+#endif
+
+#ifndef I2C_SCL_PORT
+#define I2C_SCL_PORT  GPIOF
+#endif
+
+#ifndef I2C_SCL_PIN
+#define I2C_SCL_PIN   GPIOF_PF1_I2C2_SCL
+#endif
+
+static I2CConfig  i2c_cfg = { OPMODE_I2C, 100000, STD_DUTY_CYCLE }; // standard 100khz mode
+static bool       i2c_init_flag = true;
 
 // list all command function prototypes here 
 static bool fetch_i2c_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_i2c_transmit_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_i2c_receive_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_i2c_write_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+static bool fetch_i2c_read_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_i2c_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_i2c_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 
 static fetch_command_t fetch_i2c_commands[] = {
-    { fetch_i2c_transmit_cmd,  "transmit",  "TX data to slave\n" \
-                                            "Usage: transmit(<dev>,<addr>,<base>,<byte 0>,[...,<byte n>])" },
-    { fetch_i2c_receive_cmd,   "receive",   "RX data from slave\n" \
-                                            "Usage: receive(<dev>,<addr>,<count>)" },
-    { fetch_i2c_config_cmd,    "config",    "Configure I2C driver\n" \
-                                            "Usage: config(<dev>)" },
-    { fetch_i2c_reset_cmd,     "reset",     "Reset I2C driver\n" \
-                                            "Usage: reset(<dev>)" },
-    { fetch_i2c_help_cmd,      "help",      "I2C command help" },
+    { fetch_i2c_write_cmd,  "write",    "TX data to slave\n" \
+                                        "Usage: write(<addr>,<base>,<byte 0>,[...,<byte n>])" },
+    { fetch_i2c_read_cmd,   "read",     "RX data from slave\n" \
+                                        "Usage: read(<addr>,<count>)" },
+    { fetch_i2c_config_cmd, "config",   "Configure I2C driver\n" \
+                                        "Usage: config()" },
+    { fetch_i2c_reset_cmd,  "reset",    "Reset I2C driver\n" \
+                                        "Usage: reset()" },
+    { fetch_i2c_help_cmd,   "help",     "I2C command help" },
     { NULL, NULL, NULL } // null terminate list
   };
 
-
-static I2CDriver * parse_i2c_dev( char * str, int32_t * dev )
+static void fetch_print_i2c_error(BaseSequentialStream * chp)
 {
-  char * endptr;
-  int32_t num = strtol(str, &endptr, 0);
+  i2cflags_t errors = i2cGetErrors(&I2C_DRV);
+  
+  util_message_hex_uint32(chp, "error_flags", errors);
 
-  if(*endptr != '\0')
+  if( errors & I2C_BUS_ERROR )
   {
-    return NULL;
+    util_message_error(chp, "I2C_BUS_ERROR");
   }
-
-  if( dev != NULL )
+  if( errors & I2C_ARBITRATION_LOST )
   {
-    *dev = num;
+    util_message_error(chp, "I2C_ARBITRATION_LOST");
   }
-
-  switch( num )
+  if( errors & I2C_ACK_FAILURE )
   {
-#if STM32_I2C_USE_I2C1
-    case 1:
-      return &I2CD1;
-#endif
-#if STM32_I2C_USE_I2C2
-    case 2:
-      return &I2CD2;
-#endif
-    default:
-      return NULL;
+    util_message_error(chp, "I2C_ACK_FAILURE");
+  }
+  if( errors & I2C_OVERRUN )
+  {
+    util_message_error(chp, "I2C_OVERRUN");
+  }
+  if( errors & I2C_PEC_ERROR )
+  {
+    util_message_error(chp, "I2C_PEC_ERROR");
+  }
+  if( errors & I2C_TIMEOUT )
+  {
+    util_message_error(chp, "I2C_TIMEOUT");
+  }
+  if( errors & I2C_SMB_ALERT )
+  {
+    util_message_error(chp, "I2C_SMB_ALERT");
   }
 }
 
 static bool fetch_i2c_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-  int32_t i2c_dev;
-  I2CDriver * i2c_drv;
+  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
 
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 1) )
-  {
-    return false;
-  }
-
-  if( (i2c_drv = parse_i2c_dev(data_list[0], &i2c_dev)) == NULL)
-  {
-    util_message_error(chp, "invalid device identifier");
-    return false;
-  }
-
-  // standard i2c configuration at 100kHz
-  i2c_cfg.op_mode = OPMODE_I2C;
-  i2c_cfg.clock_speed = 100000;
-  i2c_cfg.duty_cycle = STD_DUTY_CYCLE;
+  // set gpio mode to alternate function
+  palSetPadMode(I2C_SDA_PORT, I2C_SDA_PIN, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN);
+  palSetPadMode(I2C_SCL_PORT, I2C_SCL_PIN, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN);
 
   // apply configuration
-  i2cStart(i2c_drv, &i2c_cfg);
+  i2cStart(&I2C_DRV, &i2c_cfg);
 
   return true;
 }
 
-static bool fetch_i2c_transmit_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+static bool fetch_i2c_write_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
+  FETCH_PARAM_CHECK(chp, cmd_list, 3, MAX_I2C_BYTES + 2);
+
   static uint8_t tx_buffer[MAX_I2C_BYTES];
   uint32_t byte_count = 0;
-  int number_base = 0;
+  uint8_t number_base = 0;
   char * endptr;
   int byte_value;
   i2caddr_t address;
-  I2CDriver * i2c_drv;
-
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, MAX_I2C_BYTES + 3) )
-  {
-    return false;
-  }
   
-  if( (i2c_drv = parse_i2c_dev(data_list[0], NULL)) == NULL)
-  {
-    util_message_error(chp, "invalid device identifier");
-    return false;
-  }
-
-  if( i2c_drv->state != I2C_READY )
+  if( I2C_DRV.state != I2C_READY )
   {
     util_message_error(chp, "I2C not ready");
     return false;
   }
 
-  address = strtol(data_list[1], &endptr, 0);
-
-  if( *endptr != '\0' || address > 127 )
+  if( !util_parse_uint16(data_list[0], &address) || address > 127 )
   {
-    util_message_error(chp, "invalid address byte");
+    util_message_error(chp, "invalid address");
     return false;
   }
 
-  number_base = strtol(data_list[2], &endptr, 0);
-
-  if( *endptr != '\0' || number_base == 1 || number_base < 0 || number_base > 36 )
+  if( !util_parse_uint8(data_list[1], &number_base) || number_base == 1 || number_base > 36 )
   {
     util_message_error(chp, "invalid number base");
     return false;
   }
 
-  for( int i = 0; i < MAX_I2C_BYTES && data_list[i+3] != NULL; i++ )
+  for( int i = 0; i < MAX_I2C_BYTES && data_list[i+2] != NULL; i++ )
   {
-    byte_value = strtol(data_list[i+3], &endptr, number_base);
+    byte_value = strtol(data_list[i+2], &endptr, number_base);
     
     if( *endptr != '\0' )
     {
@@ -173,109 +172,98 @@ static bool fetch_i2c_transmit_cmd(BaseSequentialStream * chp, char * cmd_list[]
     }
   }
 
-  switch( i2cMasterTransmitTimeout(i2c_drv, address, tx_buffer, byte_count, NULL, 0, I2C_TIMEOUT) )
+  util_message_info(chp, "byte_count %U", byte_count);
+
+  switch( i2cMasterTransmitTimeout(&I2C_DRV, address, tx_buffer, byte_count, NULL, 0, I2C_TIMEOUT) )
   {
     case MSG_TIMEOUT:
-      util_message_error(chp, "i2c timeout");
-      i2cStart(i2c_drv, &i2c_cfg);
+      util_message_error(chp, "TIMEOUT");
+      fetch_print_i2c_error(chp);
+      i2cStart(&I2C_DRV, &i2c_cfg);
       return false;
     case MSG_RESET:
-      util_message_error(chp, "i2c error");
+      util_message_error(chp, "RESET");
+      fetch_print_i2c_error(chp);
+      i2cStart(&I2C_DRV, &i2c_cfg);
       return false;
     case MSG_OK:
-    default:
       return true;
+    default:
+      util_message_error(chp, "unknown error");
+      return false;
   }
 }
 
-static bool fetch_i2c_receive_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+static bool fetch_i2c_read_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
+  FETCH_PARAM_CHECK(chp, cmd_list, 2, 2);
+
   static uint8_t rx_buffer[MAX_I2C_BYTES];
   uint32_t byte_count;
   char * endptr;
   i2caddr_t address;
-  I2CDriver * i2c_drv;
 
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 3) )
-  {
-    return false;
-  }
-
-  if( (i2c_drv = parse_i2c_dev(data_list[0], NULL)) == NULL)
-  {
-    util_message_error(chp, "invalid device identifier");
-    return false;
-  }
-
-  if( i2c_drv->state != I2C_READY )
+  if( I2C_DRV.state != I2C_READY )
   {
     util_message_error(chp, "I2C not ready");
     return false;
   }
 
-  address = strtol(data_list[1], &endptr, 0);
-
-  if( *endptr != '\0' || address > 127 )
+  if( !util_parse_uint16(data_list[0], &address) || address > 127 )
   {
-    util_message_error(chp, "invalid address byte");
+    util_message_error(chp, "invalid address");
     return false;
   }
   
-  byte_count = strtol(data_list[2], &endptr, 0);
-
-  if( *endptr != '\0' || byte_count > MAX_I2C_BYTES )
+  if( !util_parse_uint32(data_list[1], &byte_count) || byte_count > MAX_I2C_BYTES )
   {
     util_message_error(chp, "invalid byte count");
     return false;
   }
 
-  switch( i2cMasterReceiveTimeout(i2c_drv, address, rx_buffer, byte_count, I2C_TIMEOUT) )
+  util_message_info(chp, "byte_count %U", byte_count);
+
+  switch( i2cMasterReceiveTimeout(&I2C_DRV, address, rx_buffer, byte_count, I2C_TIMEOUT) )
   {
     case MSG_TIMEOUT:
-      util_message_error(chp, "i2c timeout");
-      i2cStart(i2c_drv, &i2c_cfg);
+      util_message_error(chp, "TIMEOUT");
+      fetch_print_i2c_error(chp);
+      i2cStart(&I2C_DRV, &i2c_cfg);
       return false;
     case MSG_RESET:
-      util_message_error(chp, "i2c error");
+      util_message_error(chp, "RESET");
+      fetch_print_i2c_error(chp);
+      i2cStart(&I2C_DRV, &i2c_cfg);
       return false;
     case MSG_OK:
-    default:
       break;
+    default:
+      util_message_error(chp, "unknown error");
+      return false;
   }
 
-  util_message_uint32(chp, "count", &byte_count, 1);
-  util_message_hex_uint8( chp, "rx", rx_buffer, byte_count);
+  util_message_uint32(chp, "count", byte_count);
+  util_message_hex_uint8_array( chp, "rx", rx_buffer, byte_count);
 
   return true;
 }
 
 static bool fetch_i2c_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-  int32_t i2c_dev;
-  I2CDriver * i2c_drv;
+  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
 
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 1) )
-  {
-    return false;
-  }
-
-  if( (i2c_drv = parse_i2c_dev(data_list[0], &i2c_dev)) == NULL)
-  {
-    util_message_error(chp, "invalid device identifier");
-    return false;
-  }
-
-  i2cStop(i2c_drv);
+  fetch_i2c_reset(chp);
 
   return true;
 }
 
 static bool fetch_i2c_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
+  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+
   util_message_info(chp, "Usage legend: <> required, [] optional, | or,");
   util_message_info(chp, "              ... continuation, {} comment");
 
-  util_message_info(chp, "dev = 1 | 2");
   util_message_info(chp, "base = (reference strtol c function)");
   util_message_info(chp, "addr = 7 bit address, no r/w bit");
 
@@ -299,19 +287,17 @@ void fetch_i2c_init(BaseSequentialStream * chp)
  */
 bool fetch_i2c_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-  return fetch_dispatch(chp, fetch_i2c_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);
+  return fetch_dispatch(chp, fetch_i2c_commands, cmd_list, data_list);
 }
 
 
 bool fetch_i2c_reset(BaseSequentialStream * chp)
 {
+  i2cStop(&I2C_DRV);
 
-#if STM32_I2C_USE_I2C1
-  i2cStop(&I2CD1);
-#endif
-#if STM32_I2C_USE_I2C2
-  i2cStop(&I2CD2);
-#endif
+  // reset to default gpio mode
+  palSetPadMode(I2C_SDA_PORT, I2C_SDA_PIN, PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_FLOATING);
+  palSetPadMode(I2C_SCL_PORT, I2C_SCL_PIN, PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_FLOATING);
 
   return true;
 }

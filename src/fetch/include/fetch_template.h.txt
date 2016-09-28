@@ -1,0 +1,20 @@
+#ifndef __FETCH_<TEMPLATE>_H_
+#define __FETCH_<TEMPLATE>_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+bool fetch_<template>_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+
+bool fetch_<template>_reset(BaseSequentialStream * chp);
+
+void fetch_<template>_init(BaseSequentialStream * chp);
+
+#ifdef __cplusplus
+}
+#endif
+
+
+#endif
+/*! @} */

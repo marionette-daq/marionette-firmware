@@ -30,6 +30,7 @@
 #include "util_strings.h"
 #include "util_messages.h"
 #include "util_io.h"
+#include "util_arg_parse.h"
 
 #include "fetch_defs.h"
 #include "fetch.h"
@@ -37,7 +38,7 @@
 //#include "dac.h"
 #include "fetch_dac.h"
 
-/* Reference STF4 Reference
+/* Note:
  *   Once the DAC channelx is enabled, the corresponding GPIO pin (PA4 or PA5) is
  *   automatically connected to the analog converter output (DAC_OUTx). In order to avoid
  *   parasitic consumption, the PA4 or PA5 pin should first be configured to analog (AIN).
@@ -46,7 +47,6 @@ SPIConfig spi4_cfg;
 DACConfig dac1_cfg;
 
 static bool fetch_dac_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_dac_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_dac_write_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 static bool fetch_dac_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 
@@ -92,10 +92,7 @@ static bool external_dac_write(uint16_t channel, uint16_t value)
 
 static bool fetch_dac_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 0) )
-  {
-    return false;
-  }
+  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
 
   util_message_info(chp, "Fetch DAC Help:");
   fetch_display_help(chp, fetch_dac_commands);
@@ -104,23 +101,18 @@ static bool fetch_dac_help_cmd(BaseSequentialStream * chp, char * cmd_list[], ch
 
 static bool fetch_dac_write_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-  char * endptr;
+  FETCH_PARAM_CHECK(chp, cmd_list, 2, 2);
+  
+  uint16_t channel;
+  uint16_t value;
 
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 2) )
+  if( !util_parse_uint16(data_list[0], &channel) || channel > 4 )
   {
-    return false;
-  }
-
-  int32_t channel = strtol(data_list[0],&endptr,0);
-
-  if( *endptr != '\0' ) {
     util_message_error(chp, "invalid channel");
     return false;
   }
 
-  int32_t value = strtol(data_list[1],&endptr,0);
-
-  if( *endptr != '\0' ) {
+  if( !util_parse_uint16(data_list[1], &value) || value > 0xfff ) {
     util_message_error(chp, "invalid value");
     return false;
   }
@@ -131,22 +123,22 @@ static bool fetch_dac_write_cmd(BaseSequentialStream * chp, char * cmd_list[], c
     case 1:
     case 2:
     case 3:
-      return external_dac_write(channel, value);
+      if( !external_dac_write(channel, value) )
+      {
+        util_message_error(chp, "error writing to external dac");
+        return false;
+      }
+      break;
     case 4:
       dacPutChannelX(&DACD1, 0, value);
-      return true;
-    default:
-      util_message_error(chp, "invalid channel");
-      return false;
+      break;
   }
+  return true;
 }
 
 static bool fetch_dac_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-  if( !fetch_input_check(chp, cmd_list, FETCH_TOK_SUBCMD_0, data_list, 0) )
-  {
-    return false;
-  }
+  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
 
   return fetch_dac_reset(chp);
 }
@@ -166,7 +158,7 @@ void fetch_dac_init(BaseSequentialStream * chp)
   
   spi4_cfg.end_cb = NULL;
   spi4_cfg.ssport = GPIOE;
-  spi4_cfg.sspad = GPIOE_SPI4_NSS;
+  spi4_cfg.sspad = GPIOE_PE11_DAC_SPI4_NSS;
   spi4_cfg.cr1 = SPI_CR1_CPHA;
 
   spiStart(&SPID4, &spi4_cfg);
@@ -180,8 +172,7 @@ void fetch_dac_init(BaseSequentialStream * chp)
  */
 bool fetch_dac_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
 {
-  fetch_dac_init(chp);
-  return fetch_dispatch(chp, fetch_dac_commands, cmd_list[FETCH_TOK_SUBCMD_0], cmd_list, data_list);
+  return fetch_dispatch(chp, fetch_dac_commands, cmd_list, data_list);
 }
 
 bool fetch_dac_reset(BaseSequentialStream * chp)

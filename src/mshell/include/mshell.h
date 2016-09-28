@@ -74,18 +74,16 @@ typedef struct {
   const mshell_command_t    *sc_commands;       /**< @brief Shell extra commands
                                                  table.                     */
 } MShellConfig;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-  extern event_source_t shell_terminated;
-
   void mshellInit(void);
-  void mshellExit(msg_t msg);
-  thread_t *mshellCreate(const MShellConfig *scp, size_t size, tprio_t prio);
-  thread_t *mshellCreateStatic(const MShellConfig *scp, void *wsp,
-                            size_t size, tprio_t prio);
+  void mshellStart(const MShellConfig *cfg);
+  void mshellStop(void);
   bool mshellGetLine(BaseSequentialStream *chp, char *line, unsigned size);
+
 #ifdef __cplusplus
 }
 #endif
