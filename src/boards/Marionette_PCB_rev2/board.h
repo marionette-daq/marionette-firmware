@@ -143,7 +143,7 @@
 #define GPIOE_PIN10                    10 
 #define GPIOE_SPI4_NSS                 11 // EXT DAC !SYNC
 #define GPIOE_SPI4_SCK                 12 // EXT DAC
-#define GPIOE_PIN13                13 // NC
+#define GPIOE_PIN13                    13 // NC
 #define GPIOE_SPI4_MOSI                14 // EXT DAC
 #define GPIOE_PIN15                    15 
 

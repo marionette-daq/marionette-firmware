@@ -10,11 +10,14 @@
 extern "C" {
 #endif
 
-bool fetch_i2c_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-
+void fetch_i2c_init(void);
 bool fetch_i2c_reset(BaseSequentialStream * chp);
 
-void fetch_i2c_init(BaseSequentialStream * chp);
+bool fetch_i2c_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+bool fetch_i2c_write_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+bool fetch_i2c_read_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+bool fetch_i2c_reset_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+bool fetch_i2c_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
 
 #ifdef __cplusplus
 }

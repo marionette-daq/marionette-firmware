@@ -50,15 +50,8 @@
 #endif
 
 static I2CConfig  i2c_cfg = { OPMODE_I2C, 100000, STD_DUTY_CYCLE }; // standard 100khz mode
-static bool       i2c_init_flag = true;
 
-// list all command function prototypes here 
-static bool fetch_i2c_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_i2c_write_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_i2c_read_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_i2c_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_i2c_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-
+#if 0
 static fetch_command_t fetch_i2c_commands[] = {
     { fetch_i2c_write_cmd,  "write",    "TX data to slave\n" \
                                         "Usage: write(<addr>,<base>,<byte 0>,[...,<byte n>])" },
@@ -71,6 +64,7 @@ static fetch_command_t fetch_i2c_commands[] = {
     { fetch_i2c_help_cmd,   "help",     "I2C command help" },
     { NULL, NULL, NULL } // null terminate list
   };
+#endif
 
 static void fetch_print_i2c_error(BaseSequentialStream * chp)
 {
@@ -108,9 +102,9 @@ static void fetch_print_i2c_error(BaseSequentialStream * chp)
   }
 }
 
-static bool fetch_i2c_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_i2c_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   // set gpio mode to alternate function
   palSetPadMode(I2C_SDA_PORT, I2C_SDA_PIN, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN);
@@ -122,9 +116,10 @@ static bool fetch_i2c_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
   return true;
 }
 
-static bool fetch_i2c_write_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_i2c_write_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 3, MAX_I2C_BYTES + 2);
+  FETCH_MIN_ARGS(chp, argc, 3);
+  FETCH_MAX_ARGS(chp, argc, MAX_I2C_BYTES + 2);
 
   static uint8_t tx_buffer[MAX_I2C_BYTES];
   uint32_t byte_count = 0;
@@ -139,21 +134,21 @@ static bool fetch_i2c_write_cmd(BaseSequentialStream * chp, char * cmd_list[], c
     return false;
   }
 
-  if( !util_parse_uint16(data_list[0], &address) || address > 127 )
+  if( !util_parse_uint16(argv[0], &address) || address > 127 )
   {
     util_message_error(chp, "invalid address");
     return false;
   }
 
-  if( !util_parse_uint8(data_list[1], &number_base) || number_base == 1 || number_base > 36 )
+  if( !util_parse_uint8(argv[1], &number_base) || number_base == 1 || number_base > 36 )
   {
     util_message_error(chp, "invalid number base");
     return false;
   }
 
-  for( int i = 0; i < MAX_I2C_BYTES && data_list[i+2] != NULL; i++ )
+  for( int i = 0; i < MAX_I2C_BYTES && argv[i+2] != NULL; i++ )
   {
-    byte_value = strtol(data_list[i+2], &endptr, number_base);
+    byte_value = strtol(argv[i+2], &endptr, number_base);
     
     if( *endptr != '\0' )
     {
@@ -194,9 +189,10 @@ static bool fetch_i2c_write_cmd(BaseSequentialStream * chp, char * cmd_list[], c
   }
 }
 
-static bool fetch_i2c_read_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_i2c_read_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 2, 2);
+  FETCH_MAX_ARGS(chp, argc, 2);
+  FETCH_MIN_ARGS(chp, argc, 2);
 
   static uint8_t rx_buffer[MAX_I2C_BYTES];
   uint32_t byte_count;
@@ -209,13 +205,13 @@ static bool fetch_i2c_read_cmd(BaseSequentialStream * chp, char * cmd_list[], ch
     return false;
   }
 
-  if( !util_parse_uint16(data_list[0], &address) || address > 127 )
+  if( !util_parse_uint16(argv[0], &address) || address > 127 )
   {
     util_message_error(chp, "invalid address");
     return false;
   }
   
-  if( !util_parse_uint32(data_list[1], &byte_count) || byte_count > MAX_I2C_BYTES )
+  if( !util_parse_uint32(argv[1], &byte_count) || byte_count > MAX_I2C_BYTES )
   {
     util_message_error(chp, "invalid byte count");
     return false;
@@ -248,18 +244,18 @@ static bool fetch_i2c_read_cmd(BaseSequentialStream * chp, char * cmd_list[], ch
   return true;
 }
 
-static bool fetch_i2c_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_i2c_reset_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   fetch_i2c_reset(chp);
 
   return true;
 }
 
-static bool fetch_i2c_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_i2c_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   util_message_info(chp, "Usage legend: <> required, [] optional, | or,");
   util_message_info(chp, "              ... continuation, {} comment");
@@ -267,29 +263,14 @@ static bool fetch_i2c_help_cmd(BaseSequentialStream * chp, char * cmd_list[], ch
   util_message_info(chp, "base = (reference strtol c function)");
   util_message_info(chp, "addr = 7 bit address, no r/w bit");
 
-  fetch_display_help(chp, fetch_i2c_commands);
+  // FIXME add help output
   return true;
 }
 
-void fetch_i2c_init(BaseSequentialStream * chp)
+void fetch_i2c_init(void)
 {
-  static bool i2c_init_flag = false;
-
-  if( i2c_init_flag )
-    return;
-
   // TODO do we need anything here?
-  
-  i2c_init_flag = true;
 }
-
-/*! \brief dispatch a specific i2c command
- */
-bool fetch_i2c_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-  return fetch_dispatch(chp, fetch_i2c_commands, cmd_list, data_list);
-}
-
 
 bool fetch_i2c_reset(BaseSequentialStream * chp)
 {

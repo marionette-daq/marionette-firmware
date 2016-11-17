@@ -15,6 +15,7 @@ typedef struct {
 #define util_match_str(str1, str2) (strcasecmp((str1),(str2)) == 0)
 #define util_match_nstr(str1, str2, max_len) (strncasecmp((str1),(str2),(max_len)) == 0)
 
+bool util_parse_bool(char * arg, bool * output);
 bool util_parse_uint8(char * arg, uint8_t * output);
 bool util_parse_uint16(char * arg, uint16_t * output);
 bool util_parse_uint32(char * arg, uint32_t * output);

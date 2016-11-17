@@ -35,7 +35,6 @@
 #include "fetch_defs.h"
 #include "fetch.h"
 
-//#include "dac.h"
 #include "fetch_dac.h"
 
 /* Note:
@@ -46,16 +45,14 @@
 SPIConfig spi4_cfg;
 DACConfig dac1_cfg;
 
-static bool fetch_dac_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_dac_write_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_dac_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-
+#if 0
 static fetch_command_t fetch_dac_commands[] = {
     { fetch_dac_help_cmd,   "help",   "DAC command help" },
     { fetch_dac_write_cmd,  "write",  "Write values to DAC\nUsage: write(<channel>, <value>)" },
     { fetch_dac_reset_cmd,  "reset",  "Reset all DAC outputs to 0v" },
     { NULL, NULL, NULL }
   };
+#endif
 
 static bool external_dac_write(uint16_t channel, uint16_t value)
 {
@@ -90,29 +87,30 @@ static bool external_dac_write(uint16_t channel, uint16_t value)
   return true;
 }
 
-static bool fetch_dac_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_dac_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   util_message_info(chp, "Fetch DAC Help:");
-  fetch_display_help(chp, fetch_dac_commands);
+  // FIXME output help text
 	return true;
 }
 
-static bool fetch_dac_write_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_dac_write_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 2, 2);
+  FETCH_MAX_ARGS(chp, argc, 2);
+  FETCH_MIN_ARGS(chp, argc, 2);
   
   uint16_t channel;
   uint16_t value;
 
-  if( !util_parse_uint16(data_list[0], &channel) || channel > 4 )
+  if( !util_parse_uint16(argv[0], &channel) || channel > 4 )
   {
     util_message_error(chp, "invalid channel");
     return false;
   }
 
-  if( !util_parse_uint16(data_list[1], &value) || value > 0xfff ) {
+  if( !util_parse_uint16(argv[1], &value) || value > 0xfff ) {
     util_message_error(chp, "invalid value");
     return false;
   }
@@ -136,21 +134,16 @@ static bool fetch_dac_write_cmd(BaseSequentialStream * chp, char * cmd_list[], c
   return true;
 }
 
-static bool fetch_dac_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_dac_reset_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   return fetch_dac_reset(chp);
 }
 
 
-void fetch_dac_init(BaseSequentialStream * chp)
+void fetch_dac_init(void)
 {
-  static bool dac_init_flag = false;
-
-  if( dac_init_flag )
-    return;
-
   dac1_cfg.init = 0;
   dac1_cfg.datamode = DAC_DHRM_12BIT_RIGHT;
 
@@ -163,17 +156,13 @@ void fetch_dac_init(BaseSequentialStream * chp)
 
   spiStart(&SPID4, &spi4_cfg);
 
-  fetch_dac_reset(chp);
-
-  dac_init_flag = true;
+  dacPutChannelX(&DACD1, 0, 0);
+  external_dac_write(0,0);
+  external_dac_write(1,0);
+  external_dac_write(2,0);
+  external_dac_write(3,0);
 }
 
-/*! \brief dispatch an DAC command
- */
-bool fetch_dac_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-  return fetch_dispatch(chp, fetch_dac_commands, cmd_list, data_list);
-}
 
 bool fetch_dac_reset(BaseSequentialStream * chp)
 {

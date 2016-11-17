@@ -121,11 +121,13 @@ static const MPipeConfig mpipe_cfg =
  */
 static void main_app(void)
 {
-  chprintf(DBG_OUT, "MAIN\r\n");
+  chprintf(DEBUG_CHP, "Marionette start\r\n");
   set_status_led(1,0,0);
 
+	fetch_init();
 	mshellInit();
   mpipeInit();
+
 
 #if STM32_USB_USE_OTG2
 	palSetPad(GPIOB, GPIOB_ULPI_RST_B); //Take ulpi out of reset
@@ -148,6 +150,7 @@ static void main_app(void)
 	usbStart(serusbcfg.usbp, &usbcfg);
 	chThdSleepMilliseconds(200);
 	usbConnectBus(serusbcfg.usbp);
+  chThdSleepMilliseconds(200);
   
   uint8_t led_blank_count = 0;
 
@@ -190,8 +193,8 @@ int main(void)
 	halInit();
 	chSysInit();
 
-  // start up deboug output, chprintf(DBG_OUT,...)
-  sdStart(&DBG_SERIAL, NULL);
+  // start up deboug output, chprintf(DEBUG_CHP,...)
+  sdStart(&DEBUG_SERIAL, NULL);
 
 	main_app();
 

@@ -10,11 +10,14 @@
 extern "C" {
 #endif
 
-bool fetch_spi_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-
+void fetch_spi_init(void);
 bool fetch_spi_reset(BaseSequentialStream * chp);
 
-void fetch_spi_init(BaseSequentialStream * chp);
+bool fetch_spi_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+bool fetch_spi_reset_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+bool fetch_spi_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+bool fetch_spi_clocks_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
 
 #ifdef __cplusplus
 }

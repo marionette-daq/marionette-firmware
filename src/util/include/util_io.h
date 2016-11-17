@@ -18,31 +18,7 @@ extern "C" {
 extern "C" {
 #endif
 
-#define DBG_SERIAL  SD6
-#define DBG_OUT     ((BaseSequentialStream *) &DBG_SERIAL)
-
-#define MAX_PIN_STRLEN  8
-#define MAX_PORT_STRLEN 8
-
-typedef enum io_pin {
-	PIN0 = 0,
-	PIN1,
-	PIN2,
-	PIN3,
-	PIN4,
-	PIN5,
-	PIN6,
-	PIN7,
-	PIN8,
-	PIN9,
-	PIN10,
-	PIN11,
-	PIN12,
-	PIN13,
-	PIN14,
-	PIN15,
-	INVALID_PIN=99
-} iopin_t;
+#define INVALID_PIN 99
 
 typedef struct str_pin_map
 {
@@ -58,9 +34,15 @@ typedef struct str_port_map
 
 typedef struct port_pin
 {
-  const ioportid_t  port;
-  const uint32_t    pin;
+  ioportid_t  port;
+  uint32_t    pin;
 } port_pin_t;
+
+typedef struct str_port_pin_map
+{
+  const char * string;
+  port_pin_t port_pin;
+} str_port_pin_map_t;
 
 typedef struct alt_pin_mode
 {
@@ -70,11 +52,6 @@ typedef struct alt_pin_mode
   const bool        state;
 } alt_pin_mode_t;
 
-bool set_alt_pin_mode( ioportid_t port, uint32_t pin );
-
-ioportid_t string_to_port( char * str);
-iopin_t string_to_pin( char * str);
-const char * port_to_string( ioportid_t port );
 void set_status_led(bool r, bool g, bool b);
 
 #ifdef __cplusplus

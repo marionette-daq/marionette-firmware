@@ -14,25 +14,6 @@
 #include "fetch_mbus.h"
 #include "fetch.h"
 
-
-// list all command function prototypes here 
-static bool fetch_mbus_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_mbus_select_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_mbus_detect_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_mbus_read_analog_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_mbus_read_eeprom_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_mbus_write_eeprom_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-
-static fetch_command_t fetch_mbus_commands[] = {
-    { fetch_mbus_help_cmd,          "help",       "Display command info"},
-    { fetch_mbus_select_cmd,        "select",     "Select bus to act on"},
-    { fetch_mbus_detect_cmd,        "detect",     "Detect eeprom or analog"},
-    { fetch_mbus_read_analog_cmd,   "readanalog", "Read analog voltages on mbus pins"},
-    { fetch_mbus_read_eeprom_cmd,   "read",       "Read EEPROM data"},
-    { fetch_mbus_write_eeprom_cmd,  "write",      "Write EEPROM data"},
-    { NULL, NULL, NULL } // null terminate list
-  };
-
 #define ADC_SMPR1(smp) (smp | (smp<<3) | (smp<<6) | (smp<<9) | (smp<<12) | (smp<<15) | (smp<<18) | (smp<<21) | (smp<<24))
 #define ADC_SMPR2(smp) (smp | (smp<<3) | (smp<<6) | (smp<<9) | (smp<<12) | (smp<<15) | (smp<<18) | (smp<<21) | (smp<<24) | (smp<<27))
 
@@ -196,39 +177,59 @@ static bool fetch_mbus_analog_check(BaseSequentialStream *chp)
 }
 
 
-static bool fetch_mbus_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_mbus_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
-  fetch_display_help_legend(chp);
-  fetch_display_help(chp, fetch_mbus_commands);
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_LEGEND(chp);
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_TITLE(chp, "MBUS Help");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp, "select(<bus>)");
+  FETCH_HELP_DES(chp, "Select bus to act on");
+  FETCH_HELP_ARG(chp, "bus", "gpio | serial | analog | none");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp, "detect");
+  FETCH_HELP_DES(chp, "Detect eeprom or analog");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp, "readanalog");
+  FETCH_HELP_DES(chp, "Read analog voltages on mbus pins");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp, "read");
+  FETCH_HELP_DES(chp, "Read EEPROM data");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp, "write");
+  FETCH_HELP_DES(chp, "Write EEPROM data");
+  FETCH_HELP_BREAK(chp);
 	return true;
 }
 
-static bool fetch_mbus_select_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_mbus_select_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 1, 1);
+  FETCH_MAX_ARGS(chp, argc, 1);
+  FETCH_MIN_ARGS(chp, argc, 1);
 
   palClearPad(GPIOI, GPIOI_PI7_MBUS_GPIO_SELECT);
   palClearPad(GPIOI, GPIOI_PI6_MBUS_SER_SELECT);
   palClearPad(GPIOI, GPIOI_PI5_MBUS_ANA_SELECT);
 
-  if( strcasecmp(data_list[0], "gpio") == 0 )
+  if( strcasecmp(argv[0], "gpio") == 0 )
   {
     mbus_select = MBUS_SEL_GPIO;
     palSetPad(GPIOI,GPIOI_PI7_MBUS_GPIO_SELECT);
   }
-  else if( strcasecmp(data_list[0], "serial") == 0 )
+  else if( strcasecmp(argv[0], "serial") == 0 )
   {
     mbus_select = MBUS_SEL_SERIAL;
     palSetPad(GPIOI,GPIOI_PI6_MBUS_SER_SELECT);
   }
-  else if( strcasecmp(data_list[0], "analog") == 0 )
+  else if( strcasecmp(argv[0], "analog") == 0 )
   {
     mbus_select = MBUS_SEL_ANALOG;
     palSetPad(GPIOI,GPIOI_PI5_MBUS_ANA_SELECT);
   }
-  else if( strcasecmp(data_list[0], "none") == 0 )
+  else if( strcasecmp(argv[0], "none") == 0 )
   {
     mbus_select = MBUS_SEL_NONE;
   }
@@ -240,9 +241,9 @@ static bool fetch_mbus_select_cmd(BaseSequentialStream * chp, char * cmd_list[],
 	return true;
 }
 
-static bool fetch_mbus_detect_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_mbus_detect_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   adcsample_t mbus_samples[2];
 
@@ -271,9 +272,10 @@ static bool fetch_mbus_detect_cmd(BaseSequentialStream * chp, char * cmd_list[],
 	return true;
 }
 
-static bool fetch_mbus_read_analog_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_mbus_read_analog_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
+
   adcsample_t mbus_samples[2];
 
   // sample analog voltages
@@ -293,9 +295,9 @@ static bool fetch_mbus_read_analog_cmd(BaseSequentialStream * chp, char * cmd_li
 }
 
 
-static bool fetch_mbus_read_eeprom_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_mbus_read_eeprom_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   fetch_mbus_set_pin_mode(MBUS_PIN_MODE_I2C);
   
@@ -328,22 +330,17 @@ static bool fetch_mbus_read_eeprom_cmd(BaseSequentialStream * chp, char * cmd_li
   }
 }
 
-static bool fetch_mbus_write_eeprom_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_mbus_write_eeprom_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   // TODO
 
 	return true;
 }
 
-void fetch_mbus_init(BaseSequentialStream * chp)
+void fetch_mbus_init(void)
 {
-  static bool mbus_init_flag = false;
-
-  if( mbus_init_flag )
-    return;
-
   adcStart(&ADCD3, NULL);
   
   i2cStart(&I2CD1, &i2c1_cfg);
@@ -353,20 +350,16 @@ void fetch_mbus_init(BaseSequentialStream * chp)
   palClearPad(GPIOI, GPIOI_PI7_MBUS_GPIO_SELECT);
   palClearPad(GPIOI, GPIOI_PI6_MBUS_SER_SELECT);
   palClearPad(GPIOI, GPIOI_PI5_MBUS_ANA_SELECT);
-
-  mbus_init_flag = true;
 }
 
 /*! \brief dispatch a specific command
  */
-bool fetch_mbus_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-  return fetch_dispatch(chp, fetch_mbus_commands, cmd_list, data_list);
-}
-
 bool fetch_mbus_reset(BaseSequentialStream * chp)
 {
-  // TODO
+  mbus_select = MBUS_SEL_NONE;
+  palClearPad(GPIOI, GPIOI_PI7_MBUS_GPIO_SELECT);
+  palClearPad(GPIOI, GPIOI_PI6_MBUS_SER_SELECT);
+  palClearPad(GPIOI, GPIOI_PI5_MBUS_ANA_SELECT);
   return true;
 }
 

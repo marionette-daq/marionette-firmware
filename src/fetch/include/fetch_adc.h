@@ -21,13 +21,20 @@ typedef struct {
   volatile int16_t mem_ref_count;
 } adc_sample_set_t;
 
-void fetch_adc_free_sample_set( adc_sample_set_t *ssp );
+bool fetch_adc_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+bool fetch_adc_single_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+bool fetch_adc_stream_start_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+bool fetch_adc_stream_stop_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+bool fetch_adc_status_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+bool fetch_adc_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+bool fetch_adc_timer_reset_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+bool fetch_adc_reset_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
 
-bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
+void fetch_adc_free_sample_set( adc_sample_set_t *ssp );
 
 bool fetch_adc_reset(BaseSequentialStream * chp);
 
-void fetch_adc_init(BaseSequentialStream * chp);
+void fetch_adc_init(void);
 
 #ifdef __cplusplus
 }

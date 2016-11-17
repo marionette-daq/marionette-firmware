@@ -43,7 +43,7 @@ endif
 
 # Enable this if you want to see the full log while compiling.
 ifeq ($(USE_VERBOSE_COMPILE),)
-  USE_VERBOSE_COMPILE = no
+  USE_VERBOSE_COMPILE = yes
 endif
 
 # If enabled, this option makes the build process faster by not compiling
@@ -128,6 +128,7 @@ MSRC += $(wildcard $(MARIONETTE_USB)/*.c)
 MSRC += $(wildcard $(MARIONETTE_FETCH)/*.c)
 MSRC += $(wildcard $(MARIONETTE_MSHELL)/*.c)
 MSRC += $(wildcard $(MARIONETTE_MPIPE)/*.c)
+MSRC += $(wildcard $(MARIONETTE_MCARD)/*.c)
 
 CSRC = $(STARTUPSRC) \
 			 $(KERNSRC) \
@@ -141,6 +142,7 @@ CSRC = $(STARTUPSRC) \
        $(MSRC) \
 			 $(FATFSSRC) \
        main.c
+
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -256,8 +258,50 @@ ULIBS = -lm
 # End of user defines
 ##############################################################################
 
+
+RAGEL = ragel
+
+RAGEL_SRC = $(MARIONETTE_FETCH)/fetch_parser.rl
+
+RAGEL_CSRC_DIR = build/ragel_csrc
+RAGEL_CSRC = $(addprefix $(RAGEL_CSRC_DIR)/, $(notdir $(RAGEL_SRC:.rl=.c)))
+
+RAGEL_DOT_DIR = build/ragel_dot
+
+CSRC += $(RAGEL_CSRC)
+
+##############################################################################
+
 RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC
 include $(RULESPATH)/rules.mk
 include $(MARIONETTE_RULES)
 
+##############################################################################
 
+$(RAGEL_CSRC_DIR):
+	mkdir -p $(RAGEL_CSRC_DIR)
+
+$(RAGEL_DOT_DIR):
+	mkdir -p $(RAGEL_DOT_DIR)
+
+ragel_svg: $(RAGEL_DOT_DIR)
+	$(RAGEL) -V -S fetch_command_parser -o $(RAGEL_DOT_DIR)/fetch_command_parser.dot ../fetch/fetch_parser.rl
+	dot -Tsvg -o $(RAGEL_DOT_DIR)/fetch_command_parser.svg $(RAGEL_DOT_DIR)/fetch_command_parser.dot
+	$(RAGEL) -V -S fetch_string_parser -o $(RAGEL_DOT_DIR)/fetch_string_parser.dot ../fetch/fetch_parser.rl
+	dot -Tsvg -o $(RAGEL_DOT_DIR)/fetch_string_parser.svg $(RAGEL_DOT_DIR)/fetch_string_parser.dot
+	$(RAGEL) -V -S fetch_gpio_parser -o $(RAGEL_DOT_DIR)/fetch_gpio_parser.dot ../fetch/fetch_parser.rl
+	dot -Tsvg -o $(RAGEL_DOT_DIR)/fetch_gpio_parser.svg $(RAGEL_DOT_DIR)/fetch_gpio_parser.dot
+	$(RAGEL) -V -S fetch_gpio_parser -o $(RAGEL_DOT_DIR)/fetch_gpio_port_parser.dot ../fetch/fetch_parser.rl
+	dot -Tsvg -o $(RAGEL_DOT_DIR)/fetch_gpio_port_parser.svg $(RAGEL_DOT_DIR)/fetch_gpio_port_parser.dot
+
+$(RAGEL_CSRC) : $(RAGEL_CSRC_DIR)/%.c : %.rl Makefile $(RAGEL_CSRC_DIR) $(RAGEL_DOT_DIR)
+	@echo "RAGEL: $< -> $@"
+	$(RAGEL) -C -I. $(IINCDIR) -o $@ $<
+
+ragel_clean:
+	# cleanup generated c source files
+	rm -f $(RAGEL_CSRC)
+
+ragel_build: $(RAGEL_CSRC)
+
+##############################################################################

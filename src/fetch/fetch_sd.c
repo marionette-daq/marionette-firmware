@@ -23,24 +23,7 @@
 #include "fetch_defs.h"
 #include "fetch_sd.h"
 
-// list all command function prototypes here 
-static bool fetch_sd_connect_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_sd_disconnect_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_sd_mount_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_sd_unmount_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_sd_format_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_sd_open_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_sd_close_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_sd_unlink_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_sd_read_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_sd_write_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_sd_tell_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_sd_seek_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_sd_dir_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_sd_status_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_sd_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-
-
+#if 0
 static fetch_command_t fetch_sd_commands[] = {
     { fetch_sd_connect_cmd,     "connect",    "Connet SD card" },
     { fetch_sd_disconnect_cmd,  "disconnect",    "Disconnect SD card" },
@@ -59,6 +42,7 @@ static fetch_command_t fetch_sd_commands[] = {
     { fetch_sd_help_cmd,        "help",     "SD command help" },
     { NULL, NULL, NULL } // null terminate list
   };
+#endif
 
 FATFS filesystem;
 FIL file_obj;
@@ -131,9 +115,9 @@ static bool fatfs_error_check(BaseSequentialStream * chp, FRESULT err)
   }
 }
 
-static bool fetch_sd_connect_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_sd_connect_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   if( blkGetDriverState(&SDCD1) != BLK_ACTIVE )
   {
@@ -161,8 +145,10 @@ static bool fetch_sd_connect_cmd(BaseSequentialStream * chp, char * cmd_list[], 
   return true;
 }
 
-static bool fetch_sd_disconnect_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_sd_disconnect_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
+  FETCH_MAX_ARGS(chp, argc, 0);
+
   sdcDisconnect(&SDCD1);
 
   // power off card
@@ -171,51 +157,52 @@ static bool fetch_sd_disconnect_cmd(BaseSequentialStream * chp, char * cmd_list[
   return true;
 }
 
-static bool fetch_sd_mount_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_sd_mount_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   return fatfs_error_check(chp, f_mount(&filesystem, "", 1) );
 }
 
-static bool fetch_sd_unmount_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_sd_unmount_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   return fatfs_error_check(chp, f_mount(NULL, NULL, 0) );
 }
 
-static bool fetch_sd_format_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_sd_format_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   return fatfs_error_check(chp, f_mkfs("", 0, 0) );
 }
 
-static bool fetch_sd_open_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_sd_open_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 1);
+  FETCH_MAX_ARGS(chp, argc, 1);
+  FETCH_MIN_ARGS(chp, argc, 1);
 
-  return fatfs_error_check(chp, f_open(&file_obj, data_list[0], FA_READ+FA_WRITE+FA_OPEN_ALWAYS)); 
+  return fatfs_error_check(chp, f_open(&file_obj, argv[0], FA_READ+FA_WRITE+FA_OPEN_ALWAYS)); 
 }
 
-static bool fetch_sd_close_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_sd_close_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   return fatfs_error_check(chp, f_close(&file_obj));
 }
 
-static bool fetch_sd_unlink_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_sd_unlink_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
   
-  return fatfs_error_check(chp, f_unlink(data_list[0]));
+  return fatfs_error_check(chp, f_unlink(argv[0]));
 }
 
-static bool fetch_sd_read_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_sd_read_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   uint8_t buffer[64];
   uint32_t read_count = 0;
@@ -231,13 +218,14 @@ static bool fetch_sd_read_cmd(BaseSequentialStream * chp, char * cmd_list[], cha
   return true;
 }
 
-static bool fetch_sd_write_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_sd_write_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 1, 1);
+  FETCH_MAX_ARGS(chp, argc, 1);
+  FETCH_MIN_ARGS(chp, argc, 1);
 
   uint32_t write_count = 0;
 
-  if( !fatfs_error_check(chp, f_write(&file_obj, data_list[0], strlen(data_list[0]), (UINT*)&write_count)) )
+  if( !fatfs_error_check(chp, f_write(&file_obj, argv[0], strlen(argv[0]), (UINT*)&write_count)) )
   {
     return false;
   }
@@ -247,22 +235,23 @@ static bool fetch_sd_write_cmd(BaseSequentialStream * chp, char * cmd_list[], ch
   return true;
 }
 
-static bool fetch_sd_tell_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_sd_tell_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
   
   util_message_uint32(chp, "fptr", f_tell(&file_obj));
 
   return true;
 }
 
-static bool fetch_sd_seek_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_sd_seek_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 1, 1);
+  FETCH_MAX_ARGS(chp, argc, 1);
+  FETCH_MIN_ARGS(chp, argc, 1);
 
   uint32_t offset;
 
-  if( !util_parse_uint32(data_list[0], &offset) )
+  if( !util_parse_uint32(argv[0], &offset) )
   {
     util_message_error(chp, "invalid file offset");
     return false;
@@ -271,7 +260,7 @@ static bool fetch_sd_seek_cmd(BaseSequentialStream * chp, char * cmd_list[], cha
   return fatfs_error_check(chp, f_lseek(&file_obj, offset));
 }
 
-static bool fetch_sd_dir_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_sd_dir_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
   DIR dir_obj;
   FILINFO file_info;
@@ -287,43 +276,27 @@ static bool fetch_sd_dir_cmd(BaseSequentialStream * chp, char * cmd_list[], char
   return true;
 }
 
-static bool fetch_sd_status_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_sd_status_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
   return true;
 }
 
-static bool fetch_sd_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_sd_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
-  fetch_display_help_legend(chp);
-  fetch_display_help(chp, fetch_sd_commands);
+  // FIXME output help text
 	return true;
 }
 
-void fetch_sd_init(BaseSequentialStream * chp)
+void fetch_sd_init(void)
 {
-  static bool sd_init_flag = false;
-
-  if( sd_init_flag )
-    return;
-
    // power off card
   palSetPad(GPIOA, GPIOA_PA10_SDIO_PWR);
 
   // start sdio peripheral
   sdcStart(&SDCD1,0);
-
-  sd_init_flag = true;
 }
-
-/*! \brief dispatch a specific spi command
- */
-bool fetch_sd_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-  return fetch_dispatch(chp, fetch_sd_commands, cmd_list, data_list);
-}
-
 
 bool fetch_sd_reset(BaseSequentialStream * chp)
 {

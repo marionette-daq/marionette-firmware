@@ -722,7 +722,7 @@
 #define VAL_GPIOF_MODER     (PIN_MODE_INPUT(GPIOF_PF0_I2C2_SDA) | \
                              PIN_MODE_INPUT(GPIOF_PF1_I2C2_SCL) | \
                              PIN_MODE_OUTPUT(GPIOF_PF2_CAN_SHDN) | \
-                             PIN_MODE_ALTERNATE(GPIOF_ADC3_CH9_FLT) | \
+                             PIN_MODE_ANALOG(GPIOF_ADC3_CH9_FLT) | \
                              PIN_MODE_ANALOG(GPIOF_ADC3_CH14_FLT) | \
                              PIN_MODE_ANALOG(GPIOF_ADC3_CH15_FLT) | \
                              PIN_MODE_INPUT(GPIOF_PF6) | \

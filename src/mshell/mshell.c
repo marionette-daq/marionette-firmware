@@ -281,7 +281,7 @@ static bool mshell_parse(BaseSequentialStream* chp, const mshell_command_t * scp
  *
  * Marionette shell commands are escaped with a '+'
  * 
- * Fetch commands are parsed here through the call to fetch_parse()
+ * Fetch commands are parsed here through the call to fetch_execute()
  * \sa fetch.c
  *
  * @param[in] p         pointer to a @p BaseSequentialStream object
@@ -307,17 +307,15 @@ static void mshell_thread(void * p)
   chprintf(chp, "\r\n");
 	util_message_info(getMShellStreamPtr(), "Marionette Shell (\"help\" or \"+help\" for commands)");
 
-	//! initialize parser.
-	fetch_init(chp);
-
   while(!chThdShouldTerminateX())
 	{
 		mshell_putprompt();
 		ret = mshellGetLine(chp, input_line, sizeof(input_line)); // FIXME add tiemout
 		if (ret)
 		{
+      // FIXME add resetting of terminal settings (prompt, echo,...)
       chprintf(chp, "\r\n");
-			util_message_error(chp, "exit");
+			util_message_error(chp, "exit mshell thread");
 			break; // exit function
 		}
 
@@ -334,7 +332,7 @@ static void mshell_thread(void * p)
 		}
 		else
 		{
-			util_message_end(chp, fetch_parse(chp, input_line) );
+			util_message_end(chp, fetch_execute(chp, input_line) );
 		}
 	}
 
@@ -399,6 +397,8 @@ bool mshellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
 		{
 			return true;
 		}
+    // DEBUG lets spit stuff out to see what is received at initial connection
+    chprintf(DEBUG_CHP, "%c", c);
 		if (c == ASCII_EOT)
 		{
 			if(mshell_echo_chars)

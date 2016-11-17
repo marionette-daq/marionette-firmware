@@ -19,6 +19,7 @@
 #include "fetch.h"
 #include "fetch_defs.h"
 #include "fetch_spi.h"
+#include "fetch_parser.h"
 
 #ifndef MAX_SPI_BYTES
 #define MAX_SPI_BYTES   256
@@ -37,35 +38,26 @@ enum {
   SPI_CONFIG_CPHA,
   SPI_CONFIG_CLK_DIV,
   SPI_CONFIG_MSB_LSB,
-  SPI_CONFIG_CS_PORT,
-  SPI_CONFIG_CS_PIN
+  SPI_CONFIG_CS_IO,
 };
 
-// list all command function prototypes here 
-static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_spi_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_spi_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_spi_clocks_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-
-
+#if 0
 static fetch_command_t fetch_spi_commands[] = {
     { fetch_spi_exchange_cmd,  "exchange",  "TX/RX bytes\n" \
                                             "Usage: exchange(<dev>,<base>,<byte 0>,[...,<byte n>])" },
     { fetch_spi_config_cmd,    "config",    "Configure SPI driver\n" \
-                                            "Usage: config(<dev>,<cpol>,<cpha>,<clk div>,<order>,[<ss port>, <ss pin>])\n" \
+                                            "Usage: config(<dev>,<cpol>,<cpha>,<clk div>,<order>,[<ss io>])\n" \
                                             "\tcpol = 0 | 1\n" \
                                             "\tcpha = 0 | 1\n" \
                                             "\tclk div = 0 ... 7\n" \
-                                            "\torder = 0 {MSB first} | 1 {LSB first}\n" \
-                                            "\tss port = PORTA ... PORTI {optional}\n" \
-                                            "\tss pin = 0 ... 15 {required if port specified}\n" },
+                                            "\torder = 0 {MSB first} | 1 {LSB first}\n" },
     { fetch_spi_reset_cmd,     "reset",     "Reset SPI driver\n" \
                                             "Usage: reset(<dev>)" },
     { fetch_spi_help_cmd,      "help",      "SPI command help" },
     { fetch_spi_clocks_cmd,    "clocks",    "SPI clock divider values" },
     { NULL, NULL, NULL } // null terminate list
   };
+#endif
 
 static SPIDriver * parse_spi_dev( char * str, int32_t * dev )
 {
@@ -93,9 +85,9 @@ static SPIDriver * parse_spi_dev( char * str, int32_t * dev )
   }
 }
 
-static bool fetch_spi_clocks_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_spi_clocks_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0); 
+  FETCH_MAX_ARGS(chp, argc, 0);
   
   util_message_uint32(chp, "SPI2_PCLK", STM32_PCLK1);
   util_message_uint32(chp, "SPI2_DIV_0", STM32_PCLK1 / 2);
@@ -120,9 +112,10 @@ static bool fetch_spi_clocks_cmd(BaseSequentialStream * chp, char * cmd_list[], 
   return true;
 }
 
-static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_spi_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 7, 7); 
+  FETCH_MAX_ARGS(chp, argc, 6);
+  FETCH_MIN_ARGS(chp, argc, 6);
 
   char * endptr;
   int32_t spi_dev;
@@ -130,7 +123,7 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
   SPIConfig * spi_cfg;
 
 
-  if( (spi_drv = parse_spi_dev(data_list[0], &spi_dev)) == NULL )
+  if( (spi_drv = parse_spi_dev(argv[0], &spi_dev)) == NULL )
   {
     util_message_error(chp, "invalid device identifier");
     return false;
@@ -157,7 +150,7 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
   spi_cfg->sspad = 0;
   spi_cfg->cr1 = 0;
 
-  int32_t spi_cpol = strtol(data_list[SPI_CONFIG_CPOL],&endptr,0);
+  int32_t spi_cpol = strtol(argv[SPI_CONFIG_CPOL],&endptr,0);
 
   if( *endptr != '\0' || spi_cpol > 1 || spi_cpol < 0 ) {
     util_message_error(chp, "invalid CPOL value");
@@ -166,7 +159,7 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
     spi_cfg->cr1 |= SPI_CR1_CPOL;
   }
   
-  int32_t spi_cpha = strtol(data_list[SPI_CONFIG_CPHA],&endptr,0);
+  int32_t spi_cpha = strtol(argv[SPI_CONFIG_CPHA],&endptr,0);
 
   if( *endptr != '\0' || spi_cpha > 1 || spi_cpha < 0 ) {
     util_message_error(chp, "invalid CPHA value");
@@ -175,7 +168,7 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
     spi_cfg->cr1 |= SPI_CR1_CPHA;
   }
 
-  int32_t spi_msb_lsb = strtol(data_list[SPI_CONFIG_MSB_LSB],&endptr,0);
+  int32_t spi_msb_lsb = strtol(argv[SPI_CONFIG_MSB_LSB],&endptr,0);
   
   if( *endptr != '\0' || spi_msb_lsb > 1 || spi_msb_lsb < 0 ) {
     util_message_error(chp, "invalid MSB/LSB value");
@@ -184,7 +177,7 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
     spi_cfg->cr1 |= SPI_CR1_LSBFIRST;
   }
 
-  int32_t spi_clk_div = strtol(data_list[SPI_CONFIG_CLK_DIV],&endptr,0);
+  int32_t spi_clk_div = strtol(argv[SPI_CONFIG_CLK_DIV],&endptr,0);
 
   if( *endptr != '\0' || spi_clk_div < 0 || spi_clk_div > 7 )
   {
@@ -219,16 +212,18 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
       break;
   }
 
-  if( data_list[SPI_CONFIG_CS_PORT] != NULL )
+  if( argv[SPI_CONFIG_CS_IO] != NULL )
   {
-    spi_cfg->ssport = string_to_port(data_list[SPI_CONFIG_CS_PORT]);
-    spi_cfg->sspad  = string_to_pin(data_list[SPI_CONFIG_CS_PIN]);
+    port_pin_t pp;
 
-    if( (spi_cfg->ssport == NULL) || (spi_cfg->sspad == INVALID_PIN) )
+    if( !fetch_gpio_parser(argv[0], FETCH_MAX_DATA_STRLEN, &pp) )
     {
-      util_message_error(chp, "invalid chip select port/pin");
+      util_message_error(chp, "invalid chip select io pin");
       return false;
     }
+
+    spi_cfg->ssport = pp.port;
+    spi_cfg->sspad  = pp.pin;
   }
 
   // apply configuration
@@ -237,9 +232,10 @@ static bool fetch_spi_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
   return true;
 }
 
-static bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 2, MAX_SPI_BYTES + 2);
+  FETCH_MAX_ARGS(chp, argc, MAX_SPI_BYTES + 2);
+  FETCH_MIN_ARGS(chp, argc, 2);
 
   static uint8_t tx_buffer[MAX_SPI_BYTES];
   static uint8_t rx_buffer[MAX_SPI_BYTES];
@@ -251,7 +247,7 @@ static bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, char * cmd_list[]
   SPIDriver * spi_drv;
   SPIConfig * spi_cfg;
 
-  if( (spi_drv = parse_spi_dev(data_list[0], &spi_dev)) == NULL )
+  if( (spi_drv = parse_spi_dev(argv[0], &spi_dev)) == NULL )
   {
     util_message_error(chp, "invalid device identifier");
     return false;
@@ -265,7 +261,7 @@ static bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, char * cmd_list[]
     return false;
   }
 
-  number_base = strtol(data_list[1], &endptr, 0);
+  number_base = strtol(argv[1], &endptr, 0);
 
   if( *endptr != '\0' || number_base == 1 || number_base < 0 || number_base > 36 )
   {
@@ -273,9 +269,9 @@ static bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, char * cmd_list[]
     return false;
   }
 
-  for( int i = 0; i < MAX_SPI_BYTES && data_list[i+2] != NULL; i++ )
+  for( int i = 0; i < MAX_SPI_BYTES && argv[i+2] != NULL; i++ )
   {
-    byte_value = strtol(data_list[i+2], &endptr, number_base);
+    byte_value = strtol(argv[i+2], &endptr, number_base);
     
     if( *endptr != '\0' )
     {
@@ -312,14 +308,15 @@ static bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, char * cmd_list[]
   return true;
 }
 
-static bool fetch_spi_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_spi_reset_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 1, 1);
+  FETCH_MAX_ARGS(chp, argc, 1);
+  FETCH_MIN_ARGS(chp, argc, 1);
 
   int32_t spi_dev;
   SPIDriver * spi_drv;
   
-  if( (spi_drv = parse_spi_dev(data_list[0], &spi_dev)) == NULL )
+  if( (spi_drv = parse_spi_dev(argv[0], &spi_dev)) == NULL )
   {
     util_message_error(chp, "invalid device identifier");
     return false;
@@ -330,40 +327,25 @@ static bool fetch_spi_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], c
   return true;
 }
 
-static bool fetch_spi_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_spi_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
-  fetch_display_help_legend(chp);
-  fetch_display_help(chp, fetch_spi_commands);
+  // FIXME output help text
 	return true;
 }
 
-void fetch_spi_init(BaseSequentialStream * chp)
+void fetch_spi_init(void)
 {
-  static bool spi_init_flag = false;
-
-  if( spi_init_flag )
-    return;
-
   // put spi initialization stuff here
   // ...
-
-  spi_init_flag = true;
 }
-
-/*! \brief dispatch a specific spi command
- */
-bool fetch_spi_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-  return fetch_dispatch(chp, fetch_spi_commands, cmd_list, data_list);
-}
-
 
 bool fetch_spi_reset(BaseSequentialStream * chp)
 {
   spiStop(&SPID2);
   spiStop(&SPID6);
+  // FIXME change this to only modify the pin mode if its in the spi alternate setting
   palSetPadMode(GPIOI, GPIOI_PI1_SPI2_SCK,   PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_FLOATING);
   palSetPadMode(GPIOI, GPIOI_PI2_SPI2_MISO,  PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_FLOATING);
   palSetPadMode(GPIOI, GPIOI_PI3_SPI2_MOSI,  PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_FLOATING);

@@ -5,6 +5,24 @@
 
 #include "util_arg_parse.h"
 
+bool util_parse_bool(char * arg, bool * output)
+{
+  if( strcmp("1", arg) == 0 )
+  {
+    *output = true;
+    return true;
+  }
+  else if( strcmp("0", arg) == 0 )
+  {
+    *output = false;
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
 bool util_parse_uint8(char * arg, uint8_t * output)
 {
   char * endptr;

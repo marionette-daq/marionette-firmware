@@ -13,11 +13,13 @@ extern "C" {
 
 #include "dac.h"
 
-bool fetch_dac_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
 
+void fetch_dac_init(void);
 bool fetch_dac_reset(BaseSequentialStream * chp);
 
-void fetch_dac_init(BaseSequentialStream * chp);
+bool fetch_dac_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+bool fetch_dac_write_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+bool fetch_dac_reset_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
 
 #ifdef __cplusplus
 }

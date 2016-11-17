@@ -15,472 +15,544 @@
 #include "util_strings.h"
 #include "util_general.h"
 #include "util_io.h"
+#include "util_arg_parse.h"
 
 #include "fetch_defs.h"
 #include "fetch_gpio.h"
 #include "fetch.h"
+#include "fetch_parser.h"
+
+#ifndef GPIO_BUFFER_SIZE
+#define GPIO_BUFFER_SIZE 128
+#endif
+
+#ifndef DEFAULT_PIN_MODE
+#define DEFAULT_PIN_MODE PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_FLOATING
+#endif
+
+// this defines which pins we are allowed to manipulate through the gpio module
+#define PORT_A_GPIO_MASK 0x8003
+#define PORT_C_GPIO_MASK 0x2000
+#define PORT_B_GPIO_MASK 0xc300
+#define PORT_E_GPIO_MASK 0x23ef
+#define PORT_D_GPIO_MASK 0x1bfb
+#define PORT_G_GPIO_MASK 0xffff
+#define PORT_F_GPIO_MASK 0xf803
+#define PORT_I_GPIO_MASK 0x0d1f
+#define PORT_H_GPIO_MASK 0xde6c
+
+typedef struct {
+  uint16_t a, b, c, d, e, f, g, h, i;
+} port_states_t;
+
+static uint8_t gpio_buffer[GPIO_BUFFER_SIZE];
 
 
-static port_pin_t gpio_pins[] = {
-    // GPIO
-    {GPIOG, GPIOG_PG0},               // D0
-    {GPIOG, GPIOG_PG1},               // D1
-    {GPIOG, GPIOG_PG2},               // D2
-    {GPIOG, GPIOG_PG3},               // D3
-    {GPIOG, GPIOG_PG4},               // D4
-    {GPIOG, GPIOG_PG5},               // D5
-    {GPIOG, GPIOG_PG6},               // D6
-    {GPIOG, GPIOG_PG7},               // D7
-    {GPIOE, GPIOE_PE0_TIM4_ETR},      // D8
-    {GPIOE, GPIOE_PE7_TIM1_ETR},      // D9
-    {GPIOE, GPIOE_PE8},               // D10
-    {GPIOF, GPIOF_PF11},              // D11
-    {GPIOF, GPIOF_PF12},              // D12
-    {GPIOF, GPIOF_PF13},              // D13
-    {GPIOF, GPIOF_PF14},              // D14
-    {GPIOF, GPIOF_PF15},              // D15
-    {GPIOH, GPIOH_PH2},               // D16
-    {GPIOH, GPIOH_PH3},               // D17
-    {GPIOH, GPIOH_PH5},               // D18
-    {GPIOH, GPIOH_PH6},               // D19
-    {GPIOH, GPIOH_PH9},               // D20
-    {GPIOH, GPIOH_PH14},              // D21
-    {GPIOB, GPIOB_PB8_TIM4_CH3},      // D22
-    {GPIOB, GPIOB_PB9_TIM4_CH4},      // D23
-    {GPIOE, GPIOE_PE5_TIM9_CH1},      // D24
-    {GPIOE, GPIOE_PE6_TIM9_CH2},      // D25
-    {GPIOE, GPIOE_PE9_TIM1_CH1},      // D26
-    {GPIOE, GPIOE_PE13_TIM1_CH3},     // D27
-    {GPIOH, GPIOH_PH10_TIM5_CH1},     // D28
-    {GPIOH, GPIOH_PH11_TIM5_CH2},     // D29
-    {GPIOH, GPIOH_PH12_TIM5_CH3},     // D30
-    {GPIOA, GPIOA_PA15_TIM2_CH1_ETR}, // D31
-
-    // SERIAL
-    {GPIOI, GPIOI_PI1_SPI2_SCK},      // D32
-    {GPIOI, GPIOI_PI0_SPI2_NSS},      // D33
-    {GPIOI, GPIOI_PI2_SPI2_MISO},     // D34
-    {GPIOI, GPIOI_PI3_SPI2_MOSI},     // D35
-    {GPIOH, GPIOH_PH15},              // D36
-    {GPIOD, GPIOD_PD7},               // D37
-    {GPIOG, GPIOG_PG13_SPI6_SCK},     // D38
-    {GPIOG, GPIOG_PG8_SPI6_NSS},      // D39
-    {GPIOG, GPIOG_PG12_SPI6_MISO},    // D40
-    {GPIOG, GPIOG_PG14_SPI6_MOSI},    // D41
-    {GPIOG, GPIOG_PG9},               // D42
-    {GPIOG, GPIOG_PG11},              // D43
-    {GPIOF, GPIOF_PF0_I2C2_SDA},      // D44
-    {GPIOF, GPIOF_PF1_I2C2_SCL},      // D45
-    {GPIOE, GPIOE_PE1},               // D46
-    {GPIOG, GPIOG_PG15},              // D47
-    {GPIOA, GPIOA_PA0_UART4_TX},      // D48
-    {GPIOA, GPIOA_PA1_UART4_RX},      // D49
-    {GPIOE, GPIOE_PE2},               // D50
-    {GPIOE, GPIOE_PE3},               // D51
-    {GPIOD, GPIOD_PD8_USART3_TX},     // D52
-    {GPIOD, GPIOD_PD9_USART3_RX},     // D53
-    {GPIOD, GPIOD_PD11_USART3_CTS},   // D54
-    {GPIOD, GPIOD_PD12_USART3_RTS},   // D55
-    {GPIOD, GPIOD_PD5_USART2_TX},     // D56
-    {GPIOD, GPIOD_PD6_USART2_RX},     // D57
-    {GPIOD, GPIOD_PD3_USART2_CTS},    // D58
-    {GPIOD, GPIOD_PD4_USART2_RTS},    // D59
-    {GPIOI, GPIOI_PI8},               // D60
-    {GPIOI, GPIOI_PI11},              // D61
-
-    // ANALOG
-    {GPIOD, GPIOD_PD1},               // D62
-    {GPIOG, GPIOG_PG10},              // D63
-    {GPIOB, GPIOB_PB15},              // D64
-    {GPIOI, GPIOI_PI4},               // D65
-    {GPIOD, GPIOD_PD0},               // D66
-    {GPIOC, GPIOC_PC13},              // D67
-    {GPIOI, GPIOI_PI10},              // D68
-    {GPIOB, GPIOB_PB14}               // D69
-  };
-
-typedef enum {
-  WAIT_EVENT_HIGH = 0,
-  WAIT_EVENT_LOW,
-  WAIT_EVENT_RISING,
-  WAIT_EVENT_FALLING
-} wait_event_t;
-
-// list all command function prototypes here 
-static bool fetch_gpio_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_gpio_read_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_gpio_read_port_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_gpio_read_all_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_gpio_write_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_gpio_set_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_gpio_clear_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_gpio_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_gpio_info_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_gpio_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_gpio_wait_cmd(BaseSequentialStream * chp, char *cmd_list[], char * data_list[]);
-static bool fetch_gpio_heartbeat_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-
-static const char gpio_config_help_string[] = "Configure pin as GPIO\n" \
-                                              "Usage: config(<port>,<pin>,<mode>)\n" \
-                                              "\tmode = INPUT_FLOATING, INPUT_PULLUP, INPUT_PULLDOWN,\n" \
-                                              "\t       OUTPUT_PUSHPULL, OUTPUT_OPENDRAIN";
-static const char gpio_wait_help_string[]   = "Wait for the given event on a gpio pin\n" \
-                                              "Usage: wait(<port>,<pin>,<event>,<timeout>)\n" \
-                                              "\tevent = HIGH, LOW, RISING, FALLING\n" \
-                                              "\ttimeout = <milliseconds>\n";
+#if 0
+static const char gpio_config_help_string[] = "Configure pin as GPIO\n"
+                                              "Usage: config(<io>,<mode>[,<pull>[,<otpye>[,<ospeed>]]])\n"
+                                              "\tmode  = INPUT, OUTPUT, ALTERNATE\n"
+                                              "\tpull  = *FLOATING, PULLUP, PULLDOWN\n"
+                                              "\totype = *PUSHPULL, OPENDRAIN\n"
+                                              "\tospeed = 2, 25, 50, *100\n"
+                                              "\t* = default";
+static const char gpio_wait_help_string[]   = "Wait for the given event on a gpio pin\n"
+                                              "Usage: wait(<io>,<event>,<timeout>)\n"
+                                              "\tevent = HIGH, LOW, RISING, FALLING\n"
+                                              "\ttimeout = <milliseconds>";
 
 static fetch_command_t fetch_gpio_commands[] = {
-    { fetch_gpio_help_cmd,        "help",       "Display GPIO help"},
-    { fetch_gpio_read_cmd,        "read",       "Read pin state\nUsage: read(<port>,<pin>)" },
-    { fetch_gpio_read_port_cmd,   "readport",   "Read state of all pins on port\nUsage: readport(<port>)" },
-    { fetch_gpio_read_all_cmd,    "readall",    "Read state of all pins on all ports" },
-    { fetch_gpio_write_cmd,       "write",      "Write state to pin\nUsage: write(<port>,<pin>,<state>)" },
-    { fetch_gpio_set_cmd,         "set",        "Set pin to 1\nUsage: set(<port>,<pin>)" },
-    { fetch_gpio_clear_cmd,       "clear",      "Clear pin to 0\nUsage: clear(<port>,<pin>)" },
-    { fetch_gpio_wait_cmd,        "wait",       gpio_wait_help_string },
-    { fetch_gpio_config_cmd,      "config",     gpio_config_help_string },
-    { fetch_gpio_info_cmd,        "info",       "Get pin info\nUsage: info(<port>,<pin>)" },
-    { fetch_gpio_reset_cmd,       "reset",      "Reset all GPIO pins to defaults" },
+    { fetch_gpio_help_cmd,            "help",           "Display GPIO help"},
+    { fetch_gpio_read_cmd,            "read",           "Read pin state\n"
+                                                        "Usage: read(<io>[,...])" },
+    { fetch_gpio_read_latch_cmd,      "readlatch",      "Read pin output latch state\n"
+                                                        "Usage: readlatch(<io>[,...])" },
+    { fetch_gpio_read_port_cmd,       "readport",       "Read state of all pins on port\n"
+                                                        "Usage: readport(<port>)" },
+    { fetch_gpio_read_port_latch_cmd, "readportlatch",  "Read output latch of all pins on port\n"
+                                                        "Usage: readportlatch(<port>)" },
+    { fetch_gpio_read_all_cmd,        "readall",        "Read state of all pins on all ports" },
+    { fetch_gpio_write_cmd,           "write",          "Write state to pin\n"
+                                                        "Usage: write(<io>,<state>[,<io>,<state>[,...]])" },
+    { fetch_gpio_write_port_cmd,      "writeport",      "Write state of all pins on port\n"
+                                                        "Usage: writeport(<port>, <state>)" },
+    { fetch_gpio_set_cmd,             "set",            "Set pin state to 1\n"
+                                                        "Usage: set(<io>[,...])" },
+    { fetch_gpio_clear_cmd,           "clear",          "Clear pin state to 0\n"
+                                                        "Usage: clear(<io>[,...])" },
+    { fetch_gpio_wait_cmd,            "wait",           gpio_wait_help_string },
+    { fetch_gpio_config_cmd,          "config",         gpio_config_help_string },
+    { fetch_gpio_info_cmd,            "info",           "Get pin info\n"
+                                                        "Usage: info(<io>)" },
+    
+ /*
+    { fetch_gpio_clock_out_cmd,       "clockout",       "Shift bits out on pin with clock pin\n"
+                                                        "Usage: clockout(<clk io>, <edge>, <out io>, <delay>, <bits>, <byte | string>[,...])\n"
+                                                        "\tedge = clock edge: RISING, FALLING\n"
+                                                        "\tdelay = io hold time, microseconds\n"
+                                                        "\tbits = number of bits to shift out (max 1024)\n"
+                                                        "\tvalues = strings or bytes to clock out MSB first" },
+    { fetch_gpio_shift_out_cmd,       "shiftout",       "Shift bits out on pin\n"
+                                                        "Usage: shiftout(<out io>, <delay>, <bits>, <byte | string>[,...])\n"
+                                                        "\tdelay = io hold time, microseconds\n"
+                                                        "\tbits = number of bits to shift out (max 1024)\n"
+                                                        "\tvalues = strings or bytes to clock out MSB first" },
+*/
+
+    { fetch_gpio_reset_cmd,           "reset",          "Reset all GPIO pins to defaults" },
     { NULL, NULL, NULL } // null terminate list
   };
-
-static const char * pin_state_tok[]   = {"true","false","1","0","high","low","set","clear"};
-static const char * pin_mode_tok[]    = {"INPUT_FLOATING","INPUT_PULLUP","INPUT_PULLDOWN",
-                                         "OUTPUT_PUSHPULL","OUTPUT_OPENDRAIN", "ALTERNATE",
-                                         "ALT_0", "ALT_1", "ALT_2", "ALT_3",
-                                         "ALT_4", "ALT_5", "ALT_6", "ALT_7",
-                                         "ALT_8", "ALT_9", "ALT_10", "ALT_11",
-                                         "ALT_12", "ALT_13", "ALT_14", "ALT_15"};
-static const char * wait_event_tok[]  = {"HIGH","1","LOW","0","RISING","FALLING"};
+#endif
 
 static bool valid_gpio_port_pin( ioportid_t port, uint32_t pin )
 {
-  for(uint32_t i = 0; i < NELEMS(gpio_pins); i++ )
+  switch( (uint32_t)port )
   {
-    if( gpio_pins[i].port == port && gpio_pins[i].pin == pin )
-    {
-      return true;
-    }
+    case GPIOA_BASE:
+      return (bool)(PORT_A_GPIO_MASK & (1<<pin));
+    case GPIOB_BASE:
+      return (bool)(PORT_B_GPIO_MASK & (1<<pin));
+    case GPIOC_BASE:
+      return (bool)(PORT_C_GPIO_MASK & (1<<pin));
+    case GPIOD_BASE:
+      return (bool)(PORT_D_GPIO_MASK & (1<<pin));
+    case GPIOE_BASE:
+      return (bool)(PORT_E_GPIO_MASK & (1<<pin));
+    case GPIOF_BASE:
+      return (bool)(PORT_G_GPIO_MASK & (1<<pin));
+    case GPIOG_BASE:
+      return (bool)(PORT_G_GPIO_MASK & (1<<pin));
+    case GPIOH_BASE:
+      return (bool)(PORT_H_GPIO_MASK & (1<<pin));
+    case GPIOI_BASE:
+      return (bool)(PORT_I_GPIO_MASK & (1<<pin));
   }
   return false;
 }
 
-static bool fetch_gpio_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+static void write_all( port_states_t set_mask, port_states_t clear_mask )
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  GPIOA->BSRR.W = (clear_mask.a << 16) | set_mask.a;
+  GPIOB->BSRR.W = (clear_mask.b << 16) | set_mask.b;
+  GPIOC->BSRR.W = (clear_mask.c << 16) | set_mask.c;
+  GPIOD->BSRR.W = (clear_mask.d << 16) | set_mask.d;
+  GPIOE->BSRR.W = (clear_mask.e << 16) | set_mask.e;
+  GPIOF->BSRR.W = (clear_mask.f << 16) | set_mask.f;
+  GPIOG->BSRR.W = (clear_mask.g << 16) | set_mask.g;
+  GPIOH->BSRR.W = (clear_mask.h << 16) | set_mask.h;
+  GPIOI->BSRR.W = (clear_mask.i << 16) | set_mask.i;
+}
+
+static port_states_t read_all( void )
+{
+  port_states_t states;
+  states.a = palReadPort(GPIOA);
+  states.b = palReadPort(GPIOB);
+  states.c = palReadPort(GPIOC);
+  states.d = palReadPort(GPIOD);
+  states.e = palReadPort(GPIOE);
+  states.f = palReadPort(GPIOF);
+  states.g = palReadPort(GPIOG);
+  states.h = palReadPort(GPIOH);
+  states.i = palReadPort(GPIOI);
+  return states;
+}
+
+bool fetch_gpio_help_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv[] )
+{
+  FETCH_MAX_ARGS(chp, argc, 0);
+
+  FETCH_HELP_LEGEND(chp);
+
+  FETCH_HELP_TITLE(chp, "GPIO Help");
+
 
   util_message_info(chp, "Fetch GPIO Help:");
-  fetch_display_help(chp, fetch_gpio_commands);
+  // FIXME output new help strings
 	return true;
 }
 
-static bool fetch_gpio_read_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_gpio_read_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv[] )
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 2, 2);
+  FETCH_MIN_ARGS(chp, argc, 1);
 
-  ioportid_t port = string_to_port(data_list[0]);
-  uint32_t pin = string_to_pin(data_list[1]);
-  bool pin_state;
+  port_pin_t pp;
 
-  if( port == NULL || pin == INVALID_PIN )
+  while( *argv != NULL )
   {
-    util_message_error(chp, "invalid port/pin");
-    return false;
-  }
+    if( !fetch_gpio_parser(*argv, FETCH_MAX_DATA_STRLEN, &pp) )
+    {
+      util_message_error(chp, "invalid io pin");
+      return false;
+    }
+    
+    util_message_bool(chp, *argv, palReadPad(pp.port, pp.pin));
 
-  pin_state = palReadPad(port, pin);
-  util_message_bool(chp, "state", pin_state);
+    argv++;
+  }
+  
   return true;
 }
 
-static bool fetch_gpio_read_port_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_gpio_read_latch_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 1, 1);
+  FETCH_MIN_ARGS(chp, argc, 1);
 
-  ioportid_t port = string_to_port(data_list[0]);
+  port_pin_t pp;
+
+  while( *argv != NULL )
+  {
+    if( !fetch_gpio_parser(*argv, FETCH_MAX_DATA_STRLEN, &pp) )
+    {
+      util_message_error(chp, "invalid io pin");
+      return false;
+    }
+    
+    util_message_bool(chp, *argv, palReadLatch(pp.port) & (1<<pp.pin));
+
+    argv++;
+  }
+  return true;
+}
+
+bool fetch_gpio_read_port_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
+{
+  FETCH_MAX_ARGS(chp, argc, 1);
+  FETCH_MIN_ARGS(chp, argc, 1);
+
+  ioportid_t port;
   uint16_t port_state;
 
-  if( port == NULL )
+  if( !fetch_gpio_port_parser(argv[0], FETCH_MAX_DATA_STRLEN, &port) )
   {
     util_message_error(chp, "invalid port");
     return false;
   }
 
   port_state = palReadPort(port);
-  util_message_uint16(chp, "state", port_state);
+  util_message_hex_uint16(chp, "state", port_state);
   return true;
 }
 
-static bool fetch_gpio_read_all_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_gpio_read_port_latch_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
+  FETCH_MAX_ARGS(chp, argc, 1);
+  FETCH_MIN_ARGS(chp, argc, 1);
+
+  ioportid_t port;
   uint16_t port_state;
 
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  if( !fetch_gpio_port_parser(argv[0], FETCH_MAX_DATA_STRLEN, &port) )
+  {
+    util_message_error(chp, "invalid port");
+    return false;
+  }
+
+  port_state = palReadLatch(port);
+  util_message_hex_uint16(chp, "state", port_state);
+  return true;
+}
+
+
+bool fetch_gpio_read_all_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
+{
+  FETCH_MAX_ARGS(chp, argc, 0);
+
+  uint16_t port_state;
 
   port_state = palReadPort(GPIOA);
-  util_message_uint16(chp, "a", port_state);
+  util_message_hex_uint16(chp, "a", port_state);
   port_state = palReadPort(GPIOB);
-  util_message_uint16(chp, "b", port_state);
+  util_message_hex_uint16(chp, "b", port_state);
   port_state = palReadPort(GPIOC);
-  util_message_uint16(chp, "c", port_state);
+  util_message_hex_uint16(chp, "c", port_state);
   port_state = palReadPort(GPIOD);
-  util_message_uint16(chp, "d", port_state);
+  util_message_hex_uint16(chp, "d", port_state);
   port_state = palReadPort(GPIOE);
-  util_message_uint16(chp, "e", port_state);
+  util_message_hex_uint16(chp, "e", port_state);
   port_state = palReadPort(GPIOF);
-  util_message_uint16(chp, "f", port_state);
+  util_message_hex_uint16(chp, "f", port_state);
   port_state = palReadPort(GPIOG);
-  util_message_uint16(chp, "g", port_state);
+  util_message_hex_uint16(chp, "g", port_state);
   port_state = palReadPort(GPIOH);
-  util_message_uint16(chp, "h", port_state);
+  util_message_hex_uint16(chp, "h", port_state);
   port_state = palReadPort(GPIOI);
-  util_message_uint16(chp, "i", port_state);
+  util_message_hex_uint16(chp, "i", port_state);
 
   return true;
 }
 
-static bool fetch_gpio_write_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_gpio_write_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  ioportid_t port = string_to_port(data_list[0]);
-  uint32_t pin = string_to_pin(data_list[1]);
+  FETCH_MIN_ARGS(chp, argc, 2);
+  FETCH_MOD_ARGS(chp, argc, 2);
 
-  FETCH_PARAM_CHECK(chp, cmd_list, 3, 3);
+  port_pin_t pp;
+  bool state;
 
-  if( port == NULL || pin == INVALID_PIN )
+  // FIXME change this to output all values at the same time
+
+  while( *argv != NULL )
   {
-    util_message_error(chp, "invalid port/pin");
-    return false;
-  }
+    if( !fetch_gpio_parser(*argv, FETCH_MAX_DATA_STRLEN, &pp) )
+    {
+      util_message_error(chp, "invalid io pin");
+      return false;
+    }
 
-  switch( token_match( data_list[2], FETCH_MAX_DATA_STRLEN, pin_state_tok, NELEMS(pin_state_tok)) )
-  {
-    case 0: // true
-    case 2: // 1
-    case 4: // high
-    case 6: // set
-      palSetPad(port,pin);
-      break;
-    case 1: // false
-    case 3: // 0
-    case 5: // low
-    case 7: // clear
-      palClearPad(port,pin);
-      break;
-    default:
+    argv++;
+
+    if( *argv == NULL )
+    {
+      util_message_error(chp, "missing logic state");
+      return false;
+    }
+
+    if( !util_parse_bool(argv[1], &state) )
+    {
       util_message_error(chp, "invalid logic state");
       return false;
-  }
-  return true;
-}
-
-static bool fetch_gpio_set_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-  FETCH_PARAM_CHECK(chp, cmd_list, 2, 2);
-
-  ioportid_t port = string_to_port(data_list[0]);
-  uint32_t pin = string_to_pin(data_list[1]);
-
-  if( port == NULL || pin == INVALID_PIN )
-  {
-    util_message_error(chp, "invalid port/pin");
-    return false;
-  }
-
-  palSetPad(port,pin);
-
-  return true;
-}
-
-static bool fetch_gpio_clear_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-  FETCH_PARAM_CHECK(chp, cmd_list, 2, 2);
-
-  ioportid_t port = string_to_port(data_list[0]);
-  uint32_t pin = string_to_pin(data_list[1]);
-
-  if( port == NULL || pin == INVALID_PIN )
-  {
-    util_message_error(chp, "invalid port/pin");
-    return false;
-  }
-
-  palClearPad(port,pin);
-
-  return true;
-}
-
-static bool fetch_gpio_wait_cmd(BaseSequentialStream * chp, char *cmd_list[], char * data_list[])
-{
-  FETCH_PARAM_CHECK(chp, cmd_list, 4, 4);
-
-  ioportid_t port = string_to_port(data_list[0]);
-  uint32_t pin = string_to_pin(data_list[1]);
-  char * endptr;
-  int32_t timeout;
-  wait_event_t event;
-  systime_t start_time;
-  bool state_next, state_prev;
-
-  if( port == NULL || pin == INVALID_PIN )
-  {
-    util_message_error(chp, "invalid port/pin");
-    return false;
-  }
-
-  switch( token_match( data_list[2], FETCH_MAX_DATA_STRLEN, wait_event_tok, NELEMS(wait_event_tok)) )
-  {
-    case 0: // HIGH
-    case 1: // 1
-      event = WAIT_EVENT_HIGH;
-      break;
-    case 2: // LOW
-    case 3: // 0
-      event = WAIT_EVENT_LOW;
-      break;
-    case 4: // RISING
-      event = WAIT_EVENT_RISING;
-    case 5: // FALLING
-      event = WAIT_EVENT_FALLING;
-      break;
-    default:
-      util_message_error(chp, "invalid wait event");
-      return false;
-  }
-
-  timeout = strtol(data_list[3], &endptr, 0);
-
-  if( *endptr != '\0' || timeout <= 0 )
-  {
-    util_message_error(chp, "invalid wait timeout");
-    return false;
-  }
-
-  start_time = chVTGetSystemTime();
-  state_next = palReadPad(port,pin);
-
-  while( chVTTimeElapsedSinceX(start_time) < MS2ST(timeout) )
-  {
-    state_prev = state_next;
-    state_next = palReadPad(port,pin);
-    switch( event )
-    {
-      case WAIT_EVENT_HIGH:
-        if( state_prev || state_next )
-        {
-          util_message_bool(chp, "event", true);
-          return true;
-        }
-        break;
-      case WAIT_EVENT_LOW:
-        if( !state_prev || !state_next )
-        {
-          util_message_bool(chp, "event", true);
-          return true;
-        }
-        break;
-      case WAIT_EVENT_RISING:
-        if( !state_prev && state_next )
-        {
-          util_message_bool(chp, "event", true);
-          return true;
-        }
-        break;
-      case WAIT_EVENT_FALLING:
-        if( state_prev && !state_next )
-        {
-          util_message_bool(chp, "event", true);
-          return true;
-        }
-        break;
     }
+    
+    palWritePad(pp.port, pp.pin, state);
+    
+    argv++;
   }
-  util_message_bool(chp, "event", false);
+  
   return true;
 }
 
-static bool fetch_gpio_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_gpio_write_port_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 3, 3);
+  FETCH_MAX_ARGS(chp, argc, 2);
+  FETCH_MIN_ARGS(chp, argc, 2);
 
-  ioportid_t port = string_to_port(data_list[0]);
-  uint32_t pin = string_to_pin(data_list[1]);
-  iomode_t mode = PAL_STM32_PUPDR_FLOATING | PAL_STM32_MODE_INPUT;
+  ioportid_t port;
+  uint16_t port_state;
+  uint16_t set_mask, clear_mask;
 
-
-  if( port == NULL || pin == INVALID_PIN )
+  if( !fetch_gpio_port_parser(argv[0], FETCH_MAX_DATA_STRLEN, &port) )
   {
-    util_message_error(chp, "invalid port/pin");
+    util_message_error(chp, "invalid port");
     return false;
   }
 
-  if( !valid_gpio_port_pin(port, pin) )
+  if( !util_parse_uint16(argv[1], &port_state) )
+  {
+    util_message_error(chp, "invalid port output value");
+    return false;
+  }
+
+  set_mask = port_state;
+  clear_mask = ~port_state;
+
+  switch( (uint32_t)port )
+  {
+    case GPIOA_BASE:
+      set_mask &= PORT_A_GPIO_MASK;
+      clear_mask &= PORT_A_GPIO_MASK;
+      GPIOA->BSRR.W = (clear_mask << 16) | set_mask;
+      break;
+    case GPIOB_BASE:
+      set_mask &= PORT_B_GPIO_MASK;
+      clear_mask &= PORT_B_GPIO_MASK;
+      GPIOB->BSRR.W = (clear_mask << 16) | set_mask;
+      break;
+    case GPIOC_BASE:
+      set_mask &= PORT_C_GPIO_MASK;
+      clear_mask &= PORT_C_GPIO_MASK;
+      GPIOC->BSRR.W = (clear_mask << 16) | set_mask;
+      break;
+    case GPIOD_BASE:
+      set_mask &= PORT_D_GPIO_MASK;
+      clear_mask &= PORT_D_GPIO_MASK;
+      GPIOD->BSRR.W = (clear_mask << 16) | set_mask;
+      break;
+    case GPIOE_BASE:
+      set_mask &= PORT_E_GPIO_MASK;
+      clear_mask &= PORT_E_GPIO_MASK;
+      GPIOE->BSRR.W = (clear_mask << 16) | set_mask;
+      break;
+    case GPIOF_BASE:
+      set_mask &= PORT_F_GPIO_MASK;
+      clear_mask &= PORT_F_GPIO_MASK;
+      GPIOF->BSRR.W = (clear_mask << 16) | set_mask;
+      break;
+    case GPIOG_BASE:
+      set_mask &= PORT_G_GPIO_MASK;
+      clear_mask &= PORT_G_GPIO_MASK;
+      GPIOG->BSRR.W = (clear_mask << 16) | set_mask;
+      break;
+    case GPIOH_BASE:
+      set_mask &= PORT_H_GPIO_MASK;
+      clear_mask &= PORT_H_GPIO_MASK;
+      GPIOH->BSRR.W = (clear_mask << 16) | set_mask;
+      break;
+    case GPIOI_BASE:
+      set_mask &= PORT_I_GPIO_MASK;
+      clear_mask &= PORT_I_GPIO_MASK;
+      GPIOI->BSRR.W = (clear_mask << 16) | set_mask;
+      break;
+  }
+
+  return true;
+}
+
+bool fetch_gpio_set_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
+{
+  FETCH_MIN_ARGS(chp, argc, 1);
+
+  port_pin_t pp;
+
+  // FIXME change this to output all values at the same time
+
+  while( *argv != NULL )
+  {
+    if( !fetch_gpio_parser(*argv, FETCH_MAX_DATA_STRLEN, &pp) )
+    {
+      util_message_error(chp, "invalid io pin");
+      return false;
+    }
+
+    palSetPad(pp.port, pp.pin);
+    
+    argv++;
+  }
+  
+  return true;
+}
+
+bool fetch_gpio_clear_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
+{
+  FETCH_MIN_ARGS(chp, argc, 1);
+
+  port_pin_t pp;
+
+  // FIXME change this to output all values at the same time
+
+  while( *argv != NULL )
+  {
+    if( !fetch_gpio_parser(*argv, FETCH_MAX_DATA_STRLEN, &pp) )
+    {
+      util_message_error(chp, "invalid io pin");
+      return false;
+    }
+
+    palClearPad(pp.port, pp.pin);
+    
+    argv++;
+  }
+  
+  return true;
+}
+
+bool fetch_gpio_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
+{
+  FETCH_MAX_ARGS(chp, argc, 5);
+  FETCH_MIN_ARGS(chp, argc, 2);
+
+  port_pin_t pp;
+
+  if( !fetch_gpio_parser(argv[0], FETCH_MAX_DATA_STRLEN, &pp) )
+  {
+    util_message_error(chp, "invalid io pin");
+    return false;
+  }
+
+  if( !valid_gpio_port_pin(pp.port, pp.pin) )
   {
     util_message_error(chp, "port/pin not available as gpio");
     return false;
   }
 
-  uint32_t mode_sel = token_match( data_list[2], FETCH_MAX_DATA_STRLEN, pin_mode_tok, NELEMS(pin_mode_tok));
-  switch( mode_sel )
+  uint32_t mode;
+  uint32_t pupdr = PAL_STM32_PUPDR_FLOATING;
+  uint32_t otype = PAL_STM32_OTYPE_PUSHPULL;
+  uint32_t ospeed = PAL_STM32_OSPEED_HIGHEST;
+
+  const str_table_t mode_table[] = {
+    {"INPUT", PAL_STM32_MODE_INPUT},
+    {"OUTPUT", PAL_STM32_MODE_OUTPUT},
+    {NULL, 0}
+  };
+  const str_table_t pupdr_table[] = {
+    {"FLOATING", PAL_STM32_PUPDR_FLOATING},
+    {"PULLUP", PAL_STM32_PUPDR_PULLUP},
+    {"PULLDOWN", PAL_STM32_PUPDR_PULLDOWN},
+    {NULL, 0}
+  };
+  const str_table_t otype_table[] = {
+    {"PUSHPULL", PAL_STM32_OTYPE_PUSHPULL},
+    {"OPENDRAIN", PAL_STM32_OTYPE_OPENDRAIN},
+    {NULL, 0}
+  };
+  const str_table_t ospeed_table[] = {
+    {"0", PAL_STM32_OSPEED_LOWEST},
+    {"1", PAL_STM32_OSPEED_MID1},
+    {"2", PAL_STM32_OSPEED_MID2},
+    {"3", PAL_STM32_OSPEED_HIGHEST},
+    {NULL, 0}
+  };
+
+  if( !util_match_str_table(argv[1], &mode, mode_table) )
   {
-    case 0: // input floating
-      mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_FLOATING;
-      break;
-    case 1: // input pullup
-      mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_PULLUP;
-      break;
-    case 2: // input pulldown
-      mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_PULLDOWN;
-      break;
-    case 3: // output pushpull
-      mode = PAL_STM32_MODE_OUTPUT | PAL_STM32_OTYPE_PUSHPULL;
-      break;
-    case 4: // output opendrian
-      mode = PAL_STM32_MODE_OUTPUT | PAL_STM32_OTYPE_OPENDRAIN;
-      break;
-    case 5: // alternate
-      mode = PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_FLOATING; // FIXME TODO
-      break;
-    default:
-      if( mode_sel > 5 && mode_sel < (5+15))
+    util_message_error(chp, "invalid mode");
+    return false;
+  }
+  if( argv[2] != NULL )
+  {
+    if( !util_match_str_table(argv[2], &pupdr, pupdr_table) )
+    {
+      util_message_error(chp, "invalid pull");
+      return false;
+    }
+    if( argv[3] != NULL )
+    {
+      if( !util_match_str_table(argv[3], &otype, otype_table) )
       {
-        util_message_info(chp, "alt=%U", mode_sel-6);
-        mode = PAL_MODE_ALTERNATE(mode_sel-6);
-      }
-      else
-      {
-        util_message_error(chp, "invalid pin mode");
+        util_message_error(chp, "invalid otype");
         return false;
       }
+      if( argv[4] != NULL )
+      {
+        if( !util_match_str_table(argv[4], &ospeed, ospeed_table) )
+        {
+          util_message_error(chp, "invalid ospeed");
+          return false;
+        }
+      }
+    }
   }
 
-  util_message_info(chp, "mode=%x (%U)", mode, mode);
-  palSetPadMode(port, pin, mode);
+  palSetPadMode(pp.port, pp.pin, mode | pupdr | otype | ospeed);
 
   return true;
 }
 
-static bool fetch_gpio_info_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_gpio_info_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 2, 2);
+  FETCH_MAX_ARGS(chp, argc, 1);
+  FETCH_MIN_ARGS(chp, argc, 1);
 
-  ioportid_t port = string_to_port(data_list[0]);
-  uint32_t pin = string_to_pin(data_list[1]);
   uint32_t alt_func;
+  port_pin_t pp;
+  bool pin_state;
 
-
-  if( port == NULL || pin == INVALID_PIN )
+  if( !fetch_gpio_parser(argv[0], FETCH_MAX_DATA_STRLEN, &pp) )
   {
-    util_message_error(chp, "invalid port/pin");
+    util_message_error(chp, "invalid io pin");
     return false;
   }
 
-  switch((port->MODER >> (pin*2)) & 3)
+  // FIXME change this to print out mode, pull, otype, ospeed, and alternate function
+
+  switch((pp.port->MODER >> (pp.pin*2)) & 3)
   {
     case 0:
       util_message_string(chp, "mode", "INPUT");
       break;
     case 1:
-      if( port->OTYPER & (1<<pin) )
+      if( pp.port->OTYPER & (1<<pp.pin) )
       {
         util_message_string(chp, "mode", "OUTPUT_OPENDRAIN");
       }
@@ -491,13 +563,13 @@ static bool fetch_gpio_info_cmd(BaseSequentialStream * chp, char * cmd_list[], c
       break;
     case 2:
       util_message_string(chp, "mode", "ALTERNATE");
-      if( pin >= 8 )
+      if( pp.pin >= 8 )
       {
-        alt_func = (port->AFRL >> (pin*4)) & 0xf;
+        alt_func = (pp.port->AFRL >> (pp.pin*4)) & 0xf;
       }
       else
       {
-        alt_func = (port->AFRH >> ((pin-8)*4)) & 0xf;
+        alt_func = (pp.port->AFRH >> ((pp.pin-8)*4)) & 0xf;
       }
       util_message_uint32(chp, "alt_func", alt_func);
       break;
@@ -506,7 +578,7 @@ static bool fetch_gpio_info_cmd(BaseSequentialStream * chp, char * cmd_list[], c
       break;
   }
 
-  switch( (port->PUPDR >> (pin*2)) & 3)
+  switch( (pp.port->PUPDR >> (pp.pin*2)) & 3)
   {
     case 0:
       util_message_string(chp, "pull", "NONE");
@@ -522,42 +594,53 @@ static bool fetch_gpio_info_cmd(BaseSequentialStream * chp, char * cmd_list[], c
       break;
   }
 
+  pin_state = palReadLatch(pp.port) & (1<<pp.pin);
+
+  util_message_bool(chp, "latch_state", pin_state);
+
+  pin_state = palReadPort(pp.port) & (1<<pp.pin);
+  
+  util_message_bool(chp, "pin_state", pin_state);
+
   return true;
 }
 
-static bool fetch_gpio_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_gpio_reset_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   return fetch_gpio_reset(chp);
 }
 
-void fetch_gpio_init(BaseSequentialStream * chp)
+void fetch_gpio_init(void)
 {
-  static bool gpio_init_flag = false;
-
-  if( gpio_init_flag )
-    return;
-
   // Init stuff goes here
   // ...
-
-  gpio_init_flag = true;
 }
 
-/*! \brief dispatch a specific gpio command
- */
-bool fetch_gpio_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-  return fetch_dispatch(chp, fetch_gpio_commands, cmd_list, data_list);
-}
-
-bool fetch_gpio_reset(BaseSequentialStream * chp)
+bool fetch_gpio_reset( BaseSequentialStream * chp )
 {
   // reset all gpio pins
-  for(uint32_t i = 0; i < NELEMS(gpio_pins); i++ )
+  for(uint32_t pin = 0; pin < 16; pin++ )
   {
-    palSetPadMode(gpio_pins[i].port, gpio_pins[i].pin, PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_FLOATING);
+    if( PORT_A_GPIO_MASK & (1<<pin) )
+      palSetPadMode(GPIOA, pin, DEFAULT_PIN_MODE);
+    if( PORT_B_GPIO_MASK & (1<<pin) )
+      palSetPadMode(GPIOB, pin, DEFAULT_PIN_MODE);
+    if( PORT_C_GPIO_MASK & (1<<pin) )
+      palSetPadMode(GPIOC, pin, DEFAULT_PIN_MODE);
+    if( PORT_D_GPIO_MASK & (1<<pin) )
+      palSetPadMode(GPIOD, pin, DEFAULT_PIN_MODE);
+    if( PORT_E_GPIO_MASK & (1<<pin) )
+      palSetPadMode(GPIOE, pin, DEFAULT_PIN_MODE);
+    if( PORT_F_GPIO_MASK & (1<<pin) )
+      palSetPadMode(GPIOF, pin, DEFAULT_PIN_MODE);
+    if( PORT_G_GPIO_MASK & (1<<pin) )
+      palSetPadMode(GPIOG, pin, DEFAULT_PIN_MODE);
+    if( PORT_H_GPIO_MASK & (1<<pin) )
+      palSetPadMode(GPIOH, pin, DEFAULT_PIN_MODE);
+    if( PORT_I_GPIO_MASK & (1<<pin) )
+      palSetPadMode(GPIOI, pin, DEFAULT_PIN_MODE);
   }
 
   return true;

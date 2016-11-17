@@ -97,18 +97,7 @@ static bool timer_channel_write( uint32_t timer, uint32_t channel, uint32_t coun
 }
 
 
-
-
-// list all command function prototypes here 
-static bool fetch_timer_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_timer_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_timer_period_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_timer_frequency_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_timer_pwm_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_timer_cap_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_timer_clear_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_timer_count_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-
+#if 0
 static fetch_command_t fetch_timer_commands[] = {
     { fetch_timer_help_cmd,        "help",       "Display command info"},
     { fetch_timer_config_cmd,      "config",     "Configure timer pin mode"},
@@ -120,19 +109,19 @@ static fetch_command_t fetch_timer_commands[] = {
     { fetch_timer_count_cmd,       "count",      "Read timer count"},
     { NULL, NULL, NULL } // null terminate list
   };
+#endif
 
-static bool fetch_timer_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_timer_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
-  fetch_display_help_legend(chp);
-  fetch_display_help(chp, fetch_timer_commands);
+  // FIXME output help text
 	return true;
 }
 
-static bool fetch_timer_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_timer_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   // timer id
   // timer channel
@@ -144,9 +133,9 @@ static bool fetch_timer_config_cmd(BaseSequentialStream * chp, char * cmd_list[]
 	return true;
 }
 
-static bool fetch_timer_period_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_timer_period_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   // timer id
   // period in us
@@ -154,9 +143,9 @@ static bool fetch_timer_period_cmd(BaseSequentialStream * chp, char * cmd_list[]
 	return true;
 }
 
-static bool fetch_timer_frequency_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_timer_frequency_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   // timer id
   // frequency in Hz
@@ -164,9 +153,9 @@ static bool fetch_timer_frequency_cmd(BaseSequentialStream * chp, char * cmd_lis
 	return true;
 }
 
-static bool fetch_timer_pwm_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_timer_pwm_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   // timer id
   // timer channel
@@ -175,9 +164,9 @@ static bool fetch_timer_pwm_cmd(BaseSequentialStream * chp, char * cmd_list[], c
 	return true;
 }
 
-static bool fetch_timer_cap_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_timer_cap_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   // timer id
   // timer channel
@@ -186,46 +175,32 @@ static bool fetch_timer_cap_cmd(BaseSequentialStream * chp, char * cmd_list[], c
 	return true;
 }
 
-static bool fetch_timer_clear_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_timer_clear_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   // timer id
 
 	return true;
 }
 
-static bool fetch_timer_count_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_timer_count_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   // timer id
 
 	return true;
 }
 
-void fetch_timer_init(BaseSequentialStream * chp)
+void fetch_timer_init(void)
 {
-  static bool timer_init_flag = false;
-
-  if( timer_init_flag )
-    return;
-
   // Init stuff goes here
   // ...
   // TODO
   // pwmStart(&PWMD1, ???); 
   
   // all channels disabled by default
-
-  timer_init_flag = true;
-}
-
-/*! \brief dispatch a specific command
- */
-bool fetch_timer_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-  return fetch_dispatch(chp, fetch_timer_commands, cmd_list, data_list);
 }
 
 bool fetch_timer_reset(BaseSequentialStream * chp)

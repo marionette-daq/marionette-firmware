@@ -11,20 +11,22 @@
 #include "hal.h"
 #include "chprintf.h"
 
-#ifndef DBG_MSG_ENABLE
-#define DBG_MSG_ENABLE          0
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define DBG_MSG(chp, fmt) \
-       do { if (DBG_MSG_ENABLE) util_message_debug(chp, __FILE__, __LINE__, __func__, fmt ); } while (0)
+#ifndef DEBUG_MSG_ENABLE
+#define DEBUG_MSG_ENABLE          1
+#endif
 
+#define DEBUG_SERIAL  SD6
+#define DEBUG_CHP     ((BaseSequentialStream *) &DEBUG_SERIAL)
 
-#define DBG_VMSG(chp, fmt, ...) \
-       do { if (DBG_MSG_ENABLE) util_message_debug(chp,__FILE__, __LINE__, __func__, fmt, __VA_ARGS__); } while (0)
+#define DEBUG_MSG(chp, msg) \
+       do { if (DEBUG_MSG_ENABLE) util_message_debug(chp,__FILE__, __LINE__, __func__, msg); } while (0)
+
+#define DEBUG_VMSG(chp, fmt, ...) \
+       do { if (DEBUG_MSG_ENABLE) util_message_debug(chp,__FILE__, __LINE__, __func__, fmt, __VA_ARGS__); } while (0)
 
 void util_message_begin( BaseSequentialStream * chp);
 void util_message_end( BaseSequentialStream * chp, bool success);

@@ -61,15 +61,7 @@
 static void fetch_adc_error_cb(ADCDriver * adcp, adcerror_t err);
 static void fetch_adc_end_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n);
 
-static bool fetch_adc_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_adc_single_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_adc_stream_start_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_adc_stream_stop_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_adc_status_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_adc_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_adc_timer_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-static bool fetch_adc_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[]);
-
+#if 0
 static fetch_command_t fetch_adc_commands[] = {
   /*  function                    command string    help string */
     { fetch_adc_help_cmd,         "help",           "Display ADC help" },
@@ -82,6 +74,7 @@ static fetch_command_t fetch_adc_commands[] = {
     { fetch_adc_reset_cmd,        "reset",          "Reset ADC drivers" },
     { NULL, NULL, NULL }
   };
+#endif
 
 static adcsample_t adc2_sample_buffer[FETCH_ADC2_BUFFER_SIZE];
 static adcsample_t adc3_sample_buffer[FETCH_ADC3_BUFFER_SIZE];
@@ -310,30 +303,53 @@ static ADCDriver * parse_adc_dev( char * str, int32_t * dev )
 
 /*! \brief display adc help
  */
-static bool fetch_adc_help_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_adc_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
-  util_message_info(chp, "Fetch ADC Help:");
-  fetch_display_help(chp, fetch_adc_commands);
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_LEGEND(chp);
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_TITLE(chp, "ADC Help");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp, "single(<dev>)");
+  FETCH_HELP_DES(chp, "Single sample from each channel");
+  FETCH_HELP_ARG(chp, "dev", "0 | 1");
+  FETCH_HELP_CMD(chp, "start(<dev>)");
+  FETCH_HELP_DES(chp, "Start ADC sampling");
+  FETCH_HELP_ARG(chp, "dev", "0 | 1");
+  FETCH_HELP_CMD(chp, "stop(<dev>)");
+  FETCH_HELP_DES(chp, "Stop ADC sampling");
+  FETCH_HELP_ARG(chp, "dev", "0 | 1");
+  FETCH_HELP_CMD(chp, "status()");
+  FETCH_HELP_DES(chp, "Query current adc status");
+  FETCH_HELP_CMD(chp, "config(<dev>, <sample rate>)");
+  FETCH_HELP_DES(chp, "Configure adc device");
+  FETCH_HELP_ARG(chp, "sample rate", "16 ... 1000000");
+  FETCH_HELP_CMD(chp, "reset");
+  FETCH_HELP_DES(chp, "Reset adc module");
+
 	return true;
 }
 
 
 /*! \brief return sample data
  */
-static bool fetch_adc_single_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_adc_single_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 1, 1);
+  FETCH_MAX_ARGS(chp, argc, 1);
+  FETCH_MIN_ARGS(chp, argc, 1);
 
   int32_t dev;
-  ADCDriver *adc_drv = parse_adc_dev(data_list[0], &dev);
+  ADCDriver *adc_drv = parse_adc_dev(argv[0], &dev);
 
   if( adc_drv == NULL )
   {
     util_message_error(chp, "invalid adc device");
     false;
   }
+
+  // TODO add ability to sample from streamming state by grabbing the current sample set instead of trigging a conversion
 
   if( adc_drv->state != ADC_READY )
   {
@@ -361,12 +377,13 @@ static bool fetch_adc_single_cmd(BaseSequentialStream * chp, char * cmd_list[], 
 
 /*! \brief Start a conversion
  */
-static bool fetch_adc_stream_start_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_adc_stream_start_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 1, 1);
+  FETCH_MAX_ARGS(chp, argc, 1);
+  FETCH_MIN_ARGS(chp, argc, 1);
 
   int32_t dev;
-  ADCDriver *adc_drv = parse_adc_dev(data_list[0], &dev);
+  ADCDriver *adc_drv = parse_adc_dev(argv[0], &dev);
 
   if( adc_drv == NULL )
   {
@@ -397,11 +414,12 @@ static bool fetch_adc_stream_start_cmd(BaseSequentialStream * chp, char * cmd_li
 
 /*! \brief Stop the current conversion
  */
-static bool fetch_adc_stream_stop_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_adc_stream_stop_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 1, 1);
+  FETCH_MAX_ARGS(chp, argc, 1);
+  FETCH_MIN_ARGS(chp, argc, 1);
   
-  ADCDriver *adc_drv = parse_adc_dev(data_list[0], NULL);
+  ADCDriver *adc_drv = parse_adc_dev(argv[0], NULL);
 
   if( adc_drv == NULL )
   {
@@ -417,9 +435,9 @@ static bool fetch_adc_stream_stop_cmd(BaseSequentialStream * chp, char * cmd_lis
 
 /*! \brief check if adc is done
  */
-static bool fetch_adc_status_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_adc_status_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   adc_status_t status;
 
@@ -465,13 +483,14 @@ static bool fetch_adc_status_cmd(BaseSequentialStream * chp, char * cmd_list[], 
 
 /*! \brief Process an ADC configure command
  */
-static bool fetch_adc_config_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_adc_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 2, 2);
+  FETCH_MAX_ARGS(chp, argc, 2);
+  FETCH_MIN_ARGS(chp, argc, 2);
 
   char * endptr;
   int32_t dev;
-  ADCDriver *adc_drv = parse_adc_dev(data_list[0], &dev);
+  ADCDriver *adc_drv = parse_adc_dev(argv[0], &dev);
 
   if( adc_drv == NULL )
   {
@@ -479,7 +498,7 @@ static bool fetch_adc_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
     return false;
   }
 
-  uint32_t sample_rate = strtoul(data_list[1], &endptr, 0);
+  uint32_t sample_rate = strtoul(argv[1], &endptr, 0);
 
   if( *endptr != '\0' || sample_rate <= (FETCH_ADC_TIMER_FREQ / 0xffff) || sample_rate > FETCH_ADC_TIMER_FREQ )
   {
@@ -512,9 +531,9 @@ static bool fetch_adc_config_cmd(BaseSequentialStream * chp, char * cmd_list[], 
   return true;
 }
 
-static bool fetch_adc_timer_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_adc_timer_reset_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   gptStopTimer(&GPTD2);
   gptStopTimer(&GPTD3);
@@ -526,20 +545,15 @@ static bool fetch_adc_timer_reset_cmd(BaseSequentialStream * chp, char * cmd_lis
 
 /*! \brief Reset adc1
  */
-static bool fetch_adc_reset_cmd(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
+bool fetch_adc_reset_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_PARAM_CHECK(chp, cmd_list, 0, 0);
+  FETCH_MAX_ARGS(chp, argc, 0);
 
   return fetch_adc_reset(chp);
 }
 
-void fetch_adc_init(BaseSequentialStream * chp)
+void fetch_adc_init(void)
 {
-  static bool adc_init_flag = false;
-
-  if( adc_init_flag )
-    return;
-
   adcStart(&ADCD2,NULL);
   adcStart(&ADCD3,NULL);
  
@@ -578,16 +592,8 @@ void fetch_adc_init(BaseSequentialStream * chp)
 
   gptStartContinuous( &GPTD2, adc2_timer_interval);
   gptStartContinuous( &GPTD3, adc3_timer_interval);
-
-  adc_init_flag = true;
 }
 
-/*! \brief dispatch an ADC command
- */
-bool fetch_adc_dispatch(BaseSequentialStream * chp, char * cmd_list[], char * data_list[])
-{
-  return fetch_dispatch(chp, fetch_adc_commands, cmd_list, data_list);
-}
 
 bool fetch_adc_reset(BaseSequentialStream * chp)
 {
