@@ -38,7 +38,7 @@
                     | "clear"i      %{ *func=fetch_gpio_clear_cmd; }
                     | "config"i     %{ *func=fetch_gpio_config_cmd; }
                     | "info"i       %{ *func=fetch_gpio_info_cmd; }
-                    | "shiftout"i   %{ *func=NULL; /*FIXME*/ }
+                    | "shiftout"i   %{ *func=fetch_gpio_shift_out_cmd; }
                     | "help"i       %{ *func=fetch_gpio_help_cmd; }
                   );
   
@@ -47,7 +47,7 @@
                       "reset"i      %{ *func=fetch_spi_reset_cmd; }
                     | "config"i     %{ *func=fetch_spi_config_cmd; }
                     | "help"i       %{ *func=fetch_spi_help_cmd; }
-                    | "clocks"i     %{ *func=fetch_spi_clocks_cmd; }
+                    | "clockdiv"i   %{ *func=fetch_spi_clock_div_cmd; }
                     | "exchange"i   %{ *func=fetch_spi_exchange_cmd; } 
                   );
 

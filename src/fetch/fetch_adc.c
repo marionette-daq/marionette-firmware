@@ -61,21 +61,6 @@
 static void fetch_adc_error_cb(ADCDriver * adcp, adcerror_t err);
 static void fetch_adc_end_cb(ADCDriver * adcp, adcsample_t * buffer, size_t n);
 
-#if 0
-static fetch_command_t fetch_adc_commands[] = {
-  /*  function                    command string    help string */
-    { fetch_adc_help_cmd,         "help",           "Display ADC help" },
-    { fetch_adc_single_cmd,       "single",         "Single sample from each channel\nUsage: single(<dev>)" },
-    { fetch_adc_stream_start_cmd, "start",          "Start ADC streaming\nUsage: start(<dev>)" },
-    { fetch_adc_stream_stop_cmd,  "stop",           "Stop ADC streaming\nUsage: stop(<dev>)" },
-    { fetch_adc_status_cmd,       "status",         "Current ADC status" },
-    { fetch_adc_config_cmd,       "config",         "Configure ADC driver\nUsage: config(<dev>, <sample rate>)" },
-    { fetch_adc_timer_reset_cmd,  "timerreset",     NULL },
-    { fetch_adc_reset_cmd,        "reset",          "Reset ADC drivers" },
-    { NULL, NULL, NULL }
-  };
-#endif
-
 static adcsample_t adc2_sample_buffer[FETCH_ADC2_BUFFER_SIZE];
 static adcsample_t adc3_sample_buffer[FETCH_ADC3_BUFFER_SIZE];
 
@@ -315,19 +300,25 @@ bool fetch_adc_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]
   FETCH_HELP_CMD(chp, "single(<dev>)");
   FETCH_HELP_DES(chp, "Single sample from each channel");
   FETCH_HELP_ARG(chp, "dev", "0 | 1");
+  FETCH_HELP_BREAK(chp);
   FETCH_HELP_CMD(chp, "start(<dev>)");
   FETCH_HELP_DES(chp, "Start ADC sampling");
   FETCH_HELP_ARG(chp, "dev", "0 | 1");
+  FETCH_HELP_BREAK(chp);
   FETCH_HELP_CMD(chp, "stop(<dev>)");
   FETCH_HELP_DES(chp, "Stop ADC sampling");
   FETCH_HELP_ARG(chp, "dev", "0 | 1");
+  FETCH_HELP_BREAK(chp);
   FETCH_HELP_CMD(chp, "status()");
   FETCH_HELP_DES(chp, "Query current adc status");
+  FETCH_HELP_BREAK(chp);
   FETCH_HELP_CMD(chp, "config(<dev>, <sample rate>)");
   FETCH_HELP_DES(chp, "Configure adc device");
   FETCH_HELP_ARG(chp, "sample rate", "16 ... 1000000");
+  FETCH_HELP_BREAK(chp);
   FETCH_HELP_CMD(chp, "reset");
   FETCH_HELP_DES(chp, "Reset adc module");
+  FETCH_HELP_BREAK(chp);
 
 	return true;
 }

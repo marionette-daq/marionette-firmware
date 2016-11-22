@@ -115,7 +115,14 @@ bool fetch_timer_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv
 {
   FETCH_MAX_ARGS(chp, argc, 0);
 
-  // FIXME output help text
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_LEGEND(chp);
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_TITLE(chp,"Timer Help");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"FIXME");
+  FETCH_HELP_BREAK(chp);
+
 	return true;
 }
 

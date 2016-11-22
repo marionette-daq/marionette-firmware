@@ -48,62 +48,6 @@ typedef struct {
 static uint8_t gpio_buffer[GPIO_BUFFER_SIZE];
 
 
-#if 0
-static const char gpio_config_help_string[] = "Configure pin as GPIO\n"
-                                              "Usage: config(<io>,<mode>[,<pull>[,<otpye>[,<ospeed>]]])\n"
-                                              "\tmode  = INPUT, OUTPUT, ALTERNATE\n"
-                                              "\tpull  = *FLOATING, PULLUP, PULLDOWN\n"
-                                              "\totype = *PUSHPULL, OPENDRAIN\n"
-                                              "\tospeed = 2, 25, 50, *100\n"
-                                              "\t* = default";
-static const char gpio_wait_help_string[]   = "Wait for the given event on a gpio pin\n"
-                                              "Usage: wait(<io>,<event>,<timeout>)\n"
-                                              "\tevent = HIGH, LOW, RISING, FALLING\n"
-                                              "\ttimeout = <milliseconds>";
-
-static fetch_command_t fetch_gpio_commands[] = {
-    { fetch_gpio_help_cmd,            "help",           "Display GPIO help"},
-    { fetch_gpio_read_cmd,            "read",           "Read pin state\n"
-                                                        "Usage: read(<io>[,...])" },
-    { fetch_gpio_read_latch_cmd,      "readlatch",      "Read pin output latch state\n"
-                                                        "Usage: readlatch(<io>[,...])" },
-    { fetch_gpio_read_port_cmd,       "readport",       "Read state of all pins on port\n"
-                                                        "Usage: readport(<port>)" },
-    { fetch_gpio_read_port_latch_cmd, "readportlatch",  "Read output latch of all pins on port\n"
-                                                        "Usage: readportlatch(<port>)" },
-    { fetch_gpio_read_all_cmd,        "readall",        "Read state of all pins on all ports" },
-    { fetch_gpio_write_cmd,           "write",          "Write state to pin\n"
-                                                        "Usage: write(<io>,<state>[,<io>,<state>[,...]])" },
-    { fetch_gpio_write_port_cmd,      "writeport",      "Write state of all pins on port\n"
-                                                        "Usage: writeport(<port>, <state>)" },
-    { fetch_gpio_set_cmd,             "set",            "Set pin state to 1\n"
-                                                        "Usage: set(<io>[,...])" },
-    { fetch_gpio_clear_cmd,           "clear",          "Clear pin state to 0\n"
-                                                        "Usage: clear(<io>[,...])" },
-    { fetch_gpio_wait_cmd,            "wait",           gpio_wait_help_string },
-    { fetch_gpio_config_cmd,          "config",         gpio_config_help_string },
-    { fetch_gpio_info_cmd,            "info",           "Get pin info\n"
-                                                        "Usage: info(<io>)" },
-    
- /*
-    { fetch_gpio_clock_out_cmd,       "clockout",       "Shift bits out on pin with clock pin\n"
-                                                        "Usage: clockout(<clk io>, <edge>, <out io>, <delay>, <bits>, <byte | string>[,...])\n"
-                                                        "\tedge = clock edge: RISING, FALLING\n"
-                                                        "\tdelay = io hold time, microseconds\n"
-                                                        "\tbits = number of bits to shift out (max 1024)\n"
-                                                        "\tvalues = strings or bytes to clock out MSB first" },
-    { fetch_gpio_shift_out_cmd,       "shiftout",       "Shift bits out on pin\n"
-                                                        "Usage: shiftout(<out io>, <delay>, <bits>, <byte | string>[,...])\n"
-                                                        "\tdelay = io hold time, microseconds\n"
-                                                        "\tbits = number of bits to shift out (max 1024)\n"
-                                                        "\tvalues = strings or bytes to clock out MSB first" },
-*/
-
-    { fetch_gpio_reset_cmd,           "reset",          "Reset all GPIO pins to defaults" },
-    { NULL, NULL, NULL } // null terminate list
-  };
-#endif
-
 static bool valid_gpio_port_pin( ioportid_t port, uint32_t pin )
 {
   switch( (uint32_t)port )
@@ -162,14 +106,188 @@ bool fetch_gpio_help_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv
 {
   FETCH_MAX_ARGS(chp, argc, 0);
 
+  FETCH_HELP_BREAK(chp);
   FETCH_HELP_LEGEND(chp);
-
+  FETCH_HELP_BREAK(chp);
   FETCH_HELP_TITLE(chp, "GPIO Help");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"read(<io>[, ...])");
+  FETCH_HELP_DES(chp,"Read pin state(s)");
+  FETCH_HELP_ARG(chp,"io", "io pin name");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"read.latch(<port>)");
+  FETCH_HELP_DES(chp,"Read port output latch");
+  FETCH_HELP_ARG(chp,"port","A | B | C | D | E | F | G | H | I");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"read.port(<port>)");
+  FETCH_HELP_DES(chp,"Read port input values");
+  FETCH_HELP_ARG(chp,"port","A | B | C | D | E | F | G | H | I");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"read.all");
+  FETCH_HELP_DES(chp,"Read all port input values");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"reset");
+  FETCH_HELP_DES(chp,"Reset GPIO module");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"write(<io>,<value>[,<io>,<value> ...])");
+  FETCH_HELP_DES(chp,"Write to io pin(s)");
+  FETCH_HELP_ARG(chp,"io","io pin name");
+  FETCH_HELP_ARG(chp,"value","0 | 1");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"write.port(<port>, <value>)");
+  FETCH_HELP_DES(chp,"Write to port");
+  FETCH_HELP_ARG(chp,"port","A | B | C | D | E | F | G | H | I");
+  FETCH_HELP_ARG(chp,"value","16bit value to write");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"write.all(<val_a>, ..., <val_i>)");
+  FETCH_HELP_DES(chp,"Write to all ports");
+  FETCH_HELP_ARG(chp,"val", "16bit value to write")
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"set(<io>[, ...])");
+  FETCH_HELP_DES(chp,"Set io pin(s) to 1");
+  FETCH_HELP_ARG(chp,"io", "io pin name");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"clear(<io[, ...])");
+  FETCH_HELP_DES(chp,"Clear io pin(s) to 0");
+  FETCH_HELP_ARG(chp,"io", "io pin name");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"config(<io>,<mode>[,<pull>[,<otype>[,<ospeed>]]])");
+  FETCH_HELP_DES(chp,"Configure pin");
+  FETCH_HELP_ARG(chp,"io", "io pin name");
+  FETCH_HELP_ARG(chp,"mode","*INPUT | OUTPUT | ALTERNATE");
+  FETCH_HELP_ARG(chp,"pull","*FLOATING | PULLUP | PULLDOWN");
+  FETCH_HELP_ARG(chp,"otype","*PUSHPULL | OPENDRAIN");
+  FETCH_HELP_ARG(chp,"ospeed","2, 25, 50, *100");
+  FETCH_HELP_ARG(chp,"*","defaults");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"info(<io>)");
+  FETCH_HELP_DES(chp,"Query pin configuration");
+  FETCH_HELP_ARG(chp,"io", "io pin name");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"shiftout(<io>,<io_clk>,<rate>,<bits>,<data 0>[,<data 1> ...])");
+  FETCH_HELP_DES(chp,"Shift out bits with optional clock");
+  FETCH_HELP_ARG(chp,"io","data io pin name");
+  FETCH_HELP_ARG(chp,"io_clk", "clock io pine name | none");
+  FETCH_HELP_ARG(chp,"rate", "clock rate");
+  FETCH_HELP_ARG(chp,"bits", "number of bits to output");
+  FETCH_HELP_ARG(chp,"data", "list of bytes {*}");
+  FETCH_HELP_ARG(chp,"*", "bytes are clocked out MSB first");
+  FETCH_HELP_BREAK(chp);
 
-
-  util_message_info(chp, "Fetch GPIO Help:");
-  // FIXME output new help strings
 	return true;
+}
+
+bool fetch_gpio_shift_out_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv[] )
+{
+  FETCH_MIN_ARGS(chp, argc, 5);
+
+  port_pin_t pp_io;
+  port_pin_t pp_clk;
+  uint32_t rate;
+  uint32_t bits;
+  uint32_t byte_count;
+
+  if( !fetch_gpio_parser(argv[0], FETCH_MAX_DATA_STRLEN, &pp_io) )
+  {
+    util_message_error(chp, "invalid io pin");
+    return false;
+  }
+  if( !fetch_gpio_parser(argv[1], FETCH_MAX_DATA_STRLEN, &pp_clk) )
+  {
+    if( strcasecmp(argv[1], "none") == 0 )
+    {
+      pp_clk.port = NULL;
+    }
+    else if( strcasecmp(argv[1], "null") == 0 )
+    {
+      pp_clk.port = NULL;
+    }
+    else
+    {
+      util_message_error(chp, "invalid io pin");
+      return false;
+    }
+  }
+  if( !util_parse_uint32(argv[2], &rate) || rate == 0 || rate > 500 )
+  {
+    util_message_error(chp, "invalid clock rate");
+    return false;
+  }
+  if( !util_parse_uint32(argv[3], &bits) || bits == 0 )
+  {
+    util_message_error(chp, "invalid bit count");
+    return false;
+  }
+
+  if( bits > ((argc-4) * 8) )
+  {
+    util_message_error(chp, "invalid bit count, missing data");
+    return false;
+  }
+  
+  if( bits > (GPIO_BUFFER_SIZE * 8) )
+  {
+    util_message_error(chp, "invalid bit count, not enough buffer space");
+    return false;
+  }
+
+  byte_count = 0;
+
+  for( uint32_t i = 4; i < argc && byte_count < GPIO_BUFFER_SIZE; i++ )
+  {
+    if( !util_parse_uint8(argv[i], &gpio_buffer[byte_count]) )
+    {
+      util_message_error(chp, "invalid byte value, data[%d] = %s", byte_count, argv[i]);
+      return false;
+    }
+    else
+    {
+      byte_count++;
+    }
+  }
+
+  // this is half the clock period
+  uint32_t ms_delay = 500 / rate;
+
+  if( pp_clk.port )
+  {
+    palClearPad(pp_clk.port, pp_clk.pin);
+  }
+  palClearPad(pp_io.port, pp_io.pin);
+
+  chThdSleepMilliseconds(ms_delay);
+
+  for( uint32_t i = 0; i < byte_count && bits > 0; i++ )
+  {
+    for( uint32_t b = 0; b < 8; b++ )
+    {
+      if( bits > 0 )
+      {
+        if( gpio_buffer[i] & (1<<(7-b)) )
+        {
+          palSetPad(pp_io.port, pp_io.pin);
+        }
+        else
+        {
+          palClearPad(pp_io.port, pp_io.pin);
+        }
+        if( pp_clk.port )
+        {
+          chThdSleepMilliseconds(ms_delay);
+          palSetPad(pp_clk.port, pp_clk.pin);
+          chThdSleepMilliseconds(ms_delay);
+          palClearPad(pp_clk.port, pp_clk.pin);
+        }
+        else
+        {
+          chThdSleepMilliseconds(ms_delay * 2);
+        }
+        bits--;
+      }
+    }
+  }
+
+  return true;
 }
 
 bool fetch_gpio_read_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv[] )

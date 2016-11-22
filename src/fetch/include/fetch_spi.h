@@ -17,7 +17,7 @@ bool fetch_spi_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv
 bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
 bool fetch_spi_reset_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
 bool fetch_spi_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
-bool fetch_spi_clocks_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+bool fetch_spi_clock_div_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
 
 #ifdef __cplusplus
 }

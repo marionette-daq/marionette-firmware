@@ -76,8 +76,10 @@ static SPIDriver * parse_spi_dev( char * str, int32_t * dev )
 
   switch( num )
   {
+    case 0:
     case 2:
       return &SPID2;
+    case 1:
     case 6:
       return &SPID6;
     default:
@@ -85,7 +87,7 @@ static SPIDriver * parse_spi_dev( char * str, int32_t * dev )
   }
 }
 
-bool fetch_spi_clocks_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
+bool fetch_spi_clock_div_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
   FETCH_MAX_ARGS(chp, argc, 0);
   
@@ -114,8 +116,8 @@ bool fetch_spi_clocks_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv
 
 bool fetch_spi_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
-  FETCH_MAX_ARGS(chp, argc, 6);
-  FETCH_MIN_ARGS(chp, argc, 6);
+  FETCH_MAX_ARGS(chp, argc, 5);
+  FETCH_MIN_ARGS(chp, argc, 5);
 
   char * endptr;
   int32_t spi_dev;
@@ -150,7 +152,7 @@ bool fetch_spi_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv
   spi_cfg->sspad = 0;
   spi_cfg->cr1 = 0;
 
-  int32_t spi_cpol = strtol(argv[SPI_CONFIG_CPOL],&endptr,0);
+  int32_t spi_cpol = strtol(argv[1],&endptr,0);
 
   if( *endptr != '\0' || spi_cpol > 1 || spi_cpol < 0 ) {
     util_message_error(chp, "invalid CPOL value");
@@ -159,7 +161,7 @@ bool fetch_spi_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv
     spi_cfg->cr1 |= SPI_CR1_CPOL;
   }
   
-  int32_t spi_cpha = strtol(argv[SPI_CONFIG_CPHA],&endptr,0);
+  int32_t spi_cpha = strtol(argv[2],&endptr,0);
 
   if( *endptr != '\0' || spi_cpha > 1 || spi_cpha < 0 ) {
     util_message_error(chp, "invalid CPHA value");
@@ -168,7 +170,7 @@ bool fetch_spi_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv
     spi_cfg->cr1 |= SPI_CR1_CPHA;
   }
 
-  int32_t spi_msb_lsb = strtol(argv[SPI_CONFIG_MSB_LSB],&endptr,0);
+  int32_t spi_msb_lsb = strtol(argv[4],&endptr,0);
   
   if( *endptr != '\0' || spi_msb_lsb > 1 || spi_msb_lsb < 0 ) {
     util_message_error(chp, "invalid MSB/LSB value");
@@ -177,7 +179,7 @@ bool fetch_spi_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv
     spi_cfg->cr1 |= SPI_CR1_LSBFIRST;
   }
 
-  int32_t spi_clk_div = strtol(argv[SPI_CONFIG_CLK_DIV],&endptr,0);
+  int32_t spi_clk_div = strtol(argv[3],&endptr,0);
 
   if( *endptr != '\0' || spi_clk_div < 0 || spi_clk_div > 7 )
   {
@@ -212,20 +214,6 @@ bool fetch_spi_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv
       break;
   }
 
-  if( argv[SPI_CONFIG_CS_IO] != NULL )
-  {
-    port_pin_t pp;
-
-    if( !fetch_gpio_parser(argv[0], FETCH_MAX_DATA_STRLEN, &pp) )
-    {
-      util_message_error(chp, "invalid chip select io pin");
-      return false;
-    }
-
-    spi_cfg->ssport = pp.port;
-    spi_cfg->sspad  = pp.pin;
-  }
-
   // apply configuration
   spiStart(spi_drv, spi_cfg);
 
@@ -246,6 +234,7 @@ bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, uint32_t argc, char * ar
   int32_t spi_dev;
   SPIDriver * spi_drv;
   SPIConfig * spi_cfg;
+  port_pin_t pp_cs;
 
   if( (spi_drv = parse_spi_dev(argv[0], &spi_dev)) == NULL )
   {
@@ -269,7 +258,10 @@ bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, uint32_t argc, char * ar
     return false;
   }
 
-  for( int i = 0; i < MAX_SPI_BYTES && argv[i+2] != NULL; i++ )
+//#error FIX EXCHANGE AND CONFIG FUNCTIONS
+  // FIXME change this to parse arguments enqueing strings of bytes and byte ints
+
+  for( int i = 0; i < MAX_SPI_BYTES && argv[i+1] != NULL; i++ )
   {
     byte_value = strtol(argv[i+2], &endptr, number_base);
     
@@ -290,16 +282,18 @@ bool fetch_spi_exchange_cmd(BaseSequentialStream * chp, uint32_t argc, char * ar
     }
   }
 
-  if( spi_cfg->ssport != NULL )
+  // FIXME assume all chip selects are active low, this may need to be changed later
+
+  if( pp_cs.port != NULL )
   {
-    spiSelect(spi_drv);
+    palClearPad(pp_cs.port, pp_cs.pin);
   }
 
   spiExchange(spi_drv, byte_count, tx_buffer, rx_buffer);
 
-  if( spi_cfg->ssport != NULL )
+  if( pp_cs.port != NULL )
   {
-    spiUnselect(spi_drv);
+    palSetPad(pp_cs.port, pp_cs.pin);
   }
 
   util_message_uint32(chp, "count", byte_count);
@@ -331,7 +325,31 @@ bool fetch_spi_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]
 {
   FETCH_MAX_ARGS(chp, argc, 0);
 
-  // FIXME output help text
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_LEGEND(chp);
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_TITLE(chp,"SPI Help");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"exchange(<dev>,<io_cs>,<data 0>[,<data 1> ...])");
+  FETCH_HELP_DES(chp,"TX/RX bytes on SPI bus")
+  FETCH_HELP_ARG(chp,"dev","SPI device");
+  FETCH_HELP_ARG(chp,"data","list of bytes or strings");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"config(<dev>,<cpol>,<cpha>,<clock div>,<byte order>)");
+  FETCH_HELP_DES(chp,"Configure SPI device");
+  FETCH_HELP_ARG(chp,"dev","0 | 1");
+  FETCH_HELP_ARG(chp,"cpol","0 | 1");
+  FETCH_HELP_ARG(chp,"cpha","0 | 1");
+  FETCH_HELP_ARG(chp,"clock div","see clockdiv command for clock divider values");
+  FETCH_HELP_ARG(chp,"byte order","0 {MSB} | 1 {LSB}");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"reset");
+  FETCH_HELP_DES(chp,"Reset SPI module");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"clockdiv");
+  FETCH_HELP_DES(chp,"Query possible clock rates");
+  FETCH_HELP_BREAK(chp);
+
 	return true;
 }
 

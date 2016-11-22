@@ -45,14 +45,6 @@
 SPIConfig spi4_cfg;
 DACConfig dac1_cfg;
 
-#if 0
-static fetch_command_t fetch_dac_commands[] = {
-    { fetch_dac_help_cmd,   "help",   "DAC command help" },
-    { fetch_dac_write_cmd,  "write",  "Write values to DAC\nUsage: write(<channel>, <value>)" },
-    { fetch_dac_reset_cmd,  "reset",  "Reset all DAC outputs to 0v" },
-    { NULL, NULL, NULL }
-  };
-#endif
 
 static bool external_dac_write(uint16_t channel, uint16_t value)
 {
@@ -91,8 +83,20 @@ bool fetch_dac_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]
 {
   FETCH_MAX_ARGS(chp, argc, 0);
 
-  util_message_info(chp, "Fetch DAC Help:");
-  // FIXME output help text
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_LEGEND(chp);
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_TITLE(chp, "DAC Help");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"write(<channel>,<value>)");
+  FETCH_HELP_DES(chp,"Write value to DAC channel");
+  FETCH_HELP_ARG(chp,"channel","0 | 1 | 2 | 3 | HS");
+  FETCH_HELP_ARG(chp,"value","12bit value to write");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"reset");
+  FETCH_HELP_DES(chp,"Reset DAC module");
+  FETCH_HELP_BREAK(chp);
+
 	return true;
 }
 

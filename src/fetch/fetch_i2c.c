@@ -257,13 +257,28 @@ bool fetch_i2c_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]
 {
   FETCH_MAX_ARGS(chp, argc, 0);
 
-  util_message_info(chp, "Usage legend: <> required, [] optional, | or,");
-  util_message_info(chp, "              ... continuation, {} comment");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_LEGEND(chp);
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_TITLE(chp, "I2C Help");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"write(<addr>,<data 0>[,<data 1>...])");
+  FETCH_HELP_DES(chp,"Write data to slave");
+  FETCH_HELP_ARG(chp,"addr","7 bit address, no r/w bit");
+  FETCH_HELP_ARG(chp,"data","list of bytes or strings");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"read(<addr>,<count>)");
+  FETCH_HELP_DES(chp,"Read data from slave");
+  FETCH_HELP_ARG(chp,"addr","7 bit address, no r/w bit");
+  FETCH_HELP_ARG(chp,"count","number of bytes to receive");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"config");
+  FETCH_HELP_DES(chp,"Configure I2C module");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp,"reset");
+  FETCH_HELP_DES(chp,"Reset I2C module");
+  FETCH_HELP_BREAK(chp);
 
-  util_message_info(chp, "base = (reference strtol c function)");
-  util_message_info(chp, "addr = 7 bit address, no r/w bit");
-
-  // FIXME add help output
   return true;
 }
 
