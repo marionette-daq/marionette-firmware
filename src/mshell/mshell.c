@@ -137,20 +137,20 @@ static bool cmd_info(BaseSequentialStream * chp, int argc, char * argv[])
 		return false;
 	}
 
-	util_message_string(chp, "firmware_version", GIT_COMMIT_VERSION);
+	util_message_string_format(chp, "firmware_version", GIT_COMMIT_VERSION);
 	util_message_hex_uint32_array(chp, "chip_id", chip_id, 3);
-	util_message_string(chp, "kernel", CH_KERNEL_VERSION);
+	util_message_string_format(chp, "kernel", CH_KERNEL_VERSION);
 
 
 
-	util_message_string(chp, "compiler", PORT_COMPILER_NAME);
-	util_message_string(chp, "architecture", PORT_ARCHITECTURE_NAME);
-	util_message_string(chp, "core_variant", PORT_CORE_VARIANT_NAME);
-	util_message_string(chp, "port_info", PORT_INFO);
-	util_message_string(chp, "platform", PLATFORM_NAME);
-	util_message_string(chp, "board", BOARD_NAME);
-	util_message_string(chp, "build_date", __DATE__);
-	util_message_string(chp, "build_time", __TIME__);
+	util_message_string_format(chp, "compiler", PORT_COMPILER_NAME);
+	util_message_string_format(chp, "architecture", PORT_ARCHITECTURE_NAME);
+	util_message_string_format(chp, "core_variant", PORT_CORE_VARIANT_NAME);
+	util_message_string_format(chp, "port_info", PORT_INFO);
+	util_message_string_format(chp, "platform", PLATFORM_NAME);
+	util_message_string_format(chp, "board", BOARD_NAME);
+	util_message_string_format(chp, "build_date", __DATE__);
+	util_message_string_format(chp, "build_time", __TIME__);
   return true;
 }
 

@@ -32,32 +32,6 @@ static SPIConfig  spi_configs[6] =  { {NULL, NULL, 0, 0},
                                       {NULL, NULL, 0, 0},
                                       {NULL, NULL, 0, 0} };
 
-enum {
-  SPI_CONFIG_DEV = 0,
-  SPI_CONFIG_CPOL,
-  SPI_CONFIG_CPHA,
-  SPI_CONFIG_CLK_DIV,
-  SPI_CONFIG_MSB_LSB,
-  SPI_CONFIG_CS_IO,
-};
-
-#if 0
-static fetch_command_t fetch_spi_commands[] = {
-    { fetch_spi_exchange_cmd,  "exchange",  "TX/RX bytes\n" \
-                                            "Usage: exchange(<dev>,<base>,<byte 0>,[...,<byte n>])" },
-    { fetch_spi_config_cmd,    "config",    "Configure SPI driver\n" \
-                                            "Usage: config(<dev>,<cpol>,<cpha>,<clk div>,<order>,[<ss io>])\n" \
-                                            "\tcpol = 0 | 1\n" \
-                                            "\tcpha = 0 | 1\n" \
-                                            "\tclk div = 0 ... 7\n" \
-                                            "\torder = 0 {MSB first} | 1 {LSB first}\n" },
-    { fetch_spi_reset_cmd,     "reset",     "Reset SPI driver\n" \
-                                            "Usage: reset(<dev>)" },
-    { fetch_spi_help_cmd,      "help",      "SPI command help" },
-    { fetch_spi_clocks_cmd,    "clocks",    "SPI clock divider values" },
-    { NULL, NULL, NULL } // null terminate list
-  };
-#endif
 
 static SPIDriver * parse_spi_dev( char * str, int32_t * dev )
 {

@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "hal.h"
 #include "chprintf.h"
@@ -163,7 +164,7 @@ void util_message_bool( BaseSequentialStream * chp, char * name, bool data)
 	chBSemSignal( &mshell_io_sem );
 }
 
-void util_message_string( BaseSequentialStream * chp, char * name, char * fmt, ...)
+void util_message_string_format( BaseSequentialStream * chp, char * name, char * fmt, ...)
 {
 	if(chp == NULL || fmt == NULL)
 	{
@@ -186,8 +187,39 @@ void util_message_string( BaseSequentialStream * chp, char * name, char * fmt, .
 	chBSemSignal( &mshell_io_sem );
 }
 
+void util_message_string_escape( BaseSequentialStream * chp, char * name, char * str, uint32_t str_len )
+{
+  // print string of length escaping non printable chars
+	if(chp == NULL || str == NULL)
+	{
+		return;
+	}
+
+	chBSemWait( &mshell_io_sem );
+
+	chprintf(chp, "SE:%s:", name);
+
+  for( uint32_t i=0; i < str_len; i++ )
+  {
+    if( isprint(str[i]) && !isspace(str[i]) )
+    {
+      chprintf(chp, "%c", str[i]);
+    }
+    else
+    {
+      chprintf(chp, "\\x%02x", str[i]);
+    }
+  }
+
+  chprintf(chp, "\r\n");
+
+	chBSemSignal( &mshell_io_sem );
+
+}
+
 void util_message_string_array( BaseSequentialStream * chp, char * name, char * str_array[], uint32_t count )
 {
+  // print array of null terminated strings
   if( chp == NULL )
   {
     return;

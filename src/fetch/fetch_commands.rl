@@ -12,6 +12,7 @@
                     | "version"i  %{ *func=fetch_version_cmd; }
                     | "chipid"i   %{ *func=fetch_chip_id_cmd; }
                     | "test"i     %{ *func=fetch_test_cmd; }
+                    | "testdata"i %{ *func=fetch_test_data_cmd; }
                     | "clocks"i   %{ *func=fetch_clocks_cmd; }
                   );
 
@@ -105,6 +106,16 @@
                     "help"i       %{ *func=NULL; /*FIXME*/ }
                   );
 
+  serial_commands = "serial"i . cmd_delim . (
+                      "help"i     %{ *func=fetch_serial_help_cmd; }
+                    | "config"    %{ *func=fetch_serial_config_cmd; }
+                    | "write"     %{ *func=fetch_serial_write_cmd; }
+                    | "read"      %{ *func=fetch_serial_read_cmd; }
+                    | "timeout"   %{ *func=fetch_serial_timeout_cmd; }
+                    | "status"    %{ *func=fetch_serial_status_cmd; }
+                    | "break"     %{ *func=fetch_serial_break_cmd; }
+                  );
+
   fetch_command = ( root_commands   | 
                     gpio_commands   | 
                     spi_commands    | 
@@ -115,7 +126,8 @@
                     timer_commands  |
                     mbus_commands   |
                     mcard_commands  |
-                    mpipe_commands
+                    mpipe_commands  |
+                    serial_commands
                   ) @err{ fetch_parser_info.error_msg = "invalid command"; };
 
 }%%

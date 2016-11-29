@@ -15,86 +15,6 @@
 
 fetch_parser_info_t fetch_parser_info;
 
-%%{
-  machine fetch_command_parser;
-
-  include "fetch_commands.rl";
-
-  action start_data {
-      if( *argc >= max_args )
-      {
-        fetch_parser_info.error_msg = "max arguments";
-        fgoto *fetch_command_parser_error;
-      }
-      else
-      {
-        argv[*argc] = wp;
-        (*argc)++;
-      }
-    }
-  action end_data { *wp = '\0'; wp++; }
-  action copy_data { *wp = *p; wp++; }
-
-  ws = [\t ];
-  hex_number = '0x' . xdigit+;
-  dec_number = digit+;
-  oct_number = '0' . [0-7]+;
-  not_null = [^\0];
-  not_single = [^\'];
-  not_double = [^\"];
-  not_escape = [^\\];
-  escape_str = '\\' . not_null;
-
-  data_string_double = '\"' . ( escape_str | (not_double & not_escape & not_null) )* . '\"';
-  data_string_single = '\'' . ( escape_str | (not_single & not_escape & not_null) )* . '\'';
-  data_string = (data_string_double | data_string_single);
-
-  data_const = ( '_' | alpha ) . ( '-' | '_' | '.' | ':' | alnum )*;
-  data_number = [\-+]? . ( hex_number | dec_number | oct_number );
-
-  data_item = (data_string | data_const | data_number) @err{ fetch_parser_info.error_msg = "invalid argument"; } >start_data $copy_data %end_data ;
-
-  data_list = ws* . data_item . ( ws* . ',' . ws* . data_item )* . ws*;
-
-  main := ws* . fetch_command . ws* . ( '(' . data_list? . ')' )? . ws* . 0? @{ fbreak; };
-
-  write data;
-}%%
-
-bool fetch_command_parser( const char * input_str, uint32_t max_len, char * output_str, fetch_func_t * func, uint32_t * argc, char * argv[], uint32_t max_args)
-{
-  uint32_t cs;
-  const char * p = input_str;
-  const char * pe = input_str + max_len;
-  const char * eof = pe;
-  char * wp = output_str;
-
-  *func = NULL;
-  *argc = 0;
-
-  fetch_parser_info.error_msg = NULL;
-  fetch_parser_info.fsm_state_first_final = %%{ write first_final; }%%;
-  fetch_parser_info.fsm_state_start = %%{ write start; }%%;
-  fetch_parser_info.fsm_state_error = %%{ write error; }%%;
-  
-  %% write init;
-  %% write exec;
-
-  fetch_parser_info.fsm_state = cs;
-  fetch_parser_info.offset = (p-input_str);
-  
-  if( cs >= %%{ write first_final; }%% )
-  {
-    fetch_parser_info.error = false;
-    return true;
-  }
-  else
-  {
-    fetch_parser_info.error = true;
-    return false;
-  }
-}
-
 static uint8_t hex_value(char c)
 {
   if( c >= '0' && c <= '9' )
@@ -115,6 +35,136 @@ static uint8_t hex_value(char c)
   }
 }
 
+static void update_error_msg(void)
+{
+  // don't clobber message if one is already set
+  if( fetch_parser_info.error_msg )
+  {
+    return;
+  }
+  else if( fetch_parser_info.fsm_state == fetch_parser_info.fsm_state_error )
+  {
+    fetch_parser_info.error_msg = "Error state, bad input format";
+  }
+  else if( fetch_parser_info.fsm_state == fetch_parser_info.fsm_state_start )
+  {
+    fetch_parser_info.error_msg = "Parser never exits start state";
+  }
+  else if( fetch_parser_info.fsm_state <= fetch_parser_info.fsm_state_first_final )
+  {
+    fetch_parser_info.error_msg = "End of buffer encountered, max string size";
+  }
+}
+
+
+%%{
+  machine fetch_command_parser;
+
+  include "fetch_commands.rl";
+
+  action start_data {
+      if( *argc >= max_args )
+      {
+        fetch_parser_info.error_msg = "max arguments";
+        fgoto *fetch_command_parser_error;
+      }
+      else
+      {
+        argv[*argc] = wp;
+        (*argc)++;
+      }
+    }
+  action end_data {
+      if( output_count < max_output_len )
+      {
+        *wp = '\0';
+        wp++;
+        output_count++;
+      }
+      else
+      {
+        fetch_parser_info.error_msg = "max output";
+        fgoto *fetch_command_parser_error;
+      }
+    }
+  action copy_data {
+      if( output_count < max_output_len )
+      {
+        *wp = *p;
+        wp++;
+        output_count++;
+      }
+      else
+      {
+        fetch_parser_info.error_msg = "max output";
+        fgoto *fetch_command_parser_error;
+      }
+    }
+
+  ws = [\t ];
+  hex_number = '0x' . xdigit+;
+  dec_number = digit+;
+  oct_number = '0' . [0-7]+;
+  not_null = [^\0];
+  not_single = [^\'];
+  not_double = [^\"];
+  not_escape = [^\\];
+  escape_str = '\\' . not_null;
+
+  data_string_double = '\"' . ( escape_str | (not_double & not_escape & not_null) )* . '\"';
+  data_string_single = '\'' . ( escape_str | (not_single & not_escape & not_null) )* . '\'';
+  data_string = (data_string_double | data_string_single);
+  
+  data_const = ( '_' | alpha ) . ( '-' | '_' | '.' | ':' | alnum )*;
+  data_number = [\-+]? . ( hex_number | dec_number | oct_number );
+
+  data_item = (data_string | data_const | data_number) @err{ fetch_parser_info.error_msg = "invalid argument"; } >start_data $copy_data %end_data ;
+
+  data_list = ws* . data_item . ( ws* . ',' . ws* . data_item )* . ws*;
+
+  main := ws* . fetch_command . ws* . ( '(' . data_list? . ')' )? . ws* . 0? @{ fbreak; };
+
+  write data;
+}%%
+
+bool fetch_command_parser( const char * input_str, uint32_t max_input_len, char * output_str, uint32_t max_output_len, fetch_func_t * func, uint32_t * argc, char * argv[], uint32_t max_args)
+{
+  uint32_t cs;
+  const char * p = input_str;
+  const char * pe = input_str + max_input_len;
+  const char * eof = pe;
+  char * wp = output_str;
+  uint32_t output_count = 0;
+
+  *func = NULL;
+  *argc = 0;
+
+  // FIXME add chDbgAssert statements for pointers
+
+  fetch_parser_info.error_msg = NULL;
+  fetch_parser_info.fsm_state_first_final = %%{ write first_final; }%%;
+  fetch_parser_info.fsm_state_start = %%{ write start; }%%;
+  fetch_parser_info.fsm_state_error = %%{ write error; }%%;
+  
+  %% write init;
+  %% write exec;
+
+  fetch_parser_info.fsm_state = cs;
+  fetch_parser_info.offset = (p-input_str);
+  
+  if( cs >= %%{ write first_final; }%% )
+  {
+    fetch_parser_info.error = false;
+    return true;
+  }
+  else
+  {
+    fetch_parser_info.error = true;
+    update_error_msg();
+    return false;
+  }
+}
+
 %%{
   machine fetch_string_parser;
 
@@ -122,8 +172,32 @@ static uint8_t hex_value(char c)
   action oct_n { value = (value << 3) | (*p-'0'); }
   action hex_0 { value = hex_value(*p); }
   action hex_1 { value = (value << 4) | hex_value(*p); }
-  action write_value { *(wp++)=value; len++; }
-  action write_char  { *(wp++)=*p; len++; }
+  action write_value {
+      if( len < max_output_len )
+      {
+        *wp=value;
+        wp++;
+        len++;
+      }
+      else
+      {
+        fetch_parser_info.error_msg = "max output";
+        fgoto *fetch_string_parser_error;
+      }
+    }
+  action write_char {
+      if( len < max_output_len )
+      {
+        *wp=*p;
+        wp++;
+        len++;
+      }
+      else
+      {
+        fetch_parser_info.error_msg = "max output";
+        fgoto *fetch_string_parser_error;
+      }
+    }
   
   not_null = [^\0];
   not_single = [^\'];
@@ -159,16 +233,18 @@ static uint8_t hex_value(char c)
 }%%
 
 
-bool fetch_string_parser( const char * input_str, uint32_t max_len, char * output_str, uint32_t * output_len )
+bool fetch_string_parser( const char * input_str, uint32_t max_input_len, char * output_str, uint32_t max_output_len, uint32_t * output_len )
 {
   uint32_t cs;
   const char * p = input_str;
-  const char * pe = input_str + max_len;
+  const char * pe = input_str + max_input_len;
   const char * eof = pe;
   char * wp = output_str;
 
   uint8_t value = 0;
   uint32_t len = 0;
+  
+  // FIXME add chDbgAssert statements for pointers
   
   fetch_parser_info.error_msg = NULL;
   fetch_parser_info.fsm_state_first_final = %%{ write first_final; }%%;
@@ -177,6 +253,8 @@ bool fetch_string_parser( const char * input_str, uint32_t max_len, char * outpu
   
   %% write init;
   %% write exec;
+
+  *output_len = len;
 
   fetch_parser_info.fsm_state = cs;
   fetch_parser_info.offset = (p-input_str);
@@ -189,6 +267,7 @@ bool fetch_string_parser( const char * input_str, uint32_t max_len, char * outpu
   else
   {
     fetch_parser_info.error = true;
+    update_error_msg();
     return false;
   }
 }
@@ -289,7 +368,7 @@ bool fetch_string_parser( const char * input_str, uint32_t max_len, char * outpu
                           '68' %{ pp->port = GPIOI; pp->pin = 10; } |
                           '69' %{ pp->port = GPIOB; pp->pin = 14; }
                         );
-  timer_port_pin      = ( 'T'i | 'TIM'i | 'TMR'i ) . delim? . 
+  timer_port_pin      = ( 'TIMER'i ) . delim? . 
                         (
                           ('0' . delim . '0') %{ pp->port = GPIOB; pp->pin =  8; } |
                           ('0' . delim . '1') %{ pp->port = GPIOB; pp->pin =  9; } |
@@ -303,7 +382,7 @@ bool fetch_string_parser( const char * input_str, uint32_t max_len, char * outpu
                           ('4' . delim . '0') %{ pp->port = GPIOA; pp->pin = 15; } 
                         );
 
-  spi_port_pin        = 'S'i . 'PI'i? . delim? .
+  spi_port_pin        = 'SPI'i . delim? .
                         (
                           '0' . delim? . 'SCK'i  %{ pp->port = GPIOI; pp->pin =  1; } | 
                           '0' . delim? . 'MOSI'i %{ pp->port = GPIOI; pp->pin =  3; } | 
@@ -314,12 +393,12 @@ bool fetch_string_parser( const char * input_str, uint32_t max_len, char * outpu
                           '1' . delim? . 'MISO'i %{ pp->port = GPIOG; pp->pin = 12; } | 
                           '1' . delim? . 'NSS'i  %{ pp->port = GPIOG; pp->pin =  8; }
                         );
-  i2c_port_pin        = 'I'i . '2C'i? . delim? . ( '0' . delim? )? .
+  i2c_port_pin        = 'I2C'i . delim? . ( '0' . delim? )? .
                         (
                           'SDA'i %{ pp->port = GPIOF; pp->pin =  0; } |
                           'SCL'i %{ pp->port = GPIOF; pp->pin =  1; }
                         );
-  uart_port_pin       = 'U'i . 'ART'i? . delim? .
+  uart_port_pin       = ('UART'i | 'USART'i | 'SERIAL'i ) . delim? .
                         (
                           '0' . delim? . 'TX'i  %{ pp->port = GPIOA; pp->pin =  0; } |
                           '0' . delim? . 'RX'i  %{ pp->port = GPIOA; pp->pin =  1; } |
@@ -338,12 +417,14 @@ bool fetch_string_parser( const char * input_str, uint32_t max_len, char * outpu
   write data;
 }%%
 
-bool fetch_gpio_parser( const char * input_str, uint32_t max_len, port_pin_t * pp )
+bool fetch_gpio_parser( const char * input_str, uint32_t max_input_len, port_pin_t * pp )
 {
   uint32_t cs;
   const char * p = input_str;
-  const char * pe = input_str + max_len;
+  const char * pe = input_str + max_input_len;
   const char * eof = pe;
+
+  // FIXME add chDbgAssert statements for pointers
 
   pp->port = NULL;
   pp->pin = 0;
@@ -367,6 +448,7 @@ bool fetch_gpio_parser( const char * input_str, uint32_t max_len, port_pin_t * p
   else
   {
     fetch_parser_info.error = true;
+    update_error_msg();
     return false;
   }
 }
@@ -390,12 +472,14 @@ bool fetch_gpio_parser( const char * input_str, uint32_t max_len, port_pin_t * p
   write data;
 }%%
 
-bool fetch_gpio_port_parser( const char * input_str, uint32_t max_len, ioportid_t * port )
+bool fetch_gpio_port_parser( const char * input_str, uint32_t max_input_len, ioportid_t * port )
 {
   uint32_t cs;
   const char * p = input_str;
-  const char * pe = input_str + max_len;
+  const char * pe = input_str + max_input_len;
   const char * eof = pe;
+
+  // FIXME add chDbgAssert statements for pointers
 
   *port = NULL;
   
@@ -418,6 +502,72 @@ bool fetch_gpio_port_parser( const char * input_str, uint32_t max_len, ioportid_
   else
   {
     fetch_parser_info.error = true;
+    update_error_msg();
+    return false;
+  }
+}
+
+
+%%{
+  machine fetch_hex_string_parser;
+
+  action hex_nibble { value = (value << 4) | hex_value(*p); }
+  action write_value {
+      if( len < max_output_len )
+      {
+        *wp=value;
+        wp++;
+        len++;
+      }
+      else
+      {
+        fetch_parser_info.error_msg = "max output";
+        fgoto *fetch_string_parser_error;
+      }
+    }
+
+  data_byte = xdigit >hex_nibble . xdigit >hex_nibble >write_value;
+
+  main := 'H'i . data_byte+ . 0? @{ fbreak; };
+
+  write data;
+}%%
+
+bool fetch_hex_string_parser( const char * input_str, uint32_t max_input_len, char * output_str, uint32_t max_output_len, uint32_t * output_len )
+{
+  uint32_t cs;
+  const char * p = input_str;
+  const char * pe = input_str + max_input_len;
+  const char * eof = pe;
+  char * wp = output_str;
+
+  // FIXME add chDbgAssert statements for pointers
+
+  uint8_t value = 0;
+  uint32_t len = 0;
+  
+  fetch_parser_info.error_msg = NULL;
+  fetch_parser_info.fsm_state_first_final = %%{ write first_final; }%%;
+  fetch_parser_info.fsm_state_start = %%{ write start; }%%;
+  fetch_parser_info.fsm_state_error = %%{ write error; }%%;
+  
+  %% write init;
+  %% write exec;
+
+  *output_len = len;
+
+  fetch_parser_info.fsm_state = cs;
+  fetch_parser_info.offset = (p-input_str);
+  
+  if( cs >= %%{ write first_final; }%% )
+  {
+    fetch_parser_info.error = false;
+    return true;
+  }
+  else
+  {
+    fetch_parser_info.error = true;
+    update_error_msg();
     return false;
   }
 }

@@ -22,10 +22,6 @@
 #include "fetch.h"
 #include "fetch_parser.h"
 
-#ifndef GPIO_BUFFER_SIZE
-#define GPIO_BUFFER_SIZE 128
-#endif
-
 #ifndef DEFAULT_PIN_MODE
 #define DEFAULT_PIN_MODE PAL_STM32_MODE_INPUT | PAL_STM32_PUPDR_FLOATING
 #endif
@@ -44,8 +40,6 @@
 typedef struct {
   uint16_t a, b, c, d, e, f, g, h, i;
 } port_states_t;
-
-static uint8_t gpio_buffer[GPIO_BUFFER_SIZE];
 
 
 static bool valid_gpio_port_pin( ioportid_t port, uint32_t pin )
@@ -225,7 +219,7 @@ bool fetch_gpio_shift_out_cmd( BaseSequentialStream * chp, uint32_t argc, char *
     return false;
   }
   
-  if( bits > (GPIO_BUFFER_SIZE * 8) )
+  if( bits > (FETCH_SHARED_BUFFER_SIZE * 8) )
   {
     util_message_error(chp, "invalid bit count, not enough buffer space");
     return false;
@@ -233,9 +227,9 @@ bool fetch_gpio_shift_out_cmd( BaseSequentialStream * chp, uint32_t argc, char *
 
   byte_count = 0;
 
-  for( uint32_t i = 4; i < argc && byte_count < GPIO_BUFFER_SIZE; i++ )
+  for( uint32_t i = 4; i < argc && byte_count < FETCH_SHARED_BUFFER_SIZE; i++ )
   {
-    if( !util_parse_uint8(argv[i], &gpio_buffer[byte_count]) )
+    if( !util_parse_uint8(argv[i], &fetch_shared_buffer[byte_count]) )
     {
       util_message_error(chp, "invalid byte value, data[%d] = %s", byte_count, argv[i]);
       return false;
@@ -263,7 +257,7 @@ bool fetch_gpio_shift_out_cmd( BaseSequentialStream * chp, uint32_t argc, char *
     {
       if( bits > 0 )
       {
-        if( gpio_buffer[i] & (1<<(7-b)) )
+        if( fetch_shared_buffer[i] & (1<<(7-b)) )
         {
           palSetPad(pp_io.port, pp_io.pin);
         }
@@ -591,6 +585,7 @@ bool fetch_gpio_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * arg
   const str_table_t mode_table[] = {
     {"INPUT", PAL_STM32_MODE_INPUT},
     {"OUTPUT", PAL_STM32_MODE_OUTPUT},
+    {"ALTERNATE", PAL_STM32_MODE_ALTERNATE},
     {NULL, 0}
   };
   const str_table_t pupdr_table[] = {
@@ -617,32 +612,34 @@ bool fetch_gpio_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * arg
     util_message_error(chp, "invalid mode");
     return false;
   }
-  if( argv[2] != NULL )
+  if( argc > 2 && !util_match_str_table(argv[2], &pupdr, pupdr_table) )
   {
-    if( !util_match_str_table(argv[2], &pupdr, pupdr_table) )
-    {
-      util_message_error(chp, "invalid pull");
-      return false;
-    }
-    if( argv[3] != NULL )
-    {
-      if( !util_match_str_table(argv[3], &otype, otype_table) )
-      {
-        util_message_error(chp, "invalid otype");
-        return false;
-      }
-      if( argv[4] != NULL )
-      {
-        if( !util_match_str_table(argv[4], &ospeed, ospeed_table) )
-        {
-          util_message_error(chp, "invalid ospeed");
-          return false;
-        }
-      }
-    }
+    util_message_error(chp, "invalid pull");
+    return false;
+  }
+  if( argc > 3 && !util_match_str_table(argv[3], &otype, otype_table) )
+  {
+    util_message_error(chp, "invalid otype");
+    return false;
+  }
+  if( argc > 4 && !util_match_str_table(argv[4], &ospeed, ospeed_table) )
+  {
+    util_message_error(chp, "invalid ospeed");
+    return false;
   }
 
-  palSetPadMode(pp.port, pp.pin, mode | pupdr | otype | ospeed);
+  if( mode == PAL_STM32_MODE_ALTERNATE )
+  {
+    if( !set_alternate_mode( pp.port, pp.pin ) )
+    {
+      util_message_error(chp, "unable to set alternate mode for pin");
+      return false;
+    }
+  }
+  else
+  {
+    palSetPadMode(pp.port, pp.pin, mode | pupdr | otype | ospeed);
+  }
 
   return true;
 }
@@ -667,20 +664,20 @@ bool fetch_gpio_info_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[
   switch((pp.port->MODER >> (pp.pin*2)) & 3)
   {
     case 0:
-      util_message_string(chp, "mode", "INPUT");
+      util_message_string_format(chp, "mode", "INPUT");
       break;
     case 1:
       if( pp.port->OTYPER & (1<<pp.pin) )
       {
-        util_message_string(chp, "mode", "OUTPUT_OPENDRAIN");
+        util_message_string_format(chp, "mode", "OUTPUT_OPENDRAIN");
       }
       else
       {
-        util_message_string(chp, "mode", "OUTPUT_PUSHPULL");
+        util_message_string_format(chp, "mode", "OUTPUT_PUSHPULL");
       }
       break;
     case 2:
-      util_message_string(chp, "mode", "ALTERNATE");
+      util_message_string_format(chp, "mode", "ALTERNATE");
       if( pp.pin >= 8 )
       {
         alt_func = (pp.port->AFRL >> (pp.pin*4)) & 0xf;
@@ -692,23 +689,23 @@ bool fetch_gpio_info_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[
       util_message_uint32(chp, "alt_func", alt_func);
       break;
     case 3:
-      util_message_string(chp, "mode", "ANALOG");
+      util_message_string_format(chp, "mode", "ANALOG");
       break;
   }
 
   switch( (pp.port->PUPDR >> (pp.pin*2)) & 3)
   {
     case 0:
-      util_message_string(chp, "pull", "NONE");
+      util_message_string_format(chp, "pull", "NONE");
       break;
     case 1:
-      util_message_string(chp, "pull", "UP");
+      util_message_string_format(chp, "pull", "UP");
       break;
     case 2:
-      util_message_string(chp, "pull", "DOWN");
+      util_message_string_format(chp, "pull", "DOWN");
       break;
     case 3:
-      util_message_string(chp, "pull", "RESERVED");
+      util_message_string_format(chp, "pull", "RESERVED");
       break;
   }
 

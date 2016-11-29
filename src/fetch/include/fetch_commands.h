@@ -13,6 +13,6 @@
 #include "fetch_sd.h"
 #include "fetch_spi.h"
 #include "fetch_timer.h"
-
+#include "fetch_serial.h"
 
 #endif

@@ -293,6 +293,8 @@ ragel_svg: $(RAGEL_DOT_DIR)
 	dot -Tsvg -o $(RAGEL_DOT_DIR)/fetch_gpio_parser.svg $(RAGEL_DOT_DIR)/fetch_gpio_parser.dot
 	$(RAGEL) -V -S fetch_gpio_parser -o $(RAGEL_DOT_DIR)/fetch_gpio_port_parser.dot ../fetch/fetch_parser.rl
 	dot -Tsvg -o $(RAGEL_DOT_DIR)/fetch_gpio_port_parser.svg $(RAGEL_DOT_DIR)/fetch_gpio_port_parser.dot
+	$(RAGEL) -V -S fetch_hex_string_parser -o $(RAGEL_DOT_DIR)/fetch_hex_string_port_parser.dot ../fetch/fetch_parser.rl
+	dot -Tsvg -o $(RAGEL_DOT_DIR)/fetch_hex_string_port_parser.svg $(RAGEL_DOT_DIR)/fetch_hex_string_port_parser.dot
 
 $(RAGEL_CSRC) : $(RAGEL_CSRC_DIR)/%.c : %.rl Makefile $(RAGEL_CSRC_DIR) $(RAGEL_DOT_DIR)
 	@echo "RAGEL: $< -> $@"

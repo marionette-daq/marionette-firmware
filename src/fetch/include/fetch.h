@@ -61,10 +61,14 @@ extern "C" {
 
 */
 
+extern uint8_t fetch_shared_buffer[FETCH_SHARED_BUFFER_SIZE];
+
 void fetch_init(void);
 bool fetch_execute( BaseSequentialStream * chp, const char * input_line );
-void fetch_display_help_legend(BaseSequentialStream * chp);
 
+bool fetch_parse_bytes( BaseSequentialStream * chp, uint32_t argc, char * argv[], uint8_t * output_str, uint32_t max_output_len, uint32_t * count );
+
+bool fetch_test_data_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv[] );
 bool fetch_help_cmd( BaseSequentialStream  * chp, uint32_t argc, char * argv[] );
 bool fetch_reset_cmd( BaseSequentialStream  * chp, uint32_t argc, char * argv[] );
 bool fetch_version_cmd( BaseSequentialStream  * chp, uint32_t argc, char * argv[] );

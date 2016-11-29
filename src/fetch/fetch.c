@@ -24,6 +24,68 @@
 #include "fetch_parser.h"
 #include "fetch.h"
 
+// shared buffer for use in IO buffering and parsing strings
+uint8_t fetch_shared_buffer[FETCH_SHARED_BUFFER_SIZE];
+
+bool fetch_parse_bytes( BaseSequentialStream * chp, uint32_t argc, char * argv[], uint8_t * output_str, uint32_t max_output_len, uint32_t * count )
+{
+  uint8_t byte;
+  uint32_t parser_count;
+
+  chDbgAssert(output_str != NULL, "fetch_parse_bytes(), #1, output_str is NULL");
+  chDbgAssert(count != NULL, "fetch_parse_bytes(), #2, count is NULL");
+
+  *count = 0;
+
+  for( uint32_t i = 0; i < argc && argv[i] != NULL; i++ )
+  {
+    if( argv[i][0] == '\'' || argv[i][0] == '\"' )
+    {
+      parser_count = 0;
+      // parse as quoted string
+      if( !fetch_string_parser(argv[i], FETCH_MAX_DATA_STRLEN, (char*)&output_str[*count], max_output_len-(*count), &parser_count) )
+      {
+        util_message_error(chp, "error parsing string");
+        util_message_error(chp, "error_msg: %s", fetch_parser_info.error_msg);
+        return false;
+      }
+      *count += parser_count;
+    }
+    else if( argv[i][0] == 'h' || argv[i][0] == 'H' )
+    {
+      // parse as hex string
+      if( !fetch_hex_string_parser(argv[i], FETCH_MAX_DATA_STRLEN, (char*)&output_str[*count], max_output_len-(*count), &parser_count) )
+      {
+        util_message_error(chp, "error parsing hex string");
+        util_message_error(chp, "error_msg: %s", fetch_parser_info.error_msg);
+        return false;
+      }
+      *count += parser_count;
+    }
+    else
+    {
+      // parse as numeric byte value
+      if( !util_parse_uint8(argv[i], &byte) )
+      {
+        util_message_error(chp, "error parsing numeric byte");
+        return false;
+      }
+      else if( *count < max_output_len )
+      {
+        output_str[*count] = byte;
+        (*count)++;
+      }
+      else
+      {
+        util_message_error(chp, "max output");
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
 
 bool fetch_clocks_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv[] )
 {
@@ -104,6 +166,21 @@ bool fetch_test_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv[] )
 	return true;
 }
 
+bool fetch_test_data_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv[] )
+{
+  uint32_t count = 0;
+
+  if( !fetch_parse_bytes(chp, argc, argv, fetch_shared_buffer, sizeof(fetch_shared_buffer), &count) )
+  {
+    util_message_error(chp, "fetch_parse_bytes failed");
+    return false;
+  }
+
+  util_message_hex_uint8_array(chp, "data", fetch_shared_buffer, count);
+
+  return true;
+}
+
 bool fetch_help_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv[] )
 {
   FETCH_MAX_ARGS(chp, argc, 0);
@@ -140,7 +217,7 @@ bool fetch_version_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv[]
 {
   FETCH_MAX_ARGS(chp, argc, 0);
 
-	util_message_string(chp, "firmware_version", GIT_COMMIT_VERSION);
+	util_message_string_format(chp, "firmware_version", GIT_COMMIT_VERSION);
 
 	return true;
 }
@@ -194,17 +271,20 @@ void fetch_init(void)
   fetch_mbus_init();
   fetch_sd_init();
   fetch_timer_init();
+  fetch_serial_init();
 }
 
 bool fetch_execute( BaseSequentialStream * chp, const char * input_line )
 {
+  //FIXME add mutual exclusion to this function
+
   // add one to guarentee space for null at end
 	static char   output_buffer[ FETCH_MAX_LINE_CHARS + 1 ];
 	static char * argv[ FETCH_MAX_DATA_TOKS + 1 ];
   fetch_func_t func = NULL;
   uint32_t argc = 0;
 
-  if( fetch_command_parser(input_line, FETCH_MAX_LINE_CHARS, output_buffer, &func, &argc, argv, FETCH_MAX_DATA_TOKS) == false )
+  if( fetch_command_parser(input_line, FETCH_MAX_LINE_CHARS, output_buffer, FETCH_MAX_LINE_CHARS, &func, &argc, argv, FETCH_MAX_DATA_TOKS) == false )
   {
     util_message_error(chp, "Error parsing fetch command");
     util_message_error(chp, "offset: %d", fetch_parser_info.offset);

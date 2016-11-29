@@ -182,9 +182,10 @@ static void mpipe_serial_thread(void * p)
   // round robin all data sources
   while(!chThdShouldTerminateX())
   {
+    // FIXME this should be done through the fetch serial module
     //print_serial_output(chp, &SD2, '2');
     //print_serial_output(chp, &SD3, '3');
-    print_serial_output(chp, &SD4, '4');
+    //print_serial_output(chp, &SD4, '4');
     chThdSleepMilliseconds(1);
   }
   chThdExit(MSG_OK);

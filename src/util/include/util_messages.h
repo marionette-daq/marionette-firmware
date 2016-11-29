@@ -36,7 +36,8 @@ void util_message_info( BaseSequentialStream * chp, char * fmt, ...);
 void util_message_warning( BaseSequentialStream * chp, char * fmt, ...);
 void util_message_error( BaseSequentialStream * chp, char * fmt, ...);
 
-void util_message_string( BaseSequentialStream * chp, char * name, char * fmt, ...);
+void util_message_string_format( BaseSequentialStream * chp, char * name, char * fmt, ...);
+void util_message_string_escape( BaseSequentialStream * chp, char * name, char * str, uint32_t str_len );
 void util_message_string_array( BaseSequentialStream * chp, char * name, char * str_list[], uint32_t count );
 
 void util_message_bool( BaseSequentialStream * chp, char * name, bool data);
