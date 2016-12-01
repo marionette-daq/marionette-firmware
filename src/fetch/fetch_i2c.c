@@ -114,6 +114,7 @@ bool fetch_i2c_write_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[
     case MSG_TIMEOUT:
       util_message_error(chp, "TIMEOUT");
       fetch_print_i2c_error(chp);
+      i2cStop(&I2C_DRV); // a simple start again doesnt seem to do it
       i2cStart(&I2C_DRV, &i2c_cfg);
       return false;
     case MSG_RESET:
@@ -162,6 +163,7 @@ bool fetch_i2c_read_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]
     case MSG_TIMEOUT:
       util_message_error(chp, "TIMEOUT");
       fetch_print_i2c_error(chp);
+      i2cStop(&I2C_DRV); // a simple start again doesnt seem to do it
       i2cStart(&I2C_DRV, &i2c_cfg);
       return false;
     case MSG_RESET:

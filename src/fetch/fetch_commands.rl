@@ -17,14 +17,16 @@
                   );
 
   gpio_read_commands = "read"i . cmd_delim . (
-                      "pins"i       %{ *func=fetch_gpio_read_cmd; }
+                      "pin"i        %{ *func=fetch_gpio_read_cmd; }
                     | "port"i       %{ *func=fetch_gpio_read_port_cmd; }
-                    | "latch"i      %{ *func=fetch_gpio_read_port_latch_cmd; }
+                    | "port"i . cmd_delim . "latch"i    
+                                    %{ *func=fetch_gpio_read_port_latch_cmd; }
+                    | "latch"i      %{ *func=fetch_gpio_read_latch_cmd; }
                     | "all"i        %{ *func=fetch_gpio_read_all_cmd; }
                   );
 
   gpio_write_commands = "write"i . cmd_delim . (
-                      "pins"i       %{ *func=fetch_gpio_write_cmd; }
+                      "pin"i        %{ *func=fetch_gpio_write_cmd; }
                     | "port"i       %{ *func=fetch_gpio_write_port_cmd; }
                     | "all"i        %{ *func=NULL; /*FIXME (fetch_func_t)fetch_gpio_write_all_cmd*/ }
                   );
@@ -114,6 +116,7 @@
                     | "timeout"   %{ *func=fetch_serial_timeout_cmd; }
                     | "status"    %{ *func=fetch_serial_status_cmd; }
                     | "break"     %{ *func=fetch_serial_break_cmd; }
+                    | "reset"     %{ *func=fetch_serial_reset_cmd; }
                   );
 
   fetch_command = ( root_commands   | 

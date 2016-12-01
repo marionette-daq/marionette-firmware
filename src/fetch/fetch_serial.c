@@ -24,7 +24,7 @@
 
 #define SERIAL_DRIVER_COUNT 3
 
-SerialConfig serial_config[SERIAL_DRIVER_COUNT];
+SerialConfig serial_configs[SERIAL_DRIVER_COUNT];
 event_listener_t serial_events[SERIAL_DRIVER_COUNT];
 SerialDriver * serial_drivers[SERIAL_DRIVER_COUNT] = { &SD4, &SD3, &SD2 };
 
@@ -49,6 +49,7 @@ static SerialDriver * parse_serial_dev( char * str, uint32_t * dev )
   {
     *dev = dev_id;
   }
+
   return serial_drivers[dev_id];
 }
 
@@ -60,9 +61,9 @@ bool fetch_serial_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * a
   uint32_t dev;
   uint32_t speed;
   bool hwfc;
-  SerialDriver * sd = parse_serial_dev( argv[0], &dev );
+  SerialDriver * serial_drv = parse_serial_dev( argv[0], &dev );
   
-  if( sd == NULL )
+  if( serial_drv == NULL )
   {
     util_message_error(chp, "Invalid serial device");
     return false;
@@ -86,7 +87,7 @@ bool fetch_serial_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * a
     util_message_info(chp, "flow control not implemented");
   }
 
-  serial_config[dev].speed = speed;
+  serial_configs[dev].speed = speed;
 
   switch(dev)
   {
@@ -104,7 +105,7 @@ bool fetch_serial_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * a
       break;
   }
 
-  sdStart(sd, &serial_config[dev]);
+  sdStart(serial_drv, &serial_configs[dev]);
 
   return true;
 }
@@ -141,14 +142,14 @@ bool fetch_serial_write_cmd(BaseSequentialStream * chp, uint32_t argc, char * ar
   uint32_t dev;
   uint8_t byte;
   uint32_t out_len = 0;
-  SerialDriver * sd = parse_serial_dev( argv[0], &dev );
+  SerialDriver * serial_drv = parse_serial_dev( argv[0], &dev );
   
-  if( sd == NULL )
+  if( serial_drv == NULL )
   {
     util_message_error(chp, "Invalid serial device");
     return false;
   }
-  if( sd->state != SD_READY )
+  if( serial_drv->state != SD_READY )
   {
     util_message_error(chp, "Serial device not ready");
     return false;
@@ -162,7 +163,7 @@ bool fetch_serial_write_cmd(BaseSequentialStream * chp, uint32_t argc, char * ar
 
   for( uint32_t i = 0; i < out_len; i++ )
   {
-    if( sdPutTimeout(sd, fetch_shared_buffer[i], MS2ST(tx_timeout_ms)) == MSG_TIMEOUT )
+    if( sdPutTimeout(serial_drv, fetch_shared_buffer[i], MS2ST(tx_timeout_ms)) == MSG_TIMEOUT )
     {
       util_message_error(chp, "timeout");
       return false;
@@ -181,14 +182,14 @@ bool fetch_serial_read_cmd(BaseSequentialStream * chp, uint32_t argc, char * arg
   uint8_t byte;
   uint32_t max_count;
   uint32_t rx_count;
-  SerialDriver * sd = parse_serial_dev( argv[0], &dev );
+  SerialDriver * serial_drv = parse_serial_dev( argv[0], &dev );
   
-  if( sd == NULL )
+  if( serial_drv == NULL )
   {
     util_message_error(chp, "Invalid serial device");
     return false;
   }
-  if( sd->state != SD_READY )
+  if( serial_drv->state != SD_READY )
   {
     util_message_error(chp, "Serial device not ready");
     return false;
@@ -202,7 +203,7 @@ bool fetch_serial_read_cmd(BaseSequentialStream * chp, uint32_t argc, char * arg
 
   for( rx_count=0; rx_count < max_count; rx_count++ )
   {
-    if( sdReadTimeout(sd, &byte, 1, MS2ST(rx_timeout_ms)) != 1 )
+    if( sdReadTimeout(serial_drv, &byte, 1, MS2ST(rx_timeout_ms)) != 1 )
     {
       break;
     }
@@ -239,13 +240,15 @@ bool fetch_serial_status_cmd(BaseSequentialStream * chp, uint32_t argc, char * a
   FETCH_MIN_ARGS(chp, argc, 1);
   
   uint32_t dev;
-  SerialDriver * sd = parse_serial_dev( argv[0], &dev );
+  SerialDriver * serial_drv = parse_serial_dev( argv[0], &dev );
 
-  if( sd == NULL )
+  if( serial_drv == NULL )
   {
     util_message_error(chp, "Invalid serial device");
     return false;
   }
+
+  util_message_bool(chp, "ready", serial_drv->state == SD_READY);
 
   eventflags_t flags = chEvtGetAndClearFlags(&serial_events[dev]);
 
@@ -271,15 +274,15 @@ bool fetch_serial_reset_cmd(BaseSequentialStream * chp, uint32_t argc, char * ar
   FETCH_MIN_ARGS(chp, argc, 1);
   
   uint32_t dev;
-  SerialDriver * sd = parse_serial_dev( argv[0], &dev );
+  SerialDriver * serial_drv = parse_serial_dev( argv[0], &dev );
 
-  if( sd == NULL )
+  if( serial_drv == NULL )
   {
     util_message_error(chp, "Invalid serial device");
     return false;
   }
 
-  sdStop(sd);
+  sdStop(serial_drv);
 
   switch(dev)
   {
@@ -360,9 +363,10 @@ void fetch_serial_init(void)
 
 bool fetch_serial_reset(BaseSequentialStream * chp)
 {
-  sdStop(&SD4);
-  sdStop(&SD3);
-  sdStop(&SD2);
+  for( uint32_t i = 0; i < SERIAL_DRIVER_COUNT; i++ )
+  {
+    sdStop(serial_drivers[i]);
+  }
   reset_alternate_mode(GPIOA, GPIOA_PA0_UART4_TX);
   reset_alternate_mode(GPIOA, GPIOA_PA1_UART4_RX);
   reset_alternate_mode(GPIOD, GPIOD_PD8_USART3_TX);

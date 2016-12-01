@@ -176,7 +176,8 @@ bool fetch_test_data_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv
     return false;
   }
 
-  util_message_hex_uint8_array(chp, "data", fetch_shared_buffer, count);
+  util_message_string_escape(chp,"str",(char*)fetch_shared_buffer, count);
+  util_message_hex_uint8_array(chp, "hex", fetch_shared_buffer, count);
 
   return true;
 }
