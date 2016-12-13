@@ -7,42 +7,33 @@
   cmd_delim = '.';
 
   root_commands = (
-                      "help"i     %{ *func=fetch_help_cmd; }
-                    | "reset"i    %{ *func=fetch_reset_cmd; }
-                    | "version"i  %{ *func=fetch_version_cmd; }
-                    | "chipid"i   %{ *func=fetch_chip_id_cmd; }
-                    | "test"i     %{ *func=fetch_test_cmd; }
-                    | "testdata"i %{ *func=fetch_test_data_cmd; }
-                    | "clocks"i   %{ *func=fetch_clocks_cmd; }
-                  );
-
-  gpio_read_commands = "read"i . cmd_delim . (
-                      "pin"i        %{ *func=fetch_gpio_read_cmd; }
-                    | "port"i       %{ *func=fetch_gpio_read_port_cmd; }
-                    | "port"i . cmd_delim . "latch"i    
-                                    %{ *func=fetch_gpio_read_port_latch_cmd; }
-                    | "latch"i      %{ *func=fetch_gpio_read_latch_cmd; }
-                    | "all"i        %{ *func=fetch_gpio_read_all_cmd; }
-                  );
-
-  gpio_write_commands = "write"i . cmd_delim . (
-                      "pin"i        %{ *func=fetch_gpio_write_cmd; }
-                    | "port"i       %{ *func=fetch_gpio_write_port_cmd; }
-                    | "all"i        %{ *func=NULL; /*FIXME (fetch_func_t)fetch_gpio_write_all_cmd*/ }
+                      "help"i       %{ *func=fetch_help_cmd; }
+                    | "reset"i      %{ *func=fetch_reset_cmd; }
+                    | "version"i    %{ *func=fetch_version_cmd; }
+                    | "chip_id"i    %{ *func=fetch_chip_id_cmd; }
+                    | "test"i       %{ *func=fetch_test_cmd; }
+                    | "test_data"i  %{ *func=fetch_test_data_cmd; }
+                    | "clocks"i     %{ *func=fetch_clocks_cmd; }
                   );
 
   gpio_commands = "gpio"i . cmd_delim . (
-                      "reset"i      %{ *func=fetch_gpio_reset_cmd; }
-                    | "read"i       %{ *func=fetch_gpio_read_cmd; }
-                    | gpio_read_commands
-                    | "write"i      %{ *func=fetch_gpio_write_cmd; }
-                    | gpio_write_commands
-                    | "set"i        %{ *func=fetch_gpio_set_cmd; }
-                    | "clear"i      %{ *func=fetch_gpio_clear_cmd; }
-                    | "config"i     %{ *func=fetch_gpio_config_cmd; }
-                    | "info"i       %{ *func=fetch_gpio_info_cmd; }
-                    | "shiftout"i   %{ *func=fetch_gpio_shift_out_cmd; }
-                    | "help"i       %{ *func=fetch_gpio_help_cmd; }
+                      "reset"i            %{ *func=fetch_gpio_reset_cmd; }
+                    | "read"i             %{ *func=fetch_gpio_read_cmd; }
+                    | "read_pin"i         %{ *func=fetch_gpio_read_cmd; }
+                    | "read_port"i        %{ *func=fetch_gpio_read_port_cmd; }
+                    | "read_port_latch"i  %{ *func=fetch_gpio_read_port_latch_cmd; }
+                    | "read_latch"i       %{ *func=fetch_gpio_read_latch_cmd; }
+                    | "read_all"i         %{ *func=fetch_gpio_read_all_cmd; }
+                    | "write"i            %{ *func=fetch_gpio_write_cmd; }
+                    | "write_pin"i        %{ *func=fetch_gpio_write_cmd; }
+                    | "write_port"i       %{ *func=fetch_gpio_write_port_cmd; }
+                    | "write_all"i        %{ *func=fetch_gpio_write_all_cmd; }
+                    | "set"i              %{ *func=fetch_gpio_set_cmd; }
+                    | "clear"i            %{ *func=fetch_gpio_clear_cmd; }
+                    | "config"i           %{ *func=fetch_gpio_config_cmd; }
+                    | "info"i             %{ *func=fetch_gpio_info_cmd; }
+                    | "shiftout"i         %{ *func=fetch_gpio_shift_out_cmd; }
+                    | "help"i             %{ *func=fetch_gpio_help_cmd; }
                   );
   
 
@@ -50,7 +41,7 @@
                       "reset"i      %{ *func=fetch_spi_reset_cmd; }
                     | "config"i     %{ *func=fetch_spi_config_cmd; }
                     | "help"i       %{ *func=fetch_spi_help_cmd; }
-                    | "clockdiv"i   %{ *func=fetch_spi_clock_div_cmd; }
+                    | "clock_div"i  %{ *func=fetch_spi_clock_div_cmd; }
                     | "exchange"i   %{ *func=fetch_spi_exchange_cmd; } 
                   );
 
@@ -95,9 +86,9 @@
                       "help"i         %{ *func=fetch_mbus_help_cmd; }
                     | "select"i       %{ *func=fetch_mbus_select_cmd; }
                     | "detect"i       %{ *func=fetch_mbus_detect_cmd; }
-                    | "readanalog"i   %{ *func=fetch_mbus_read_analog_cmd; }
-                    | "readeeprom"i   %{ *func=fetch_mbus_read_eeprom_cmd; }
-                    | "writeeeprom"i  %{ *func=fetch_mbus_write_eeprom_cmd; }
+                    | "read_analog"i  %{ *func=fetch_mbus_read_analog_cmd; }
+                    | "read_eeprom"i  %{ *func=fetch_mbus_read_eeprom_cmd; }
+                    | "write_eeprom"i %{ *func=fetch_mbus_write_eeprom_cmd; }
                   );
 
   mcard_commands = "mcard"i . cmd_delim . (

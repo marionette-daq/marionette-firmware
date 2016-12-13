@@ -337,8 +337,9 @@ bool fetch_serial_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * arg
   FETCH_HELP_ARG(chp, "dev", "Serial device number");
   FETCH_HELP_ARG(chp, "count", "Max number of bytes to read");
   FETCH_HELP_BREAK(chp);
-  FETCH_HELP_CMD(chp, "break(<ms>)");
+  FETCH_HELP_CMD(chp, "break(<dev>,<ms>)");
   FETCH_HELP_DES(chp, "Signal break on tx line");
+  FETCH_HELP_ARG(chp, "dev", "Serial device number");
   FETCH_HELP_ARG(chp, "ms", "time to assert break in milli-seconds");
   FETCH_HELP_BREAK(chp);
   FETCH_HELP_CMD(chp, "status(<dev>)");

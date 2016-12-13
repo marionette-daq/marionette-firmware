@@ -21,6 +21,7 @@ bool fetch_gpio_read_port_latch_cmd( BaseSequentialStream * chp, uint32_t argc, 
 bool fetch_gpio_read_all_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv[] );
 bool fetch_gpio_write_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv[] );
 bool fetch_gpio_write_port_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv[] );
+bool fetch_gpio_write_all_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
 bool fetch_gpio_set_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv[] );
 bool fetch_gpio_clear_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv[] );
 bool fetch_gpio_config_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv[] );

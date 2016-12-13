@@ -276,10 +276,8 @@ static ADCDriver * parse_adc_dev( char * str, int32_t * dev )
   switch( num )
   {
     case 1: // Marionette name
-    case 2: // STM/Chibios name
       return &ADCD2;
     case 0:
-    case 3:
       return &ADCD3;
     default:
       return NULL;
@@ -309,7 +307,7 @@ bool fetch_adc_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]
   FETCH_HELP_DES(chp, "Stop ADC sampling");
   FETCH_HELP_ARG(chp, "dev", "0 | 1");
   FETCH_HELP_BREAK(chp);
-  FETCH_HELP_CMD(chp, "status()");
+  FETCH_HELP_CMD(chp, "status");
   FETCH_HELP_DES(chp, "Query current adc status");
   FETCH_HELP_BREAK(chp);
   FETCH_HELP_CMD(chp, "config(<dev>, <sample rate>)");
@@ -350,12 +348,12 @@ bool fetch_adc_single_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv
 
   switch(dev)
   {
-    case 2:
+    case 1:
       adc2_conv_grp.circular = false;
       adcConvert( &ADCD2, &adc2_conv_grp, adc2_sample_buffer, FETCH_ADC_SAMPLE_DEPTH);
       util_message_uint16_array(chp, "samples", adc2_sample_buffer, FETCH_ADC2_BUFFER_SIZE);
       break;
-    case 3:
+    case 0:
       adc3_conv_grp.circular = false;
 	    adcConvert( &ADCD3, &adc3_conv_grp, adc3_sample_buffer, FETCH_ADC_SAMPLE_DEPTH);
       util_message_uint16_array(chp, "samples", adc3_sample_buffer, FETCH_ADC3_BUFFER_SIZE);
@@ -390,11 +388,11 @@ bool fetch_adc_stream_start_cmd(BaseSequentialStream * chp, uint32_t argc, char 
 
   switch(dev)
   {
-    case 2:
+    case 1:
       adc2_conv_grp.circular = true;
       adcStartConversion( &ADCD2, &adc2_conv_grp, adc2_sample_buffer, FETCH_ADC_SAMPLE_DEPTH);
       break;
-    case 3:
+    case 0:
       adc3_conv_grp.circular = true;
 	    adcStartConversion( &ADCD3, &adc3_conv_grp, adc3_sample_buffer, FETCH_ADC_SAMPLE_DEPTH);
       break;
@@ -441,14 +439,13 @@ bool fetch_adc_status_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv
   adc2_status.mem_alloc_null = false;
   chSysUnlock();
 
-  util_message_bool(chp, "adc2_error_dmafailure", status.error_dmafailure);
-  util_message_bool(chp, "adc2_error_overflow", status.error_overflow);
-  util_message_bool(chp, "adc2_mpipe_overflow", status.mpipe_overflow);
-  util_message_bool(chp, "adc2_mcard_overflow", status.mcard_overflow);
-  util_message_bool(chp, "adc2_mem_alloc_null", status.mem_alloc_null);
-  util_message_uint16(chp, "adc2_sequence_number", adc2_sequence_number);
-  util_message_uint16(chp, "adc2_timer_count", gptGetCounterX(&GPTD2));
-  util_message_uint16(chp, "gpt2_cfg.cr2", gpt2_cfg.cr2);
+  util_message_bool(chp, "adc1_error_dmafailure", status.error_dmafailure);
+  util_message_bool(chp, "adc1_error_overflow", status.error_overflow);
+  util_message_bool(chp, "adc1_mpipe_overflow", status.mpipe_overflow);
+  util_message_bool(chp, "adc1_mcard_overflow", status.mcard_overflow);
+  util_message_bool(chp, "adc1_mem_alloc_null", status.mem_alloc_null);
+  util_message_uint16(chp, "adc1_sequence_number", adc2_sequence_number);
+  util_message_uint16(chp, "adc1_timer_count", gptGetCounterX(&GPTD2));
 
   chSysLock();
   status = adc3_status;
@@ -459,14 +456,13 @@ bool fetch_adc_status_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv
   adc3_status.mem_alloc_null = false;
   chSysUnlock();
 
-  util_message_bool(chp, "adc3_error_dmafailure", status.error_dmafailure);
-  util_message_bool(chp, "adc3_error_overflow", status.error_overflow);
-  util_message_bool(chp, "adc3_mpipe_overflow", status.mpipe_overflow);
-  util_message_bool(chp, "adc3_mcard_overflow", status.mcard_overflow);
-  util_message_bool(chp, "adc3_mem_alloc_null", status.mem_alloc_null);
-  util_message_uint16(chp, "adc3_sequence_number", adc3_sequence_number);
-  util_message_uint16(chp, "adc3_timer_count", gptGetCounterX(&GPTD3));
-  util_message_uint16(chp, "gpt3_cfg.cr2", gpt3_cfg.cr2);
+  util_message_bool(chp, "adc0_error_dmafailure", status.error_dmafailure);
+  util_message_bool(chp, "adc0_error_overflow", status.error_overflow);
+  util_message_bool(chp, "adc0_mpipe_overflow", status.mpipe_overflow);
+  util_message_bool(chp, "adc0_mcard_overflow", status.mcard_overflow);
+  util_message_bool(chp, "adc0_mem_alloc_null", status.mem_alloc_null);
+  util_message_uint16(chp, "adc0_sequence_number", adc3_sequence_number);
+  util_message_uint16(chp, "adc0_timer_count", gptGetCounterX(&GPTD3));
 
   return true;
 }
@@ -499,7 +495,7 @@ bool fetch_adc_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv
 
   switch(dev)
   {
-    case 2:
+    case 1:
       adc2_timer_interval = FETCH_ADC_TIMER_FREQ / sample_rate;
       adc2_sample_rate = FETCH_ADC_TIMER_FREQ / adc2_timer_interval;
 
@@ -508,7 +504,7 @@ bool fetch_adc_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv
 
       util_message_uint32(chp, "sample_rate", adc2_sample_rate);
       break;
-    case 3:
+    case 0:
       adc3_timer_interval = FETCH_ADC_TIMER_FREQ / sample_rate;
       adc3_sample_rate = FETCH_ADC_TIMER_FREQ / adc3_timer_interval;
       

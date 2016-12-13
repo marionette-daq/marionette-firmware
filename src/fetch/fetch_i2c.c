@@ -76,6 +76,9 @@ bool fetch_i2c_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv
   set_alternate_mode(GPIOF, GPIOF_PF0_I2C2_SDA);
   set_alternate_mode(GPIOF, GPIOF_PF1_I2C2_SCL);
 
+  // make sure i2c is reset
+  i2cStop(&I2C_DRV);
+
   // apply configuration
   i2cStart(&I2C_DRV, &i2c_cfg);
 

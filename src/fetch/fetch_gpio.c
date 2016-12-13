@@ -104,19 +104,19 @@ bool fetch_gpio_help_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv
   FETCH_HELP_DES(chp,"Read pin state(s)");
   FETCH_HELP_ARG(chp,"io", "io pin name");
   FETCH_HELP_BREAK(chp);
-  FETCH_HELP_CMD(chp,"read.latch(<io>[, ...])");
+  FETCH_HELP_CMD(chp,"read_latch(<io>[, ...])");
   FETCH_HELP_DES(chp,"Read pin output latch(s)");
   FETCH_HELP_ARG(chp,"io", "io pin name");
   FETCH_HELP_BREAK(chp);
-  FETCH_HELP_CMD(chp,"read.port.latch(<port>)");
+  FETCH_HELP_CMD(chp,"read_port_latch(<port>)");
   FETCH_HELP_DES(chp,"Read port output latch");
   FETCH_HELP_ARG(chp,"port","A | B | C | D | E | F | G | H | I");
   FETCH_HELP_BREAK(chp);
-  FETCH_HELP_CMD(chp,"read.port(<port>)");
+  FETCH_HELP_CMD(chp,"read_port(<port>)");
   FETCH_HELP_DES(chp,"Read port input values");
   FETCH_HELP_ARG(chp,"port","A | B | C | D | E | F | G | H | I");
   FETCH_HELP_BREAK(chp);
-  FETCH_HELP_CMD(chp,"read.all");
+  FETCH_HELP_CMD(chp,"read_all");
   FETCH_HELP_DES(chp,"Read all port input values");
   FETCH_HELP_BREAK(chp);
   FETCH_HELP_CMD(chp,"reset");
@@ -127,12 +127,12 @@ bool fetch_gpio_help_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv
   FETCH_HELP_ARG(chp,"io","io pin name");
   FETCH_HELP_ARG(chp,"value","0 | 1");
   FETCH_HELP_BREAK(chp);
-  FETCH_HELP_CMD(chp,"write.port(<port>, <value>)");
+  FETCH_HELP_CMD(chp,"write_port(<port>, <value>)");
   FETCH_HELP_DES(chp,"Write to port");
   FETCH_HELP_ARG(chp,"port","A | B | C | D | E | F | G | H | I");
   FETCH_HELP_ARG(chp,"value","16bit value to write");
   FETCH_HELP_BREAK(chp);
-  FETCH_HELP_CMD(chp,"write.all(<val_a>, ..., <val_i>)");
+  FETCH_HELP_CMD(chp,"write_all(<val_a>, ..., <val_i>)");
   FETCH_HELP_DES(chp,"Write to all ports");
   FETCH_HELP_ARG(chp,"val", "16bit value to write")
   FETCH_HELP_BREAK(chp);
@@ -223,12 +223,6 @@ bool fetch_gpio_shift_out_cmd( BaseSequentialStream * chp, uint32_t argc, char *
     return false;
   }
 
-  if( bits > ((argc-4) * 8) )
-  {
-    util_message_error(chp, "invalid bit count, missing data");
-    return false;
-  }
-  
   if( bits > (FETCH_SHARED_BUFFER_SIZE * 8) )
   {
     util_message_error(chp, "invalid bit count, not enough buffer space");
@@ -237,17 +231,16 @@ bool fetch_gpio_shift_out_cmd( BaseSequentialStream * chp, uint32_t argc, char *
 
   byte_count = 0;
 
-  for( uint32_t i = 4; i < argc && byte_count < FETCH_SHARED_BUFFER_SIZE; i++ )
+  if( !fetch_parse_bytes(chp, argc-4, &argv[4], fetch_shared_buffer, FETCH_SHARED_BUFFER_SIZE, &byte_count) )
   {
-    if( !util_parse_uint8(argv[i], &fetch_shared_buffer[byte_count]) )
-    {
-      util_message_error(chp, "invalid byte value, data[%d] = %s", byte_count, argv[i]);
-      return false;
-    }
-    else
-    {
-      byte_count++;
-    }
+    util_message_error(chp, "fetch_parse_bytes failed");
+    return false;
+  }
+  
+  if( bits > (byte_count * 8) )
+  {
+    util_message_error(chp, "invalid bit count, missing data");
+    return false;
   }
 
   // this is half the clock period
@@ -463,7 +456,7 @@ bool fetch_gpio_write_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv
       return false;
     }
 
-    if( !util_parse_bool(argv[1], &state) )
+    if( !util_parse_bool(*argv, &state) )
     {
       util_message_error(chp, "invalid logic state");
       return false;
@@ -616,6 +609,66 @@ bool fetch_gpio_write_port_cmd(BaseSequentialStream * chp, uint32_t argc, char *
       GPIOI->BSRR.W = (clear_mask << 16) | set_mask;
       break;
   }
+
+  return true;
+}
+
+bool fetch_gpio_write_all_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
+{
+  FETCH_MIN_ARGS(chp, argc, 9);
+  FETCH_MAX_ARGS(chp, argc, 9);
+
+  port_states_t set_mask = {0,0,0,0,0,0,0,0,0};
+  port_states_t clear_mask = {0,0,0,0,0,0,0,0,0};
+
+  if( !util_parse_uint16(argv[0], &set_mask.a) )
+  {
+    util_message_error(chp, "invalid value");
+  }
+  if( !util_parse_uint16(argv[1], &set_mask.b) )
+  {
+    util_message_error(chp, "invalid value");
+  }
+  if( !util_parse_uint16(argv[2], &set_mask.c) )
+  {
+    util_message_error(chp, "invalid value");
+  }
+  if( !util_parse_uint16(argv[3], &set_mask.d) )
+  {
+    util_message_error(chp, "invalid value");
+  }
+  if( !util_parse_uint16(argv[4], &set_mask.e) )
+  {
+    util_message_error(chp, "invalid value");
+  }
+  if( !util_parse_uint16(argv[5], &set_mask.f) )
+  {
+    util_message_error(chp, "invalid value");
+  }
+  if( !util_parse_uint16(argv[6], &set_mask.g) )
+  {
+    util_message_error(chp, "invalid value");
+  }
+  if( !util_parse_uint16(argv[7], &set_mask.h) )
+  {
+    util_message_error(chp, "invalid value");
+  }
+  if( !util_parse_uint16(argv[8], &set_mask.i) )
+  {
+    util_message_error(chp, "invalid value");
+  }
+
+  clear_mask.a = ~set_mask.a;
+  clear_mask.b = ~set_mask.b;
+  clear_mask.c = ~set_mask.c;
+  clear_mask.d = ~set_mask.d;
+  clear_mask.e = ~set_mask.e;
+  clear_mask.f = ~set_mask.f;
+  clear_mask.g = ~set_mask.g;
+  clear_mask.h = ~set_mask.h;
+  clear_mask.i = ~set_mask.i;
+
+  write_all(set_mask,clear_mask);
 
   return true;
 }
