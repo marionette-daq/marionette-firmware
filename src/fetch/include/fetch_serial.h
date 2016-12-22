@@ -21,6 +21,8 @@ bool fetch_serial_timeout_cmd(BaseSequentialStream * chp, uint32_t argc, char * 
 bool fetch_serial_status_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
 bool fetch_serial_reset_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
 bool fetch_serial_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+bool fetch_serial_read_line_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+bool fetch_serial_flush_input_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
 
 #ifdef __cplusplus
 }

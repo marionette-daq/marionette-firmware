@@ -197,7 +197,7 @@ bool fetch_serial_read_cmd(BaseSequentialStream * chp, uint32_t argc, char * arg
   
   if( !util_parse_uint32(argv[1], &max_count) || max_count == 0 || max_count >= FETCH_SHARED_BUFFER_SIZE)
   {
-    util_message_error(chp, "Invalid byte count, min=0, max=%d", FETCH_SHARED_BUFFER_SIZE);
+    util_message_error(chp, "Invalid byte count, min=1, max=%d", FETCH_SHARED_BUFFER_SIZE);
     return false;
   }
 
@@ -264,6 +264,95 @@ bool fetch_serial_status_cmd(BaseSequentialStream * chp, uint32_t argc, char * a
   util_message_bool(chp, "sd_overrun_error", flags & SD_OVERRUN_ERROR);
   util_message_bool(chp, "sd_noise_error", flags & SD_NOISE_ERROR);
   util_message_bool(chp, "sd_break_detected", flags & SD_BREAK_DETECTED);
+
+  return true;
+}
+
+bool fetch_serial_flush_input_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
+{
+  FETCH_MAX_ARGS(chp, argc, 1);
+  FETCH_MIN_ARGS(chp, argc, 1);
+
+  uint32_t dev;
+  uint8_t byte;
+  SerialDriver * serial_drv = parse_serial_dev( argv[0], &dev );
+  
+  if( serial_drv == NULL )
+  {
+    util_message_error(chp, "Invalid serial device");
+    return false;
+  }
+  if( serial_drv->state != SD_READY )
+  {
+    util_message_error(chp, "Serial device not ready");
+    return false;
+  }
+  
+  chSysLock();
+  iqResetI(&(serial_drv)->iqueue);
+  chSysUnlock();
+
+  return true;
+}
+
+
+bool fetch_serial_read_line_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
+{
+  FETCH_MAX_ARGS(chp, argc, 2);
+  FETCH_MIN_ARGS(chp, argc, 1);
+
+  uint32_t dev;
+  uint8_t byte;
+  uint32_t max_count;
+  uint32_t rx_count;
+  SerialDriver * serial_drv = parse_serial_dev( argv[0], &dev );
+  
+  if( serial_drv == NULL )
+  {
+    util_message_error(chp, "Invalid serial device");
+    return false;
+  }
+  if( serial_drv->state != SD_READY )
+  {
+    util_message_error(chp, "Serial device not ready");
+    return false;
+  }
+  
+  if( argc == 1 )
+  {
+    max_count = FETCH_SHARED_BUFFER_SIZE;
+  }
+  else if( !util_parse_uint32(argv[1], &max_count) || max_count == 0 || max_count >= FETCH_SHARED_BUFFER_SIZE)
+  {
+    util_message_error(chp, "Invalid byte count, min=1, max=%d", FETCH_SHARED_BUFFER_SIZE);
+    return false;
+  }
+
+  for( rx_count=0; rx_count < max_count; rx_count++ )
+  {
+    if( sdReadTimeout(serial_drv, &byte, 1, MS2ST(rx_timeout_ms)) != 1 )
+    {
+      break;
+    }
+
+    fetch_shared_buffer[rx_count] = byte;
+
+    if( byte == '\r' || byte == '\n' )
+    {
+      break; // eol
+    }
+  }
+
+  eventflags_t flags = chEvtGetAndClearFlags(&serial_events[dev]);
+
+  util_message_bool(chp, "parity_error", flags & SD_PARITY_ERROR);
+  util_message_bool(chp, "framing_error", flags & SD_FRAMING_ERROR);
+  util_message_bool(chp, "overrun_error", flags & SD_OVERRUN_ERROR);
+  util_message_bool(chp, "noise_error", flags & SD_NOISE_ERROR);
+  util_message_bool(chp, "break_detected", flags & SD_BREAK_DETECTED);
+  util_message_uint32(chp, "count", rx_count);
+  util_message_string_escape(chp,"str",(char*)fetch_shared_buffer,rx_count);
+  util_message_hex_uint8_array(chp,"hex",fetch_shared_buffer,rx_count);
 
   return true;
 }
@@ -349,6 +438,15 @@ bool fetch_serial_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * arg
   FETCH_HELP_CMD(chp, "reset(<dev>)");
   FETCH_HELP_DES(chp, "Reset serial device");
   FETCH_HELP_ARG(chp, "dev", "Serial device number");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp, "flush_input(<dev>)");
+  FETCH_HELP_DES(chp, "Flush input buffer");
+  FETCH_HELP_ARG(chp, "dev", "Serial device number");
+  FETCH_HELP_BREAK(chp);
+  FETCH_HELP_CMD(chp, "read_line(<dev>[,<max>])");
+  FETCH_HELP_DES(chp, "Read until CR or NL");
+  FETCH_HELP_ARG(chp, "dev", "Serial device number");
+  FETCH_HELP_ARG(chp, "count", "Optional maximum bytes to read");
   FETCH_HELP_BREAK(chp);
 
 	return true;

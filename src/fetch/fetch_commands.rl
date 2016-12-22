@@ -100,14 +100,16 @@
                   );
 
   serial_commands = "serial"i . cmd_delim . (
-                      "help"i     %{ *func=fetch_serial_help_cmd; }
-                    | "config"    %{ *func=fetch_serial_config_cmd; }
-                    | "write"     %{ *func=fetch_serial_write_cmd; }
-                    | "read"      %{ *func=fetch_serial_read_cmd; }
-                    | "timeout"   %{ *func=fetch_serial_timeout_cmd; }
-                    | "status"    %{ *func=fetch_serial_status_cmd; }
-                    | "break"     %{ *func=fetch_serial_break_cmd; }
-                    | "reset"     %{ *func=fetch_serial_reset_cmd; }
+                      "help"i         %{ *func=fetch_serial_help_cmd; }
+                    | "config"i       %{ *func=fetch_serial_config_cmd; }
+                    | "write"i        %{ *func=fetch_serial_write_cmd; }
+                    | "read"i         %{ *func=fetch_serial_read_cmd; }
+                    | "timeout"i      %{ *func=fetch_serial_timeout_cmd; }
+                    | "status"i       %{ *func=fetch_serial_status_cmd; }
+                    | "break"i        %{ *func=fetch_serial_break_cmd; }
+                    | "reset"i        %{ *func=fetch_serial_reset_cmd; }
+                    | "flush_input"i  %{ *func=fetch_serial_flush_input_cmd; }
+                    | "read_line"i    %{ *func=fetch_serial_read_line_cmd; }
                   );
 
   fetch_command = ( root_commands   | 
