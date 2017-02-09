@@ -309,13 +309,13 @@ bool fetch_spi_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]
   FETCH_HELP_ARG(chp,"dev","0 | 1");
   FETCH_HELP_ARG(chp,"cpol","0 | 1");
   FETCH_HELP_ARG(chp,"cpha","0 | 1");
-  FETCH_HELP_ARG(chp,"clock div","see clockdiv command for clock divider values");
+  FETCH_HELP_ARG(chp,"clock div","see clock_div command for clock divider values");
   FETCH_HELP_ARG(chp,"byte order","0 {MSB} | 1 {LSB}");
   FETCH_HELP_BREAK(chp);
   FETCH_HELP_CMD(chp,"reset");
   FETCH_HELP_DES(chp,"Reset SPI module");
   FETCH_HELP_BREAK(chp);
-  FETCH_HELP_CMD(chp,"clockdiv");
+  FETCH_HELP_CMD(chp,"clock_div");
   FETCH_HELP_DES(chp,"Query possible clock rates");
   FETCH_HELP_BREAK(chp);
 
