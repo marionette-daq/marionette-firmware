@@ -304,7 +304,7 @@ bool fetch_spi_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]
   FETCH_HELP_ARG(chp,"cs_pol","chip select polarity, 0 {active low} | 1 {active high}")
   FETCH_HELP_ARG(chp,"data","list of bytes or strings");
   FETCH_HELP_BREAK(chp);
-  FETCH_HELP_CMD(chp,"config(<dev>,<cpol>,<cpha>,<clock div>,<byte order>)");
+  FETCH_HELP_CMD(chp,"config(<dev>,<cpol>,<cpha>,<bit order>,<clock div>)");
   FETCH_HELP_DES(chp,"Configure SPI device");
   FETCH_HELP_ARG(chp,"dev","0 | 1");
   FETCH_HELP_ARG(chp,"cpol","0 | 1");
