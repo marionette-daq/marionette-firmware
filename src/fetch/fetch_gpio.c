@@ -150,8 +150,8 @@ bool fetch_gpio_help_cmd( BaseSequentialStream * chp, uint32_t argc, char * argv
   FETCH_HELP_ARG(chp,"mode","*INPUT | OUTPUT | ALTERNATE");
   FETCH_HELP_ARG(chp,"pull","*NONE | PULLUP | PULLDOWN");
   FETCH_HELP_ARG(chp,"otype","*PUSHPULL | OPENDRAIN");
-  FETCH_HELP_ARG(chp,"ospeed","0 ... *3");
-  FETCH_HELP_ARG(chp,"*","defaults");
+  FETCH_HELP_ARG(chp,"ospeed","*0 ... 3");
+  FETCH_HELP_ARG(chp,"*","gpio defaults, alternate defaults may differ");
   FETCH_HELP_BREAK(chp);
   FETCH_HELP_CMD(chp,"info(<io>)");
   FETCH_HELP_DES(chp,"Query pin configuration");
@@ -817,26 +817,30 @@ bool fetch_gpio_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * arg
   uint32_t mode;
   uint32_t pupdr = PAL_STM32_PUPDR_FLOATING;
   uint32_t otype = PAL_STM32_OTYPE_PUSHPULL;
-  uint32_t ospeed = PAL_STM32_OSPEED_HIGHEST;
+  uint32_t ospeed = PAL_STM32_OSPEED_LOWEST;
 
   const str_table_t mode_table[] = {
+    {"DEFAULT", PAL_STM32_MODE_INPUT},
     {"INPUT", PAL_STM32_MODE_INPUT},
     {"OUTPUT", PAL_STM32_MODE_OUTPUT},
     {"ALTERNATE", PAL_STM32_MODE_ALTERNATE},
     {NULL, 0}
   };
   const str_table_t pupdr_table[] = {
+    {"DEFAULT", PAL_STM32_PUPDR_FLOATING},
     {"NONE", PAL_STM32_PUPDR_FLOATING},
     {"PULLUP", PAL_STM32_PUPDR_PULLUP},
     {"PULLDOWN", PAL_STM32_PUPDR_PULLDOWN},
     {NULL, 0}
   };
   const str_table_t otype_table[] = {
+    {"DEFAULT", PAL_STM32_OTYPE_PUSHPULL},
     {"PUSHPULL", PAL_STM32_OTYPE_PUSHPULL},
     {"OPENDRAIN", PAL_STM32_OTYPE_OPENDRAIN},
     {NULL, 0}
   };
   const str_table_t ospeed_table[] = {
+    {"DEFAULT", PAL_STM32_OSPEED_LOWEST},
     {"0", PAL_STM32_OSPEED_LOWEST},
     {"1", PAL_STM32_OSPEED_MID1},
     {"2", PAL_STM32_OSPEED_MID2},
@@ -867,7 +871,20 @@ bool fetch_gpio_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * arg
 
   if( mode == PAL_STM32_MODE_ALTERNATE )
   {
-    if( !set_alternate_mode( pp.port, pp.pin ) )
+    if( argc > 2 && util_match_str(argv[2], "DEFAULT") )
+    {
+      pupdr = -1;
+    }
+    if( argc > 3 && util_match_str(argv[3], "DEFAULT") )
+    {
+      otype = -1;
+    }
+    if( argc > 4 && util_match_str(argv[4], "DEFAULT") )
+    {
+      ospeed = -1;
+    }
+
+    if( !set_alternate_mode_ext( pp.port, pp.pin, pupdr, otype, ospeed ) )
     {
       util_message_error(chp, "unable to set alternate mode for pin");
       return false;

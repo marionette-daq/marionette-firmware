@@ -38,6 +38,8 @@ void set_status_led(bool r, bool g, bool b);
 
 bool set_alternate_mode( ioportid_t port, uint32_t pin );
 
+bool set_alternate_mode_ext( ioportid_t port, uint32_t pin, uint32_t pupdr, uint32_t otype, uint32_t ospeed);
+
 bool reset_alternate_mode( ioportid_t port, uint32_t pin );
 
 #ifdef __cplusplus

@@ -65,14 +65,42 @@ void set_status_led(bool r, bool g, bool b)
 
 bool set_alternate_mode( ioportid_t port, uint32_t pin )
 {
+  return set_alternate_mode_ext(port, pin, -1, -1, -1);
+}
+
+bool set_alternate_mode_ext( ioportid_t port, uint32_t pin, uint32_t pupdr, uint32_t otype, uint32_t ospeed)
+{
+  // port override settings use -1 as default designator
+
   // search for port/pin in alternate_modes, if found change pin mode
   const alt_pin_mode_t * alt_mode = alternate_modes;
+  uint32_t mode = 0;
 
   while( alt_mode->port != NULL )
   {
     if( alt_mode->port == port && alt_mode->pin == pin )
     {
-      palSetPadMode(port, pin, alt_mode->mode);
+      mode = alt_mode->mode;
+
+      if( pupdr != -1 )
+      {
+        mode &= ~PAL_STM32_PUPDR_MASK;
+        mode |= (pupdr & PAL_STM32_PUPDR_MASK);
+      }
+
+      if( otype != -1 )
+      {
+        mode &= ~PAL_STM32_OTYPE_MASK;
+        mode |= (otype & PAL_STM32_OTYPE_MASK);
+      }
+
+      if( ospeed != -1 )
+      {
+        mode &= ~PAL_STM32_OSPEED_MASK;
+        mode |= (ospeed & PAL_STM32_OSPEED_MASK);
+      }
+
+      palSetPadMode(port, pin, mode);
       return true;
       break;
     }
