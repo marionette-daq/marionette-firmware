@@ -72,10 +72,6 @@ bool fetch_i2c_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv
 {
   FETCH_MAX_ARGS(chp, argc, 0);
 
-  // set gpio mode to alternate function
-  set_alternate_mode(GPIOF, GPIOF_PF0_I2C2_SDA);
-  set_alternate_mode(GPIOF, GPIOF_PF1_I2C2_SCL);
-
   // make sure i2c is reset
   i2cStop(&I2C_DRV);
 
@@ -233,9 +229,6 @@ void fetch_i2c_init(void)
 bool fetch_i2c_reset(BaseSequentialStream * chp)
 {
   i2cStop(&I2C_DRV);
-
-  reset_alternate_mode(GPIOF, GPIOF_PF0_I2C2_SDA);
-  reset_alternate_mode(GPIOF, GPIOF_PF1_I2C2_SCL);
 
   return true;
 }

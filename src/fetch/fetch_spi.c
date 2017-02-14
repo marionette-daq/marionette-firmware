@@ -94,20 +94,6 @@ bool fetch_spi_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv
     return false;
   }
 
-  switch(spi_dev)
-  {
-    case 0:
-      set_alternate_mode(GPIOI, GPIOI_PI1_SPI2_SCK);
-      set_alternate_mode(GPIOI, GPIOI_PI2_SPI2_MISO);
-      set_alternate_mode(GPIOI, GPIOI_PI3_SPI2_MOSI);
-      break;
-    case 1:
-      set_alternate_mode(GPIOG, GPIOG_PG13_SPI6_SCK);
-      set_alternate_mode(GPIOG, GPIOG_PG12_SPI6_MISO);
-      set_alternate_mode(GPIOG, GPIOG_PG14_SPI6_MOSI);
-      break;
-  }
-
   spi_configs[spi_dev].end_cb = NULL;
   spi_configs[spi_dev].ssport = NULL;
   spi_configs[spi_dev].sspad = 0;
@@ -335,12 +321,6 @@ bool fetch_spi_reset(BaseSequentialStream * chp)
     spiStop(spi_drivers[i]);
   }
 
-  reset_alternate_mode(GPIOI, GPIOI_PI1_SPI2_SCK);
-  reset_alternate_mode(GPIOI, GPIOI_PI2_SPI2_MISO);
-  reset_alternate_mode(GPIOI, GPIOI_PI3_SPI2_MOSI);
-  reset_alternate_mode(GPIOG, GPIOG_PG13_SPI6_SCK);
-  reset_alternate_mode(GPIOG, GPIOG_PG12_SPI6_MISO);
-  reset_alternate_mode(GPIOG, GPIOG_PG14_SPI6_MOSI);
   return true;
 }
 

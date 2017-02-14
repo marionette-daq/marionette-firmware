@@ -88,23 +88,6 @@ bool fetch_serial_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * a
   }
 
   serial_configs[dev].speed = speed;
-
-  switch(dev)
-  {
-    case 0:
-      set_alternate_mode(GPIOA, GPIOA_PA0_UART4_TX);
-      set_alternate_mode(GPIOA, GPIOA_PA1_UART4_RX);
-      break;
-    case 1:
-      set_alternate_mode(GPIOD, GPIOD_PD8_USART3_TX);
-      set_alternate_mode(GPIOD, GPIOD_PD9_USART3_RX);
-      break;
-    case 2:
-      set_alternate_mode(GPIOD, GPIOD_PD5_USART2_TX);
-      set_alternate_mode(GPIOD, GPIOD_PD6_USART2_RX);
-      break;
-  }
-
   sdStart(serial_drv, &serial_configs[dev]);
 
   return true;
@@ -373,26 +356,6 @@ bool fetch_serial_reset_cmd(BaseSequentialStream * chp, uint32_t argc, char * ar
 
   sdStop(serial_drv);
 
-  switch(dev)
-  {
-    case 0:
-      reset_alternate_mode(GPIOA, GPIOA_PA0_UART4_TX);
-      reset_alternate_mode(GPIOA, GPIOA_PA1_UART4_RX);
-      break;
-    case 1:
-      reset_alternate_mode(GPIOD, GPIOD_PD8_USART3_TX);
-      reset_alternate_mode(GPIOD, GPIOD_PD9_USART3_RX);
-      reset_alternate_mode(GPIOD, GPIOD_PD11_USART3_CTS);
-      reset_alternate_mode(GPIOD, GPIOD_PD12_USART3_RTS);
-      break;
-    case 2:
-      reset_alternate_mode(GPIOD, GPIOD_PD5_USART2_TX);
-      reset_alternate_mode(GPIOD, GPIOD_PD6_USART2_RX);
-      reset_alternate_mode(GPIOD, GPIOD_PD3_USART2_CTS);
-      reset_alternate_mode(GPIOD, GPIOD_PD4_USART2_RTS);
-      break;
-  }
-
   return true;
 }
 
@@ -466,16 +429,6 @@ bool fetch_serial_reset(BaseSequentialStream * chp)
   {
     sdStop(serial_drivers[i]);
   }
-  reset_alternate_mode(GPIOA, GPIOA_PA0_UART4_TX);
-  reset_alternate_mode(GPIOA, GPIOA_PA1_UART4_RX);
-  reset_alternate_mode(GPIOD, GPIOD_PD8_USART3_TX);
-  reset_alternate_mode(GPIOD, GPIOD_PD9_USART3_RX);
-  reset_alternate_mode(GPIOD, GPIOD_PD11_USART3_CTS);
-  reset_alternate_mode(GPIOD, GPIOD_PD12_USART3_RTS);
-  reset_alternate_mode(GPIOD, GPIOD_PD5_USART2_TX);
-  reset_alternate_mode(GPIOD, GPIOD_PD6_USART2_RX);
-  reset_alternate_mode(GPIOD, GPIOD_PD3_USART2_CTS);
-  reset_alternate_mode(GPIOD, GPIOD_PD4_USART2_RTS);
   return true;
 }
 
