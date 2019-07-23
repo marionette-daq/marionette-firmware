@@ -70,7 +70,7 @@ bool set_alternate_mode( ioportid_t port, uint32_t pin )
 
 bool set_alternate_mode_ext( ioportid_t port, uint32_t pin, uint32_t pupdr, uint32_t otype, uint32_t ospeed)
 {
-  // port override settings use -1 as default designator
+  // port override settings use UINT32_MAX as default designator, signed value -1 equates to UINT32_MAX for convenience.
 
   // search for port/pin in alternate_modes, if found change pin mode
   const alt_pin_mode_t * alt_mode = alternate_modes;
@@ -82,19 +82,19 @@ bool set_alternate_mode_ext( ioportid_t port, uint32_t pin, uint32_t pupdr, uint
     {
       mode = alt_mode->mode;
 
-      if( pupdr != -1 )
+      if( pupdr != UINT32_MAX )
       {
         mode &= ~PAL_STM32_PUPDR_MASK;
         mode |= (pupdr & PAL_STM32_PUPDR_MASK);
       }
 
-      if( otype != -1 )
+      if( otype != UINT32_MAX )
       {
         mode &= ~PAL_STM32_OTYPE_MASK;
         mode |= (otype & PAL_STM32_OTYPE_MASK);
       }
 
-      if( ospeed != -1 )
+      if( ospeed != UINT32_MAX )
       {
         mode &= ~PAL_STM32_OSPEED_MASK;
         mode |= (ospeed & PAL_STM32_OSPEED_MASK);

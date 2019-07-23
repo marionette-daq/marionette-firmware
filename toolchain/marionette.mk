@@ -18,12 +18,13 @@ MARIONETTE_RULES         = $(MARIONETTE_OPENOCD)/openocd.mk \
 													 $(MARIONETTE_TOOLCHAIN)/dfu.mk
 
 ifeq ($(shell git diff-index --quiet HEAD $(MARIONETTE_TOP)/src ; echo $$?), 1)
-INDEX_DIRTY = M
+INDEX_DIRTY = modified
 else
 INDEX_DIRTY =
 endif
 
-VERSION_PREFIX = git-
+VERSION_PREFIX = git
+GIT_HASH = $(shell git rev-parse --short HEAD)
 
-MARIONETTE_VERSION = "\"$(VERSION_PREFIX)`git rev-parse --short HEAD`$(INDEX_DIRTY)\""
+MARIONETTE_VERSION = "\"$(VERSION_PREFIX)-$(GIT_HASH)-$(INDEX_DIRTY)\""
 

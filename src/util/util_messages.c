@@ -34,14 +34,14 @@ static bool needs_newline(char * str)
 
 void util_message_begin( BaseSequentialStream * chp)
 {
-  chBSemWait( &mshell_io_sem );
+  chBSemWait( &mshell_sync_sem );
   chprintf(chp, "BEGIN:\r\n");
-  chBSemSignal( &mshell_io_sem );
+  chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_end( BaseSequentialStream * chp, bool success )
 {
-  chBSemWait( &mshell_io_sem );
+  chBSemWait( &mshell_sync_sem );
   if( success )
   {
     chprintf(chp, "END:OK\r\n");
@@ -50,7 +50,7 @@ void util_message_end( BaseSequentialStream * chp, bool success )
   {
     chprintf(chp, "END:ERROR\r\n");
   }
-  chBSemSignal( &mshell_io_sem );
+  chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_debug( BaseSequentialStream * chp, char * file, int line, const char * func, char * fmt, ...)
@@ -60,7 +60,7 @@ void util_message_debug( BaseSequentialStream * chp, char * file, int line, cons
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "?:%s:%d:%s:", file, line, func);
 
@@ -73,7 +73,7 @@ void util_message_debug( BaseSequentialStream * chp, char * file, int line, cons
 	{
 		chprintf(chp, "\r\n");
 	}
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_info( BaseSequentialStream * chp, char * fmt, ...)
@@ -83,7 +83,7 @@ void util_message_info( BaseSequentialStream * chp, char * fmt, ...)
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "#:");
 
@@ -96,7 +96,7 @@ void util_message_info( BaseSequentialStream * chp, char * fmt, ...)
 	{
 		chprintf(chp, "\r\n");
 	}
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_warning( BaseSequentialStream * chp, char * fmt, ...)
@@ -106,7 +106,7 @@ void util_message_warning( BaseSequentialStream * chp, char * fmt, ...)
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "W:");
 
@@ -119,7 +119,7 @@ void util_message_warning( BaseSequentialStream * chp, char * fmt, ...)
 	{
 		chprintf(chp, "\r\n");
 	}
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_error( BaseSequentialStream * chp, char * fmt, ...)
@@ -129,7 +129,7 @@ void util_message_error( BaseSequentialStream * chp, char * fmt, ...)
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "E:");
 
@@ -142,7 +142,7 @@ void util_message_error( BaseSequentialStream * chp, char * fmt, ...)
 	{
 		chprintf(chp, "\r\n");
 	}
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_bool( BaseSequentialStream * chp, char * name, bool data)
@@ -152,7 +152,7 @@ void util_message_bool( BaseSequentialStream * chp, char * name, bool data)
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
   if( data )
   {
 	  chprintf(chp, "B:%s:1\r\n", name);
@@ -161,7 +161,7 @@ void util_message_bool( BaseSequentialStream * chp, char * name, bool data)
   {
     chprintf(chp, "B:%s:0\r\n", name);
   }
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_string_format( BaseSequentialStream * chp, char * name, char * fmt, ...)
@@ -171,7 +171,7 @@ void util_message_string_format( BaseSequentialStream * chp, char * name, char *
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "S:%s:", name);
 
@@ -184,7 +184,7 @@ void util_message_string_format( BaseSequentialStream * chp, char * name, char *
 	{
 		chprintf(chp, "\r\n");
 	}
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_string_escape( BaseSequentialStream * chp, char * name, char * str, uint32_t str_len )
@@ -195,7 +195,7 @@ void util_message_string_escape( BaseSequentialStream * chp, char * name, char *
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "SE:%s:", name);
 
@@ -213,7 +213,7 @@ void util_message_string_escape( BaseSequentialStream * chp, char * name, char *
 
   chprintf(chp, "\r\n");
 
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 
 }
 
@@ -225,7 +225,7 @@ void util_message_string_array( BaseSequentialStream * chp, char * name, char * 
     return;
   }
 
-  chBSemWait( &mshell_io_sem );
+  chBSemWait( &mshell_sync_sem );
 	
   chprintf(chp, "SA:%s:", name);
 
@@ -240,7 +240,7 @@ void util_message_string_array( BaseSequentialStream * chp, char * name, char * 
 
   chprintf(chp, "\r\n");
 
-  chBSemSignal( &mshell_io_sem );
+  chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_double( BaseSequentialStream * chp, char * name, double data)
@@ -250,11 +250,11 @@ void util_message_double( BaseSequentialStream * chp, char * name, double data)
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "F:%s:%f\r\n", name, data);
 
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_double_array( BaseSequentialStream * chp, char * name, double * data, uint32_t count)
@@ -264,7 +264,7 @@ void util_message_double_array( BaseSequentialStream * chp, char * name, double 
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "F:%s:", name);
 
@@ -279,7 +279,7 @@ void util_message_double_array( BaseSequentialStream * chp, char * name, double 
 	}
 
 	chprintf(chp, "\r\n");
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_int8( BaseSequentialStream * chp, char * name, int8_t data)
@@ -289,11 +289,11 @@ void util_message_int8( BaseSequentialStream * chp, char * name, int8_t data)
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "S8:%s:%d\r\n", name, data);
 
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_int8_array( BaseSequentialStream * chp, char * name, int8_t * data, uint32_t count)
@@ -303,7 +303,7 @@ void util_message_int8_array( BaseSequentialStream * chp, char * name, int8_t * 
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "S8:%s:", name);
 
@@ -318,7 +318,7 @@ void util_message_int8_array( BaseSequentialStream * chp, char * name, int8_t * 
 	}
 
 	chprintf(chp, "\r\n");
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_uint8( BaseSequentialStream * chp, char * name, uint8_t data)
@@ -328,11 +328,11 @@ void util_message_uint8( BaseSequentialStream * chp, char * name, uint8_t data)
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "U8:%s:%u\r\n", name, data);
 
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_uint8_array( BaseSequentialStream * chp, char * name, uint8_t * data, uint32_t count)
@@ -342,7 +342,7 @@ void util_message_uint8_array( BaseSequentialStream * chp, char * name, uint8_t 
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "U8:%s:", name);
 
@@ -356,7 +356,7 @@ void util_message_uint8_array( BaseSequentialStream * chp, char * name, uint8_t 
 		}
 	}
 	chprintf(chp, "\r\n");
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_int16( BaseSequentialStream * chp, char * name, int16_t data)
@@ -366,11 +366,11 @@ void util_message_int16( BaseSequentialStream * chp, char * name, int16_t data)
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "S16:%s:%d\r\n", name, data);
 
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_int16_array( BaseSequentialStream * chp, char * name, int16_t * data, uint32_t count)
@@ -380,7 +380,7 @@ void util_message_int16_array( BaseSequentialStream * chp, char * name, int16_t 
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "S16:%s:", name);
 
@@ -394,7 +394,7 @@ void util_message_int16_array( BaseSequentialStream * chp, char * name, int16_t 
 		}
 	}
 	chprintf(chp, "\r\n");
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_uint16( BaseSequentialStream * chp, char * name, uint16_t data)
@@ -403,11 +403,11 @@ void util_message_uint16( BaseSequentialStream * chp, char * name, uint16_t data
 	{
 		return;
 	}
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "U16:%s:%u\r\n", name, data);
 
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_uint16_array( BaseSequentialStream * chp, char * name, uint16_t * data, uint32_t count)
@@ -416,7 +416,7 @@ void util_message_uint16_array( BaseSequentialStream * chp, char * name, uint16_
 	{
 		return;
 	}
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "U16:%s:", name);
 
@@ -430,7 +430,7 @@ void util_message_uint16_array( BaseSequentialStream * chp, char * name, uint16_
 		}
 	}
 	chprintf(chp, "\r\n");
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_int32( BaseSequentialStream * chp, char * name, int32_t data)
@@ -440,11 +440,11 @@ void util_message_int32( BaseSequentialStream * chp, char * name, int32_t data)
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "S32:%s:%d\r\n", name, data);
 
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_int32_array( BaseSequentialStream * chp, char * name, int32_t * data, uint32_t count)
@@ -454,7 +454,7 @@ void util_message_int32_array( BaseSequentialStream * chp, char * name, int32_t 
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "S32:%s:", name);
 
@@ -468,7 +468,7 @@ void util_message_int32_array( BaseSequentialStream * chp, char * name, int32_t 
 		}
 	}
 	chprintf(chp, "\r\n");
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_uint32( BaseSequentialStream * chp, char * name, uint32_t data)
@@ -478,11 +478,11 @@ void util_message_uint32( BaseSequentialStream * chp, char * name, uint32_t data
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "U32:%s:%d\r\n", name, data);
 
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_uint32_array( BaseSequentialStream * chp, char * name, uint32_t * data, uint32_t count)
@@ -492,7 +492,7 @@ void util_message_uint32_array( BaseSequentialStream * chp, char * name, uint32_
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "U32:%s:", name);
 
@@ -506,7 +506,7 @@ void util_message_uint32_array( BaseSequentialStream * chp, char * name, uint32_
 		}
 	}
 	chprintf(chp, "\r\n");
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_hex_uint8( BaseSequentialStream * chp, char * name, uint8_t data)
@@ -516,11 +516,11 @@ void util_message_hex_uint8( BaseSequentialStream * chp, char * name, uint8_t da
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "H8:%s:%02X\r\n", name, data);
 
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_hex_uint8_array( BaseSequentialStream * chp, char * name, uint8_t * data, uint32_t count)
@@ -530,7 +530,7 @@ void util_message_hex_uint8_array( BaseSequentialStream * chp, char * name, uint
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "H8:%s:", name);
 
@@ -544,7 +544,7 @@ void util_message_hex_uint8_array( BaseSequentialStream * chp, char * name, uint
 		}
 	}
 	chprintf(chp, "\r\n");
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_hex_uint16( BaseSequentialStream * chp, char * name, uint16_t data)
@@ -554,11 +554,11 @@ void util_message_hex_uint16( BaseSequentialStream * chp, char * name, uint16_t 
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "H16:%s:%04X\r\n", name, data);
 
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_hex_uint16_array( BaseSequentialStream * chp, char * name, uint16_t * data, uint32_t count)
@@ -568,7 +568,7 @@ void util_message_hex_uint16_array( BaseSequentialStream * chp, char * name, uin
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "H16:%s:", name);
 
@@ -582,7 +582,7 @@ void util_message_hex_uint16_array( BaseSequentialStream * chp, char * name, uin
 		}
 	}
 	chprintf(chp, "\r\n");
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_hex_uint32( BaseSequentialStream * chp, char * name, uint32_t data)
@@ -592,11 +592,11 @@ void util_message_hex_uint32( BaseSequentialStream * chp, char * name, uint32_t 
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "H32:%s:%08X\r\n", name, data);
 
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 void util_message_hex_uint32_array( BaseSequentialStream * chp, char * name, uint32_t * data, uint32_t count)
@@ -606,7 +606,7 @@ void util_message_hex_uint32_array( BaseSequentialStream * chp, char * name, uin
 		return;
 	}
 
-	chBSemWait( &mshell_io_sem );
+	chBSemWait( &mshell_sync_sem );
 
 	chprintf(chp, "H32:%s:", name);
 
@@ -620,7 +620,7 @@ void util_message_hex_uint32_array( BaseSequentialStream * chp, char * name, uin
 		}
 	}
 	chprintf(chp, "\r\n");
-	chBSemSignal( &mshell_io_sem );
+	chBSemSignal( &mshell_sync_sem );
 }
 
 //! @}

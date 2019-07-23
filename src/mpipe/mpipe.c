@@ -301,32 +301,32 @@ static void mpipe_input_thread(void * p)
   chThdExit(MSG_OK);
 }
 
-void mpipeStart(const MPipeConfig * cfg)
+void mpipe_start(const mpipe_config_t * cfg)
 {
   // start/restart io threads
   if( mpipe_adc2_tp == NULL || chThdTerminatedX(mpipe_adc2_tp))
   {
-    mpipe_adc2_tp = chThdCreateStatic(mpipe_adc2_wa, sizeof(mpipe_adc2_wa), NORMALPRIO, mpipe_adc2_thread, (void*)cfg->chp);
+    mpipe_adc2_tp = chThdCreateStatic(mpipe_adc2_wa, sizeof(mpipe_adc2_wa), NORMALPRIO, mpipe_adc2_thread, (void*)cfg->channel);
   }
   if( mpipe_adc3_tp == NULL || chThdTerminatedX(mpipe_adc3_tp))
   {
-    mpipe_adc3_tp = chThdCreateStatic(mpipe_adc3_wa, sizeof(mpipe_adc3_wa), NORMALPRIO, mpipe_adc3_thread, (void*)cfg->chp);
+    mpipe_adc3_tp = chThdCreateStatic(mpipe_adc3_wa, sizeof(mpipe_adc3_wa), NORMALPRIO, mpipe_adc3_thread, (void*)cfg->channel);
   }
   if( mpipe_serial_tp == NULL || chThdTerminatedX(mpipe_serial_tp))
   {
-    mpipe_serial_tp = chThdCreateStatic(mpipe_serial_wa, sizeof(mpipe_serial_wa), NORMALPRIO, mpipe_serial_thread, (void*)cfg->chp);
+    mpipe_serial_tp = chThdCreateStatic(mpipe_serial_wa, sizeof(mpipe_serial_wa), NORMALPRIO, mpipe_serial_thread, (void*)cfg->channel);
   }
   if( mpipe_can_tp == NULL || chThdTerminatedX(mpipe_can_tp))
   {
-    mpipe_can_tp = chThdCreateStatic(mpipe_can_wa, sizeof(mpipe_can_wa), NORMALPRIO, mpipe_can_thread, (void*)cfg->chp);
+    mpipe_can_tp = chThdCreateStatic(mpipe_can_wa, sizeof(mpipe_can_wa), NORMALPRIO, mpipe_can_thread, (void*)cfg->channel);
   }
   if( mpipe_input_tp == NULL || chThdTerminatedX(mpipe_input_tp))
   {
-    mpipe_input_tp = chThdCreateStatic(mpipe_input_wa, sizeof(mpipe_input_wa), NORMALPRIO, mpipe_input_thread, (void*)cfg->chp);
+    mpipe_input_tp = chThdCreateStatic(mpipe_input_wa, sizeof(mpipe_input_wa), NORMALPRIO, mpipe_input_thread, (void*)cfg->channel);
   }
 }
 
-void mpipeStop(void)
+void mpipe_stop(void)
 {
   // kill all io threads
   if( mpipe_input_tp )
@@ -365,7 +365,7 @@ void mpipeStop(void)
   }
 }
 
-void mpipeInit(void)
+void mpipe_init(void)
 {
   chMtxObjectInit(&mpipe_output_mutex);
 

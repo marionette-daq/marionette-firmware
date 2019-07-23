@@ -40,7 +40,6 @@
 #include "fetch.h"
 #include "mshell.h"
 #include "mshell_sync.h"
-#include "mshell_state.h"
 
 #ifndef MSHELL_WA_SIZE
 #define MSHELL_WA_SIZE 16384
@@ -52,9 +51,10 @@
 
 static THD_WORKING_AREA(mshell_wa, MSHELL_WA_SIZE);
 
-thread_t * mshell_tp = NULL;
+static thread_t * mshell_tp = NULL;
 
-static bool mshell_echo_chars = MSHELL_ECHO_INPUT_CHARS;
+static mshell_config_t mshell_config;
+
 
 static void list_commands(BaseSequentialStream * chp, const mshell_command_t * scp)
 {
@@ -75,8 +75,7 @@ static bool cmd_prompt(BaseSequentialStream * chp, int argc, char * argv[] UNUSE
 		util_message_error(chp, "extra arguments for command 'prompt'");
 		return false;
 	}
-	setMShellVisiblePrompt(true);
-	setMShellPrompt("m > ");
+  mshell_config.show_prompt = true;
   return true;
 }
 
@@ -89,8 +88,7 @@ static bool cmd_noprompt(BaseSequentialStream * chp, int argc, char * argv[] UNU
 		util_message_error(chp, "extra arguments for command 'noprompt'");
 		return false;
 	}
-	setMShellVisiblePrompt(false);
-	setMShellPrompt("");
+	mshell_config.show_prompt = false;
   return true;
 }
 
@@ -103,7 +101,7 @@ static bool cmd_echo(BaseSequentialStream * chp, int argc, char * argv[] UNUSED)
 		util_message_error(chp, "extra arguments for command 'echo'");
 		return false;
 	}
-	mshell_echo_chars = true;
+	mshell_config.echo_chars = true;
   return true;
 }
 
@@ -116,7 +114,7 @@ static bool cmd_noecho(BaseSequentialStream * chp, int argc, char * argv[] UNUSE
 		util_message_error(chp, "extra arguments for command 'noecho'");
 		return false;
 	}
-	mshell_echo_chars = false;
+	mshell_config.echo_chars = false;
   return true;
 }
 
@@ -178,9 +176,8 @@ static bool cmd_reset(BaseSequentialStream * chp, int argc, char * argv[] UNUSED
 		util_message_error(chp, "extra arguments for command 'reset'");
 		return false;
 	}
-	setMShellVisiblePrompt(true);
-	setMShellPrompt("m > ");
-	mshell_echo_chars = true;
+  mshell_config.show_prompt = true;
+	mshell_config.echo_chars = true;
   return true;
 }
 
@@ -292,47 +289,46 @@ static bool mshell_parse(BaseSequentialStream* chp, const mshell_command_t * scp
  */
 static void mshell_thread(void * p)
 {
-	bool  ret; 
-	BaseSequentialStream * chp   = ((MShellConfig *)p)->sc_channel;
-	const mshell_command_t  * scp   = ((MShellConfig *)p)->sc_commands;
-	static char input_line[MSHELL_MAX_LINE_LENGTH];
+  BaseAsynchronousChannel * channel = mshell_config.channel;
+	BaseSequentialStream * stream = (BaseSequentialStream*)mshell_config.channel;
+  static char input_line[MSHELL_MAX_LINE_LENGTH];
 
-	setMShellStreamPtr(chp);
-	setMShellPrompt("m > ");
-	setMShellVisiblePrompt(true);
 	chRegSetThreadName("mshell");
-	chThdSleepMilliseconds(500);
+	chThdSleepMilliseconds(500); // FIXME do we need this and does it need to be this long?
 
-	//! Initial Welcome Prompt
-  chprintf(chp, "\r\n");
-	util_message_info(getMShellStreamPtr(), "Marionette Shell (\"help\" or \"+help\" for commands)");
+  chprintf(stream, "\r\n");
+	util_message_info(stream, MSHELL_WELCOME_STR);
 
   while(!chThdShouldTerminateX())
 	{
-		mshell_putprompt();
-		ret = mshellGetLine(chp, input_line, sizeof(input_line)); // FIXME add tiemout
-		if (ret)
-		{
-      // FIXME add resetting of terminal settings (prompt, echo,...)
-      chprintf(chp, "\r\n");
-			util_message_error(chp, "exit mshell thread");
+    if( mshell_config.show_prompt )
+    {
+      chprintf(stream, mshell_config.prompt);
+    }
+
+    // FIXME change this to handle each return code, eg. break, exit, etc.
+		if( mshell_get_line(channel, input_line, sizeof(input_line), mshell_config.echo_chars) != MSHELL_MSG_OK )
+    {
+      chprintf(stream, "\r\n");
+			util_message_warning(stream, "exit mshell thread");
 			break; // exit function
 		}
 
+    // ignore empty input lines
     if( input_line[0] == '\0' )
     {
       continue;
     }
 
-    util_message_begin(chp);
+    util_message_begin(stream);
 
 		if(input_line[0] == '+' || input_line[0] == '.')    // use escape to process mshell commands
 		{
-      util_message_end(chp, mshell_parse(chp, scp, &input_line[1]) );
+      util_message_end(stream, mshell_parse(stream, mshell_config.commands, &input_line[1]) );
 		}
-		else
+		else // all other commands are passed to fetch
 		{
-			util_message_end(chp, fetch_execute(chp, input_line) );
+			util_message_end(stream, fetch_execute(stream, input_line) );
 		}
 	}
 
@@ -345,22 +341,25 @@ static void mshell_thread(void * p)
  *
  * @api
  */
-void mshellInit()
+void mshell_init()
 {
-	mshell_io_sem_init();
+  mshell_sync_init();
 }
 
 
-void mshellStart(const MShellConfig * cfg)
+void mshell_start( const mshell_config_t * cfg )
 {
-  // start/restart mshell thread
+  // start mshell thread if not already active
   if( mshell_tp == NULL || chThdTerminatedX(mshell_tp) )
   {
-	  mshell_tp = chThdCreateStatic(mshell_wa, sizeof(mshell_wa), MSHELL_PRIO, mshell_thread, (void *)cfg);
+    mshell_config = *cfg;
+
+	  mshell_tp = chThdCreateStatic(mshell_wa, sizeof(mshell_wa), MSHELL_PRIO, mshell_thread, NULL);
   }
 }
 
-void mshellStop(void)
+
+void mshell_stop(void)
 {
   if( mshell_tp )
   {
@@ -381,88 +380,108 @@ void mshellStop(void)
  * \retval false        operation successful.
  *
  */
-#define        ASCII_EOT                        ((char) 0x4)
-#define        ASCII_BACKSPACE                  ((char) 0x8)
-#define        ASCII_DELETE                     ((char) 0x7F)
-#define        ASCII_CTL_U                      ((char) 0x15)
-#define        ASCII_SPACE                      ((char) 0x20)
-bool mshellGetLine(BaseSequentialStream * chp, char * line, unsigned size)
+#define ASCII_CTRL_C      ((char) 0x03)
+#define ASCII_CTRL_D      ((char) 0x04)
+#define ASCII_BACKSPACE   ((char) 0x08)
+#define ASCII_DELETE      ((char) 0x7F)
+#define ASCII_CTRL_U      ((char) 0x15)
+#define ASCII_SPACE       ((char) 0x20)
 
+mshell_msg_t mshell_get_line(BaseAsynchronousChannel * channel, char * line, unsigned size, bool echo_chars )
 {
 	char * p = line;
-	while (true)
+  BaseSequentialStream * stream = (BaseSequentialStream *)channel;
+
+	while( !chThdShouldTerminateX() )
 	{
 		char c;
-		if (chSequentialStreamRead(chp, (uint8_t *)&c, 1) == 0) // FIXME add timeout so that we do not stall the calling thread forever
+
+    // Read a single character from the input stream, timeout so we can check if the thread should terminate
+		if( chnReadTimeout(channel, (uint8_t *)&c, 1, MS2ST(100)) == 0 ) 
 		{
-			return true;
+			continue;
 		}
+
     // DEBUG lets spit stuff out to see what is received at initial connection
     chprintf(DEBUG_CHP, "%c", c);
-		if (c == ASCII_EOT)
+
+    // Ctrl+D: return true indicating we should exit mshell
+		if( c == ASCII_CTRL_D )
 		{
-			if(mshell_echo_chars)
-			{
-				chprintf(chp, "^D");
-			}
-			return true;
+			return MSHELL_MSG_EXIT;
 		}
-		if ((c == ASCII_CTL_U))
+    
+    // Ctrl+C: this allows the user to signal a break at any time
+    if( c == ASCII_CTRL_C )
+    {
+      return MSHELL_MSG_BREAK;
+    }
+
+    // Ctrl+U: clear entire line
+		if( (c == ASCII_CTRL_U) )
 		{
-			while (p != line)
+			while( p != line )
 			{
-				if(mshell_echo_chars)
+				if( echo_chars )
 				{
           // FIXME why is this sent the way it is?
-					mshell_stream_put(chp, ASCII_BACKSPACE);
-					mshell_stream_put(chp, ASCII_SPACE);
-					mshell_stream_put(chp, ASCII_BACKSPACE);
+					streamPut(stream, ASCII_BACKSPACE);
+					streamPut(stream, ASCII_SPACE);
+					streamPut(stream, ASCII_BACKSPACE);
 				}
 				p--;
 			}
 			continue;
 		}
 
-		if ((c == ASCII_BACKSPACE) || (c == ASCII_DELETE))
+    // Backspase & Delete keys: delete previous character
+		if( (c == ASCII_BACKSPACE) || (c == ASCII_DELETE) )
 		{
-			if (p != line)
+			if( p != line )
 			{
-				if(mshell_echo_chars)
+				if( echo_chars )
 				{
           // FIXME why is this sent the way it is?
-					mshell_stream_put(chp, c);
-					mshell_stream_put(chp, ASCII_SPACE);
-					mshell_stream_put(chp, c);
+					streamPut(stream, c);
+					streamPut(stream, ASCII_SPACE);
+					streamPut(stream, c);
 				}
 				p--;
 			}
 			continue;
 		}
-		if (c == '\r')
+
+    // NL & CR: terminate line and return false indicating no errors
+    // Note: one side effect is that a \r\n sequence will trigger an empty line
+		if( c == '\r' || c == '\n' )
 		{
-			if(mshell_echo_chars)
+			if( echo_chars )
 			{
-				chprintf(chp, "\r\n");
+				chprintf(stream, "\r\n");
 			}
 			*p = '\0';
-			return false;
+			return MSHELL_MSG_OK;
 		}
-		if (c == 0) {
-			continue;
-		}
-		if (c < ASCII_SPACE)   // ignore all other special chars.....
+
+    // ignore all other special chars below value 32 (space)
+		if( c < ASCII_SPACE )
 		{
 			continue;
 		}
-		if (p < line + size - 1)
+
+    // append character to line buffer if there is space
+		if( p < (line + size - 1) )
 		{
-			if(mshell_echo_chars)
+			if( echo_chars )
 			{
-				mshell_stream_put(chp, c);
+        streamPut(stream, c);
 			}
 			*p++ = (char)c;
 		}
 	}
+
+  // thread should terminate
+  return MSHELL_MSG_EXIT;
 }
 
 

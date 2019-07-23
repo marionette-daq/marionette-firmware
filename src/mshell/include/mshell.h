@@ -25,16 +25,6 @@
 #define _MSHELL_H_
 
 #include <stdbool.h>
-#include "mshell_sync.h"
-#include "mshell_state.h"
-
-/**
- * @brief   Shell echo chars enable.
- */
-#if !defined(MSHELL_ECHO_INPUT_CHARS) || defined(__DOXYGEN__)
-#define MSHELL_ECHO_INPUT_CHARS       ((bool) true)
-#endif
-
 
 /**
  * @brief   Shell maximum input line length.
@@ -43,12 +33,16 @@
 #define MSHELL_MAX_LINE_LENGTH       1024
 #endif
 
-
 /**
  * @brief   Shell maximum arguments per command.
  */
-#if !defined(SHELL_MAX_ARGUMENTS) || defined(__DOXYGEN__)
+#if !defined(MSHELL_MAX_ARGUMENTS) || defined(__DOXYGEN__)
 #define MSHELL_MAX_ARGUMENTS         10
+#endif
+
+
+#if !defined(MSHELL_WELCOME_STR) || defined(__DOXYGEN__)
+#define MSHELL_WELCOME_STR "Marionette Shell (\"help\" for fetch commands and  \"+help\" for shell commands)"
 #endif
 
 /**
@@ -69,20 +63,29 @@ typedef struct {
  * @brief   Shell descriptor type.
  */
 typedef struct {
-  BaseSequentialStream  *sc_channel;        /**< @brief I/O channel associated
-                                                 to the shell.              */
-  const mshell_command_t    *sc_commands;       /**< @brief Shell extra commands
-                                                 table.                     */
-} MShellConfig;
+  BaseAsynchronousChannel * channel;        /**< @brief I/O channel associated to the shell. */
+	const char * prompt;                      /**< @brief string to print for shell prompt. */
+	bool show_prompt;                         /**< @brief print shell prompt. */
+  bool echo_chars;                          /**< @brief print chars back to terminal. */
+  const mshell_command_t * commands;        /**< @brief Shell extra commands table. */
+} mshell_config_t;
+
+typedef enum {
+  MSHELL_MSG_OK = 0,
+  MSHELL_MSG_ERROR,
+  MSHELL_MSG_EXIT,
+  MSHELL_MSG_BREAK,
+  MSHELL_MSG_TIMEOUT
+} mshell_msg_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-  void mshellInit(void);
-  void mshellStart(const MShellConfig *cfg);
-  void mshellStop(void);
-  bool mshellGetLine(BaseSequentialStream *chp, char *line, unsigned size);
+  void mshell_init(void);
+  void mshell_start(const mshell_config_t *cfg);
+  void mshell_stop(void);
+  mshell_msg_t mshell_get_line(BaseAsynchronousChannel * channel, char * line, unsigned size, bool echo_chars );
 
 #ifdef __cplusplus
 }

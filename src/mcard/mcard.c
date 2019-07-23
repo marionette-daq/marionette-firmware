@@ -52,10 +52,20 @@ static void mcard_in_thread(void * p)
 }
 
 
-void mcardInit(void)
+void mcard_init(void)
 {
+  // TODO: add buffers for can and other data streams
   chMBObjectInit(&mcard_adc2_mb, mcard_adc2_mb_buffer, MCARD_ADC_MB_SIZE);
   chMBObjectInit(&mcard_adc3_mb, mcard_adc3_mb_buffer, MCARD_ADC_MB_SIZE);
 }
 
+void mcard_start(void)
+{
+  // TODO
+}
+
+void mcard_stop(void)
+{
+  // TODO
+}
 

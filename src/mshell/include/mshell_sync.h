@@ -14,9 +14,11 @@ extern "C" {
 
 #include "chbsem.h"
 
-extern 		binary_semaphore_t    		mshell_io_sem;
+extern binary_semaphore_t mshell_sync_sem;
 
-void mshell_io_sem_init(void) ;
+void mshell_sync_init(void);
+void mshell_sync_acquire(void);
+void mshell_sync_release(void);
 
 #ifdef __cplusplus
 }

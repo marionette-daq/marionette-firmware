@@ -105,15 +105,18 @@ static const mshell_command_t commands[] =
 /*! \brief MShell configuration
  * \sa MSHELL
  */
-static const MShellConfig mshell_cfg =
+static const mshell_config_t mshell_cfg =
 {
-	(BaseSequentialStream *) &SDU1,
+	(BaseAsynchronousChannel *) &SDU1,
+  "m > ", // prompt
+  true,   // show prompt
+  true,   // echo chars
 	commands
 };
 
-static const MPipeConfig mpipe_cfg = 
+static const mpipe_config_t mpipe_cfg = 
 {
-  (BaseSequentialStream *) &SDU2
+  (BaseAsynchronousChannel *) &SDU2
 };
 
 
@@ -125,15 +128,15 @@ static void main_app(void)
   set_status_led(1,0,0);
 
 	fetch_init();
-	mshellInit();
-  mpipeInit();
+	mshell_init();
+  mpipe_init();
 
 
 #if STM32_USB_USE_OTG2
 	palSetPad(GPIOB, GPIOB_ULPI_RST_B); //Take ulpi out of reset
 	chThdSleepMilliseconds(200);
 #else
-	palClearPad(GPIOB, GPIOB_ULPI_RST_B); //Hold ulpi in of reset
+	palClearPad(GPIOB, GPIOB_ULPI_RST_B); //Hold ulpi in reset
 #endif
 
 	usb_set_serial_strings( *(uint32_t*)STM32F4_UNIQUE_ID_LOW,
@@ -158,13 +161,13 @@ static void main_app(void)
 	{
     if( serusbcfg.usbp->state == USB_ACTIVE )
     {
-      mshellStart(&mshell_cfg);
-      mpipeStart(&mpipe_cfg);
+      mshell_start(&mshell_cfg);
+      mpipe_start(&mpipe_cfg);
     }
     else
     {
-      mshellStop();
-      mpipeStop();
+      mshell_stop();
+      mpipe_stop();
     }
     
     if( (++led_blank_count) >= 5 )

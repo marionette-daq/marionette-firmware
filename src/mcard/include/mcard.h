@@ -12,11 +12,9 @@ extern mailbox_t mcard_adc3_mb;
 extern mailbox_t mcard_can_mb;
 extern mailbox_t mcard_event_mb;
 
-void mcardInit(void);
-thread_t *mcardCreateInThread(BaseSequentialStream * chp, size_t size, tprio_t prio);
-thread_t *mcardCreateInThreadStatic(BaseSequentialStream *chp, void *wsp, size_t size, tprio_t prio);
-thread_t *mcardCreateOutThread(BaseSequentialStream * chp, size_t size, tprio_t prio);
-thread_t *mcardCreateOutThreadStatic(BaseSequentialStream *chp, void *wsp, size_t size, tprio_t prio);
+void mcard_init(void);
+void mcard_start(void);
+void mcard_stop(void);
 
 #ifdef __cplusplus
 }

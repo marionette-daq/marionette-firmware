@@ -93,7 +93,7 @@ PROJECT = ch
 CONF_DIR  = conf
 TOOLCHAIN = ../../toolchain
 CHIBIOS   = ../../ChibiOS-RT
-BOARD     = Marionette_PCB_rev2_1
+BOARD     = Marionette_PCB_rev2_2
 BOARDDIR  = ../boards/$(BOARD)
 
 # Marionette specific files

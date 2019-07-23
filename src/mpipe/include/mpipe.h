@@ -8,16 +8,16 @@ extern mailbox_t mpipe_adc3_mb;
 extern mailbox_t mpipe_can_mb;
 
 typedef struct {
-  BaseSequentialStream  *chp;
-} MPipeConfig;
+  BaseAsynchronousChannel * channel;
+} mpipe_config_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void mpipeInit(void);
-void mpipeStart(const MPipeConfig * cfg);
-void mpipeStop(void);
+void mpipe_init(void);
+void mpipe_start(const mpipe_config_t * cfg);
+void mpipe_stop(void);
 
 #ifdef __cplusplus
 }
