@@ -35,14 +35,14 @@
                     | "shiftout"i         %{ *func=fetch_gpio_shift_out_cmd; }
                     | "help"i             %{ *func=fetch_gpio_help_cmd; }
                   );
-  
+
 
   spi_commands = "spi"i . cmd_delim . (
                       "reset"i      %{ *func=fetch_spi_reset_cmd; }
                     | "config"i     %{ *func=fetch_spi_config_cmd; }
                     | "help"i       %{ *func=fetch_spi_help_cmd; }
                     | "clock_div"i  %{ *func=fetch_spi_clock_div_cmd; }
-                    | "exchange"i   %{ *func=fetch_spi_exchange_cmd; } 
+                    | "exchange"i   %{ *func=fetch_spi_exchange_cmd; }
                   );
 
   dac_commands = "dac"i . cmd_delim . (
@@ -112,9 +112,17 @@
                     | "read_line"i    %{ *func=fetch_serial_read_line_cmd; }
                   );
 
-  fetch_command = ( root_commands   | 
-                    gpio_commands   | 
-                    spi_commands    | 
+  tsar_commands = "tsar"i . cmd_delim . (
+                      "help"i         %{ *func=fetch_tsar_help_cmd; }
+
+
+
+
+                  );
+
+  fetch_command = ( root_commands   |
+                    gpio_commands   |
+                    spi_commands    |
                     dac_commands    |
                     i2c_commands    |
                     adc_commands    |
@@ -123,8 +131,8 @@
                     mbus_commands   |
                     mcard_commands  |
                     mpipe_commands  |
-                    serial_commands
+                    serial_commands |
+                    tsar_commands
                   ) @err{ fetch_parser_info.error_msg = "invalid command"; };
 
 }%%
-
