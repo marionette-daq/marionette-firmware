@@ -54,8 +54,4 @@ bool fetch_tsar_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[
     FETCH_HELP_BREAK(chp);
 
 
-
-
-
-
 }
