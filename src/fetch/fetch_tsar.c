@@ -50,8 +50,9 @@ bool fetch_tsar_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[
     FETCH_HELP_BREAK(chp);
     FETCH_HELP_CMD(chp, "MORE TO FOLLOW! - A command will go here");
     FETCH_HELP_DES(chp, "A description will go here");
-    FETCH_HELP_ARG(chp, "And the arguments go here");
+    FETCH_HELP_ARG(chp, "dev", "And the arguments go here");
     FETCH_HELP_BREAK(chp);
 
+    return true;
 
 }
