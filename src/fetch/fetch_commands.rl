@@ -114,6 +114,9 @@
 
   tsar_commands = "tsar"i . cmd_delim . (
                       "help"i         %{ *func=fetch_tsar_help_cmd; }
+                    | "pack"i         %{ *func=fetch_tsar_pack_cmd; }
+                    | "init"i         %{ *func=fetch_tsar_init; }
+                    | "reset"i        %{ *fetch_tsar_reset; }
 
 
 

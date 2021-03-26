@@ -20,6 +20,11 @@ Description:
 //Basic help command. Sends serial message to be printed on local stdout.
 bool fetch_tsar_help_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
 
+bool fetch_tsar_pack_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[]);
+
+void fetch_tsar_init(void);
+
+bool fetch_tsar_reset(BaseSequentialStream * chp);
 
 
 

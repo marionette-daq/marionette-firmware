@@ -39,7 +39,7 @@ static SPIDriver * parse_spi_dev( char * str, uint32_t * dev )
   {
     return NULL;
   }
-  
+
   if( str[0] < '0' || str[0] >= ('0' + SPI_DRIVER_COUNT) )
   {
     return NULL;
@@ -56,7 +56,7 @@ static SPIDriver * parse_spi_dev( char * str, uint32_t * dev )
 bool fetch_spi_clock_div_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
   FETCH_MAX_ARGS(chp, argc, 0);
-  
+
   // SPI0 = STM SPI2, which is on APB1
   util_message_uint32(chp, "SPI_0_DIV_0", STM32_PCLK1 / 2);
   util_message_uint32(chp, "SPI_0_DIV_1", STM32_PCLK1 / 4);
@@ -124,7 +124,7 @@ bool fetch_spi_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv
   }
 
   bool spi_lsb;
-  
+
   if( !util_parse_bool(argv[3], &spi_lsb) ) {
     util_message_error(chp, "invalid MSB/LSB value");
     return false;
@@ -262,7 +262,7 @@ bool fetch_spi_reset_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[
   FETCH_MIN_ARGS(chp, argc, 1);
 
   SPIDriver * spi_drv = parse_spi_dev(argv[0], NULL);
-  
+
   if( spi_drv == NULL )
   {
     util_message_error(chp, "invalid device identifier");
@@ -325,4 +325,3 @@ bool fetch_spi_reset(BaseSequentialStream * chp)
 }
 
 /*! @} */
-

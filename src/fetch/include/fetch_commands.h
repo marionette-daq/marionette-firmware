@@ -15,4 +15,7 @@
 #include "fetch_timer.h"
 #include "fetch_serial.h"
 
+//TSAR Revision includes:
+#include "fetch_tsar.h"
+
 #endif

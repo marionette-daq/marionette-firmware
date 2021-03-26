@@ -83,6 +83,7 @@ typedef struct {
   bool mem_alloc_null;
 } adc_status_t;
 
+
 volatile adc_status_t adc2_status;
 volatile adc_status_t adc3_status;
 
@@ -407,7 +408,7 @@ bool fetch_adc_stream_stop_cmd(BaseSequentialStream * chp, uint32_t argc, char *
 {
   FETCH_MAX_ARGS(chp, argc, 1);
   FETCH_MIN_ARGS(chp, argc, 1);
-  
+
   ADCDriver *adc_drv = parse_adc_dev(argv[0], NULL);
 
   if( adc_drv == NULL )
@@ -507,10 +508,10 @@ bool fetch_adc_config_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv
     case 0:
       adc3_timer_interval = FETCH_ADC_TIMER_FREQ / sample_rate;
       adc3_sample_rate = FETCH_ADC_TIMER_FREQ / adc3_timer_interval;
-      
+
       gptStopTimer(&GPTD3);
       gptStartContinuous( &GPTD3, adc3_timer_interval);
-      
+
       util_message_uint32(chp, "sample_rate", adc3_sample_rate);
       break;
   }
@@ -543,10 +544,10 @@ void fetch_adc_init(void)
 {
   adcStart(&ADCD2,NULL);
   adcStart(&ADCD3,NULL);
- 
+
   chPoolObjectInit(&adc_sample_set_pool, sizeof(adc_sample_set_t), NULL);
   chPoolLoadArray(&adc_sample_set_pool, adc_sample_set_buffer, FETCH_ADC_MEM_POOL_SIZE);
-  
+
   adc2_status.error_dmafailure = false;
   adc2_status.error_overflow = false;
   adc2_status.mpipe_overflow = false;
@@ -588,7 +589,7 @@ bool fetch_adc_reset(BaseSequentialStream * chp)
   adcStopConversion(&ADCD3);
   gptStopTimer(&GPTD2);
   gptStopTimer(&GPTD3);
-  
+
   adc2_timer_interval = FETCH_ADC_TIMER_FREQ / FETCH_ADC_DEFAULT_SAMPLE_RATE;
   adc2_sample_rate = FETCH_ADC_TIMER_FREQ / adc2_timer_interval;
 
@@ -602,5 +603,3 @@ bool fetch_adc_reset(BaseSequentialStream * chp)
 }
 
 /*! @} */
-
-
