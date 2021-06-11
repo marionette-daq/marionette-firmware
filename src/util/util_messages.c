@@ -226,7 +226,7 @@ void util_message_string_array( BaseSequentialStream * chp, char * name, char * 
   }
 
   chBSemWait( &mshell_sync_sem );
-	
+
   chprintf(chp, "SA:%s:", name);
 
   for( uint32_t i = 0; i < count; i++ )
@@ -570,7 +570,7 @@ void util_message_hex_uint16_array( BaseSequentialStream * chp, char * name, uin
 
 	chBSemWait( &mshell_sync_sem );
 
-	chprintf(chp, "H16:%s:", name);
+	chprintf(chp, "U16:%s:", name);
 
 	for( ; count > 0; count-- )
 	{
@@ -623,5 +623,79 @@ void util_message_hex_uint32_array( BaseSequentialStream * chp, char * name, uin
 	chBSemSignal( &mshell_sync_sem );
 }
 
-//! @}
+//TSAR packet commands:
+void tsar_pack_adc( BaseSequentialStream * chp, char * name, uint16_t * data1, uint16_t * data2)
+{
 
+	uint32_t count = 14;
+
+	if(chp == NULL)
+	{
+		return;
+	}
+
+	chBSemWait( &mshell_sync_sem );
+
+	chprintf(chp, "U16:%s;", name);
+
+	for( ; count > 7; count-- )
+	{
+		chprintf(chp, "%u", *(data1++));
+
+		if( count > 1 )
+		{
+			chprintf(chp, ";");
+		}
+	}
+
+	for( ; count > 0; count-- )
+	{
+		chprintf(chp, "%u", *(data2++));
+
+		if( count > 0 ) //swap this back to count > 1 when real SPI stuff is added
+		{
+			chprintf(chp, ";");
+		}
+	}
+
+	uint32_t k = 16;
+	//Placeholder SPI -- replace this with real SPI values onces its working!
+	for (k ; k > 0; k--)
+	{
+		chprintf(chp, "0777");
+		if (k > 1)
+		{
+			chprintf(chp, ";");
+		}
+	}
+
+	chprintf(chp, "\r\n");
+	chBSemSignal( &mshell_sync_sem );
+}
+
+//NYI - need to play with SPI stuff
+void tsar_pack_spi( BaseSequentialStream * chp, char * name, uint16_t * data, uint32_t count)
+{
+	if(chp == NULL)
+	{
+		return;
+	}
+
+	chBSemWait( &mshell_sync_sem );
+
+	chprintf(chp, "U16:%s:", name);
+
+	for( ; count > 0; count-- )
+	{
+		chprintf(chp, "%u", *(data++));
+
+		if( count > 1 )
+		{
+			chprintf(chp, ",");
+		}
+	}
+	chprintf(chp, "\r\n");
+	chBSemSignal( &mshell_sync_sem );
+}
+
+//! @}

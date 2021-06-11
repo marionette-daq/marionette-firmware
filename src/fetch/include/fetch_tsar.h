@@ -27,6 +27,10 @@ void fetch_tsar_init(void);
 bool fetch_tsar_reset(BaseSequentialStream * chp);
 
 
+//Debugging / test function for SPI driver
+void fetch_tsar_test_cmd();
+
+
 
 
 

@@ -64,6 +64,11 @@ void util_message_hex_uint8_array( BaseSequentialStream * chp, char * name, uint
 void util_message_hex_uint16_array( BaseSequentialStream * chp, char * name, uint16_t * data, uint32_t count);
 void util_message_hex_uint32_array( BaseSequentialStream * chp, char * name, uint32_t * data, uint32_t count);
 
+//TSAR packet commands:
+void tsar_pack_adc( BaseSequentialStream * chp, char * name, uint16_t * data1, uint16_t * data2);
+void tsar_pack_spi( BaseSequentialStream * chp, char * name, uint16_t * data, uint32_t count);
+
+
 #ifdef __cplusplus
 }
 #endif
@@ -71,4 +76,3 @@ void util_message_hex_uint32_array( BaseSequentialStream * chp, char * name, uin
 #endif
 
 //! @}
-

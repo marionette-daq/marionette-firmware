@@ -380,8 +380,10 @@ TODO: Add SPI channels, confirm formatting
 
 bool fetch_tsar_pack_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[])
 {
+    /*
   FETCH_MAX_ARGS(chp, argc, 1);
   FETCH_MIN_ARGS(chp, argc, 1);
+*/
 
   int32_t dev;
   ADCDriver *adc_drv = parse_adc_dev(argv[0], &dev);
@@ -403,16 +405,16 @@ bool fetch_tsar_pack_cmd(BaseSequentialStream * chp, uint32_t argc, char * argv[
 
       adc2_conv_grp.circular = false;
       adcConvert( &ADCD2, &adc2_conv_grp, adc2_sample_buffer, FETCH_ADC_SAMPLE_DEPTH);
-      util_message_uint16_array(chp, "3F99,", adc2_sample_buffer, FETCH_ADC2_BUFFER_SIZE);
+      //util_message_uint16_array(chp, "3F99", adc2_sample_buffer, FETCH_ADC2_BUFFER_SIZE);
       adc3_conv_grp.circular = false;
 	  adcConvert( &ADCD3, &adc3_conv_grp, adc3_sample_buffer, FETCH_ADC_SAMPLE_DEPTH);
-      util_message_uint16_array(chp, "", adc3_sample_buffer, FETCH_ADC3_BUFFER_SIZE);
-
+      //util_message_uint16_array(chp, "", adc3_sample_buffer, FETCH_ADC3_BUFFER_SIZE);
+      tsar_pack_adc(chp, "3F99", adc2_sample_buffer, adc3_sample_buffer);
       /*
       SPI data goes here!
       */
 
-      util_message_uint16_array(chp, "\r", NULL , NULL ); //Terminating character - need to check syntax
+      //util_message_uint16_array(chp, "\r", NULL , NULL ); //Terminating character - need to check syntax
 
   return true;
 }
@@ -496,6 +498,52 @@ bool fetch_tsar_reset(BaseSequentialStream * chp)
 /*
 SPI related functions:
 */
+
+//SPI CONFIG STRUCTURE:
+const SPIConfig tsar_spicfg = {
+    FALSE,
+    NULL,
+    GPIOB,
+    12,
+    (SPI_CR1_BR_0 | SPI_CR1_BR_1 | SPI_CR1_BR_2),
+    0
+}
+
+void fetch_tsar_spi_test_cmd()
+{
+
+    //SPI Initalization stuff:
+
+    spiStart(&SPID2, &tsar_spicfg); //Starts the HAL Spi Driver in CHIBIOS
+
+    //Set the pinmaps:
+    //NCSS:
+    palSetPadMode(GPIOB, 12, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
+
+    //SCK:
+    palSetPadMode(GPIOB, 13, PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
+
+    //MISO:
+    palSetPadMode(GPIOB, 14, PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
+
+    //MOSI:
+    palSetPadMode(GPIOB, 15, PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
+
+    //Test message to send...:
+    uint16_t spi_msg = 0x0100; //Need to doublecheck the command word for the ADC!
+    uint16_t spi_rx_buf;
+
+    spiSelect(&SPID2);
+    spiExchange(&SPID2, sizeof(spi_msg), &spi_msg, &spi_rx_buf);
+    spiUnselect(&SPID2);
+    spiStop(&SPID2);
+
+    util_message_hex_uint8_array(chp, "Received from SPI:", spi_rx_buf, sizeof(spi_rx_buf));
+
+    return;
+
+}
+
 
 
 /*
